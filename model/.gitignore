@@ -1,0 +1,64 @@
+# Build artifacts
+*.o
+*.a
+*.so
+*.so.*
+*.dylib
+*.dll
+*.exe
+*.out
+*.elf
+
+# cpp_standalone_model's build.sh output -- extensionless executables, not
+# caught by any pattern above
+/cpp_standalone_model/check_test
+/cpp_standalone_model/sparc_standalone_sim
+
+# SCons
+.sconsign.dblite
+.sconf_temp/
+config.log
+
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg
+*.egg-info/
+dist/
+build/
+.eggs/
+*.whl
+.env
+.venv
+env/
+venv/
+
+# C/C++
+*.d
+*.i
+*.s
+*.su
+*.idb
+*.pdb
+*.ilk
+*.map
+*.exp
+*.lib
+
+# Editor/OS
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+*.bak
+
+# Generated docs
+site/
+
+# Logs
+*.log
