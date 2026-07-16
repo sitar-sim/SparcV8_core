@@ -1,0 +1,531 @@
+
+//---------------------------------------------------------------------------------------------------------------------------
+//Sparc state machine implemented as a procedure
+//---------------------------------------------------------------------------------------------------------------------------
+//Conventions:
+//
+//	Any software trap causes the Sparc core to go into ERROR mode and HALT.
+//	the core halts in the phase following one in which the error occurs.
+//
+//	*	software  trap 42 (ta 42) indicates end of program with SUCCESS      and sets flags SUCCESS = true  and HALT = true
+//	*	any other software trap indicates FAILURE/ERROR                      and sets flags SUCCESS = false and HALT = true
+//---------------------------------------------------------------------------------------------------------------------------
+
+
+procedure SparcThread
+
+	//interface
+	//-----------------------------------------------------
+
+	//status flags HALT and SUCCESS
+	decl
+	$
+	#define cache_line_size_on_host  64
+	typedef struct  __attribute__ ((aligned (cache_line_size_on_host))) {
+	bool VALUE;
+	char pad[cache_line_size_on_host - sizeof(bool)];
+	} PaddedBlock;
+
+	PaddedBlock HALT;
+	PaddedBlock SUCCESS;
+
+	$
+	init
+	$
+	HALT.VALUE = false;
+	SUCCESS.VALUE = false;
+	$
+
+	//processor and core ID for this core
+	//default IDs are 0,0
+	decl
+	$
+	uint32_t processorID;
+	uint32_t coreID;
+
+	void 		setProcessorID(unsigned int id)
+			{
+			          processorID=id;
+			          core.setProcessorID(id);
+
+			  ifetchThread.processorID	   =id;
+			 memReadThread.processorID	   =id;
+			memWriteThread.processorID	   =id;
+			atomicLoadStoreThread.processorID  =id;
+			     flushThread.processorID  =id;
+			};
+
+	unsigned int 	getProcessorID(){return processorID;};
+
+	void 		setCoreID(unsigned int id)
+			{
+			          coreID=id;
+			          core.setCoreID(id);
+
+			  ifetchThread.coreID = id;
+			 memReadThread.coreID = id;
+			memWriteThread.coreID = id;
+			atomicLoadStoreThread.coreID=id;
+			     flushThread.coreID=id;
+			};
+
+
+	unsigned int 	getCoreID(){return coreID;};
+	$
+	init $processorID=0;coreID=0;$
+	//------------------------------------------------------------
+
+
+
+
+	//procedures used for memory interfacing
+	procedure ifetchThread   : MemoryInterfaceThread  //should be linked to I cache OR main memory to model 0-delay ifetch
+	procedure memReadThread  : MemoryInterfaceThread  //should be linked to D cache
+	procedure memWriteThread : MemoryInterfaceThread  //should be linked to D cache
+	procedure atomicLoadStoreThread : MemoryInterfaceThread
+	procedure flushThread    : MemoryInterfaceThread  //conveys FLUSH to whatever is connected (a cache,
+	                                                   //once ported; a no-op today, in direct-interface mode)
+
+
+
+	//initialize memory interface procedures
+	init
+	$
+	ifetchThread.memoryAccessType   = MemoryInterfaceThread::IFETCH;
+	memReadThread.memoryAccessType  = MemoryInterfaceThread::LOAD;
+	memWriteThread.memoryAccessType = MemoryInterfaceThread::STORE;
+	atomicLoadStoreThread.memoryAccessType = MemoryInterfaceThread::ATOMIC_LS;
+	flushThread.memoryAccessType    = MemoryInterfaceThread::FLUSH;
+
+
+	ifetchThread.DIRECT_INTERFACE_TO_MEM   		= false;
+	memReadThread.DIRECT_INTERFACE_TO_MEM  		= false;
+	memWriteThread.DIRECT_INTERFACE_TO_MEM 		= false;
+	atomicLoadStoreThread.DIRECT_INTERFACE_TO_MEM 	= false;
+	flushThread.DIRECT_INTERFACE_TO_MEM 			= false;
+	$
+
+
+	include
+	$
+	#include"SparcCore.h"
+	$
+
+
+
+	//===============================================================================================================
+	// 					state machine for Sparc Core
+	//===============================================================================================================
+	behavior
+			decl
+			$
+			SparcCore 	core;
+			uint32_t 	instruction;
+			Opcode 		opcode;
+			bool		RESET_pin;
+			$;
+
+			//RESET_pin is used to cause external reset. By default, RESET_pin is always low.
+			//Processor starts in RESET state and immediately goes to EXECUTE state.
+			//To RESET processor at any time externally,  set RESET_pin to true
+
+			init
+			$
+			RESET_pin = 0;
+			core.state=SparcCore::RESET;
+			$;
+
+
+			do
+				//======================================================
+				//RESET
+				//======================================================
+				if(core.state==SparcCore::RESET)then
+					wait until (RESET_pin==0 and this_phase==0);
+					$
+					core.state=SparcCore::EXECUTE;
+					core.trap=1;
+					core.reset_trap=1;
+					$;
+					$log<<endl<<"Entering EXECUTE state from RESET state";$;
+				end if;
+
+
+				//======================================================
+				//ERROR
+				//======================================================
+				if(core.state==SparcCore::ERROR)then
+
+					//core enters ERROR state after any error or software trap occurs
+					//if software trap 42 has occured, SUCCESS=true else SUCCESS = false
+					//halt the thread.
+
+					wait until (this_phase==0);
+					$
+					if(core.trap_instruction==1 and core.ticc_trap_type==42)
+					{
+						SUCCESS.VALUE	= true;
+						HALT.VALUE	= true;
+					}
+					else
+					{
+						SUCCESS.VALUE	= false;
+						HALT.VALUE	= true;
+					};
+					std::stringstream ss;
+					ss<<"Sparc core "<<hierarchicalId()<<" halted at time "<<current_time<<" with ";
+					if(SUCCESS.VALUE) ss<<" SUCCESS "; else ss<<" FAILURE ";
+					log<<endl<<ss.str();
+					$;
+
+					//stop behavior of this procedure
+					wait(100,0);
+
+				end if;
+
+
+
+
+				//======================================================
+				//EXECUTE
+				//======================================================
+				if(core.state==SparcCore::EXECUTE)then
+					do
+						wait until (this_phase==0);
+
+						//if reset is asserted, exit the EXECUTE loop
+						if(RESET_pin==1) then
+							$core.state=SparcCore::RESET;$;
+							$log<<endl<<"Entering RESET state from EXECUTE state";$;
+						end if;
+
+
+
+						//check for traps
+						if(core.state==SparcCore::EXECUTE)then
+							$
+							//Check for external traps(on the processor pins)
+							//if traps are enabled and unmasked traps
+							//have occured, set trap=1
+							core.checkExternalTraps();
+							//Either the checking of processor pins in this
+							//cycle, or execution of the previous
+							//instruction might have caused a trap.
+							//if so, execute traps.
+							if(core.trap==1)
+							{
+								std::stringstream ss;
+								ss<<" Sparc core "<<hierarchicalId()<<" A TRAP occured of type ";
+								ss<<core.printTrap()<<" at time "<<current_time;
+								if(core.reset_trap!=1)
+								{
+									ss<<" for instruction :"<<printOpcode(opcode);
+									ss<<" at address      : 0x"<<std::hex<<ifetchThread.address<<std::dec;
+								}
+
+								log<<endl<<ss.str();
+
+								//only certain types of traps are currently supported.
+								//If these have occured, execute them.
+								//Else go to ERROR mode and HALT the core
+								if(	core.reset_trap         == 1 or\
+									core.window_overflow 	== 1 or\
+									core.window_underflow 	== 1)
+								{
+									core.executeTraps();
+								}
+								else
+								{
+									core.state = SparcCore::ERROR;
+								};
+
+							};
+							$;
+						end if;
+
+
+						if(core.state==SparcCore::EXECUTE)then
+							//Instruction fetch
+							$
+							//read instruction from the address formed by PC and addr_space
+							//and store the fetched instruction in core.reg.instruction.
+							//Set bit MAE if there was a memory access exception
+							if(core.reg.R_S() ==0)
+								ifetchThread.addr_space=8; //user-mode
+							else
+								ifetchThread.addr_space=9; //supervisor-mode
+							ifetchThread.address = core.reg.R_PC();
+							$;
+
+							//wait until instruction fetch finishes
+							run ifetchThread;
+
+
+
+							//examine the fetched instruction
+							$
+							//check for instruction access exception
+							if(  (ifetchThread.MAE == 1) && (core.annul == 0) )
+							{
+								core.trap=1;
+								core.instruction_access_exception=1;
+							}
+							$;
+
+							if(core.state==SparcCore::EXECUTE and core.trap==0) then
+								//decode and execute the current instruction
+								$
+								instruction=ifetchThread.instruction;
+								core.reg.W_instruction(instruction);
+								opcode=core.decoder.decode(&core.reg);
+
+								std::stringstream msg;
+								msg<<"Fetched Instruction: "<<printOpcode(opcode);
+								msg<<"; Instruction word: 0x";
+								msg<<std::hex<<instruction<<std::dec;
+								log<<endl<<msg.str();
+								$;
+
+
+								//Check if this instruction is to be anulled
+								if(core.annul==1) then
+									//Do not execute this instruction.
+									//just proceed to the next one.
+									$
+									core.annul=0;
+									core.reg.W_PC(core.reg.R_nPC()); //PC=nPC
+									core.reg.W_nPC(core.reg.R_nPC()+4); //nPC=nPC+4;
+									log<<endl<<"; This instruction is anulled";
+									$;
+								else
+									//this instruction is to be executed
+
+									//check for instruction-related exceptions
+									//such as Illegal or UNIMP instructions
+									$
+									core.checkInstructionException(opcode);
+									$;
+
+
+
+									if(core.state==SparcCore::EXECUTE and core.trap==0) then
+
+										//===========================
+										//Execute the instruction
+										//===========================
+										if(not(isMemoryInstruction(opcode))) then
+											//if not a memory instruction,
+											//execute it in one cycle
+											$
+											//Execute Instruction
+											core.executeInstruction(opcode);
+											//complete Floating point residual operations
+											if(core.trap==0 and (isFpop1Instruction(opcode)\
+											or isFpop2Instruction(opcode)) )
+											{
+												core.complete_fp_execution(opcode);
+											}
+											$;
+										else
+
+											//if this is a memory-instruction,
+											//execute it
+
+
+											//LOAD
+											if(isLoadInstruction(opcode)) then
+												//Calculate address and addr_space from the opcode
+												//and check for traps
+												$core.execute_PreLoad(opcode);$;
+
+												if(core.trap==0) then
+													//perform Read using memReadThread.
+													$
+													memReadThread.address=core.address;
+													memReadThread.addr_space=core.addr_space;
+
+													log<<endl<<"Creating a READ request";
+													$;
+
+													run memReadThread;
+
+													$
+													core.MAE=memReadThread.MAE;
+													core.readWord0=memReadThread.readWord0;
+													core.readWord1=memReadThread.readWord1;
+
+
+													std::stringstream msg;
+													msg<<" Read request serviced! Received data : ";
+													if(isDoubleLoadInstruction(opcode))
+													{
+														//print both words
+													       msg<<std::hex<<"0x"<<memReadThread.readWord0;
+													       msg<<"\t"<<"0x"<<memReadThread.readWord1<<std::dec;
+													}
+													else if (readBits(core.address, 2,2)==0)
+													{
+														//print even word
+													       msg<<std::hex<<"0x"<<memReadThread.readWord0<<std::dec;
+													}
+													else
+													{
+
+														//print odd word
+														msg<<std::hex<<"0x"<<memReadThread.readWord1<<std::dec;
+													}
+													log<<endl<<msg.str();
+
+
+													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
+													$;
+												end if;
+											end if;
+
+
+											//STORE
+											if(isStoreInstruction(opcode)) then
+													//calculate address from the opcode
+													//word0, word1, byte_mask
+													//check for traps
+													$
+													core.execute_PreStore(opcode);
+													$;
+
+													if(core.trap==0) then
+														//Write to memory using write thread
+														$
+														log<<endl<<"Creating a WRITE request";
+														memWriteThread.address	 	=core.address;
+														memWriteThread.addr_space	=core.addr_space;
+														memWriteThread.writeWord0       =core.writeWord0;
+														memWriteThread.writeWord1       =core.writeWord1;
+														memWriteThread.byte_mask 	=core.byte_mask;
+														$;
+
+														run memWriteThread;
+
+													end if;
+											end if;
+
+											//ATOMIC LOADS STORES
+											if(isLoadStoreAtomicInstruction(opcode)) then
+												//Calculate address and addr_space from the opcode
+												//and check for traps
+												$core.execute_PreAtomicLoadStore(opcode);$;
+
+												if(core.trap==0) then
+													//perform Read using atomicLoadStoreThread
+													$
+													atomicLoadStoreThread.address=core.address;
+													atomicLoadStoreThread.addr_space=core.addr_space;
+													atomicLoadStoreThread.writeWord0 = core.writeWord0;
+													atomicLoadStoreThread.writeWord1 = core.writeWord1;
+													atomicLoadStoreThread.byte_mask  = core.byte_mask;
+													$;
+
+													run atomicLoadStoreThread;
+
+													$
+													core.MAE=atomicLoadStoreThread.MAE;
+													core.readWord0=atomicLoadStoreThread.readWord0;
+													core.readWord1=atomicLoadStoreThread.readWord1;
+
+													std::stringstream msg;
+													msg<<" ATOMIC LOAD STORE request serviced! Received data: ";
+													uint32_t read_word =0;
+													if(readBits(core.address,2,2)==0)
+														read_word = atomicLoadStoreThread.readWord0;
+													else
+														read_word = atomicLoadStoreThread.readWord1;
+													msg<<"\t"<<std::hex<<read_word<<"\t"<<std::dec;
+													log<<endl<<msg.str();
+
+													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
+													$;
+												end if;
+											end if;
+
+
+											if(opcode==FLUSH) then
+												//Calculate address (Ref Appendix B.32); no traps are
+												//defined for FLUSH once implemented.
+												$core.execute_PreFlush(opcode);$;
+
+												//Convey the flush onward. In direct-interface mode
+												//(no cache connected) this is a no-op; once a cache is
+												//ported, flushThread's port-based branch is where the
+												//request gets forwarded to it.
+												$
+												flushThread.address=core.address;
+												flushThread.addr_space=core.addr_space;
+												$;
+
+												run flushThread;
+											end if;
+										end if;
+
+										// update PC and nPC if this is not a branch instruction
+										if(core.trap==0 and not(isBranchInstruction(opcode))) then
+											$
+											core.reg.W_PC(core.reg.R_nPC()); //PC=nPC
+											core.reg.W_nPC(core.reg.R_nPC()+4); //nPC=nPC+4;
+											$;
+										end if;
+									end if;
+								end if;
+							end if;
+
+
+
+						end if;
+
+
+
+						wait until (this_phase==1);
+
+					while (core.state==SparcCore::EXECUTE) end do;
+				end if;
+			while (1) end do;
+	end behavior
+	decl
+	$
+	std::string printInfo()
+	{
+
+		std::stringstream ss;
+
+		std::string status = (SUCCESS.VALUE==1)?"SUCCESS":"FAILURE";
+		ss<<"\n ----------------------------------------------------------";
+		ss<<"\n Processor "<<hierarchicalId()<<" halted with "<<status;
+		ss<<" last instruction executed :"<<printOpcode(opcode);
+		ss<<" at address      : 0x"<<std::hex<<ifetchThread.address<<std::dec;
+		ss<<"\n trap status = "<<core.trap;
+		ss<<"\n-----------------------------";
+		ss<<"\n\n Memory accesses:";
+		ss<<"\n-----------------------------";
+		ss<<"\n Instruction fetches:";
+		ss<<"\n\t total references = "<<ifetchThread.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(ifetchThread.totalLatency)/double(ifetchThread.numAccesses));
+		ss<<"\n";
+
+		ss<<"\n Mem READS:";
+		ss<<"\n\t total references = "<<memReadThread.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(memReadThread.totalLatency)/double(memReadThread.numAccesses));
+		ss<<"\n";
+
+		ss<<"\n Mem WRITES:";
+		ss<<"\n\t total references = "<<memWriteThread.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(memWriteThread.totalLatency)/double(memWriteThread.numAccesses));
+		ss<<"\n";
+
+		ss<<"\n Atomic Loads/Stores:";
+		ss<<"\n\t total references = "<<atomicLoadStoreThread.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(atomicLoadStoreThread.totalLatency)/double(atomicLoadStoreThread.numAccesses));
+		ss<<"\n";
+
+		return ss.str();
+
+	}
+	$
+end procedure
