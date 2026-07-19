@@ -9,10 +9,19 @@
 *.out
 *.elf
 
-# cpp_standalone_model's build.sh output -- extensionless executables, not
-# caught by any pattern above
-/cpp_standalone_model/check_test
-/cpp_standalone_model/sparc_standalone_sim
+# cpp_model's build.sh output -- extensionless executables, not caught by
+# any pattern above
+/cpp_model/check_test
+/cpp_model/sparc_cpp_sim
+
+# sitar_model's build.py output: build/ (translated .sitar->.cpp/.h,
+# regenerated from the tracked .sitar sources every build -- already
+# caught by the generic `build/` pattern below, listed here just for
+# discoverability) and its extensionless executable, not caught by any
+# pattern above
+/sitar_model/build/
+/sitar_model/executable/sitar_check_test
+/sitar_model/sitar_scons_config.txt
 
 # SCons
 .sconsign.dblite

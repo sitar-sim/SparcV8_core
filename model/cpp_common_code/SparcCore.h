@@ -129,7 +129,7 @@ class SparcCore
 		void execute_PostAtomicLoadStore(Opcode op, uint32_t rWord0, uint32_t rWord1);
 
 		void execute_PreFlush(Opcode op);//calc address (Ref Appendix B.32); no traps
-				//are defined for FLUSH once implemented. The driver (Runner.cpp /
+				//are defined for FLUSH once implemented. The driver (SparcStateMachine.cpp /
 				//SparcThread.sitar) is responsible for conveying the flush to
 				//memory/cache -- SparcCore itself has no memory interface.
 

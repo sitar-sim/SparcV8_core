@@ -1,29 +1,24 @@
-//check_test.cpp
+//sitar_check_test.cpp
+//Author: Neha Karanjkar
 //
-//Loads a memory image, runs it via Runner until it halts (or a cycle limit
-//is reached), then checks final register/memory state against an
-//"expected results" file and prints PASS/FAIL per check plus an overall
-//verdict for the test as a whole.
+//Sitar-driven counterpart to model/cpp_model/check_test.cpp -- same job
+//(load a hex-dump memory image, run to halt or a cycle limit, check final
+//register/memory state against an expected-results file, print PASS/FAIL
+//per check and an OVERALL verdict), but drives the actual Sitar
+//Top/Core/SparcThread model instead of the standalone C++
+//SparcStateMachine. This is the `-m` custom main file for `sitar compile`
+//-- see build.py.
 //
-//The expected-results file is a normalized format produced by
-//validation/run_tests.py from a test's .vprj RESULTS block:
+//Kept as a near-duplicate of check_test.cpp (same CLI, same expected-file
+//format, same output format) rather than a shared library, so that
+//validation/run_tests.py can point at either binary interchangeably (see
+//its --sitar flag) with zero changes to the test-comparison logic itself.
 //
-//    REG <name> <hex_value>
-//    MEM <hex_addr> <hex_value> <hex_mask>
-//
-//Register names: g1-g7, o0-o7, l0-l7, i0-i7 (windowed integer registers),
-//f0-f31 (floating point), psr, fpsr, y, wim, tbr, pc, npc, asr0-asr31.
-//MEM checks read a whole word at <hex_addr> (word-aligned) and compare
-//(word & mask) against (value & mask) -- this is how partial-word
-//store/atomic checks (byte/halfword masks) are expressed.
-//
-//Exit code: 0 if the core halted and every check passed, 1 otherwise.
-//
-//Usage: check_test <hex_file> <expected_file> [max_cycles]
+//Usage: sitar_check_test <hex_file> <expected_file> [max_cycles]
 
-#include "SparcCore.h"
-#include "MemCore.h"
-#include "Runner.h"
+#include "Top.h"
+#include "Registers.h"
+#include "sitar_logger.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -31,8 +26,24 @@
 #include <cctype>
 #include <cstdlib>
 
+#ifdef SITAR_ENABLE_LOGGING
+//Recursively points every submodule/procedure's log stream at `stream`.
+//Only needed when build.py is run with --logging (off by default, since
+//normal check_test runs don't want per-cycle trace noise); identical to
+//the helper of the same name in sitar_default_main.cpp.
+static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
+{
+	m->log.setOstream(stream);
+	for (auto it = m->_submodules.begin(); it != m->_submodules.end(); ++it)
+		setHierarchicalOstream(it->second, stream);
+	for (auto it = m->_procedures.begin(); it != m->_procedures.end(); ++it)
+		setHierarchicalOstream(it->second, stream);
+}
+#endif
+
 //Maps a RESULTS-block register mnemonic to its value in the current window.
-//Returns false if the name isn't recognized.
+//Returns false if the name isn't recognized. (Identical to check_test.cpp's
+//copy -- Registers.h is the same shared cpp_common_code either way.)
 static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& value)
 {
 	if (name.size() >= 2 && (name[0] == 'g' || name[0] == 'o' || name[0] == 'l' || name[0] == 'i')
@@ -83,16 +94,31 @@ int main(int argc, char** argv)
 	std::string   expectedFile = argv[2];
 	unsigned long maxCycles    = (argc >= 4) ? std::strtoul(argv[3], NULL, 10) : 1000000UL;
 
-	MemCore mem;
-	mem.initializeMemory(hexFile);
+	using namespace sitar;
 
-	SparcCore core;
-	core.memCore = &mem;
+	Top* TOP = new Top;
+	TOP->setInstanceId("TOP");
+	TOP->setHierarchicalId("");
 
-	Runner runner(core, mem);
-	runner.run(maxCycles);
+#ifdef SITAR_ENABLE_LOGGING
+	logger::default_logstream = &std::cerr;   //stderr: keeps PASS/FAIL/OVERALL on stdout parseable
+	setHierarchicalOstream(TOP, logger::default_logstream);
+#endif
 
-	if (!runner.halted)
+	TOP->core.mainMemory.mem.initializeMemory(hexFile);
+
+	//run for up to maxCycles cycles (Sitar counts phases, 2 per cycle),
+	//or until the model itself calls `stop simulation` (Core.sitar does
+	//this once sparcThread halts).
+	uint64_t simulation_time;
+	for (simulation_time = 0; simulation_time < (uint64_t)maxCycles * 2; simulation_time++)
+	{
+		TOP->runHierarchical(simulation_time);
+		if (sitar::simulation_stopped())
+			break;
+	}
+
+	if (!TOP->core.sparcThread.HALT.VALUE)
 	{
 		std::cout << "FAIL: core did not halt within " << maxCycles << " cycles\n";
 		std::cout << "OVERALL: FAIL (0 checks)\n";
@@ -105,6 +131,8 @@ int main(int argc, char** argv)
 		std::cerr << "ERROR: could not open expected-results file: " << expectedFile << "\n";
 		return 1;
 	}
+
+	Registers& reg = TOP->core.sparcThread.core.reg;
 
 	bool allPass    = true;
 	int  numChecks  = 0;
@@ -126,7 +154,7 @@ int main(int argc, char** argv)
 			ss >> name >> std::hex >> expected >> mask;
 
 			uint32_t actual;
-			if (!getRegisterValue(core.reg, name, actual))
+			if (!getRegisterValue(reg, name, actual))
 			{
 				std::cout << "FAIL: unrecognized register '" << name << "'\n";
 				allPass = false;
@@ -150,7 +178,7 @@ int main(int argc, char** argv)
 			ss >> std::hex >> addr >> expected >> mask;
 
 			uint32_t alignedAddr = addr & (~0x3u);
-			uint32_t word        = mem.readWord(alignedAddr);
+			uint32_t word        = TOP->core.mainMemory.mem.readWord(alignedAddr);
 			numChecks++;
 			if ((word & mask) == (expected & mask))
 			{

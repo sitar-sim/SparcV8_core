@@ -3,18 +3,18 @@
 //Standalone entry point for functional testing of the SparcCore
 //model. Loads a hex-dump memory image (see MemCore::initializeMemory) into a
 //flat MemCore, runs it to completion (or until a cycle limit is reached) via
-//Runner, then prints a register dump and how/whether it halted.
+//SparcStateMachine, then prints a register dump and how/whether it halted.
 //
 //This tool does not decide pass/fail -- it just runs a memory image and
 //shows you the final state, for quick ad hoc use. A real test's pass/fail
 //verdict comes from comparing final register/memory state against that
 //test's expected results (see check_test.cpp and validation/run_tests.py).
 //
-//Usage: sparc_standalone_sim <hex_dump_file> [max_cycles]
+//Usage: sparc_cpp_sim <hex_dump_file> [max_cycles]
 
 #include "SparcCore.h"
 #include "MemCore.h"
-#include "Runner.h"
+#include "SparcStateMachine.h"
 #include <iostream>
 #include <cstdlib>
 #include <string>
@@ -36,7 +36,7 @@ int main(int argc, char** argv)
 	SparcCore core;
 	core.memCore = &mem; //used by SparcCore::instructionFetch()
 
-	Runner runner(core, mem);
+	SparcStateMachine runner(core, mem);
 	runner.run(maxCycles);
 
 	std::cout << "\n" << core.printSparcRegisters() << "\n";
