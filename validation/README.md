@@ -29,7 +29,7 @@ project's functional-only validation.
 `int2fp/fitoq.s`, `fpConverts/f{s,d,q}to{s,d,q}.s` quad variants) are this
 project's own tests, not adapted from AJIT.** AJIT's own suite assumes quad
 ops are unimplemented (its `unimplemented/` category expects them to trap);
-this project implements them for real (see `model/cpp_code/FloatingPointFunctions.h`),
+this project implements them for real (see `model/cpp_common_code/FloatingPointFunctions.h`),
 so those AJIT tests don't apply here and were replaced with tests that check
 this project's actual quad-precision behavior instead, including the
 `FCMPq`/`FCMPEq` signaling-vs-quiet-NaN distinction and invalid/overflow/
@@ -68,7 +68,7 @@ The pipeline is split into two phases, so that running the existing tests
 never requires a cross-compiler to be installed:
 
 ```
-model/cpp_standalone_model/build.sh   # build check_test (and the standalone sim), once
+model/cpp_model/build.sh              # build check_test (and sparc_cpp_sim), once
 validation/run_tests.py <root_folder> [--max-cycles N] [-v]
 ```
 
@@ -77,6 +77,15 @@ validation/run_tests.py <root_folder> [--max-cycles N] [-v]
 git**, specifically so that someone who only wants to run the existing
 suite against a modified model doesn't need `compiler/`'s sparc-elf
 toolchain installed at all.
+
+Pass `--sitar` to instead run the same suite against the actual Sitar
+Top/Core/SparcThread model (see `model/sitar_model/build.py` to build it)
+rather than the plain C++ core:
+
+```
+model/sitar_model/build.py            # requires the sitar CLI on PATH, once
+validation/run_tests.py <root_folder> --sitar
+```
 
 If you add a new test or edit an existing `.s` source, its `.hex` is now
 stale (or missing) and needs to be regenerated -- that's phase 1, and it

@@ -6,7 +6,7 @@ Reads GNU readelf --hex-dump output (as produced for one or more ELF
 sections, e.g. `readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data`)
 on stdin, and writes a cleaned-up memory image on stdout in the
 "<hex address> <word> <word> <word> <word>" format expected by
-MemCore::initializeMemory() (see model/cpp_code/MemCore.cpp).
+MemCore::initializeMemory() (see model/cpp_common_code/MemCore.cpp).
 
 readelf always emits up to 4 words per line, but a section's length need
 not be a multiple of 16 bytes, so the last line of a section may have

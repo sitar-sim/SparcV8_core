@@ -90,7 +90,7 @@ SparcCore::SparcCore()
 // instruction it encounters.
 //
 // The top-level fetch-decode-execute sequencing now lives in driver code outside
-// this file (e.g. model/cpp_standalone_model/Runner.cpp, for zero-latency
+// this file (e.g. model/cpp_model/SparcStateMachine.cpp, for zero-latency
 // functional testing). Such drivers call SparcCore's methods (instructionFetch,
 // decoder.decode, checkInstructionException, dispatch_instruction/executeInstruction,
 // execute_Pre/PostLoad, execute_Pre/PostStore, execute_Pre/PostAtomicLoadStore,
@@ -2032,9 +2032,9 @@ void SparcCore::execute_PreFlush(Opcode op)
 	//implementation that does not support FLUSH at all.
 	//
 	//This only computes the address; SparcCore has no memory/cache interface
-	//of its own. The driver (Runner.cpp for the standalone model,
+	//of its own. The driver (SparcStateMachine.cpp for the standalone model,
 	//SparcThread.sitar for the timed model) is responsible for conveying the
-	//flush onward -- see MemoryInterfaceThread's FLUSH access type.
+	//flush onward -- see MemoryInterface's FLUSH access type.
 	uint32_t operand1 = reg.R_r(reg.R_rs1());
 	uint32_t operand2;
 	if (reg.R_i() == 0)

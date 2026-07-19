@@ -1,0 +1,196 @@
+
+//================================================================
+// procedure MainMemory
+// Author: Neha Karanjkar
+//
+// A persistent memory model. Unlike MemoryInterface (a "function-style"
+// procedure, `run` fresh for every access and returning once that one
+// access completes), MainMemory is entered ONCE via `run` as a branch of
+// a parallel block alongside SparcThread -- see Core.sitar:
+// "[ run sparcThread; ... || run mainMemory; ]" -- and stays alive for
+// the rest of the simulation, servicing requests in an internal loop.
+//
+// Talks to exactly one requester through one MemAccessInterface object
+// (see MemAccessInterface.h for the full handshake protocol; this
+// procedure implements the responder's half of it: wait for a request,
+// service it, publish the response, wait for it to be consumed). Because
+// both sides are procedures running as branches of the same parallel
+// block -- not modules connected by nets -- this handshake can complete
+// within a single phase, i.e. with 0 added cycles, exactly like
+// PipelinedProcessor's inter-stage handshake in the sitar repo's
+// examples. If more than one requester ever needs to reach this same
+// memory (e.g. before ifetch and load/store are split onto separate
+// caches), point their MemoryInterface.interface pointers at one shared
+// MemAccessInterface instance -- only one is ever in flight at a time
+// under SparcThread's current, strictly sequential FSM.
+//
+// Owns the actual storage (`mem`, a MemCore) directly -- this is where a
+// test's hex-dump memory image gets loaded, via mem.initializeMemory().
+// All accesses are double word accesses; addresses must be double word
+// aligned; writes/atomics use a byte mask to update a subset of bytes
+// within the double word.
+//================================================================
+
+procedure MainMemory
+
+	include
+	$
+	#include"MemCore.h"
+	#include"MemAccessInterface.h"
+	#include"BitManipulation.h"
+	$
+
+	decl
+	$
+	MemCore mem;                     //the actual memory storage
+	MemAccessInterface* interface;   //set by parent module's init
+	$
+	init
+	$
+	interface = NULL;
+	$
+
+	//--------------------------------------------------------
+	//Access latency: how many cycles it takes this memory itself to
+	//service a request, i.e. between accepting it and publishing the
+	//response. Default 0.
+	//
+	//This is a distinct knob from MemoryInterface.delay (which models
+	//latency on the requester's side of the connection, e.g. an
+	//interconnect) -- the two are independent and additive, e.g. a LOAD
+	//with MainMemory.delay=3 and MemoryInterface.delay=2 takes 5 extra
+	//cycles total, not 3.
+	//--------------------------------------------------------
+	decl$uint32_t delay;$
+	init$delay = 0;$
+	//--------------------------------------------------------
+
+	//--------------------------------------------------------
+	//Behavior
+	//--------------------------------------------------------
+	behavior
+
+	//check that the parent module wired us up correctly before entering
+	//the service loop
+	$assert(interface);$;
+
+	do
+		wait until (this_phase==0 and $interface->request_valid$);
+
+		$
+		log<<endl<<"[t="<<current_time<<"] MainMemory: servicing "<<accessTypeToString(interface->access_type)
+		   <<" request for address 0x"<<std::hex<<interface->address<<std::dec;
+
+		if(interface->access_type==MemAccessType::IFETCH)
+		{
+			uint32_t word_aligned_address = interface->address & (~0x3);
+			interface->instruction = mem.readWord(word_aligned_address);
+		}
+		else if(interface->access_type == MemAccessType::LOAD)
+		{
+			uint32_t doubleword_aligned_address = interface->address & (~0x7);
+			interface->readWord0 = mem.readWord(doubleword_aligned_address);
+			interface->readWord1 = mem.readWord(doubleword_aligned_address + 4);
+		}
+		else if(interface->access_type == MemAccessType::STORE)
+		{
+			uint32_t doubleword_aligned_address = interface->address & (~0x7);
+			//read the existing double word
+			uint32_t existing0 = mem.readWord(doubleword_aligned_address);
+			uint32_t existing1 = mem.readWord(doubleword_aligned_address + 4);
+
+			//modify those bytes for which the byte mask bit is set
+			//word0:
+			for(unsigned int i=0;i<=3;i++)
+			{
+				bool mask_bit = readBits(interface->byte_mask, i, i);
+				if(mask_bit)
+				{
+					uint32_t byte_val = readBits(interface->writeWord0,(8*(i+1)-1),8*i);
+					writeBits(existing0,(8*(i+1)-1),8*i , byte_val);
+				};
+			};
+			//word1:
+			for(unsigned int i=0;i<=3;i++)
+			{
+				bool mask_bit = readBits(interface->byte_mask, 4+i, 4+i);
+				if(mask_bit)
+				{
+					uint32_t byte_val = readBits(interface->writeWord1,(8*(i+1)-1),8*i);
+					writeBits(existing1,(8*(i+1)-1),8*i , byte_val);
+				};
+			};
+
+			//write back the modified doubleword
+			mem.writeWord(doubleword_aligned_address, existing0);
+			mem.writeWord(doubleword_aligned_address + 4, existing1);
+		}
+		else if(interface->access_type == MemAccessType::ATOMIC_LS)
+		{
+			uint32_t doubleword_aligned_address = interface->address & (~0x7);
+			//read the existing double word
+			interface->readWord0 = mem.readWord(doubleword_aligned_address);
+			interface->readWord1 = mem.readWord(doubleword_aligned_address + 4);
+
+			//make copies for modification
+			uint32_t modified0 = interface->readWord0;
+			uint32_t modified1 = interface->readWord1;
+
+			//write those bytes for which the byte mask bit is set
+			//word0:
+			for(unsigned int i=0;i<=3;i++)
+			{
+				bool mask_bit = readBits(interface->byte_mask, i, i);
+				if(mask_bit)
+				{
+					uint32_t byte_val = readBits(interface->writeWord0,(8*(i+1)-1),8*i);
+					writeBits(modified0,(8*(i+1)-1),8*i , byte_val);
+				};
+			};
+			//word1:
+			for(unsigned int i=0;i<=3;i++)
+			{
+				bool mask_bit = readBits(interface->byte_mask, 4+i, 4+i);
+				if(mask_bit)
+				{
+					uint32_t byte_val = readBits(interface->writeWord1,(8*(i+1)-1),8*i);
+					writeBits(modified1,(8*(i+1)-1),8*i , byte_val);
+				};
+			};
+
+			//write back the modified doubleword
+			mem.writeWord(doubleword_aligned_address, modified0);
+			mem.writeWord(doubleword_aligned_address + 4, modified1);
+		}
+		else if(interface->access_type == MemAccessType::FLUSH)
+		{
+			//MemCore is a flat array with no instruction cache to
+			//invalidate, so there is nothing further to do here. Once a
+			//real cache stands in for MainMemory on the ifetch channel,
+			//this is where it would invalidate the relevant line.
+		}
+
+		interface->MAE = false;   //flat memory model: accesses never fault
+		$;
+
+		//model this memory's own service latency (default 0 -- see
+		//`delay` above) before the response becomes visible
+		if ($delay > 0$) then
+			wait(delay, 0);
+		end if;
+
+		$
+		interface->response_valid = true;
+		log<<endl<<"[t="<<current_time<<"] MainMemory: response ready for "<<accessTypeToString(interface->access_type)
+		   <<" request for address 0x"<<std::hex<<interface->address<<std::dec;
+		$;
+
+		//wait for the requester to consume the response and close the
+		//transaction (see MemAccessInterface.h step 3) before servicing
+		//the next one
+		wait until (this_phase==0 and not($interface->response_valid$));
+
+	while(1) end do;
+
+	end behavior
+end procedure

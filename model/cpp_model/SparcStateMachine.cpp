@@ -1,16 +1,16 @@
-//Runner.cpp
+//SparcStateMachine.cpp
 
-#include "Runner.h"
+#include "SparcStateMachine.h"
 #include <cassert>
 
-Runner::Runner(SparcCore& core_, MemCore& mem_)
+SparcStateMachine::SparcStateMachine(SparcCore& core_, MemCore& mem_)
 	: core(core_), mem(mem_)
 {
 	halted         = false;
 	cyclesExecuted = 0;
 }
 
-bool Runner::run(unsigned long maxCycles)
+bool SparcStateMachine::run(unsigned long maxCycles)
 {
 	while (!halted && cyclesExecuted < maxCycles)
 	{
@@ -20,7 +20,7 @@ bool Runner::run(unsigned long maxCycles)
 	return halted;
 }
 
-void Runner::runOneCycle()
+void SparcStateMachine::runOneCycle()
 {
 	//-------------------------------------------------------------------
 	//RESET state (Ref Section C.5, Appendix C of the SPARC V8 manual)
@@ -70,7 +70,7 @@ void Runner::runOneCycle()
 
 	//-------------------------------------------------------------------
 	//Instruction fetch (Ref Section C.5). Uses core.memCore, which must
-	//have been pointed at this Runner's MemCore instance beforehand.
+	//have been pointed at this SparcStateMachine's MemCore instance beforehand.
 	//-------------------------------------------------------------------
 	core.instructionFetch();
 	if (core.MAE)
@@ -113,7 +113,7 @@ void Runner::runOneCycle()
 	}
 }
 
-void Runner::executeCurrentInstruction(Opcode op)
+void SparcStateMachine::executeCurrentInstruction(Opcode op)
 {
 	//Memory instructions are not dispatched through SparcCore::executeInstruction()
 	//-- it has no memory-access logic of its own (see the note above the

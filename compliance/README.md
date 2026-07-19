@@ -84,7 +84,7 @@ Our own implementation computes this by bracketing each single/double-
 precision FP operation with the host CPU's own IEEE-754 exception flags
 (`feclearexcept`/`fetestexcept` in `<cfenv>`) rather than reimplementing IEEE
 754 rounding/exception rules by hand -- see the file-level comment in
-`model/cpp_code/FloatingPointFunctions.h` for the full rationale. We
+`model/cpp_common_code/FloatingPointFunctions.h` for the full rationale. We
 independently double-checked the specific case below directly against the
 host FPU outside of our simulator, get the same answer, and it matches
 standard IEEE-754 double-precision arithmetic, so we're fairly confident this
@@ -280,7 +280,7 @@ whose entire premise is that executing any of these instructions traps
 (`fp_exception` with `FSR.ftt = unimplemented_FPop`) rather than computing a
 result.
 
-This project implements quad precision for real (see `model/cpp_code/FloatingPointFunctions.h`
+This project implements quad precision for real (see `model/cpp_common_code/FloatingPointFunctions.h`
 and the top-level `README.md`'s Acknowledgments section), so none of these
 14 instructions trap in our model -- each one actually executes and produces
 a genuine IEEE-754 quad-precision result. Copied here (unmodified) are all

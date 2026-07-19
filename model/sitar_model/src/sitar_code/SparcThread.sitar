@@ -1,15 +1,23 @@
 
-//---------------------------------------------------------------------------------------------------------------------------
-//Sparc state machine implemented as a procedure
-//---------------------------------------------------------------------------------------------------------------------------
-//Conventions:
+//================================================================
+// procedure SparcThread
+// Author: Neha Karanjkar
+//
+// The SPARC V8 fetch-decode-execute-trap state machine (Ref Appendix
+// C.5), implemented as a procedure. Drives a SparcCore instance (the
+// timing-agnostic ISA/state library, see cpp_common_code/SparcCore.h)
+// through RESET/EXECUTE/ERROR, dispatching to it every cycle; owns 5
+// MemoryInterface instances (ifetch/read/write/atomic/flush) that carry
+// out the actual memory-referencing side of each instruction.
+//
+// Conventions:
 //
 //	Any software trap causes the Sparc core to go into ERROR mode and HALT.
 //	the core halts in the phase following one in which the error occurs.
 //
 //	*	software  trap 42 (ta 42) indicates end of program with SUCCESS      and sets flags SUCCESS = true  and HALT = true
 //	*	any other software trap indicates FAILURE/ERROR                      and sets flags SUCCESS = false and HALT = true
-//---------------------------------------------------------------------------------------------------------------------------
+//================================================================
 
 
 procedure SparcThread
@@ -78,37 +86,40 @@ procedure SparcThread
 
 
 
-	//procedures used for memory interfacing
-	procedure ifetchThread   : MemoryInterfaceThread  //should be linked to I cache OR main memory to model 0-delay ifetch
-	procedure memReadThread  : MemoryInterfaceThread  //should be linked to D cache
-	procedure memWriteThread : MemoryInterfaceThread  //should be linked to D cache
-	procedure atomicLoadStoreThread : MemoryInterfaceThread
-	procedure flushThread    : MemoryInterfaceThread  //conveys FLUSH to whatever is connected (a cache,
-	                                                   //once ported; a no-op today, in direct-interface mode)
-
+	//procedures used for memory interfacing.
+	//
+	//These are deliberately Sitar *procedures* (called synchronously via
+	//`run`), not modules connected by ports/nets: a procedure call can
+	//complete within the same cycle it started (0-delay), whereas a
+	//module-to-module net enforces Sitar's minimum 1-cycle latency on
+	//every hop. Any latency for these memory references is instead
+	//modeled explicitly, as an actual `wait`, inside MemoryInterface
+	//itself (see its `delay` parameter) -- not as an incidental side
+	//effect of the connection style. Keep it this way even as caches are
+	//added later: give MemoryInterface a nonzero delay rather than
+	//switching these to modules/ports.
+	procedure ifetchThread   : MemoryInterface  //should be linked to I cache OR main memory to model 0-delay ifetch
+	procedure memReadThread  : MemoryInterface  //should be linked to D cache
+	procedure memWriteThread : MemoryInterface  //should be linked to D cache
+	procedure atomicLoadStoreThread : MemoryInterface
+	procedure flushThread    : MemoryInterface  //conveys FLUSH to whatever is connected (a cache/memory etc)
 
 
 	//initialize memory interface procedures
 	init
 	$
-	ifetchThread.memoryAccessType   = MemoryInterfaceThread::IFETCH;
-	memReadThread.memoryAccessType  = MemoryInterfaceThread::LOAD;
-	memWriteThread.memoryAccessType = MemoryInterfaceThread::STORE;
-	atomicLoadStoreThread.memoryAccessType = MemoryInterfaceThread::ATOMIC_LS;
-	flushThread.memoryAccessType    = MemoryInterfaceThread::FLUSH;
-
-
-	ifetchThread.DIRECT_INTERFACE_TO_MEM   		= false;
-	memReadThread.DIRECT_INTERFACE_TO_MEM  		= false;
-	memWriteThread.DIRECT_INTERFACE_TO_MEM 		= false;
-	atomicLoadStoreThread.DIRECT_INTERFACE_TO_MEM 	= false;
-	flushThread.DIRECT_INTERFACE_TO_MEM 			= false;
+	ifetchThread.memoryAccessType   = MemAccessType::IFETCH;
+	memReadThread.memoryAccessType  = MemAccessType::LOAD;
+	memWriteThread.memoryAccessType = MemAccessType::STORE;
+	atomicLoadStoreThread.memoryAccessType = MemAccessType::ATOMIC_LS;
+	flushThread.memoryAccessType    = MemAccessType::FLUSH;
 	$
 
 
 	include
 	$
 	#include"SparcCore.h"
+	#include"OpcodeLatencies.h"
 	$
 
 
@@ -123,6 +134,7 @@ procedure SparcThread
 			uint32_t 	instruction;
 			Opcode 		opcode;
 			bool		RESET_pin;
+			uint32_t	opcode_delay;	//per-instruction latency, from OpcodeLatencies.h
 			$;
 
 			//RESET_pin is used to cause external reset. By default, RESET_pin is always low.
@@ -189,10 +201,13 @@ procedure SparcThread
 				//======================================================
 				//EXECUTE
 				//======================================================
+				//Each iteration: fetch-decode-execute one instruction, then
+				//wait(opcode_delay, 0) -- no phase bracketing needed, since
+				//wait(c, 0) never changes phase, and we enter this loop at
+				//phase 0 (guaranteed by the RESET state above), so every
+				//iteration stays at phase 0 by construction.
 				if(core.state==SparcCore::EXECUTE)then
 					do
-						wait until (this_phase==0);
-
 						//if reset is asserted, exit the EXECUTE loop
 						if(RESET_pin==1) then
 							$core.state=SparcCore::RESET;$;
@@ -225,19 +240,16 @@ procedure SparcThread
 
 								log<<endl<<ss.str();
 
-								//only certain types of traps are currently supported.
-								//If these have occured, execute them.
-								//Else go to ERROR mode and HALT the core
-								if(	core.reset_trap         == 1 or\
-									core.window_overflow 	== 1 or\
-									core.window_underflow 	== 1)
-								{
-									core.executeTraps();
-								}
-								else
-								{
-									core.state = SparcCore::ERROR;
-								};
+								//Ref Section C.5: "if (trap = 1) then execute_trap;" --
+								//unconditional, every trap is dispatched the same way;
+								//there is no special-casing by trap type here.
+								//executeTraps() (Ref Section C.8, select_trap) decides
+								//internally whether to enter error_mode itself (only
+								//when traps are disabled, ET==0, so there is no handler
+								//left to jump to) or dispatch normally to the trap
+								//table -- so core.state is only checked *after* the call,
+								//never decided here beforehand.
+								core.executeTraps();
 
 							};
 							$;
@@ -280,7 +292,7 @@ procedure SparcThread
 								opcode=core.decoder.decode(&core.reg);
 
 								std::stringstream msg;
-								msg<<"Fetched Instruction: "<<printOpcode(opcode);
+								msg<<"[t="<<current_time<<"] Fetched Instruction: "<<printOpcode(opcode);
 								msg<<"; Instruction word: 0x";
 								msg<<std::hex<<instruction<<std::dec;
 								log<<endl<<msg.str();
@@ -473,17 +485,19 @@ procedure SparcThread
 											$;
 										end if;
 									end if;
+
+									//Opcode-wise per-instruction latency (see OpcodeLatencies.h),
+									//charged whether this instruction was executed or annulled.
+									//For a memory instruction, the effective total latency is the
+									//sum of this, MemoryInterface.delay, and MainMemory.delay.
+									$opcode_delay = getOpcodeLatency(opcode);$;
+									wait(opcode_delay, 0);
 								end if;
 							end if;
 
 
 
 						end if;
-
-
-
-						wait until (this_phase==1);
-
 					while (core.state==SparcCore::EXECUTE) end do;
 				end if;
 			while (1) end do;

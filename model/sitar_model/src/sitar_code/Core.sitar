@@ -1,0 +1,71 @@
+
+//================================================================
+// module Core
+// Author: Neha Karanjkar
+//
+// Wrapper module for the SPARC V8 core: assembles SparcThread (the state
+// machine, plus its 5 memory-interface threads) together with a single
+// MainMemory instance.
+//
+// sparcThread and mainMemory run as two branches of one parallel block
+// (not two modules connected by ports/nets), so their handshake over the
+// shared MemAccessInterface object below can complete within a single
+// phase -- see MainMemory.sitar and MemoryInterface.sitar's file-level
+// comments. All 5 of SparcThread's memory-interface threads share the
+// one MemAccessInterface instance and therefore the one MainMemory --
+// safe because SparcThread's FSM only ever has one memory access in
+// flight at a time (see TODO.md for the split-I/D-cache testbench this
+// is expected to still support later, by pointing individual interface
+// threads at separate MainMemory-like procedures instead).
+//================================================================
+
+module Core
+
+	include
+	$
+	#include "SparcCore.h"
+	#include "MemAccessInterface.h"
+	$
+
+	//Sparc Thread (contains the state machine and memory interface threads)
+	procedure sparcThread : SparcThread
+
+	//The memory this core's 5 memory-interface threads all share.
+	procedure mainMemory : MainMemory
+
+	//Shared request/response state connecting all 5 of sparcThread's
+	//memory-interface threads to mainMemory (see MemAccessInterface.h).
+	decl $MemAccessInterface memInterface;$
+
+	init
+	$
+	sparcThread.ifetchThread.interface          = &memInterface;
+	sparcThread.memReadThread.interface         = &memInterface;
+	sparcThread.memWriteThread.interface        = &memInterface;
+	sparcThread.atomicLoadStoreThread.interface = &memInterface;
+	sparcThread.flushThread.interface           = &memInterface;
+
+	mainMemory.interface = &memInterface;
+	$
+
+
+	behavior
+		[
+			run sparcThread;
+
+			// When sparcThread terminates, the core has halted.
+			// Print summary info.
+			$
+			log<<endl<<"Core halted.";
+			log<<endl<<sparcThread.printInfo();
+			$;
+
+			stop simulation;
+		||
+			// mainMemory is persistent -- this branch runs for the whole
+			// simulation, servicing requests until the `stop simulation`
+			// above ends things regardless of where this branch is.
+			run mainMemory;
+		]
+	end behavior
+end module
