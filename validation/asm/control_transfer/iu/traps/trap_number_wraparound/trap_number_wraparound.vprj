@@ -1,0 +1,6 @@
+SOURCES = trap_number_wraparound.s
+
+
+
+RESULTS =
+g1 = 0x00000090

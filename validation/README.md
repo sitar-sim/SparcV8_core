@@ -1,10 +1,15 @@
 # validation/
 
 Functional validation suite for the SPARC V8 core model. No timing/pipeline
-tests here -- these check instruction-level (and, later, C-level and
-benchmark-level) functional correctness only.
+tests here -- these check functional correctness only, at two levels:
 
-## instruction_tests/
+- **`asm/`** -- hand-written, opcode-level assembly tests. See below.
+- **`C/`** -- bare-metal C tests (no stdlib/libc -- freestanding, no OS to
+  call into) that exercise sequences of instructions together (e.g. matrix
+  multiply, compound data types), rather than one opcode at a time. Not yet
+  populated.
+
+## asm/
 
 223 opcode-level assembly tests (as `<TEST>.s` + `<TEST>.vprj` pairs),
 covering integer ALU ops, control transfer (branches/traps/call/jump/rett),

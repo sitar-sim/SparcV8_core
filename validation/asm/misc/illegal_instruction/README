@@ -1,0 +1,8 @@
+Instruction : illegal_instruction (reserved/unassigned opcode encoding)
+Details :
+A hand-encoded format-3 instruction word (op=2, op3=0x09, a reserved/
+unassigned op3 value) causes an illegal_instruction trap. Distinct from
+misc/stbar_unimp_nop_sethi/, which tests the same trap via the UNIMP
+instruction (a *defined* opcode whose purpose is to always trap) -- this
+test exercises the decoder's other illegal_instruction path, for a bit
+pattern that isn't assigned to any instruction at all.

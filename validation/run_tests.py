@@ -11,8 +11,8 @@ Phase 2 of the test pipeline. Recursively finds .vprj files under
 and reports a pass/fail summary.
 
 Point this at any subfolder to run only a subset of the suite, e.g.:
-    validation/run_tests.py validation/instruction_tests/floating_point
-    validation/run_tests.py validation/instruction_tests/integer_alu/Arithmetic
+    validation/run_tests.py validation/asm/floating_point
+    validation/run_tests.py validation/asm/integer_alu/Arithmetic
 
 By default this drives model/cpp_model/check_test (the plain C++ core +
 SparcStateMachine, no Sitar). Pass --sitar to instead drive

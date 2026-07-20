@@ -1,0 +1,8 @@
+Instruction : STDFQ
+Details :
+The store double floating-point deferred-trap queue instruction (STDFQ) copies
+an entry from the floating-point deferred-trap queue into memory. This
+implementation has no floating-point deferred-trap queue at all
+(implementation_has_no_floating_point_queue is hardwired 1), so STDFQ must
+always trap fp_exception with FSR.ftt=sequence_error and must not perform
+the store, regardless of FSR.qne.

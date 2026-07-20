@@ -1,0 +1,7 @@
+SOURCES = illegal_instruction.s
+
+
+
+RESULTS =
+g1 = 0x00000080
+g2 = 0x00000001

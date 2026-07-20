@@ -1,0 +1,20 @@
+FSR / fp_exception subtype tests, beyond floating_point/invalid_ops/ (which
+only covers the invalid-operation case).
+
+- accrued_inexact.s : the FSR's aexc (sticky, accrued) vs cexc (current op
+  only) distinction, per the manual's FSR conformance requirement. Asserts
+  our own model's behavior directly against the manual (see
+  compliance/README.md Issue 1 for the fuller writeup and the AJIT-diff
+  evidence this formalizes).
+- overflow.s / underflow.s / division_by_zero.s : IEEE-754 overflow,
+  underflow, and division-by-zero, each with its own FSR trap-enable bit
+  set, asserting FSR.cexc after the resulting fp_exception trap is exactly
+  the single expected bit (per Appendix C.7's
+  "cexc <- most_significant_bit_of(texc and TEM)").
+
+Not testable given this implementation's design (see model/cpp_common_code/
+SparcCore.cpp): unfinished_FPop and unimplemented_FPop are both
+architecturally unreachable here -- FPops execute synchronously
+(fpu_c is always set before complete_fp_execution checks it) and the FPU is
+always present (bp_FPU_present hardwired 1), so neither condition can ever
+be true.

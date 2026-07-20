@@ -1,0 +1,8 @@
+SOURCES = accrued_inexact.s
+
+
+
+RESULTS =
+g1 = 0x00000080
+m[0x148] = 0x00000021 0x00000021
+m[0x14c] = 0x00000020 0x00000021

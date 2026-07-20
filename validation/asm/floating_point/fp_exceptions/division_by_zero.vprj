@@ -1,0 +1,8 @@
+SOURCES = division_by_zero.s
+
+
+
+RESULTS =
+g1 = 0x00000080
+g2 = 0x00000001
+m[0x14c] = 0x00000002 0x0000001f
