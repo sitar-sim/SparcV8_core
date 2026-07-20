@@ -26,6 +26,17 @@ under here for the first time.
 
 ## Issue 1: FSR accrued-inexact (`aexc.nxa`) tracking
 
+**Our own model's accrued-inexact behavior is now also asserted directly
+against the manual, independent of this AJIT comparison** -- see
+`validation/asm/floating_point/fp_exceptions/accrued_inexact.s`. That test
+doesn't compare against AJIT's expected values at all; it exercises a
+genuinely inexact op with `NXM=0` and checks `aexc.nxa` accumulates while
+`cexc.nxc` (the *current*-op-only field) gets overwritten by a later,
+exception-free op -- directly demonstrating the current-vs-accrued
+distinction that's the crux of this whole issue. Everything below this
+point is the original AJIT-diff writeup and evidence, kept as-is for AJIT's
+authors to review.
+
 Every test below fails on exactly **one** check: the final value stored to
 memory at `m[0x0004]`, which is the FSR (Floating-point State Register)
 snapshotted partway through the test via `st %fsr, [addr]`. Every other
@@ -166,7 +177,11 @@ reasoning, since we read the manual's conformance section as not permitting
 it), or a genuine gap worth fixing on AJIT's side. Until then, we're treating
 our own model's behavior here as correct and are not "fixing" these tests to
 match AJIT's values, since doing so would mean deliberately breaking IEEE 754
-conformance to match a reference we believe is the one that's actually wrong.
+conformance to match a reference we believe is the one that's actually wrong
+-- and, as of `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`,
+this is no longer only an informal cross-check against the host FPU (see
+"Our own implementation computes this by..." above): it's a maintained,
+always-run assertion of the behavior we believe the manual requires.
 
 ## Issue 2: PSR `impl`/`ver` fields writable by `WRPSR`
 
@@ -251,7 +266,7 @@ originally captured, this second test doesn't actually exercise its own
 `.s` file's branch-delay-slot variant at all, independent of the PSR
 divergence above. We've preserved this exactly as-is in the copies here
 (this folder holds unmodified originals), but corrected it in
-`validation/instruction_tests/misc/rd_wr_psr/RDPSR_WRPSR_2.vprj` (which
+`validation/asm/misc/rd_wr_psr/RDPSR_WRPSR_2.vprj` (which
 also carries the `o0`/`o1`/`o3` fix above) so that the maintained copy of
 this test actually covers what it's named for.
 

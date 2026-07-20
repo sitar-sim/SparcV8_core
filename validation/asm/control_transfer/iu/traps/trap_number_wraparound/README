@@ -1,0 +1,7 @@
+Instruction : Ticc (trap-number computation, register-register form)
+Details :
+Confirms the software trap number r[rs1]+r[rs2] wraps modulo 128
+(SparcCore::execute_Ticc: ticc_trap_type = readBits(trap_number, 6, 0)),
+not just modulo 256 or left unmasked, using operands whose sum (400)
+overflows even the full byte range. The existing traps/ tests only use
+small fixed trap numbers that never exercise this masking.

@@ -1,0 +1,8 @@
+SOURCES = overflow.s
+
+
+
+RESULTS =
+g1 = 0x00000080
+g2 = 0x00000001
+m[0x14c] = 0x00000008 0x0000001f
