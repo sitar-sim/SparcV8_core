@@ -1,0 +1,85 @@
+site_name: Sitar model of a SPARC V8 core
+site_description: A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core
+site_author: Neha Karanjkar
+site_dir: generated_site
+use_directory_urls: false
+
+repo_url: https://github.com/sitar-sim/SparcV8_core
+repo_name: sitar-sim/SparcV8_core
+theme:
+  #logo: assets/sitar_logo.png
+  name: material
+  highlightjs: false
+
+  palette:
+    # Palette toggle for light mode
+    - scheme: colorful
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+
+    # Palette toggle for dark mode
+    - scheme: slate
+      primary: blue grey
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - navigation.sections
+    #- navigation.expand
+    - navigation.tracking
+    - navigation.instant
+    - navigation.top
+    - content.code.copy
+    - search.highlight
+    - search.suggest
+
+markdown_extensions:
+  - admonition
+  - def_list
+  - footnotes
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      use_pygments: true
+      pygments_lang_class: true
+      anchor_linenums: true
+      line_spans: __span
+  - pymdownx.inlinehilite
+  - pymdownx.snippets:
+      base_path: .
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
+  - attr_list
+  - pymdownx.tasklist:
+      custom_checkbox: true
+plugins:
+  - search
+extra_css:
+  - stylesheets/extra.css
+
+nav:
+  - Introduction:
+      - What is this: index.md
+      - Installation: installation.md
+      - Getting Started: getting_started.md
+
+  - Writing and Running Programs:
+      - Assembly Programs: writing_and_running_assembly_programs.md
+      - C Programs: writing_and_running_c_programs.md
+
+  - The Model:
+      - Model Components: model_components.md
+      - Performance Modeling: performance_modeling.md
+
+  - More:
+      - Next Steps / TODOs: next_steps.md
+      - Development Notes: development_notes.md
+      - Authors: authors.md
+      - License: license.md

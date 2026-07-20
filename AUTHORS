@@ -1,0 +1,30 @@
+
+Neha Karanjkar (https://nehakaranjkar.github.io/)
+IIT Goa
+
+Madhav Desai (https://www.ee.iitb.ac.in/web/people/madhav-p-desai/)
+IIT Bombay
+
+
+Credits
+-------
+
+The functional validation suite under `validation/asm/` is adapted from the
+**AJIT processor project** (IIT Bombay), specifically its `ajit32`
+instruction-level verification suite:
+
+    https://github.com/adhuliya/ajit-toolchain
+    https://github.com/adhuliya/ajit-toolchain/tree/master/tests/verification/ajit32
+
+Individual test files carry their original author credit inline. Authors of
+the adapted tests, in addition to Neha Karanjkar and Madhav Desai above:
+
+- Piyush P. Soni
+- Titto Thomas
+- Aniket Deshmukh
+- Ashfaque Ahammed
+
+See `validation/README.md` and `compliance/README.md` for details on which
+tests were adapted as-is, which were extended for this project's own
+quad-precision floating-point support, and a few specific, documented
+divergences from AJIT's own reference results.
