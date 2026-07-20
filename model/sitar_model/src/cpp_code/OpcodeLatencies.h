@@ -9,11 +9,13 @@
 // model/README.md); timing lives entirely in the Sitar layer that
 // drives it. This file is included only from SparcThread.sitar.
 //
-// getOpcodeLatency(op) returns how many cycles SparcThread should spend
-// executing a given opcode, on top of the 1 cycle a `do`/`wait until
-// this_phase==1` loop iteration already takes structurally. This is a
-// compile-time table, not a runtime-loaded config file: to change a
-// latency, edit OPCODE_LATENCY_OVERRIDES below and rebuild.
+// getOpcodeLatency(op) returns how many cycles SparcThread spends on a
+// given opcode via wait(opcode_delay, 0) -- see the EXECUTE loop in
+// SparcThread.sitar, a plain "fetch-decode-execute; wait(opcode_delay,0)"
+// loop with no structural per-iteration floor, so a delay of 0 is a real
+// zero-time yield, not a no-op. This is a compile-time table, not a
+// runtime-loaded config file: to change a latency, edit
+// OPCODE_LATENCY_OVERRIDES below and rebuild.
 //
 // IMPORTANT: this is the latency of *executing* the opcode itself
 // (decode/ALU/etc.), and is charged IN ADDITION TO whatever separate

@@ -180,7 +180,7 @@ Design changes made:
 
 1. **Opcode-wise test-coverage analysis.** Full validation passes
    (223/223) are done for both models -- still open: systematically
-   compare the SPARC V8 instruction set against `validation/instruction_tests/`
+   compare the SPARC V8 instruction set against `validation/asm/`
    to find opcodes with no test at all (not just currently-failing ones).
 
 2. **Documentation.** Write it up properly (architecture, how the C++

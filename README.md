@@ -3,7 +3,7 @@ Sitar model of a SparcV8 core
 
 ## Acknowledgments
 
-Most of the functional validation suite under `validation/instruction_tests/`
+Most of the functional validation suite under `validation/asm/`
 (and the toolchain scripts that build/run it under `compiler/`) is adapted
 from the **AJIT processor project** (IIT Bombay) -- specifically its `ajit32`
 instruction-level verification suite. See `validation/README.md` for
