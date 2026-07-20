@@ -10,6 +10,3 @@
   `MemoryInterface`/`MainMemory`), which actually assigns timing to
   `SparcCore`'s execution. `build.py` builds `sitar_check_test` into
   `executable/`.
-
-A proper architecture write-up is still on the TODO list; this is just a
-map of what lives where for now.
