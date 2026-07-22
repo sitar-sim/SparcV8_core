@@ -36,7 +36,7 @@ into a larger physical register file.
 SPARC V8 is the 32-bit revision of the architecture. The authoritative
 specification is *The SPARC Architecture Manual, Version 8*, included in
 this repository at
-[`docs/sparcv8_Architecture_reference_Manual.pdf`](sparcv8_Architecture_reference_Manual.pdf) --
+[`docs/source/sparcv8_Architecture_reference_Manual.pdf`](sparcv8_Architecture_reference_Manual.pdf) --
 this project's model follows it closely, with section references cited
 throughout the source (`model/cpp_common_code/SparcCore.cpp` in
 particular). See also the

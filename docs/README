@@ -1,56 +1,54 @@
-Building this project's documentation
-======================================
+Viewing and building this project's documentation
+==================================================
 
-The docs are built with mkdocs. The build needs Python 3 and a few packages,
-all listed in `requirements.txt`.
+Viewing the documentation
+--------------------------
 
-Commands below use two working directories:
-  - Run pip commands from this `docs/` directory.
-  - Run `mkdocs` commands from the repo root (where `mkdocs.yml` lives).
+The rendered site is committed to this repo -- no build step needed. Just
+open it in a browser:
+
+    docs/generated_site/index.html
+
+That's a plain static HTML file, so `file://` opening works fine (there's
+no JavaScript-dependent diagram rendering or other network dependency).
 
 
-One-time setup
---------------
+Rebuilding the documentation
+-----------------------------
 
-From the repo root:
+Only needed if you've edited a page under `source/`. The build needs
+Python 3 and a few packages, all listed in `requirements.txt`.
+
+One-time setup, from this `docs/` directory:
 
     python3 -m venv .venv
-
-Activate the virtualenv (do this once per shell session):
-
     source .venv/bin/activate
-
-Install the dependencies. This also pulls in the vendored Pygments lexer
-used for Sitar syntax highlighting (the `-e ../sitar_pygments_lexer` line
-inside `requirements.txt`):
-
-    cd docs
     pip install -r requirements.txt
-    cd ..
 
+`pip install` also pulls in the vendored Pygments lexer used for Sitar
+syntax highlighting (the `-e ./sitar_pygments_lexer` line inside
+`requirements.txt`).
 
-Build the static site
----------------------
-
-With the venv active, from the repo root:
+With the venv active, still from `docs/`:
 
     mkdocs build
 
-The output goes to `generated_site/`.
+The output goes to `generated_site/` -- commit it along with your `.md`
+changes so the prebuilt copy stays in sync.
 
 
-Preview locally
----------------
+Preview locally while editing
+-------------------------------
 
-With the venv active, from the repo root:
+With the venv active, from `docs/`:
 
     mkdocs serve
 
-Then open the printed localhost URL in a browser. Pages rebuild live as you
-edit `.md` files.
+Then open the printed localhost URL in a browser. Pages rebuild live as
+you edit `.md` files under `source/`.
 
 
 Done for the day
-----------------
+------------------
 
     deactivate

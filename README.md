@@ -23,7 +23,7 @@ Berkeley RISC I/II designs, and notable for its register-window
 architecture. Version 8 (SPARC V8) is a 32-bit revision of the
 architecture, specified in *The SPARC Architecture Manual, Version 8*
 (included in this repository at
-[`docs/sparcv8_Architecture_reference_Manual.pdf`](docs/sparcv8_Architecture_reference_Manual.pdf)).
+[`docs/source/sparcv8_Architecture_reference_Manual.pdf`](docs/source/sparcv8_Architecture_reference_Manual.pdf)).
 See also the [Wikipedia SPARC article](https://en.wikipedia.org/wiki/SPARC)
 for general background.
 
@@ -61,10 +61,14 @@ both) -- see `validation/README.md`.
 
 Full documentation -- installation, getting started, writing and running
 your own assembly and C test programs (with logging on/off), an overview
-of the model's components, and how to tune the timing model -- is built
-with [MkDocs](https://www.mkdocs.org/) from the `docs/` folder. See
-`docs/README` for how to build/preview it locally, or read the source
-`.md` files directly under `docs/`.
+of the model's components, and how to tune the timing model -- lives in
+`docs/`, built with [MkDocs](https://www.mkdocs.org/). A prebuilt copy is
+committed to the repo, so no build step is required to read it: just open
+
+    docs/generated_site/index.html
+
+in a browser. See `docs/README` if you want to edit and rebuild it, or
+read the source `.md` files directly under `docs/source/`.
 
 For a quick start without building the docs site:
 
@@ -90,7 +94,9 @@ validation/run_tests.py validation/asm --sitar
   behavior and the AJIT project's own reference test results (see below).
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker) used to
   build test programs, and the scripts that drive it.
-- `docs/` -- the MkDocs documentation source.
+- `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
+  `generated_site/` (prebuilt, committed output -- open `index.html`
+  directly), `mkdocs.yml`, and the vendored `sitar_pygments_lexer/`.
 
 ## Acknowledgments
 
