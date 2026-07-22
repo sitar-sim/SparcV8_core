@@ -37,5 +37,5 @@ above:
 
 See `validation/README.md` for which tests were adapted as-is versus
 written new for this project (the quad-precision suite), and
-`compliance/README.md` for a handful of specific, documented divergences
+`docs/compliance/README.md` for a handful of specific, documented divergences
 between this model's behavior and AJIT's own reference results.

@@ -90,13 +90,13 @@ validation/run_tests.py validation/asm --sitar
 - `validation/` -- the instruction-level test suite (`asm/`, hand-written
   assembly; `C/`, bare-metal C, not yet populated) and the scripts that
   build and run it.
-- `compliance/` -- documented, specific divergences between this model's
-  behavior and the AJIT project's own reference test results (see below).
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker) used to
   build test programs, and the scripts that drive it.
 - `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
   `generated_site/` (prebuilt, committed output -- open `index.html`
-  directly), `mkdocs.yml`, and the vendored `sitar_pygments_lexer/`.
+  directly), `mkdocs.yml`, the vendored `sitar_pygments_lexer/`, and
+  `compliance/` (documented, specific divergences between this model's
+  behavior and the AJIT project's own reference test results; see below).
 
 ## Acknowledgments
 
@@ -106,7 +106,7 @@ from the **AJIT processor project** (IIT Bombay) -- specifically its `ajit32`
 instruction-level verification suite. See `validation/README.md` for
 details, per-file author credit, and the quad-precision tests that are this
 project's own (AJIT's own suite assumes quad ops are unimplemented; this
-project implements them). `compliance/README.md` documents three specific,
+project implements them). `docs/compliance/README.md` documents three specific,
 well-understood divergences between AJIT's expected test results and this
 model's (accrued-inexact FSR tracking, PSR impl/ver field writability, and
 quad-precision support), intended to be shared with AJIT's authors.

@@ -4,7 +4,7 @@ only covers the invalid-operation case).
 - accrued_inexact.s : the FSR's aexc (sticky, accrued) vs cexc (current op
   only) distinction, per the manual's FSR conformance requirement. Asserts
   our own model's behavior directly against the manual (see
-  compliance/README.md Issue 1 for the fuller writeup and the AJIT-diff
+  docs/compliance/README.md Issue 1 for the fuller writeup and the AJIT-diff
   evidence this formalizes).
 - overflow.s / underflow.s / division_by_zero.s : IEEE-754 overflow,
   underflow, and division-by-zero, each with its own FSR trap-enable bit

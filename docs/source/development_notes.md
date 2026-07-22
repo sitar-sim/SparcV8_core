@@ -16,12 +16,12 @@ SparcV8_core/
   validation/
     asm/                Instruction-level assembly test suite.
     C/                  Bare-metal C test suite (planned, not yet populated).
-  compliance/            Documented, specific divergences from AJIT's own reference results.
   compiler/               SPARC V8 cross-toolchain + build scripts.
   docs/                    This documentation site.
     source/                  The .md pages you're reading (MkDocs docs_dir).
     generated_site/           Prebuilt, committed output -- open index.html directly.
     mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
+    compliance/               Documented, specific divergences from AJIT's own reference results.
 ```
 
 Each of `model/cpp_common_code/`, `model/cpp_model/`, and
@@ -69,10 +69,10 @@ you're reading existing tests rather than writing new ones:
 - Every test always halts via `ta 0` with traps disabled, landing the
   core in `error_mode` -- this is the deliberate, universal "done" signal
   described on that page, not a failure indicator by itself.
-- `compliance/` exists specifically so that a documented, understood
+- `docs/compliance/` exists specifically so that a documented, understood
   divergence from an external reference (AJIT, in this project's case)
   doesn't get silently "fixed" by editing the test to match a reference
-  that's actually wrong -- see `compliance/README.md` for three worked
+  that's actually wrong -- see `docs/compliance/README.md` for three worked
   examples of this reasoning. The same pattern is worth following for any
   future external reference comparison.
 

@@ -155,6 +155,6 @@ exception-subtype tests. `run_tests.py` recurses, so nesting is free; it
 just needs to find `.vprj` files.
 
 See `validation/README.md` for the AJIT-adaptation attribution and
-`compliance/README.md` for documented, specific divergences from AJIT's
+`docs/compliance/README.md` for documented, specific divergences from AJIT's
 own reference results (kept separate from the maintained suite since they
 represent understood implementation differences, not bugs).

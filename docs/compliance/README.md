@@ -1,4 +1,4 @@
-# compliance/
+# docs/compliance/
 
 This folder holds **AJIT processor project** tests (unmodified originals,
 copied from `tests/verification/ajit32/instruction_tests/` in the
@@ -19,7 +19,7 @@ Three independent issues are documented here so far:
 3. [Quad-precision (`FADDQ` etc.) is implemented here, unimplemented in AJIT](#issue-3-quad-precision-faddq-etc-is-implemented-here-unimplemented-in-ajit) -- 14 tests.
 
 Unlike `validation/`, this folder's `.hex` files are *not* committed (see
-`compliance/.gitignore`) -- these are reference/evidence tests, not the
+`docs/compliance/.gitignore`) -- these are reference/evidence tests, not the
 maintained suite, so run `validation/build_hex.py <path>` (requires the
 sparc-elf toolchain) before `validation/run_tests.py <path>` on anything
 under here for the first time.
@@ -136,7 +136,7 @@ should accumulate silently into `aexc.nxa` (FSR bit 5) without trapping.
   `4.3+8.2` add above; masked to the same low 16 bits as AJIT's check:
   `0x4030` vs AJIT's `0x4010`, a difference of exactly bit 5)
 
-Run `validation/run_tests.py compliance/instruction_tests` yourself to see
+Run `validation/run_tests.py docs/compliance/instruction_tests` yourself to see
 this directly: every `*.vprj` here fails against our model, and every
 matching `*.our_model.vprj` (identical file, single differing `m[0x0004]`
 line) passes.
@@ -253,7 +253,7 @@ structure around each `wr`/`rd` pair (presumably to additionally exercise
 divergence are identical, so `RDPSR_WRPSR_2.vprj`/`.our_model.vprj` mirror
 the same three fields.
 
-Run `validation/run_tests.py compliance/instruction_tests/misc/rd_wr_psr`
+Run `validation/run_tests.py docs/compliance/instruction_tests/misc/rd_wr_psr`
 yourself to see this directly: both original `.vprj` files fail against our
 model on exactly these three checks, and both matching `.our_model.vprj`
 files pass.
@@ -341,7 +341,7 @@ untouched), `fdmulq.s` loads real IEEE-754 **double**-precision values --
   -- the genuine 128-bit product of `4.3 * 8.2 = 35.26` computed at full
   quad precision.
 
-Run `validation/run_tests.py compliance/instruction_tests/floating_point/unimplemented`
+Run `validation/run_tests.py docs/compliance/instruction_tests/floating_point/unimplemented`
 yourself to see this directly: all 14 original `.vprj` files fail (on
 exactly `g2` + the two FSR snapshots, as described above), and all 14
 matching `.our_model.vprj` files pass.
