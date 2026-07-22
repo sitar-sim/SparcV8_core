@@ -15,7 +15,6 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 
-# MkDocs generated documentation
+# MkDocs (docs/.venv/); docs/generated_site/ IS committed, not ignored
 .venv/
-generated_site/
 **/*.egg-info/

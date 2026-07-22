@@ -7,11 +7,11 @@ run something.
 
 ## The toolchain, in one picture
 
-```mermaid
-graph LR
-    A[**test.s**] -->|sparc-elf-as / -ld| B[**test.elf**]
-    B -->|readelf + hexdump_to_memimage.py| C[**test.hex**]
-    C -->|sparc_cpp_sim / check_test<br/>or sitar_check_test| D[**final state / PASS-FAIL**]
+```text
+  test.s ---------------------> test.elf ---------------------> test.hex ---------------------> final state / PASS-FAIL
+          sparc-elf-as / -ld              readelf +                       sparc_cpp_sim /
+                                           hexdump_to_memimage.py          check_test or
+                                                                           sitar_check_test
 ```
 
 A `.hex` file is a plain-text memory image (`compiler/hexdump_to_memimage.py`

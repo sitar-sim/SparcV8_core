@@ -18,7 +18,10 @@ SparcV8_core/
     C/                  Bare-metal C test suite (planned, not yet populated).
   compliance/            Documented, specific divergences from AJIT's own reference results.
   compiler/               SPARC V8 cross-toolchain + build scripts.
-  docs/                    This documentation site (MkDocs source).
+  docs/                    This documentation site.
+    source/                  The .md pages you're reading (MkDocs docs_dir).
+    generated_site/           Prebuilt, committed output -- open index.html directly.
+    mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
 ```
 
 Each of `model/cpp_common_code/`, `model/cpp_model/`, and

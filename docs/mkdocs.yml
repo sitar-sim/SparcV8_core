@@ -1,6 +1,7 @@
 site_name: Sitar model of a SPARC V8 core
 site_description: A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core
 site_author: Neha Karanjkar
+docs_dir: source
 site_dir: generated_site
 use_directory_urls: false
 
@@ -50,12 +51,8 @@ markdown_extensions:
       line_spans: __span
   - pymdownx.inlinehilite
   - pymdownx.snippets:
-      base_path: .
-  - pymdownx.superfences:
-      custom_fences:
-        - name: mermaid
-          class: mermaid
-          format: !!python/name:pymdownx.superfences.fence_code_format
+      base_path: ..
+  - pymdownx.superfences
   - attr_list
   - pymdownx.tasklist:
       custom_checkbox: true
