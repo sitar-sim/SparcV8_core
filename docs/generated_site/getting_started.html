@@ -71,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -129,7 +129,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -139,7 +139,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -1011,68 +1011,70 @@
 run something.</p>
 <hr />
 <h2 id="the-toolchain-in-one-picture">The toolchain, in one picture<a class="headerlink" href="#the-toolchain-in-one-picture" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>  test.s ---------------------&gt; test.elf ---------------------&gt; test.hex ---------------------&gt; final state / PASS-FAIL
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>          sparc-elf-as / -ld              readelf +                       sparc_cpp_sim /
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                                           hexdump_to_memimage.py          check_test or
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                                                           sitar_check_test
-</span></code></pre></div>
-<p>A <code>.hex</code> file is a plain-text memory image (<code>compiler/hexdump_to_memimage.py</code>
-produces it from a linked ELF's sections) -- the one format both models
-load, via <code>MemCore::initializeMemory()</code>. Everything upstream of it
-(assembling, linking, and dumping to <code>.hex</code>) is identical regardless of
-which model you run it on afterward.</p>
+<p>The build and run pipeline has three steps.</p>
+<ol>
+<li><code>sparc-elf-as</code> and <code>sparc-elf-ld</code> assemble and link <code>test.s</code> into <code>test.elf</code>.</li>
+<li><code>readelf</code> and <code>compiler/hexdump_to_memimage.py</code> convert <code>test.elf</code> into
+   <code>test.hex</code>, a plain text memory image.</li>
+<li><code>sparc_cpp_sim</code> or <code>check_test</code> run <code>test.hex</code> on the plain C++ model.
+   <code>sitar_check_test</code> runs the same <code>test.hex</code> on the Sitar timed model.
+   Either path produces the final register state and a pass or fail result.</li>
+</ol>
+<p>The <code>.hex</code> format is the one format both models load, through
+<code>MemCore::initializeMemory()</code>. Everything upstream of it is identical
+regardless of which model you run it on afterward.</p>
 <hr />
 <h2 id="run-a-single-test-by-hand">Run a single test by hand<a class="headerlink" href="#run-a-single-test-by-hand" title="Permanent link">&para;</a></h2>
 <p>The validation suite's <code>.hex</code> files are committed to git, so you can run
 one immediately without needing the cross-toolchain:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>PROCESSOR STATE: ERROR
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>...
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a> In:
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a> i0 fffffffe
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a> i1 e0
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a> i2 2
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a> i3 e0
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a> ...
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>--------------------
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a>
-</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a>Simulation halted (error_mode) after 46 cycles.
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>PROCESSOR STATE: ERROR
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>...
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> In:
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> i0 fffffffe
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> i1 e0
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> i2 2
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a> i3 e0
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a> ...
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>--------------------
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Simulation halted (error_mode) after 46 cycles.
 </span></code></pre></div>
 <p>(<code>ERROR</code>/<code>error_mode</code> here just means the core hit its final <code>ta 0</code> with
-traps disabled -- the standard, deliberate way every test in this suite
-signals "done"; see
+traps disabled. This is the standard, deliberate way every test in this
+suite signals "done". See
 <a href="writing_and_running_assembly_programs.html#the-pass-fail-convention">Writing and Running Assembly Programs</a>.)</p>
-<p><code>sparc_cpp_sim</code> just runs a memory image and prints final register state
--- handy for ad hoc use, but it doesn't check pass/fail. For that, use
+<p><code>sparc_cpp_sim</code> just runs a memory image and prints final register state.
+It's handy for ad hoc use, but it doesn't check pass/fail. For that, use
 <code>check_test</code> with the test's paired expected-results file:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/check_test<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/cpp_model/check_test<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>PASS: i0 = 0xfffffffe
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>PASS: i1 = 0xe0
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>...
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>OVERALL: PASS (13 checks)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>PASS: i0 = 0xfffffffe
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>PASS: i1 = 0xe0
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>...
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>OVERALL: PASS (13 checks)
 </span></code></pre></div>
 <p>(<code>ADD.expected</code> is generated from the test's <code>.vprj</code> file by
-<code>validation/run_tests.py</code> -- see
+<code>validation/run_tests.py</code>. See
 <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
 for the full test-authoring format.)</p>
 <p>To run the same test against the Sitar-timed model instead (same CLI,
 same expected-results format, same output):</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
 </span></code></pre></div>
 <hr />
 <h2 id="run-the-whole-suite">Run the whole suite<a class="headerlink" href="#run-the-whole-suite" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>230/230 tests passed
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>230/230 tests passed
 </span></code></pre></div>
 <p>Add <code>--sitar</code> to run the identical suite against the Sitar-timed model,
 <code>-v</code> to see every check (not just failures), or point at a subfolder
@@ -1083,11 +1085,11 @@ test and regenerate <code>.hex</code> files if you edit a <code>.s</code> source
 <h2 id="turning-on-logging-sitar-model-only">Turning on logging (Sitar model only)<a class="headerlink" href="#turning-on-logging-sitar-model-only" title="Permanent link">&para;</a></h2>
 <p>The plain C++ model has no notion of cycles or timing, so there's nothing
 to log. The Sitar model can be rebuilt with per-cycle trace logging:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>model/sitar_model/executable/sitar_check_test<span class="w">  </span>&lt;hex&gt;<span class="w">  </span>&lt;expected&gt;<span class="w">  </span><span class="m">2</span>&gt;<span class="w"> </span>trace.log
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>model/sitar_model/executable/sitar_check_test<span class="w">  </span>&lt;hex&gt;<span class="w">  </span>&lt;expected&gt;<span class="w">  </span><span class="m">2</span>&gt;<span class="w"> </span>trace.log
 </span></code></pre></div>
-<p>Logging is off by default (rebuild without <code>--logging</code> to go back) --
-it's noisy and slower, meant for debugging timing (e.g. verifying a
+<p>Logging is off by default. Rebuild without <code>--logging</code> to go back to that.
+It's noisy and slower, meant for debugging timing (e.g. verifying a
 latency change actually took effect). Log lines are timestamped
 <code>[t=&lt;cycle&gt;]</code>. See <a href="performance_modeling.html">Performance Modeling</a> for a
 worked example.</p>

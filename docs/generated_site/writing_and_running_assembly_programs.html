@@ -71,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -129,7 +129,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -139,7 +139,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -1046,9 +1046,10 @@ tests, and how to write and run a new one.</p>
 <hr />
 <h2 id="anatomy-of-a-test">Anatomy of a test<a class="headerlink" href="#anatomy-of-a-test" title="Permanent link">&para;</a></h2>
 <p>Every test is a pair of files: <code>&lt;name&gt;.s</code> (the assembly source) and
-<code>&lt;name&gt;.vprj</code> (the expected final state, <code>.vprj</code> for historical reasons --
-this format is adapted from the AJIT project, see <code>validation/README.md</code>).
-A <code>.s</code> file is fully self-contained and always has the same shape:</p>
+<code>&lt;name&gt;.vprj</code> (the expected final state). The <code>.vprj</code> extension is for
+historical reasons, since this format is adapted from the AJIT project
+(see <code>validation/README.md</code>). A <code>.s</code> file is fully self-contained and
+always has the same shape:</p>
 <div class="language-asm highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="na">.global</span><span class="w"> </span><span class="no">main</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nl">main:</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nl">_start:</span>
@@ -1089,19 +1090,19 @@ A <code>.s</code> file is fully self-contained and always has the same shape:</p
 </span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="nl">trap_table_base:</span>
 </span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">256</span><span class="w"> </span><span class="nf">four-instruction</span><span class="w"> </span><span class="no">slots</span><span class="p">,</span><span class="w"> </span><span class="no">one</span><span class="w"> </span><span class="no">per</span><span class="w"> </span><span class="no">trap</span><span class="w"> </span><span class="no">type</span><span class="w"> </span><span class="p">(</span><span class="mi">0x00-0</span><span class="no">xff</span><span class="p">):</span>
 </span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="err">!</span><span class="w">   </span><span class="nf">mov</span><span class="w"> </span><span class="err">&lt;</span><span class="no">trap</span><span class="w"> </span><span class="no">number</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="nv">%g1</span><span class="w"> </span><span class="c1">; restore ; ta 0 ; nop</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="na">...</span><span class="w"> </span><span class="p">(</span><span class="no">copy</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">verbatim</span><span class="w"> </span><span class="no">from</span><span class="w"> </span><span class="no">any</span><span class="w"> </span><span class="no">existing</span><span class="w"> </span><span class="no">test</span><span class="w"> </span><span class="p">--</span><span class="w"> </span><span class="no">see</span><span class="w"> </span><span class="no">below</span><span class="p">)</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="na">...</span><span class="w"> </span><span class="p">(</span><span class="no">copy</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">verbatim</span><span class="w"> </span><span class="no">from</span><span class="w"> </span><span class="no">any</span><span class="w"> </span><span class="no">existing</span><span class="w"> </span><span class="no">test</span><span class="p">,</span><span class="w"> </span><span class="no">see</span><span class="w"> </span><span class="no">below</span><span class="p">)</span>
 </span></code></pre></div>
 <h3 id="the-pass-fail-convention">The pass-fail convention<a class="headerlink" href="#the-pass-fail-convention" title="Permanent link">&para;</a></h3>
 <p>Every test always halts the same way: a <code>ta 0</code> taken with traps disabled
 (<code>ET=0</code>, cleared automatically on trap entry) forces the processor into
-<code>error_mode</code> per the manual (Appendix C, Section C.8) -- this is what
+<code>error_mode</code> per the manual (Appendix C, Section C.8). This is what
 "<code>Simulation halted (error_mode)</code>" in <code>sparc_cpp_sim</code>'s output means, and
 it's expected, not a bug.</p>
 <p><code>%g1</code> distinguishes a clean run from an unexpected trap:</p>
 <ul>
 <li>If the test's own final <code>ta 0</code> (step 5 above) is what triggers this,
-  its trap-table slot (<code>SW_trap_0x80</code>) sets <code>%g1 = 0x80</code> -- <strong>success,
-  nothing unexpected happened</strong>.</li>
+  its trap-table slot (<code>SW_trap_0x80</code>) sets <code>%g1 = 0x80</code>. <strong>This is
+  success: nothing unexpected happened.</strong></li>
 <li>If <em>any other</em> trap occurs first (a bug, a mistake in the test, or a
   trap you're deliberately testing for), it's caught by <em>that</em> trap's own
   table slot, which records the trap number into <code>%g1</code> before re-trapping
@@ -1110,15 +1111,15 @@ it's expected, not a bug.</p>
 </ul>
 <h3 id="the-trap-table">The trap table<a class="headerlink" href="#the-trap-table" title="Permanent link">&para;</a></h3>
 <p>The 256-entry trap table is always the same boilerplate (each slot is a
-fixed 4 instructions: <code>mov &lt;tt&gt;, %g1; restore; ta 0; nop</code>) -- copy it
+fixed 4 instructions: <code>mov &lt;tt&gt;, %g1; restore; ta 0; nop</code>). Copy it
 verbatim from any existing test rather than retyping it. To make a test
 verify a <em>specific</em> trap actually fires (rather than just detecting an
-unexpected one), replace that one slot with custom code -- for example,
+unexpected one), replace that one slot with custom code. For example,
 <code>validation/asm/floating_point/fp_exceptions/overflow.s</code> replaces its
 <code>HW_trap_0x08</code> slot with <code>inc %g2; rett %r18; nop; nop</code>, which increments
 a counter and <em>resumes</em> execution right after the trapping instruction
-(via <code>rett</code>), instead of halting -- letting the test both confirm the trap
-fired (<code>%g2</code>) and continue on to a normal exit (<code>%g1 = 0x80</code>).</p>
+(via <code>rett</code>), instead of halting. This lets the test both confirm the
+trap fired (<code>%g2</code>) and continue on to a normal exit (<code>%g1 = 0x80</code>).</p>
 <hr />
 <h2 id="the-vprj-expected-results-file">The <code>.vprj</code> expected-results file<a class="headerlink" href="#the-vprj-expected-results-file" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>SOURCES = ADD.s
@@ -1137,20 +1138,20 @@ fired (<code>%g2</code>) and continue on to a normal exit (<code>%g1 = 0x80</cod
   word-aligned 32-bit read).</li>
 <li>Either kind of line accepts an optional trailing mask
   (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
-  mask -- see <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
-  for a real example distinguishing individual FSR bits).</li>
-<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored --
+  mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
+  for a real example distinguishing individual FSR bits.)</li>
+<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored.
   <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
 </ul>
 <hr />
 <h2 id="running-it">Running it<a class="headerlink" href="#running-it" title="Permanent link">&para;</a></h2>
 <p>The pipeline is split into two phases, so the existing suite can be run
 without a cross-compiler installed at all:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># phase 1 (needs the sparc-elf toolchain) -- assembles .s -&gt; .hex,</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># phase 1 (needs the sparc-elf toolchain): assembles .s -&gt; .hex,</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># only needed when you add/edit a .s source</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>validation/build_hex.py<span class="w"> </span>validation/asm/your/new/test/dir
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># phase 2 -- runs the already-assembled .hex against a model</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># phase 2: runs the already-assembled .hex against a model</span>
 </span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>validation/run_tests.py<span class="w"> </span>validation/asm/your/new/test/dir<span class="w"> </span>-v
 </span></code></pre></div>
 <p><code>.hex</code> files are committed to git specifically so phase 2 alone is enough
@@ -1166,11 +1167,11 @@ per-test cycle limit (default 10000).</p>
 <h2 id="where-to-put-a-new-test">Where to put a new test<a class="headerlink" href="#where-to-put-a-new-test" title="Permanent link">&para;</a></h2>
 <p>Follow the existing category structure under <code>validation/asm/</code>
 (<code>integer_alu/</code>, <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>,
-<code>misc/</code>) -- put a new, focused group of tests in its own subfolder inside
-the appropriate category, e.g.
-<code>validation/asm/floating_point/fp_exceptions/</code> for the FSR
-exception-subtype tests. <code>run_tests.py</code> recurses, so nesting is free; it
-just needs to find <code>.vprj</code> files.</p>
+<code>misc/</code>). Put a new, focused group of tests in its own subfolder inside
+the appropriate category. For example,
+<code>validation/asm/floating_point/fp_exceptions/</code> holds the FSR
+exception-subtype tests. <code>run_tests.py</code> recurses, so nesting is free.
+It just needs to find <code>.vprj</code> files.</p>
 <p>See <code>validation/README.md</code> for the AJIT-adaptation attribution and
 <code>docs/compliance/README.md</code> for documented, specific divergences from AJIT's
 own reference results (kept separate from the maintained suite since they

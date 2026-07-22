@@ -1,9 +1,9 @@
 # Performance Modeling
 
 The Sitar model (`model/sitar_model/`) is a **simple, non-pipelined
-cycle-level timing model** -- no pipelining, no out-of-order execution,
-just a fixed delay per opcode plus separately configurable memory-access
-latencies. This page covers where to change those numbers, and how to
+cycle-level timing model**. There is no pipelining and no out-of-order
+execution, just a fixed delay per opcode plus separately configurable
+memory-access latencies. This page covers where to change those numbers, and how to
 confirm a change actually took effect.
 
 ---
@@ -16,9 +16,9 @@ confirm a change actually took effect.
 | `MemoryInterface.delay` | `Core.sitar`'s `init` block | Requester side, per channel, after the response is available | 0 |
 | `MainMemory.delay` | `Core.sitar`'s `init` block | The memory's own service time, shared by all requesters | 0 |
 
-All three are independent and additive -- a load with opcode latency 1,
+All three are independent and additive. A load with opcode latency 1,
 `MemoryInterface.delay` 2, and `MainMemory.delay` 3 takes 6 cycles total,
-not 3. All three accept `0` with no special-casing -- with everything at
+not 3. All three accept `0` with no special-casing. With everything at
 `0`, the Sitar model runs with zero elapsed simulated time per
 instruction, functionally identical to the plain `cpp_model`.
 
@@ -37,9 +37,9 @@ static const std::unordered_map<Opcode, uint32_t> OPCODE_LATENCY_OVERRIDES = {
 ```
 
 `DEFAULT_PER_OPCODE_DELAY` applies to every opcode not listed in
-`OPCODE_LATENCY_OVERRIDES`; list only the exceptions there, e.g. to
+`OPCODE_LATENCY_OVERRIDES`. List only the exceptions there, e.g. to
 approximate a multi-cycle multiplier/divider. Edit and rebuild
-(`model/sitar_model/build.py`) to change it -- this is deliberately not a
+(`model/sitar_model/build.py`) to change it. This is deliberately not a
 runtime-loaded config file.
 
 ## Memory-side latency
@@ -83,18 +83,18 @@ For example, overriding `ADD`'s latency to 4 cycles
 ```
 
 Every other opcode (`OR`, `RDPSR`, ...) is fetched one cycle after the
-previous one, at the unmodified default -- but `ADD` at `t=15` is followed
-by the next fetch only at `t=19`, exactly the overridden 4-cycle gap.
-Reverting the override (back to the empty
+previous one, at the unmodified default. `ADD` at `t=15` is the
+exception. It is followed by the next fetch only at `t=19`, exactly the
+overridden 4-cycle gap. Reverting the override (back to the empty
 `OPCODE_LATENCY_OVERRIDES = {};` default) and rebuilding restores the
 uniform 1-cycle spacing.
 
 The same approach (rebuild with `--logging`, grep the relevant log lines)
-works for `MemoryInterface.delay`/`MainMemory.delay` -- look for
+works for `MemoryInterface.delay`/`MainMemory.delay` too. Look for
 `"servicing"`/`"response ready"` (`MainMemory`) and
 `"Started memory reference"`/`"Finished memory reference"`
 (`MemoryInterface`) instead.
 
-Logging is off by default (rebuild without `--logging` to go back) --
-it's noticeably slower and noisier, meant for exactly this kind of
+Logging is off by default. Rebuild without `--logging` to go back to
+that. It's noticeably slower and noisier, meant for exactly this kind of
 debugging rather than everyday use.

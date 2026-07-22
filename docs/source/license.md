@@ -16,7 +16,7 @@ file in the repository for the canonical copy.
 ---
 
 The functional validation suite under `validation/asm/` is adapted from
-the AJIT processor project (IIT Bombay) -- see [Authors](authors.md) and
+the AJIT processor project (IIT Bombay). See [Authors](authors.md) and
 `validation/README.md` for attribution. Adapted test files retain their
 original author credit inline and are used with thanks
 ([github.com/adhuliya/ajit-toolchain](https://github.com/adhuliya/ajit-toolchain)).

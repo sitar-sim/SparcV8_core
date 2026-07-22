@@ -2,7 +2,7 @@
 
 !!! note "Status"
     `validation/C/` (bare-metal C test programs, e.g. matrix multiply,
-    compound data types -- sequences of operations rather than one opcode
+    compound data types, sequences of operations rather than one opcode
     at a time) is planned but not yet populated. This page documents the
     intended approach and current toolchain status, so it's usable as a
     guide once those tests are written, and as a starting point for
@@ -13,34 +13,34 @@
 ## No standard library, by design
 
 This model has **no MMU, no cache, no peripheral/device model, and no
-operating system** (see [What this project offers](index.md#what-this-project-offers))
--- there is nothing for a C standard library to call into. `printf` has no
-console to write to; `malloc` has no OS to request pages from. C programs
+operating system** (see [What this project offers](index.md#what-this-project-offers)).
+There is nothing for a C standard library to call into. `printf` has no
+console to write to. `malloc` has no OS to request pages from. C programs
 for this model must be **freestanding**: no `#!c #include <stdio.h>`, no
 libc at all, just the C language itself plus whatever you implement by
 hand against the flat memory space `MemCore` provides.
 
 This is the same reason `model/cpp_model/main.cpp`'s driver doesn't try to
-model a console -- there's genuinely nothing on the other end of one yet.
+model a console. There's genuinely nothing on the other end of one yet.
 
 ---
 
 ## Toolchain status
 
 The bundled `sparc-elf` toolchain (see [Installation](installation.md))
-only contains an assembler, linker, and `readelf` -- **no C compiler**.
-Building one is a one-time setup step, using
+only contains an assembler, linker, and `readelf`. There is **no C
+compiler**. Building one is a one-time setup step, using
 [Buildroot](http://buildroot.uclibc.org/download.html):
 
 ```sh
 # download and extract Buildroot, then:
 make qemu_sparc_ss10_defconfig && make menuconfig
 # under "Toolchain", enable "Build cross gdb for the host" if you want gdb too
-make      # downloads and builds everything -- takes a while
+make      # downloads and builds everything, takes a while
 ```
 
 The resulting tools (`sparc-linux-gcc`, `sparc-linux-as`, ...) end up in
-`<buildroot>/output/host/usr/bin` -- add that to your `PATH`. See
+`<buildroot>/output/host/usr/bin`. Add that to your `PATH`. See
 `compiler/README.md` for the full note, including a link to the original
 writeup this is based on.
 
@@ -65,7 +65,7 @@ sparc-linux-ld -T compiler/sparc.ld your_program.o -o your_program.elf
 
 Then dump to a `.hex` memory image the same way `compiler/assemble.sh`
 does for assembly tests (`readelf --hex-dump` piped through
-`compiler/hexdump_to_memimage.py`) -- see that script for the exact
+`compiler/hexdump_to_memimage.py`). See that script for the exact
 invocation, or adapt it directly since it's a small, generic pipeline
 independent of whether the input was assembled from `.s` or compiled from
 `.c`.
@@ -88,13 +88,13 @@ void main(void)
 {
     /* ... your test's actual computation ... */
 
-    __asm__ volatile ("ta 0");   /* deliberate halt -- see link above */
-    while (1) {}                 /* never reached; satisfies -Wreturn-type */
+    __asm__ volatile ("ta 0");   /* deliberate halt, see link above */
+    while (1) {}                 /* never reached, satisfies -Wreturn-type */
 }
 ```
 
 Unlike the assembly tests, a C test generally doesn't need the full
-256-entry trap table boilerplate at all -- it isn't exercising trap
+256-entry trap table boilerplate at all. It isn't exercising trap
 behavior, just a sequence of ordinary instructions, so leaving traps
 disabled for the whole run (the reset default) and using the single `ta 0`
 above to signal completion is enough.

@@ -7,18 +7,18 @@ run something.
 
 ## The toolchain, in one picture
 
-```text
-  test.s ---------------------> test.elf ---------------------> test.hex ---------------------> final state / PASS-FAIL
-          sparc-elf-as / -ld              readelf +                       sparc_cpp_sim /
-                                           hexdump_to_memimage.py          check_test or
-                                                                           sitar_check_test
-```
+The build and run pipeline has three steps.
 
-A `.hex` file is a plain-text memory image (`compiler/hexdump_to_memimage.py`
-produces it from a linked ELF's sections) -- the one format both models
-load, via `MemCore::initializeMemory()`. Everything upstream of it
-(assembling, linking, and dumping to `.hex`) is identical regardless of
-which model you run it on afterward.
+1. `sparc-elf-as` and `sparc-elf-ld` assemble and link `test.s` into `test.elf`.
+2. `readelf` and `compiler/hexdump_to_memimage.py` convert `test.elf` into
+   `test.hex`, a plain text memory image.
+3. `sparc_cpp_sim` or `check_test` run `test.hex` on the plain C++ model.
+   `sitar_check_test` runs the same `test.hex` on the Sitar timed model.
+   Either path produces the final register state and a pass or fail result.
+
+The `.hex` format is the one format both models load, through
+`MemCore::initializeMemory()`. Everything upstream of it is identical
+regardless of which model you run it on afterward.
 
 ---
 
@@ -46,12 +46,12 @@ Simulation halted (error_mode) after 46 cycles.
 ```
 
 (`ERROR`/`error_mode` here just means the core hit its final `ta 0` with
-traps disabled -- the standard, deliberate way every test in this suite
-signals "done"; see
+traps disabled. This is the standard, deliberate way every test in this
+suite signals "done". See
 [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#the-pass-fail-convention).)
 
-`sparc_cpp_sim` just runs a memory image and prints final register state
--- handy for ad hoc use, but it doesn't check pass/fail. For that, use
+`sparc_cpp_sim` just runs a memory image and prints final register state.
+It's handy for ad hoc use, but it doesn't check pass/fail. For that, use
 `check_test` with the test's paired expected-results file:
 
 ```sh
@@ -68,7 +68,7 @@ OVERALL: PASS (13 checks)
 ```
 
 (`ADD.expected` is generated from the test's `.vprj` file by
-`validation/run_tests.py` -- see
+`validation/run_tests.py`. See
 [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
 for the full test-authoring format.)
 
@@ -114,8 +114,8 @@ model/sitar_model/build.py --logging
 model/sitar_model/executable/sitar_check_test  <hex>  <expected>  2> trace.log
 ```
 
-Logging is off by default (rebuild without `--logging` to go back) --
-it's noisy and slower, meant for debugging timing (e.g. verifying a
+Logging is off by default. Rebuild without `--logging` to go back to that.
+It's noisy and slower, meant for debugging timing (e.g. verifying a
 latency change actually took effect). Log lines are timestamped
 `[t=<cycle>]`. See [Performance Modeling](performance_modeling.md) for a
 worked example.

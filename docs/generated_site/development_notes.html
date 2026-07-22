@@ -71,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -129,7 +129,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -139,7 +139,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -1029,13 +1029,13 @@
 
 
 <h1 id="development-notes">Development Notes<a class="headerlink" href="#development-notes" title="Permanent link">&para;</a></h1>
-<p>This page is for contributors -- extending the core, adding tests, or
-building on this model for a larger system.</p>
+<p>This page is for contributors. It covers extending the core, adding
+tests, or building on this model for a larger system.</p>
 <hr />
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SparcV8_core/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  model/
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    cpp_common_code/   SparcCore -- the core, timing-agnostic. Shared by both drivers.
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    cpp_common_code/   SparcCore, the core, timing-agnostic. Shared by both drivers.
 </span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    cpp_model/          0-delay C++ driver, no Sitar dependency.
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    sitar_model/         Sitar-timed driver.
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  validation/
@@ -1044,32 +1044,32 @@ building on this model for a larger system.</p>
 </span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  docs/                    This documentation site.
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    generated_site/           Prebuilt, committed output -- open index.html directly.
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    generated_site/           Prebuilt, committed output. Open index.html directly.
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
 </span></code></pre></div>
 <p>Each of <code>model/cpp_common_code/</code>, <code>model/cpp_model/</code>, and
-<code>model/sitar_model/</code> has its own <code>README.md</code> with a per-file breakdown --
-start there for source-level detail. See also
+<code>model/sitar_model/</code> has its own <code>README.md</code> with a per-file breakdown.
+Start there for source-level detail. See also
 <a href="model_components.html">Model Components</a> for the higher-level picture.</p>
 <hr />
 <h2 id="where-isa-semantics-live">Where ISA semantics live<a class="headerlink" href="#where-isa-semantics-live" title="Permanent link">&para;</a></h2>
 <p><code>SparcCore</code> (<code>model/cpp_common_code/SparcCore.cpp</code>) is the single source
 of truth for instruction behavior, closely following the SPARC V8 manual
-with section citations throughout -- both drivers call the same methods
-in the same order. If you're fixing a semantics bug or adding an
-instruction, it belongs here, not in either driver; the fix then applies
-to both models automatically, and <code>validation/asm/</code> (run against both --
-see <a href="getting_started.html">Getting Started</a>) will catch a regression in
-either.</p>
+with section citations throughout. Both drivers call the same methods in
+the same order. If you're fixing a semantics bug or adding an
+instruction, it belongs here, not in either driver. The fix then applies
+to both models automatically, and <code>validation/asm/</code> runs against both
+(see <a href="getting_started.html">Getting Started</a>) and will catch a regression
+in either.</p>
 <h2 id="where-timing-lives">Where timing lives<a class="headerlink" href="#where-timing-lives" title="Permanent link">&para;</a></h2>
-<p>Deliberately kept out of <code>cpp_common_code/</code> entirely -- <code>SparcThread.sitar</code>
-and its supporting files (<code>OpcodeLatencies.h</code>, <code>MemoryInterface.sitar</code>,
-<code>MainMemory.sitar</code>) are the only place cycle counts exist. See
-<a href="performance_modeling.html">Performance Modeling</a>.</p>
+<p>Timing is deliberately kept out of <code>cpp_common_code/</code> entirely.
+<code>SparcThread.sitar</code> and its supporting files (<code>OpcodeLatencies.h</code>,
+<code>MemoryInterface.sitar</code>, <code>MainMemory.sitar</code>) are the only place cycle
+counts exist. See <a href="performance_modeling.html">Performance Modeling</a>.</p>
 <h2 id="a-known-sitar-cli-wrinkle">A known Sitar CLI wrinkle<a class="headerlink" href="#a-known-sitar-cli-wrinkle" title="Permanent link">&para;</a></h2>
 <p><code>sitar compile --cflags</code> currently only reaches the compile step
-(<code>CCFLAGS</code>), not the link step (<code>LIBS</code>/<code>LINKFLAGS</code>) -- filed in the
+(<code>CCFLAGS</code>), not the link step (<code>LIBS</code>/<code>LINKFLAGS</code>). This is filed in the
 separate <code>sitar</code> repository's own <code>TODO.md</code>, not yet fixed there.
 <code>model/sitar_model/build.py</code> works around this by letting the <code>sitar
 compile</code> link step fail as expected, then manually re-invoking <code>g++</code> with
@@ -1082,17 +1082,17 @@ for the full test-authoring format. A few conventions worth knowing if
 you're reading existing tests rather than writing new ones:</p>
 <ul>
 <li>Every test always halts via <code>ta 0</code> with traps disabled, landing the
-  core in <code>error_mode</code> -- this is the deliberate, universal "done" signal
+  core in <code>error_mode</code>. This is the deliberate, universal "done" signal
   described on that page, not a failure indicator by itself.</li>
 <li><code>docs/compliance/</code> exists specifically so that a documented, understood
   divergence from an external reference (AJIT, in this project's case)
   doesn't get silently "fixed" by editing the test to match a reference
-  that's actually wrong -- see <code>docs/compliance/README.md</code> for three worked
+  that's actually wrong. See <code>docs/compliance/README.md</code> for three worked
   examples of this reasoning. The same pattern is worth following for any
   future external reference comparison.</li>
 </ul>
 <h2 id="reporting-issues">Reporting issues<a class="headerlink" href="#reporting-issues" title="Permanent link">&para;</a></h2>
-<p>This project doesn't yet have a formal issue tracker convention -- for
+<p>This project doesn't yet have a formal issue tracker convention. For
 now, <code>TODO.md</code> at the repo root is the single place project status and
 open items are tracked.</p>
 
