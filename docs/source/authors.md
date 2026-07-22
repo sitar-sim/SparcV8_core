@@ -11,7 +11,7 @@ IIT Goa
 IIT Bombay
 
 This project is built on [Sitar](https://sitar-sim.github.io/sitar/),
-also authored by Neha Karanjkar and Madhav Desai -- see
+also authored by Neha Karanjkar and Madhav Desai. See
 [Sitar's own authors page](https://sitar-sim.github.io/sitar/authors.html)
 for that project's contributors.
 

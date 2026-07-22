@@ -8,9 +8,10 @@ tests, and how to write and run a new one.
 ## Anatomy of a test
 
 Every test is a pair of files: `<name>.s` (the assembly source) and
-`<name>.vprj` (the expected final state, `.vprj` for historical reasons --
-this format is adapted from the AJIT project, see `validation/README.md`).
-A `.s` file is fully self-contained and always has the same shape:
+`<name>.vprj` (the expected final state). The `.vprj` extension is for
+historical reasons, since this format is adapted from the AJIT project
+(see `validation/README.md`). A `.s` file is fully self-contained and
+always has the same shape:
 
 ```asm
 .global main
@@ -53,22 +54,22 @@ not_reached:
 trap_table_base:
     ! 256 four-instruction slots, one per trap type (0x00-0xff):
     !   mov <trap number>, %g1 ; restore ; ta 0 ; nop
-    ! ... (copy this verbatim from any existing test -- see below)
+    ! ... (copy this verbatim from any existing test, see below)
 ```
 
 ### The pass-fail convention
 
 Every test always halts the same way: a `ta 0` taken with traps disabled
 (`ET=0`, cleared automatically on trap entry) forces the processor into
-`error_mode` per the manual (Appendix C, Section C.8) -- this is what
+`error_mode` per the manual (Appendix C, Section C.8). This is what
 "`Simulation halted (error_mode)`" in `sparc_cpp_sim`'s output means, and
 it's expected, not a bug.
 
 `%g1` distinguishes a clean run from an unexpected trap:
 
 - If the test's own final `ta 0` (step 5 above) is what triggers this,
-  its trap-table slot (`SW_trap_0x80`) sets `%g1 = 0x80` -- **success,
-  nothing unexpected happened**.
+  its trap-table slot (`SW_trap_0x80`) sets `%g1 = 0x80`. **This is
+  success: nothing unexpected happened.**
 - If *any other* trap occurs first (a bug, a mistake in the test, or a
   trap you're deliberately testing for), it's caught by *that* trap's own
   table slot, which records the trap number into `%g1` before re-trapping
@@ -78,15 +79,15 @@ it's expected, not a bug.
 ### The trap table
 
 The 256-entry trap table is always the same boilerplate (each slot is a
-fixed 4 instructions: `mov <tt>, %g1; restore; ta 0; nop`) -- copy it
+fixed 4 instructions: `mov <tt>, %g1; restore; ta 0; nop`). Copy it
 verbatim from any existing test rather than retyping it. To make a test
 verify a *specific* trap actually fires (rather than just detecting an
-unexpected one), replace that one slot with custom code -- for example,
+unexpected one), replace that one slot with custom code. For example,
 `validation/asm/floating_point/fp_exceptions/overflow.s` replaces its
 `HW_trap_0x08` slot with `inc %g2; rett %r18; nop; nop`, which increments
 a counter and *resumes* execution right after the trapping instruction
-(via `rett`), instead of halting -- letting the test both confirm the trap
-fired (`%g2`) and continue on to a normal exit (`%g1 = 0x80`).
+(via `rett`), instead of halting. This lets the test both confirm the
+trap fired (`%g2`) and continue on to a normal exit (`%g1 = 0x80`).
 
 ---
 
@@ -109,9 +110,9 @@ o2=0xFFFFFFFB
   word-aligned 32-bit read).
 - Either kind of line accepts an optional trailing mask
   (`m[0x148] = 0x00000021 0x00000021` checks only the bits set in the
-  mask -- see `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`
-  for a real example distinguishing individual FSR bits).
-- `asi = ...` lines (an AJIT-format leftover) are recognized and ignored --
+  mask. See `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`
+  for a real example distinguishing individual FSR bits.)
+- `asi = ...` lines (an AJIT-format leftover) are recognized and ignored.
   `MemCore` is a single flat address space with no ASI distinction.
 
 ---
@@ -122,11 +123,11 @@ The pipeline is split into two phases, so the existing suite can be run
 without a cross-compiler installed at all:
 
 ```sh
-# phase 1 (needs the sparc-elf toolchain) -- assembles .s -> .hex,
+# phase 1 (needs the sparc-elf toolchain): assembles .s -> .hex,
 # only needed when you add/edit a .s source
 validation/build_hex.py validation/asm/your/new/test/dir
 
-# phase 2 -- runs the already-assembled .hex against a model
+# phase 2: runs the already-assembled .hex against a model
 validation/run_tests.py validation/asm/your/new/test/dir -v
 ```
 
@@ -148,11 +149,11 @@ per-test cycle limit (default 10000).
 
 Follow the existing category structure under `validation/asm/`
 (`integer_alu/`, `floating_point/`, `control_transfer/`, `data_transfer/`,
-`misc/`) -- put a new, focused group of tests in its own subfolder inside
-the appropriate category, e.g.
-`validation/asm/floating_point/fp_exceptions/` for the FSR
-exception-subtype tests. `run_tests.py` recurses, so nesting is free; it
-just needs to find `.vprj` files.
+`misc/`). Put a new, focused group of tests in its own subfolder inside
+the appropriate category. For example,
+`validation/asm/floating_point/fp_exceptions/` holds the FSR
+exception-subtype tests. `run_tests.py` recurses, so nesting is free.
+It just needs to find `.vprj` files.
 
 See `validation/README.md` for the AJIT-adaptation attribution and
 `docs/compliance/README.md` for documented, specific divergences from AJIT's

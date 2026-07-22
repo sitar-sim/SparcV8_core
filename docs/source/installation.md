@@ -12,7 +12,7 @@
 | [Sitar](https://sitar-sim.github.io/sitar/) CLI | Translating/compiling the timing model | Sitar model only |
 
 `libquadmath` ships with a standard `gcc`/`g++` install on most Linux
-distributions; no separate install step is usually needed.
+distributions. No separate install step is usually needed.
 
 ---
 
@@ -43,17 +43,17 @@ make this permanent.
     The bundled binaries are 32-bit (i386). On a 64-bit host you may need
     i386 compatibility libraries: on Debian/Ubuntu,
     `sudo dpkg --add-architecture i386 && sudo apt update && sudo apt install libc6-i386 zlib1g:i386`.
-    They won't run natively on non-x86 hosts (e.g. Apple Silicon) --
-    use a Linux x86_64 VM, or see `compiler/README.md` for building your
-    own cross-toolchain with Buildroot (also needed if/when you want a
-    `gcc` for compiling C programs -- see
-    [Writing and Running C Programs](writing_and_running_c_programs.md)).
+    They won't run natively on non-x86 hosts (e.g. Apple Silicon). Use a
+    Linux x86_64 VM, or see `compiler/README.md` for building your own
+    cross-toolchain with Buildroot. That's also what you need if you want
+    a `gcc` for compiling C programs. See
+    [Writing and Running C Programs](writing_and_running_c_programs.md).
 
 ---
 
 ## 3. Build the plain C++ model
 
-No further dependencies -- this model has no Sitar dependency at all.
+No further dependencies are needed. This model has no Sitar dependency at all.
 
 ```sh
 model/cpp_model/build.sh

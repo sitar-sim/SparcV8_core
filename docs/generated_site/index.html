@@ -69,7 +69,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -127,7 +127,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -137,7 +137,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -990,8 +990,8 @@ Sitar, both validated against the same instruction-level test suite.</p>
 <hr />
 <h2 id="what-is-sitar">What is Sitar?<a class="headerlink" href="#what-is-sitar" title="Permanent link">&para;</a></h2>
 <p><a href="https://sitar-sim.github.io/sitar/">Sitar</a> is a framework for modeling and
-parallel simulation of synchronous (clocked) discrete-event systems -- a
-domain-specific modeling language combined with a lightweight C++
+parallel simulation of synchronous (clocked) discrete-event systems. It
+combines a domain-specific modeling language with a lightweight C++
 simulation kernel. It is the framework this project's timing model is
 built with.</p>
 <ul>
@@ -999,7 +999,7 @@ built with.</p>
 <li>Sitar repository: <a href="https://github.com/sitar-sim/sitar">github.com/sitar-sim/sitar</a></li>
 </ul>
 <p>This project's own repository is a <em>model built using Sitar</em>, not part of
-Sitar itself -- if you're looking for the modeling language and simulation
+Sitar itself. If you're looking for the modeling language and simulation
 kernel, follow the links above.</p>
 <hr />
 <h2 id="what-is-sparc-v8">What is SPARC V8?<a class="headerlink" href="#what-is-sparc-v8" title="Permanent link">&para;</a></h2>
@@ -1012,37 +1012,39 @@ into a larger physical register file.</p>
 <p>SPARC V8 is the 32-bit revision of the architecture. The authoritative
 specification is <em>The SPARC Architecture Manual, Version 8</em>, included in
 this repository at
-<a href="sparcv8_Architecture_reference_Manual.pdf"><code>docs/source/sparcv8_Architecture_reference_Manual.pdf</code></a> --
-this project's model follows it closely, with section references cited
+<a href="sparcv8_Architecture_reference_Manual.pdf"><code>docs/source/sparcv8_Architecture_reference_Manual.pdf</code></a>.
+This project's model follows it closely, with section references cited
 throughout the source (<code>model/cpp_common_code/SparcCore.cpp</code> in
 particular). See also the
 <a href="https://en.wikipedia.org/wiki/SPARC">Wikipedia SPARC article</a> for general
 background and history.</p>
 <hr />
 <h2 id="what-this-project-offers">What this project offers<a class="headerlink" href="#what-this-project-offers" title="Permanent link">&para;</a></h2>
-<p>A SPARC V8 <strong>core</strong> -- integer unit, floating-point unit (including
-quad-precision), register windows, and the full trap and memory-access
-instruction set -- modeled at two levels, both built on the same
-timing-agnostic core implementation:</p>
+<p>A SPARC V8 <strong>core</strong> is modeled at two levels, both built on the same
+timing-agnostic core implementation. The core includes an integer unit, a
+floating-point unit (including quad-precision), register windows, and the
+full trap and memory-access instruction set.</p>
 <div class="admonition tip">
 <p class="admonition-title">Two models, one core</p>
 <p>Both models below drive the <em>same</em> <code>SparcCore</code> C++ class
 (<code>model/cpp_common_code/</code>), which implements SPARC V8 instruction
 semantics with no notion of cycles, timing, or pipelining of its own.
-The two models differ only in how they <em>drive</em> it -- one with no
-modeled delay at all, the other through Sitar with a configurable,
-non-pipelined cycle-level timing model. This means a bug fix or new
-instruction in the core is automatically reflected in both.</p>
+The two models differ only in how they <em>drive</em> it. One applies no
+modeled delay at all. The other drives it through Sitar with a
+configurable, non-pipelined cycle-level timing model. This means a bug
+fix or new instruction in the core is automatically reflected in both.</p>
 </div>
 <ol>
 <li>
-<p><strong>A plain C++ functional model</strong> (<code>model/cpp_model/</code>) -- a fetch-decode-
-   execute loop with zero modeled latency. Fast, simple, and has no Sitar
-   dependency at all; useful for pure ISA-correctness testing.</p>
+<p><strong>A plain C++ functional model</strong> (<code>model/cpp_model/</code>). This is a
+   fetch-decode-execute loop with zero modeled latency. It is fast and
+   simple, has no Sitar dependency at all, and is useful for pure
+   ISA-correctness testing.</p>
 </li>
 <li>
-<p><strong>A Sitar-timed model</strong> (<code>model/sitar_model/</code>) -- the same core, driven
-   through Sitar with a <strong>simple, non-pipelined cycle-level timing model</strong>:
+<p><strong>A Sitar-timed model</strong> (<code>model/sitar_model/</code>). This drives the same
+   core through Sitar with a <strong>simple, non-pipelined cycle-level timing
+   model</strong>:
    a fixed, configurable per-opcode delay, plus separate, independently
    configurable latencies for the memory interconnect and the memory
    itself (so loads/stores/instruction-fetch can be given realistic,
@@ -1050,15 +1052,15 @@ instruction in the core is automatically reflected in both.</p>
 </li>
 </ol>
 <p><strong>This project models the core only.</strong> There is no MMU, cache, or
-peripheral/device model here -- a full SoC-level model built around this
-core, with those components, is planned as a separate repository/version.
-This repository's own documentation does include one illustrative example
-of connecting an external component (a cache) to the core, as a pattern
-for anyone wanting to build a larger model around it -- see
-<a href="model_components.html#connecting-other-components">Model Components</a> (a
-stub for now).</p>
+peripheral/device model here. A full SoC-level model built around this
+core, with those components, is planned as a separate repository or
+version. This repository's own documentation does include one
+illustrative example of connecting an external component (a cache) to the
+core, as a pattern for anyone wanting to build a larger model around it.
+See <a href="model_components.html#connecting-other-components">Model Components</a>
+for a stub of this (not yet a full worked example).</p>
 <p>Both models are validated against the same instruction-level assembly test
-suite, and (planned) a suite of bare-metal C test programs -- see
+suite, and against a planned suite of bare-metal C test programs. See
 <a href="writing_and_running_assembly_programs.html">Writing and Running Programs</a>.</p>
 <hr />
 <h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>

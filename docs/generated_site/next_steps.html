@@ -71,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -129,7 +129,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -139,7 +139,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -1011,7 +1011,7 @@
 root. This page summarizes the larger, still-open directions.</p>
 <hr />
 <h2 id="bare-metal-c-test-suite">Bare-metal C test suite<a class="headerlink" href="#bare-metal-c-test-suite" title="Permanent link">&para;</a></h2>
-<p><code>validation/C/</code> is planned but not yet populated -- programs exercising
+<p><code>validation/C/</code> is planned but not yet populated. It will exercise
 sequences of operations together (matrix multiply, compound data types)
 rather than one opcode at a time, complementing <code>validation/asm/</code>'s
 instruction-level coverage. See
@@ -1023,12 +1023,12 @@ the intended approach and current toolchain status.</p>
 handshake (see <a href="model_components.html">Model Components</a>). Two further
 configurations are planned:</p>
 <ol>
-<li><strong>Loosely coupled via ports</strong> -- a variant wrapping <code>MemCore</code> behind
+<li><strong>Loosely coupled via ports</strong>. A variant wrapping <code>MemCore</code> behind
    real Sitar module ports/nets instead of the parallel-block handshake,
-   adding at least one cycle of communication latency each way (as
-   opposed to <code>MemoryInterface.delay</code>, which approximates latency without
-   an actual port connection).</li>
-<li><strong>Split instruction/data caches</strong> -- core plus separate I/D caches,
+   adding at least one cycle of communication latency each way. This is
+   unlike <code>MemoryInterface.delay</code>, which approximates latency without an
+   actual port connection.</li>
+<li><strong>Split instruction/data caches</strong>. Core plus separate I/D caches,
    each a <code>MainMemory</code>-like persistent procedure, connected the same way
    <code>MainMemory</code> is today, in turn talking to an external memory over
    ports/nets. This is also the planned worked example for
@@ -1037,22 +1037,22 @@ configurations are planned:</p>
 <h2 id="mmu-caches-and-peripherals">MMU, caches, and peripherals<a class="headerlink" href="#mmu-caches-and-peripherals" title="Permanent link">&para;</a></h2>
 <p>This repository models the core only (see
 <a href="index.html#what-this-project-offers">What this project offers</a>). A
-full SoC-level model built around this core -- MMU, caches as persistent
-components (not just the illustrative example above), peripherals/devices
--- is planned as a separate repository/version, rather than growing this
-one beyond a core model.</p>
+full SoC-level model built around this core is planned as a separate
+repository or version, rather than growing this one beyond a core model.
+That model would add an MMU, caches as persistent components (not just
+the illustrative example above), and peripherals or devices.</p>
 <h2 id="opcode-wise-test-coverage">Opcode-wise test coverage<a class="headerlink" href="#opcode-wise-test-coverage" title="Permanent link">&para;</a></h2>
 <p>A systematic pass comparing the full SPARC V8 instruction set against
 <code>validation/asm/</code> was completed, finding and filling several real gaps
 (a reserved/unassigned opcode encoding distinct from <code>UNIMP</code>, <code>STDFQ</code>,
 FSR exception subtypes beyond invalid-operation, <code>Ticc</code> trap-number
 wraparound). <code>CPop1</code>/<code>CPop2</code> (coprocessor operate) remain untested
-deliberately -- this model has no coprocessor at all yet, so they're
-deferred to whenever coprocessor support is added (see "MMU, caches, and
-peripherals" above; a coprocessor is architecturally the same kind of
-addition).</p>
+deliberately. This model has no coprocessor at all yet, so they're
+deferred to whenever coprocessor support is added. See "MMU, caches, and
+peripherals" above. A coprocessor is architecturally the same kind of
+addition.</p>
 <h2 id="documentation">Documentation<a class="headerlink" href="#documentation" title="Permanent link">&para;</a></h2>
-<p>This documentation site itself -- expect it to keep growing, particularly
+<p>This documentation site itself is expected to keep growing, particularly
 the <a href="model_components.html#connecting-other-components">Connecting other components</a>
 worked example once the split I/D-cache testbench above exists.</p>
 

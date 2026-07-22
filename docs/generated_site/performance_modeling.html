@@ -71,7 +71,7 @@
     
     
     
-    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo">
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
   
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
@@ -129,7 +129,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
     
       <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -139,7 +139,7 @@
     
     
     
-    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="custom" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
     
       <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
@@ -986,9 +986,9 @@
 
 <h1 id="performance-modeling">Performance Modeling<a class="headerlink" href="#performance-modeling" title="Permanent link">&para;</a></h1>
 <p>The Sitar model (<code>model/sitar_model/</code>) is a <strong>simple, non-pipelined
-cycle-level timing model</strong> -- no pipelining, no out-of-order execution,
-just a fixed delay per opcode plus separately configurable memory-access
-latencies. This page covers where to change those numbers, and how to
+cycle-level timing model</strong>. There is no pipelining and no out-of-order
+execution, just a fixed delay per opcode plus separately configurable
+memory-access latencies. This page covers where to change those numbers, and how to
 confirm a change actually took effect.</p>
 <hr />
 <h2 id="the-three-knobs">The three knobs<a class="headerlink" href="#the-three-knobs" title="Permanent link">&para;</a></h2>
@@ -1022,9 +1022,9 @@ confirm a change actually took effect.</p>
 </tr>
 </tbody>
 </table>
-<p>All three are independent and additive -- a load with opcode latency 1,
+<p>All three are independent and additive. A load with opcode latency 1,
 <code>MemoryInterface.delay</code> 2, and <code>MainMemory.delay</code> 3 takes 6 cycles total,
-not 3. All three accept <code>0</code> with no special-casing -- with everything at
+not 3. All three accept <code>0</code> with no special-casing. With everything at
 <code>0</code>, the Sitar model runs with zero elapsed simulated time per
 instruction, functionally identical to the plain <code>cpp_model</code>.</p>
 <hr />
@@ -1037,9 +1037,9 @@ instruction, functionally identical to the plain <code>cpp_model</code>.</p>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">};</span>
 </span></code></pre></div>
 <p><code>DEFAULT_PER_OPCODE_DELAY</code> applies to every opcode not listed in
-<code>OPCODE_LATENCY_OVERRIDES</code>; list only the exceptions there, e.g. to
+<code>OPCODE_LATENCY_OVERRIDES</code>. List only the exceptions there, e.g. to
 approximate a multi-cycle multiplier/divider. Edit and rebuild
-(<code>model/sitar_model/build.py</code>) to change it -- this is deliberately not a
+(<code>model/sitar_model/build.py</code>) to change it. This is deliberately not a
 runtime-loaded config file.</p>
 <h2 id="memory-side-latency">Memory-side latency<a class="headerlink" href="#memory-side-latency" title="Permanent link">&para;</a></h2>
 <p><code>MemoryInterface.delay</code> and <code>MainMemory.delay</code> both default to <code>0</code> and are
@@ -1070,18 +1070,18 @@ lines, which are timestamped <code>[t=(cycle,phase)]</code>:</p>
 </span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>(19,0)TOP.core.sparcThread:[t=(19,0)] Fetched Instruction: RDPSR; Instruction word: 0x93480000
 </span></code></pre></div>
 <p>Every other opcode (<code>OR</code>, <code>RDPSR</code>, ...) is fetched one cycle after the
-previous one, at the unmodified default -- but <code>ADD</code> at <code>t=15</code> is followed
-by the next fetch only at <code>t=19</code>, exactly the overridden 4-cycle gap.
-Reverting the override (back to the empty
+previous one, at the unmodified default. <code>ADD</code> at <code>t=15</code> is the
+exception. It is followed by the next fetch only at <code>t=19</code>, exactly the
+overridden 4-cycle gap. Reverting the override (back to the empty
 <code>OPCODE_LATENCY_OVERRIDES = {};</code> default) and rebuilding restores the
 uniform 1-cycle spacing.</p>
 <p>The same approach (rebuild with <code>--logging</code>, grep the relevant log lines)
-works for <code>MemoryInterface.delay</code>/<code>MainMemory.delay</code> -- look for
+works for <code>MemoryInterface.delay</code>/<code>MainMemory.delay</code> too. Look for
 <code>"servicing"</code>/<code>"response ready"</code> (<code>MainMemory</code>) and
 <code>"Started memory reference"</code>/<code>"Finished memory reference"</code>
 (<code>MemoryInterface</code>) instead.</p>
-<p>Logging is off by default (rebuild without <code>--logging</code> to go back) --
-it's noticeably slower and noisier, meant for exactly this kind of
+<p>Logging is off by default. Rebuild without <code>--logging</code> to go back to
+that. It's noticeably slower and noisier, meant for exactly this kind of
 debugging rather than everyday use.</p>
 
 
