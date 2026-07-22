@@ -41,8 +41,8 @@ this project's actual quad-precision behavior instead, including the
 division-by-zero exception detection.
 
 **A handful of AJIT's double/single-precision floating-point tests were
-moved to `compliance/` instead of being included here** -- see
-`compliance/README.md` for a detailed writeup (with side-by-side expected-vs-
+moved to `docs/compliance/` instead of being included here** -- see
+`docs/compliance/README.md` for a detailed writeup (with side-by-side expected-vs-
 actual test data) of the one specific, well-understood divergence involved
 (accrued-inexact FSR bit tracking), intended to be shared with AJIT's
 authors.

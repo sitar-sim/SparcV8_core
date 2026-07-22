@@ -63,7 +63,7 @@ extra_css:
 
 nav:
   - Introduction:
-      - What is this: index.md
+      - Overview: index.md
       - Installation: installation.md
       - Getting Started: getting_started.md
 

@@ -45,7 +45,7 @@ repo, and move completed "Next steps" items into it.
   `.hex` files -- see below for the `--sitar` flag). `.hex` files are
   committed to git for this reason; `.o`/`.elf`/`.expected` are not
   (`validation/clean.sh` removes them).
-- `compliance/` documents three independent, well-understood AJIT
+- `docs/compliance/` documents three independent, well-understood AJIT
   divergences (not bugs on either side, each with side-by-side
   original-vs-our_model `.vprj` evidence for AJIT's authors): (1) 10 tests,
   accrued-inexact FSR tracking; (2) 2 `RDPSR`/`WRPSR` tests, PSR
@@ -211,4 +211,4 @@ Design changes made:
 
 5. File the `SparcThread.sitar` trap-dispatch bug fix (see Milestone 2)
    nowhere else -- it's a bug in *this* repo's code, not AJIT's, so no
-   `compliance/` entry is needed; noted here for the record only.
+   `docs/compliance/` entry is needed; noted here for the record only.
