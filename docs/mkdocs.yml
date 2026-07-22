@@ -15,7 +15,7 @@ theme:
   palette:
     # Palette toggle for light mode
     - scheme: colorful
-      primary: blue grey
+      primary: custom
       accent: indigo
       toggle:
         icon: material/brightness-7
@@ -23,7 +23,7 @@ theme:
 
     # Palette toggle for dark mode
     - scheme: slate
-      primary: blue grey
+      primary: custom
       accent: indigo
       toggle:
         icon: material/brightness-4
