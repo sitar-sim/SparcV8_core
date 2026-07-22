@@ -12,6 +12,9 @@ permissions:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: docs
 
     steps:
       # 1. Get your repository code
@@ -24,15 +27,15 @@ jobs:
         with:
           python-version: "3.11"
 
-      # 3. Install documentation dependencies
+      # 3. Install documentation dependencies (also pulls in the vendored
+      #    Pygments lexer via the -e ./sitar_pygments_lexer line in
+      #    requirements.txt -- relative to this docs/ working directory)
       - name: Install docs dependencies
-        run: |
-          pip install -r docs/requirements.txt
-          pip install -e ./docs/sitar_pygments_lexer
+        run: pip install -r requirements.txt
 
       # 4. Build the static site
       - name: Build documentation
-        run: mkdocs build -f docs/mkdocs.yml
+        run: mkdocs build
 
       # 5. Publish to gh-pages
       - name: Deploy documentation
@@ -44,4 +47,4 @@ jobs:
 
           git remote set-url origin https://x-access-token:${GITHUB_TOKEN}@github.com/sitar-sim/SparcV8_core.git
 
-          mkdocs gh-deploy --clean --force -f docs/mkdocs.yml
+          mkdocs gh-deploy --clean --force
