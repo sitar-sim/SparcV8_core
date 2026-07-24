@@ -35,7 +35,7 @@ configurations are planned:
 ## MMU, caches, and peripherals
 
 This repository models the core only (see
-[What this project offers](index.md#what-this-project-offers)). A
+[Models](index.md#models)). A
 full SoC-level model built around this core is planned as a separate
 repository or version, rather than growing this one beyond a core model.
 That model would add an MMU, caches as persistent components (not just

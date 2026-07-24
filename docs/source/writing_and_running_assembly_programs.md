@@ -136,7 +136,7 @@ for anyone who just wants to run the existing suite. Commit the `.hex`
 alongside your `.s`/`.vprj` whenever you add or edit a test.
 
 Add `--sitar` to `run_tests.py` to run against the Sitar-timed model
-instead of the plain C++ one (see [Installation](installation.md) step 4
+instead of the plain C++ one (see [Installation](installation.md) step 3
 and `model/sitar_model/build.py`), and `--max-cycles N` to change the
 per-test cycle limit (default 10000).
 
