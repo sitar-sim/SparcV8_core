@@ -12,11 +12,17 @@
 //
 // Conventions:
 //
-//	Any software trap causes the Sparc core to go into ERROR mode and HALT.
-//	the core halts in the phase following one in which the error occurs.
-//
-//	*	software  trap 42 (ta 42) indicates end of program with SUCCESS      and sets flags SUCCESS = true  and HALT = true
-//	*	any other software trap indicates FAILURE/ERROR                      and sets flags SUCCESS = false and HALT = true
+//	Exactly like the plain C++ model (model/cpp_model/SparcStateMachine):
+//	a trap that occurs while traps are disabled (ET==0) has no handler
+//	left to jump to, so SparcCore::selectTrap() puts the core into
+//	error_mode instead -- that is the one and only way this procedure
+//	halts (HALT.VALUE, below). There is nothing special about any
+//	particular trap number; this procedure makes no judgment about
+//	whether a given halt represents a passing or failing test. That
+//	verdict comes from comparing final register/memory state against a
+//	test's own expected-results file (see sitar_check_test.cpp, which
+//	waits for HALT.VALUE and then does exactly that -- same convention
+//	as check_test.cpp for the cpp model).
 //================================================================
 
 
@@ -25,7 +31,8 @@ procedure SparcThread
 	//interface
 	//-----------------------------------------------------
 
-	//status flags HALT and SUCCESS
+	//status flag HALT -- see the "Conventions" note above: this procedure
+	//tracks only whether the core has halted, never why.
 	decl
 	$
 	#define cache_line_size_on_host  64
@@ -35,13 +42,11 @@ procedure SparcThread
 	} PaddedBlock;
 
 	PaddedBlock HALT;
-	PaddedBlock SUCCESS;
 
 	$
 	init
 	$
 	HALT.VALUE = false;
-	SUCCESS.VALUE = false;
 	$
 
 	//processor and core ID for this core
@@ -158,8 +163,8 @@ procedure SparcThread
 					core.state=SparcCore::EXECUTE;
 					core.trap=1;
 					core.reset_trap=1;
+					log<<endl<<core.logger.log_generic(current_time.cycle(), "RESET", "reset_trap -> EXECUTE");
 					$;
-					$log<<endl<<"Entering EXECUTE state from RESET state";$;
 				end if;
 
 
@@ -168,30 +173,26 @@ procedure SparcThread
 				//======================================================
 				if(core.state==SparcCore::ERROR)then
 
-					//core enters ERROR state after any error or software trap occurs
-					//if software trap 42 has occured, SUCCESS=true else SUCCESS = false
-					//halt the thread.
+					//core enters ERROR state after any trap occurs while
+					//traps are disabled (ET==0) -- see the "Conventions"
+					//note at the top of this file. Just record the halt;
+					//pass/fail is decided externally.
 
 					wait until (this_phase==0);
 					$
-					if(core.trap_instruction==1 and core.ticc_trap_type==42)
-					{
-						SUCCESS.VALUE	= true;
-						HALT.VALUE	= true;
-					}
-					else
-					{
-						SUCCESS.VALUE	= false;
-						HALT.VALUE	= true;
-					};
-					std::stringstream ss;
-					ss<<"Sparc core "<<hierarchicalId()<<" halted at time "<<current_time<<" with ";
-					if(SUCCESS.VALUE) ss<<" SUCCESS "; else ss<<" FAILURE ";
-					log<<endl<<ss.str();
+					HALT.VALUE = true;
+					log<<endl<<core.logger.log_generic(current_time.cycle(), "HALT", "entering error_mode");
 					$;
 
-					//stop behavior of this procedure
-					wait(100,0);
+					//This procedure's own loop (below) never exits once
+					//state==ERROR, so without a real time-consuming wait
+					//here it would spin through this branch again and
+					//again at the same simulated instant, starving every
+					//other parallel branch -- including Core.sitar's
+					//monitor branch, the thing actually responsible for
+					//calling `stop simulation;` once it sees HALT.VALUE.
+					//One cycle is enough: the monitor checks every cycle.
+					wait(1,0);
 
 				end if;
 
@@ -229,16 +230,11 @@ procedure SparcThread
 							//if so, execute traps.
 							if(core.trap==1)
 							{
-								std::stringstream ss;
-								ss<<" Sparc core "<<hierarchicalId()<<" A TRAP occured of type ";
-								ss<<core.printTrap()<<" at time "<<current_time;
-								if(core.reset_trap!=1)
-								{
-									ss<<" for instruction :"<<printOpcode(opcode);
-									ss<<" at address      : 0x"<<std::hex<<ifetchThread.address<<std::dec;
-								}
-
-								log<<endl<<ss.str();
+								//Read core.printTrap() before executeTraps() -- it
+								//clears every trap-cause flag as soon as this trap
+								//is serviced (SparcCore::selectTrap()), so this is
+								//the last point they're still valid to read.
+								log<<endl<<core.logger.log_trap_raised(current_time.cycle());
 
 								//Ref Section C.5: "if (trap = 1) then execute_trap;" --
 								//unconditional, every trap is dispatched the same way;
@@ -251,6 +247,8 @@ procedure SparcThread
 								//never decided here beforehand.
 								core.executeTraps();
 
+								if (core.state==SparcCore::EXECUTE)
+									log<<endl<<core.logger.log_trap_enter(current_time.cycle());
 							};
 							$;
 						end if;
@@ -291,11 +289,7 @@ procedure SparcThread
 								core.reg.W_instruction(instruction);
 								opcode=core.decoder.decode(&core.reg);
 
-								std::stringstream msg;
-								msg<<"[t="<<current_time<<"] Fetched Instruction: "<<printOpcode(opcode);
-								msg<<"; Instruction word: 0x";
-								msg<<std::hex<<instruction<<std::dec;
-								log<<endl<<msg.str();
+								log<<endl<<core.logger.log_fetch(current_time.cycle(), opcode);
 								$;
 
 
@@ -307,7 +301,7 @@ procedure SparcThread
 									core.annul=0;
 									core.reg.W_PC(core.reg.R_nPC()); //PC=nPC
 									core.reg.W_nPC(core.reg.R_nPC()+4); //nPC=nPC+4;
-									log<<endl<<"; This instruction is anulled";
+									log<<endl<<core.logger.log_generic(current_time.cycle(), "ANNUL", "instruction annulled");
 									$;
 								else
 									//this instruction is to be executed
@@ -355,8 +349,6 @@ procedure SparcThread
 													$
 													memReadThread.address=core.address;
 													memReadThread.addr_space=core.addr_space;
-
-													log<<endl<<"Creating a READ request";
 													$;
 
 													run memReadThread;
@@ -365,31 +357,8 @@ procedure SparcThread
 													core.MAE=memReadThread.MAE;
 													core.readWord0=memReadThread.readWord0;
 													core.readWord1=memReadThread.readWord1;
-
-
-													std::stringstream msg;
-													msg<<" Read request serviced! Received data : ";
-													if(isDoubleLoadInstruction(opcode))
-													{
-														//print both words
-													       msg<<std::hex<<"0x"<<memReadThread.readWord0;
-													       msg<<"\t"<<"0x"<<memReadThread.readWord1<<std::dec;
-													}
-													else if (readBits(core.address, 2,2)==0)
-													{
-														//print even word
-													       msg<<std::hex<<"0x"<<memReadThread.readWord0<<std::dec;
-													}
-													else
-													{
-
-														//print odd word
-														msg<<std::hex<<"0x"<<memReadThread.readWord1<<std::dec;
-													}
-													log<<endl<<msg.str();
-
-
 													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
+													log<<endl<<core.logger.log_mem_read(current_time.cycle(), core.address, core.readWord0, core.readWord1, isDoubleLoadInstruction(opcode), core.MAE);
 													$;
 												end if;
 											end if;
@@ -407,7 +376,6 @@ procedure SparcThread
 													if(core.trap==0) then
 														//Write to memory using write thread
 														$
-														log<<endl<<"Creating a WRITE request";
 														memWriteThread.address	 	=core.address;
 														memWriteThread.addr_space	=core.addr_space;
 														memWriteThread.writeWord0       =core.writeWord0;
@@ -416,6 +384,10 @@ procedure SparcThread
 														$;
 
 														run memWriteThread;
+
+														$
+														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteThread.MAE);
+														$;
 
 													end if;
 											end if;
@@ -442,18 +414,8 @@ procedure SparcThread
 													core.MAE=atomicLoadStoreThread.MAE;
 													core.readWord0=atomicLoadStoreThread.readWord0;
 													core.readWord1=atomicLoadStoreThread.readWord1;
-
-													std::stringstream msg;
-													msg<<" ATOMIC LOAD STORE request serviced! Received data: ";
-													uint32_t read_word =0;
-													if(readBits(core.address,2,2)==0)
-														read_word = atomicLoadStoreThread.readWord0;
-													else
-														read_word = atomicLoadStoreThread.readWord1;
-													msg<<"\t"<<std::hex<<read_word<<"\t"<<std::dec;
-													log<<endl<<msg.str();
-
 													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
+													log<<endl<<core.logger.log_atomic(current_time.cycle(), core.address, core.readWord0, core.writeWord0, core.MAE);
 													$;
 												end if;
 											end if;
@@ -474,6 +436,8 @@ procedure SparcThread
 												$;
 
 												run flushThread;
+
+												$log<<endl<<core.logger.log_generic(current_time.cycle(), "FLUSH", "");$;
 											end if;
 										end if;
 
@@ -509,10 +473,9 @@ procedure SparcThread
 
 		std::stringstream ss;
 
-		std::string status = (SUCCESS.VALUE==1)?"SUCCESS":"FAILURE";
 		ss<<"\n ----------------------------------------------------------";
-		ss<<"\n Processor "<<hierarchicalId()<<" halted with "<<status;
-		ss<<" last instruction executed :"<<printOpcode(opcode);
+		ss<<"\n Processor "<<hierarchicalId()<<" halted";
+		ss<<" -- last instruction executed :"<<printOpcode(opcode);
 		ss<<" at address      : 0x"<<std::hex<<ifetchThread.address<<std::dec;
 		ss<<"\n trap status = "<<core.trap;
 		ss<<"\n-----------------------------";

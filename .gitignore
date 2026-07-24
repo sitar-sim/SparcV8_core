@@ -15,6 +15,11 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 
+# sparc_trace.log / sitar.log (CoreLogger/Sitar output -- see
+# log_viewer/README.md), wherever they land, including the repo root when
+# a model's binary is run from here as its example commands show
+*.log
+
 # MkDocs (docs/.venv/); docs/generated_site/ IS committed, not ignored
 .venv/
 **/*.egg-info/

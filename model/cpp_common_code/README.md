@@ -39,8 +39,12 @@ re-implements or overrides them.
   family and FSR exception-flag tracking.
 - **`ImplementationDependent.h`** -- constants the SPARC V8 spec leaves
   implementation-defined (e.g. number of register windows).
-- **`ConvertToString.h`** -- small formatting helpers used by
-  `SparcCore::printSparcRegisters()` and similar debug dumps.
+- **`ConvertToString.h`** -- small formatting helpers used in a few places
+  around the codebase.
+- **`CoreLogger.h`/`.cpp`** -- formats/emits a `SparcCore`'s state as a
+  trace of architectural events (fetch, trap, memory access, ...); owned
+  by `SparcCore` itself (`SparcCore::logger`), so any driver gets one for
+  free. See `CoreLogger.h` for the full API.
 
 ## How to use it
 

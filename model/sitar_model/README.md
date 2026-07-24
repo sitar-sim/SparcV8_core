@@ -15,8 +15,11 @@ live here -- everything else about ISA behavior still comes from
     required by `sitar compile`'s convention of looking for a module
     literally named `Top`.
   - `Core.sitar` -- top-level behavior: runs `sparcThread` and `mainMemory`
-    as two parallel procedures sharing one `MemAccessInterface` struct; on
-    halt, prints `sparcThread.printInfo()` and calls `stop simulation`.
+    as two parallel procedures sharing one `MemAccessInterface` struct,
+    plus a third parallel branch that watches `sparcThread.HALT.VALUE`
+    (`sparcThread`'s own procedure never returns -- it loops forever
+    across `RESET`/`EXECUTE`/`ERROR` by design) and, once it's set,
+    prints `sparcThread.printInfo()` and calls `stop simulation`.
   - `SparcThread.sitar` -- the core driver. State machine (`RESET` ->
     `EXECUTE`); the `EXECUTE` state is a plain loop: fetch one instruction
     (via `MemoryInterface`), decode it, execute it (via `SparcCore`,
@@ -57,8 +60,8 @@ live here -- everything else about ISA behavior still comes from
   build products.
 - **`executable/test_simple_ADD.s`** -- a minimal, beginner-friendly example
   program (see below). Its assembled memory image
-  (`executable/test_simple_ADD.hex`), a readable assembler listing
-  (`executable/test_simple_ADD.lst`), and its expected-results file
+  (`executable/test_simple_ADD.hex`), a readable disassembly
+  (`executable/test_simple_ADD.objdump`), and its expected-results file
   (`executable/test_simple_ADD.expected`) are committed alongside it, so
   trying it out needs no toolchain at all.
 
@@ -125,14 +128,29 @@ rather than the plain C++ one, from the repository root:
 validation/run_tests.py validation/asm --sitar
 ```
 
-To inspect timing (e.g. while changing a `delay` value), rebuild with
-per-cycle logging enabled (off by default -- noisy and slower) and pipe
-stderr somewhere readable. Log lines are timestamped `[t=<cycle>]`:
+To inspect timing (e.g. while changing a `delay` value) or the
+instruction/state trace, rebuild with logging enabled (off by default --
+noisy and slower):
 
 ```sh
 ./build.py --logging
-./executable/sitar_check_test  <hex>  <expected>  2> trace.log
+./executable/sitar_check_test  <hex>  <expected>
 ```
+
+This writes two files into the current directory, instead of Sitar's
+usual stderr output:
+
+- **`sparc_trace.log`** -- `sparcThread`'s own log only, one tab-separated
+  row per architectural event from `SparcCore`'s `CoreLogger`, with
+  Sitar's usual `(time)hierarchicalId:` line prefix turned off. Same
+  format the cpp model's `--logging` build writes (see
+  `../cpp_common_code/CoreLogger.h`); load it directly into
+  `../../log_viewer/` (see that directory's `README.md`) with no
+  extraction needed.
+- **`sitar.log`** -- everything else: `mainMemory`/`ifetchThread`/the
+  other `MemoryInterface` instances' own per-request/response messages,
+  timestamped `[t=<cycle>]`, prefixed with each module's hierarchical id
+  as usual.
 
 To change a latency knob, edit the relevant source and rebuild:
 

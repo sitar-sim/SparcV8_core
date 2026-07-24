@@ -15,6 +15,7 @@
 					//memory size, etc.
 
 
+#include"CoreLogger.h"			//formats/emits this core's state as an architectural-event trace
 #include"MemCore.h"			//Main memory model
 
 #include<iostream>
@@ -109,7 +110,12 @@ class SparcCore
 		
 		//Ancillary functions
 		std::string printSparcState(); //return current state as a string.
-		std::string printSparcRegisters(); //return a string corresponding to the value of all registers
+
+		//Formats and emits this core's state as a trace of architectural
+		//events -- see CoreLogger.h. Owned here (rather than by whatever
+		//driver is stepping this core) so any driver gets one for free,
+		//initialized and ready via this constructor, with no extra wiring.
+		CoreLogger logger;
 
 
 

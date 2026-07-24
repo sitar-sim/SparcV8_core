@@ -18,6 +18,9 @@
 #include <iostream>
 #include <cstdlib>
 #include <string>
+#ifdef SPARC_LOGGING_ENABLED
+#include <fstream>
+#endif
 
 int main(int argc, char** argv)
 {
@@ -37,9 +40,25 @@ int main(int argc, char** argv)
 	core.memCore = &mem; //used by SparcCore::instructionFetch()
 
 	SparcStateMachine runner(core, mem);
+
+#ifdef SPARC_LOGGING_ENABLED
+	//Only present in a --logging build (see build.sh). Fixed filename,
+	//written into the current directory.
+	std::ofstream logFile("sparc_trace.log");
+	if (logFile.is_open())
+	{
+		core.logger.init(core, &logFile, true);
+		std::cout << "Logging instruction trace to sparc_trace.log\n";
+	}
+	else
+	{
+		std::cerr << "warning: could not open sparc_trace.log for writing; continuing without logging\n";
+	}
+#endif
+
 	runner.run(maxCycles);
 
-	std::cout << "\n" << core.printSparcRegisters() << "\n";
+	std::cout << "\n" << core.logger.print_state() << "\n";
 
 	if (runner.halted)
 		std::cout << "\nSimulation halted (error_mode) after " << runner.cyclesExecuted << " cycles.\n";

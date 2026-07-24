@@ -25,10 +25,16 @@ modeled only in `../sitar_model/`.
   `OVERALL` verdict. This is what `../../validation/run_tests.py` drives.
 - **`build.sh`** -- builds both `sparc_cpp_sim` and `check_test` (links
   `../cpp_common_code/*.cpp` plus `-lquadmath`). Both binaries are
-  gitignored build products.
-- **`test/`** -- a minimal, beginner-friendly example program (see below),
-  with its assembled memory image and expected-results file committed
-  alongside it, so trying it out needs no toolchain at all.
+  gitignored build products. `--logging`/`--no-logging` (default) controls
+  whether `SparcCore::logger` (a `CoreLogger` -- see
+  `../cpp_common_code/CoreLogger.h`) does real work or compiles to no-op
+  stubs; with `--logging`, `sparc_cpp_sim` writes a full instruction/state
+  trace to `sparc_trace.log`, viewable in `../../log_viewer/`.
+- **`test/`** -- a minimal, beginner-friendly example program (see below).
+  Its assembled memory image (`test_simple_ADD.hex`), a readable
+  disassembly (`test_simple_ADD.objdump`), and its expected-results file
+  (`test_simple_ADD.expected`) are committed alongside it, so trying it
+  out needs no toolchain at all.
 
 ## How to run it
 
@@ -67,6 +73,18 @@ PASS: l0 = 0x5
 PASS: l1 = 0x7
 OVERALL: PASS (3 checks)
 ```
+
+### Inspecting a trace
+
+```sh
+./build.sh --logging
+./sparc_cpp_sim test/test_simple_ADD.hex
+```
+
+Writes `sparc_trace.log` into the current directory; open it in
+`../../log_viewer/viewer.html` (see that directory's `README.md`) to step
+through fetch/trap/memory events alongside the disassembly and register
+state.
 
 ### Next steps
 
