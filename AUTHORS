@@ -28,3 +28,10 @@ See `validation/README.md` and `compliance/README.md` for details on which
 tests were adapted as-is, which were extended for this project's own
 quad-precision floating-point support, and a few specific, documented
 divergences from AJIT's own reference results.
+
+`compiler/compile_c.sh` (the C-test build pipeline) follows the compile/
+link/hex-dump/objdump sequence of the AJIT project's own
+`tools/scripts/compileToSparc.py` and `cToSparc.py`, written by Madhav Desai
+and Neha Karanjkar. The bundled `sparc-elf-gcc` cross-compiler itself
+(`compiler/sparc-elf-toolchain-i386.zip`) is also from that same project's
+prebuilt toolchain.
