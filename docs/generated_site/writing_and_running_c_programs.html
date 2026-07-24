@@ -16,7 +16,7 @@
         <link rel="prev" href="writing_and_running_assembly_programs.html">
       
       
-        <link rel="next" href="model_components.html">
+        <link rel="next" href="examining_core_state_with_gdb.html">
       
       
         
@@ -560,21 +560,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#toolchain-status" class="md-nav__link">
+  <a href="#toolchain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Toolchain status
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compiling-freestanding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compiling freestanding
+        Toolchain
       
     </span>
   </a>
@@ -592,10 +581,49 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -932,21 +960,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#toolchain-status" class="md-nav__link">
+  <a href="#toolchain" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Toolchain status
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compiling-freestanding" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compiling freestanding
+        Toolchain
       
     </span>
   </a>
@@ -958,6 +975,17 @@
     <span class="md-ellipsis">
       
         Structuring a test program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
       
     </span>
   </a>
@@ -985,19 +1013,15 @@
 
 
 <h1 id="writing-and-running-c-programs">Writing and Running C Programs<a class="headerlink" href="#writing-and-running-c-programs" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Status</p>
-<p><code>validation/C/</code> (bare-metal C test programs, e.g. matrix multiply,
-compound data types, sequences of operations rather than one opcode
-at a time) is planned but not yet populated. This page documents the
-intended approach and current toolchain status, so it's usable as a
-guide once those tests are written, and as a starting point for
-writing your own C program against the model in the meantime.</p>
-</div>
+<p><code>validation/C/</code> holds bare-metal C test programs. These exercise a
+sequence of C-level operations together (loops, arrays, structs, global
+variables), rather than one instruction at a time the way <code>validation/asm/</code>
+does. This page describes the format, how it gets built and run, and how
+to write your own.</p>
 <hr />
 <h2 id="no-standard-library-by-design">No standard library, by design<a class="headerlink" href="#no-standard-library-by-design" title="Permanent link">&para;</a></h2>
 <p>This model has <strong>no MMU, no cache, no peripheral/device model, and no
-operating system</strong> (see <a href="index.html#what-this-project-offers">What this project offers</a>).
+operating system</strong> (see <a href="index.html#models">Models</a>).
 There is nothing for a C standard library to call into. <code>printf</code> has no
 console to write to. <code>malloc</code> has no OS to request pages from. C programs
 for this model must be <strong>freestanding</strong>: no <code class="language-c highlight"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span></code>, no
@@ -1006,64 +1030,85 @@ hand against the flat memory space <code>MemCore</code> provides.</p>
 <p>This is the same reason <code>model/cpp_model/main.cpp</code>'s driver doesn't try to
 model a console. There's genuinely nothing on the other end of one yet.</p>
 <hr />
-<h2 id="toolchain-status">Toolchain status<a class="headerlink" href="#toolchain-status" title="Permanent link">&para;</a></h2>
-<p>The bundled <code>sparc-elf</code> toolchain (see <a href="installation.html">Installation</a>)
-only contains an assembler, linker, and <code>readelf</code>. There is <strong>no C
-compiler</strong>. Building one is a one-time setup step, using
-<a href="http://buildroot.uclibc.org/download.html">Buildroot</a>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1"># download and extract Buildroot, then:</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>make<span class="w"> </span>qemu_sparc_ss10_defconfig<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>menuconfig
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1"># under &quot;Toolchain&quot;, enable &quot;Build cross gdb for the host&quot; if you want gdb too</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>make<span class="w">      </span><span class="c1"># downloads and builds everything, takes a while</span>
+<h2 id="toolchain">Toolchain<a class="headerlink" href="#toolchain" title="Permanent link">&para;</a></h2>
+<p>A minimal, freestanding C compiler (GCC 4.4.3) is bundled alongside the
+existing <code>sparc-elf</code> assembler, linker, <code>readelf</code>, and <code>objdump</code> (see
+<a href="installation.html">Installation</a>). It exists for one narrow purpose:
+building this project's own <code>validation/C/</code> tests, with no setup beyond
+installing the bundled toolchain.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>compiler/compile_c.sh<span class="w"> </span>your_program.c
+</span></code></pre></div>
+<p>This produces <code>your_program.hex</code>, the same kind of memory image
+<code>compiler/assemble.sh</code> produces for assembly tests, loadable the same way
+by <code>MemCore::initializeMemory()</code>. It also produces <code>your_program.objdump</code>,
+a readable disassembly of the linked program, useful for seeing what the
+compiler actually generated (unlike a hand-written <code>.s</code> file, this isn't
+something you wrote directly).</p>
+<p>See <code>compiler/README.md</code> for exactly what's bundled and why. If you want
+to write more serious C programs of your own, rather than just work with
+this project's own test suite, build a proper, modern, actively-supported
+cross-compiler instead, with <a href="http://buildroot.uclibc.org/download.html">Buildroot</a>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># download and extract Buildroot, then:</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>make<span class="w"> </span>qemu_sparc_ss10_defconfig<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>menuconfig
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># under &quot;Toolchain&quot;, enable &quot;Build cross gdb for the host&quot; if you want gdb too</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>make<span class="w">      </span><span class="c1"># downloads and builds everything, takes a while</span>
 </span></code></pre></div>
 <p>The resulting tools (<code>sparc-linux-gcc</code>, <code>sparc-linux-as</code>, ...) end up in
 <code>&lt;buildroot&gt;/output/host/usr/bin</code>. Add that to your <code>PATH</code>. See
 <code>compiler/README.md</code> for the full note, including a link to the original
 writeup this is based on.</p>
 <hr />
-<h2 id="compiling-freestanding">Compiling freestanding<a class="headerlink" href="#compiling-freestanding" title="Permanent link">&para;</a></h2>
-<p>Compile with the flags that tell <code>gcc</code> there's no OS or libc underneath:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>sparc-linux-gcc<span class="w"> </span>-Av8<span class="w"> </span>-ffreestanding<span class="w"> </span>-nostdlib<span class="w"> </span>-nostartfiles<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span>-O2<span class="w"> </span>-c<span class="w"> </span>your_program.c<span class="w"> </span>-o<span class="w"> </span>your_program.o
-</span></code></pre></div>
-<p>Link against the same <code>compiler/sparc.ld</code> script the assembly tests use,
-which places <code>.text</code> at address <code>0x0</code> (matching the SPARC V8 reset
-convention, PC=0 after reset) and sets the entry point to <code>main</code>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>sparc-linux-ld<span class="w"> </span>-T<span class="w"> </span>compiler/sparc.ld<span class="w"> </span>your_program.o<span class="w"> </span>-o<span class="w"> </span>your_program.elf
-</span></code></pre></div>
-<p>Then dump to a <code>.hex</code> memory image the same way <code>compiler/assemble.sh</code>
-does for assembly tests (<code>readelf --hex-dump</code> piped through
-<code>compiler/hexdump_to_memimage.py</code>). See that script for the exact
-invocation, or adapt it directly since it's a small, generic pipeline
-independent of whether the input was assembled from <code>.s</code> or compiled from
-<code>.c</code>.</p>
-<hr />
 <h2 id="structuring-a-test-program">Structuring a test program<a class="headerlink" href="#structuring-a-test-program" title="Permanent link">&para;</a></h2>
-<p>Since <code>sparc.ld</code> sets <code>ENTRY(main)</code> directly (no C runtime startup code,
-no <code>argc</code>/<code>argv</code>, nothing to return into), your C <code>main()</code> <em>is</em> the
-program's entry point, and it must never return. The simplest way to end
-a test cleanly is the same mechanism the assembly tests use: execute a
-trap while traps are disabled (<code>ET=0</code>, the state every program starts in
-after reset), which the model recognizes as a deliberate halt (see
-<a href="writing_and_running_assembly_programs.html#the-pass-fail-convention">Writing and Running Assembly Programs</a>).
-From C, that's a single line of inline assembly at the end of <code>main</code>:</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="p">{</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="w">    </span><span class="cm">/* ... your test&#39;s actual computation ... */</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;ta 0&quot;</span><span class="p">);</span><span class="w">   </span><span class="cm">/* deliberate halt, see link above */</span>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span><span class="w">                 </span><span class="cm">/* never reached, satisfies -Wreturn-type */</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="p">}</span>
+<p>Write an ordinary, freestanding C <code>main()</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="kt">int</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="p">{</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="w">    </span><span class="c1">// ... your test&#39;s actual computation ...</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">42</span><span class="p">;</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="w">    </span><span class="c1">// Halt: traps are enabled (crt0.s), so this ta 0 is caught by its</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="w">    </span><span class="c1">// trap-table slot, which re-traps with traps now disabled, forcing</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="w">    </span><span class="c1">// the model into error_mode. See &quot;The pass-fail convention&quot; below.</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;ta 0&quot;</span><span class="p">);</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="w">    </span><span class="c1">// Never reached: ta 0 above always halts the simulation first. This</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a><span class="w">    </span><span class="c1">// just satisfies the compiler, which otherwise warns that a</span>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="w">    </span><span class="c1">// non-void main() falls off the end without returning a value.</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="p">}</span>
 </span></code></pre></div>
-<p>Unlike the assembly tests, a C test generally doesn't need the full
-256-entry trap table boilerplate at all. It isn't exercising trap
-behavior, just a sequence of ordinary instructions, so leaving traps
-disabled for the whole run (the reset default) and using the single <code>ta 0</code>
-above to signal completion is enough.</p>
+<p><code>main()</code> must never return, since there's nothing to return into. The way
+to end a test is the same mechanism <code>validation/asm/</code> tests use, described
+in full in
+<a href="writing_and_running_assembly_programs.html#the-pass-fail-convention">Writing and Running Assembly Programs</a>:
+a single line of inline assembly, <code>__asm__ volatile ("ta 0")</code>, at the end
+of <code>main()</code>.</p>
+<p>Unlike an assembly test, you don't write any of the surrounding setup by
+hand. <code>compiler/crt0.s</code> is linked ahead of your compiled <code>.c</code> file (by
+<code>compile_c.sh</code>, entry point overridden to <code>crt0.s</code>'s own <code>_start</code>) and does
+it for you: enables traps, installs the same 256-entry trap table every
+<code>validation/asm/</code> test installs, initializes <code>%g1</code> as the pass/fail
+sentinel, sets up a working stack (needed for any C function using a local
+variable, which <code>%sp</code> starting at <code>0</code> does not provide on its own), then
+calls your <code>main()</code>. See <code>crt0.s</code> itself for the full explanation of each
+step. The result is that a C test's <code>ta 0</code> halts exactly the same way an
+assembly test's does, and an unexpected trap during your test is caught
+the same way too.</p>
 <p>Checking results works the same way as the assembly tests: write results
-to fixed, known memory addresses or registers, and check them via a
-<code>.vprj</code> file the same <a href="writing_and_running_assembly_programs.html#the-vprj-expected-results-file"><code>REG</code>/<code>MEM</code> format</a>
-already used throughout <code>validation/asm/</code>.</p>
+to fixed, known memory addresses (globals) or registers, and check them
+via a <code>.vprj</code> file, the same <a href="writing_and_running_assembly_programs.html#the-vprj-expected-results-file"><code>REG</code>/<code>MEM</code> format</a>
+already used throughout <code>validation/asm/</code>. For a memory check, you need
+the linked address of a global variable, found via <code>readelf -s
+your_program.elf</code> (or the generated <code>.objdump</code>).</p>
+<hr />
+<h2 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h2>
+<p>Same two-phase pipeline as <code>validation/asm/</code>, see
+<a href="writing_and_running_assembly_programs.html#running-it">Writing and Running Assembly Programs</a>
+and <code>validation/README.md</code>. <code>build_hex.py</code> picks <code>compiler/assemble.sh</code> or
+<code>compiler/compile_c.sh</code> automatically, based on whether a test's <code>SOURCES</code>
+line names a <code>.s</code> or a <code>.c</code> file.</p>
 
 
 

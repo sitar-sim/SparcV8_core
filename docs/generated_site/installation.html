@@ -428,10 +428,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-install-the-sparc-v8-cross-toolchain" class="md-nav__link">
+  <a href="#2-build-and-run-the-plain-c-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Install the SPARC V8 cross-toolchain
+        2. Build and run the plain C++ model
       
     </span>
   </a>
@@ -439,10 +439,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-build-the-plain-c-model" class="md-nav__link">
+  <a href="#3-optional-install-sitar-and-build-the-timing-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Build the plain C++ model
+        3. (Optional) Install Sitar, and build the timing model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. (Optional) Install Sitar, and build the timing model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-larger-programs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running larger programs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-optional-install-the-sparc-v8-cross-toolchain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. (Optional) Install the SPARC V8 cross-toolchain
       
     </span>
   </a>
@@ -450,21 +478,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-optional-install-sitar-and-build-the-timing-model" class="md-nav__link">
+  <a href="#5-optional-install-mkdocs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. (Optional) Install Sitar, and build the timing model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-verify-run-the-validation-suite" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Verify: run the validation suite
+        5. (Optional) Install MkDocs
       
     </span>
   </a>
@@ -610,6 +627,34 @@
     
   
     C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
   
 
     
@@ -965,10 +1010,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#2-install-the-sparc-v8-cross-toolchain" class="md-nav__link">
+  <a href="#2-build-and-run-the-plain-c-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        2. Install the SPARC V8 cross-toolchain
+        2. Build and run the plain C++ model
       
     </span>
   </a>
@@ -976,10 +1021,38 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#3-build-the-plain-c-model" class="md-nav__link">
+  <a href="#3-optional-install-sitar-and-build-the-timing-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        3. Build the plain C++ model
+        3. (Optional) Install Sitar, and build the timing model
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="3. (Optional) Install Sitar, and build the timing model">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-larger-programs" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running larger programs
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#4-optional-install-the-sparc-v8-cross-toolchain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        4. (Optional) Install the SPARC V8 cross-toolchain
       
     </span>
   </a>
@@ -987,21 +1060,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#4-optional-install-sitar-and-build-the-timing-model" class="md-nav__link">
+  <a href="#5-optional-install-mkdocs" class="md-nav__link">
     <span class="md-ellipsis">
       
-        4. (Optional) Install Sitar, and build the timing model
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#5-verify-run-the-validation-suite" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        5. Verify: run the validation suite
+        5. (Optional) Install MkDocs
       
     </span>
   </a>
@@ -1030,100 +1092,141 @@
 
 <h1 id="installation">Installation<a class="headerlink" href="#installation" title="Permanent link">&para;</a></h1>
 <h2 id="prerequisites">Prerequisites<a class="headerlink" href="#prerequisites" title="Permanent link">&para;</a></h2>
+<p>This is all you need to build both models and run the bundled example
+program (see step 2 below).</p>
 <table>
 <thead>
 <tr>
 <th>Tool</th>
 <th>Purpose</th>
-<th>Needed for</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Linux, x86_64</td>
 <td>Development platform</td>
-<td>Everything below</td>
 </tr>
 <tr>
 <td>g++ (C++11)</td>
 <td>Compiling the C++ model</td>
-<td>Both models</td>
-</tr>
-<tr>
-<td><code>libquadmath</code></td>
-<td>Quad-precision floating point</td>
-<td>Both models</td>
-</tr>
-<tr>
-<td><code>sparc-elf</code> toolchain (assembler/linker)</td>
-<td>Assembling <code>.s</code> test programs</td>
-<td>Running/writing tests</td>
 </tr>
 <tr>
 <td>Python 3</td>
-<td>Build/test scripts</td>
-<td>Everything below</td>
-</tr>
-<tr>
-<td><a href="https://sitar-sim.github.io/sitar/">Sitar</a> CLI</td>
-<td>Translating/compiling the timing model</td>
-<td>Sitar model only</td>
+<td>Build scripts</td>
 </tr>
 </tbody>
 </table>
-<p><code>libquadmath</code> ships with a standard <code>gcc</code>/<code>g++</code> install on most Linux
-distributions. No separate install step is usually needed.</p>
+<p><code>libquadmath</code>, needed for quad-precision floating point, is not listed
+separately. It ships with a standard <code>gcc</code>/<code>g++</code> install on most Linux
+distributions, so no separate install step is usually needed.</p>
+<p>Three more tools are needed, but only for optional later steps: the
+<a href="https://sitar-sim.github.io/sitar/">Sitar</a> CLI (step 3, for the
+cycle-timed model), the <code>sparc-elf</code> cross-toolchain (step 4, for writing
+and compiling your own test programs), and MkDocs (step 5, for editing
+this documentation).</p>
 <hr />
 <h2 id="1-clone-the-repository">1. Clone the repository<a class="headerlink" href="#1-clone-the-repository" title="Permanent link">&para;</a></h2>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>git<span class="w"> </span>clone<span class="w"> </span>https://github.com/sitar-sim/SparcV8_core.git
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>SparcV8_core
 </span></code></pre></div>
 <hr />
-<h2 id="2-install-the-sparc-v8-cross-toolchain">2. Install the SPARC V8 cross-toolchain<a class="headerlink" href="#2-install-the-sparc-v8-cross-toolchain" title="Permanent link">&para;</a></h2>
-<p>Needed to assemble <code>.s</code> test programs into memory images the model can
-load (<code>compiler/</code>). A prebuilt <strong>32-bit x86 (i386)</strong> assembler/linker is
-bundled:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>compiler/install_toolchain.sh<span class="w">          </span><span class="c1"># unzips into compiler/toolchain/</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="nb">source</span><span class="w"> </span>compiler/toolchain_env.sh<span class="w">       </span><span class="c1"># adds it to PATH, this shell session</span>
+<h2 id="2-build-and-run-the-plain-c-model">2. Build and run the plain C++ model<a class="headerlink" href="#2-build-and-run-the-plain-c-model" title="Permanent link">&para;</a></h2>
+<p>No further dependencies are needed. This model has no Sitar dependency at
+all.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/build.sh
+</span></code></pre></div>
+<p>This builds <code>sparc_cpp_sim</code> (run a memory image, print final state) and
+<code>check_test</code> (run a memory image, compare against expected results), both
+inside <code>model/cpp_model/</code>.</p>
+<p>A minimal example program, <code>test/test_simple_ADD.s</code>, is committed alongside
+them, along with its already-assembled memory image. It adds two numbers
+and puts the result in a register, then halts. View it first:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cat<span class="w"> </span>model/cpp_model/test/test_simple_ADD.s
+</span></code></pre></div>
+<p>Then run it:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>model/cpp_model/test/test_simple_ADD.hex
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>PROCESSOR STATE: ERROR
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>...
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a> Out:
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> o0 c
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> ...
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Simulation halted (error_mode) after 9 cycles.
+</span></code></pre></div>
+<p>This prints every register's final value once the program halts. <code>o0</code> is
+<code>0xc</code> (12), the sum of the two numbers the program added. <code>sparc_cpp_sim</code>
+always prints this final state. It has no separate logging mode. For an
+instruction-by-instruction trace instead, see the Sitar-timed model below.</p>
+<hr />
+<h2 id="3-optional-install-sitar-and-build-the-timing-model">3. (Optional) Install Sitar, and build the timing model<a class="headerlink" href="#3-optional-install-sitar-and-build-the-timing-model" title="Permanent link">&para;</a></h2>
+<p>Only needed if you want the cycle-timed Sitar model, not just the plain
+C++ one. Follow Sitar's own
+<a href="https://sitar-sim.github.io/sitar/getting_started.html">installation instructions</a>
+first, to build the <code>sitar</code> CLI and put it on your <code>PATH</code>.</p>
+<p>Build with logging enabled, so a first, simple log is produced:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
+</span></code></pre></div>
+<p>This builds <code>sitar_check_test</code> inside <code>model/sitar_model/executable/</code>.
+Run the same example program as above:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.expected
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(0,0)TOP.core.sparcThread:[t=(0,0)] Fetched Instruction: WRPSR; Instruction word: 0x81880000
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>(1,0)TOP.core.sparcThread:[t=(1,0)] Fetched Instruction: NOP; Instruction word: 0x1000000
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>...
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>PASS: o0 = 0xc
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>OVERALL: PASS (1 checks)
+</span></code></pre></div>
+<p>Each <code>Fetched Instruction</code> line is one instruction being executed, with the
+memory reference and state update it causes logged around it, so you can
+follow the program's execution one instruction at a time.</p>
+<h3 id="running-larger-programs">Running larger programs<a class="headerlink" href="#running-larger-programs" title="Permanent link">&para;</a></h3>
+<p>Full per-cycle logging like this gets noisy and slow for anything bigger
+than the tiny example above. Build without <code>--logging</code> (the default) for
+everyday use:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>model/sitar_model/build.py
+</span></code></pre></div>
+<p>If you still need to look inside a specific part of a longer run, two
+options:</p>
+<ul>
+<li>Enable Sitar's logging surgically, for a specific time window or
+  condition instead of the whole run, using <code>log.turnOFF()</code>/<code>log.turnON()</code>
+  in the model source. See Sitar's own
+  <a href="https://sitar-sim.github.io/sitar/3_language_and_examples/logging.html">Logging</a>
+  documentation for the full mechanism.</li>
+<li>Run the simulation under host <code>gdb</code> instead, setting breakpoints and
+  examining the simulated core's registers and memory directly. See
+  <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</li>
+</ul>
+<hr />
+<h2 id="4-optional-install-the-sparc-v8-cross-toolchain">4. (Optional) Install the SPARC V8 cross-toolchain<a class="headerlink" href="#4-optional-install-the-sparc-v8-cross-toolchain" title="Permanent link">&para;</a></h2>
+<p>Only needed if you want to write and compile your own test programs,
+rather than just running the bundled example and the existing validation
+suite. A prebuilt <strong>32-bit x86 (i386)</strong> assembler and linker is bundled:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>compiler/install_toolchain.sh<span class="w">          </span><span class="c1"># unzips into compiler/toolchain/</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="nb">source</span><span class="w"> </span>compiler/toolchain_env.sh<span class="w">       </span><span class="c1"># adds it to PATH, this shell session</span>
 </span></code></pre></div>
 <p>Add <code>source /path/to/compiler/toolchain_env.sh</code> to your shell rc file to
 make this permanent.</p>
 <div class="admonition note">
 <p class="admonition-title">64-bit hosts</p>
 <p>The bundled binaries are 32-bit (i386). On a 64-bit host you may need
-i386 compatibility libraries: on Debian/Ubuntu,
+i386 compatibility libraries. On Debian/Ubuntu, run
 <code>sudo dpkg --add-architecture i386 &amp;&amp; sudo apt update &amp;&amp; sudo apt install libc6-i386 zlib1g:i386</code>.
-They won't run natively on non-x86 hosts (e.g. Apple Silicon). Use a
-Linux x86_64 VM, or see <code>compiler/README.md</code> for building your own
-cross-toolchain with Buildroot. That's also what you need if you want
-a <code>gcc</code> for compiling C programs. See
+They won't run natively on non-x86 hosts, such as Apple Silicon Macs.
+Use a Linux x86_64 VM instead, or see <code>compiler/README.md</code> for building
+your own cross-toolchain with Buildroot. That's also what you need if
+you want a <code>gcc</code> for compiling C programs. See
 <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
 </div>
 <hr />
-<h2 id="3-build-the-plain-c-model">3. Build the plain C++ model<a class="headerlink" href="#3-build-the-plain-c-model" title="Permanent link">&para;</a></h2>
-<p>No further dependencies are needed. This model has no Sitar dependency at all.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/cpp_model/build.sh
-</span></code></pre></div>
-<p>Builds <code>sparc_cpp_sim</code> (run a memory image, print final state) and
-<code>check_test</code> (run a memory image, compare against expected results) inside
-<code>model/cpp_model/</code>.</p>
+<h2 id="5-optional-install-mkdocs">5. (Optional) Install MkDocs<a class="headerlink" href="#5-optional-install-mkdocs" title="Permanent link">&para;</a></h2>
+<p>Only needed if you want to edit and rebuild this documentation. See
+<code>docs/README.md</code> for the detailed setup and build instructions.</p>
 <hr />
-<h2 id="4-optional-install-sitar-and-build-the-timing-model">4. (Optional) Install Sitar, and build the timing model<a class="headerlink" href="#4-optional-install-sitar-and-build-the-timing-model" title="Permanent link">&para;</a></h2>
-<p>Only needed if you want the cycle-timed Sitar model, not just the plain
-C++ one. Follow Sitar's own
-<a href="https://sitar-sim.github.io/sitar/getting_started.html">installation instructions</a>
-to build the <code>sitar</code> CLI and put it on your <code>PATH</code>, then:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/sitar_model/build.py
-</span></code></pre></div>
-<p>Builds <code>sitar_check_test</code> inside <code>model/sitar_model/executable/</code>.</p>
-<hr />
-<h2 id="5-verify-run-the-validation-suite">5. Verify: run the validation suite<a class="headerlink" href="#5-verify-run-the-validation-suite" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm<span class="w">              </span><span class="c1"># against the plain C++ model</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm<span class="w"> </span>--sitar<span class="w">       </span><span class="c1"># against the Sitar-timed model (needs step 4)</span>
-</span></code></pre></div>
-<p>Both should report every test passing. See
-<a href="getting_started.html">Getting Started</a> for a walkthrough of what these
-scripts are doing, and how to run a single test by hand.</p>
+<p>Once you've built at least the plain C++ model (step 2), continue to
+<a href="getting_started.html">Getting Started</a>.</p>
 
 
 

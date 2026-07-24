@@ -59,29 +59,8 @@ both) -- see `validation/README.md`.
 
 ## Documentation
 
-Full documentation -- installation, getting started, writing and running
-your own assembly and C test programs (with logging on/off), an overview
-of the model's components, and how to tune the timing model -- lives in
-`docs/`, built with [MkDocs](https://www.mkdocs.org/). A prebuilt copy is
-committed to the repo, so no build step is required to read it: just open
-
-    docs/generated_site/index.html
-
-in a browser. See `docs/README` if you want to edit and rebuild it, or
-read the source `.md` files directly under `docs/source/`.
-
-For a quick start without building the docs site:
-
-```sh
-# build the plain C++ model and run the validation suite against it
-model/cpp_model/build.sh
-validation/run_tests.py validation
-
-# build the Sitar-timed model and run the same suite against it
-# (requires the sitar CLI on PATH -- see the sitar repository above)
-model/sitar_model/build.py
-validation/run_tests.py validation --sitar
-```
+Detailed documentation and examples are available here:
+https://sitar-sim.github.io/SparcV8_core/
 
 ## Repository layout
 
