@@ -2,7 +2,7 @@
 
 This folder holds **AJIT processor project** tests (unmodified originals,
 copied from `tests/verification/ajit32/instruction_tests/` in the
-`ajit-toolchain` repository -- see the top-level `validation/README.md` for
+`ajit-toolchain` repository -- see `validation/asm/README.md` for
 general AJIT attribution) that we've moved *out* of `validation/` because our
 model does not reproduce AJIT's own expected results for them, for specific,
 well-understood reasons described below. We believe **our model is the one
@@ -390,7 +390,7 @@ We're not correcting these two `SOURCES` mismatches here since, unlike the
 `RDPSR_WRPSR_2` case in Issue 2, there's no maintained copy of these
 particular tests living on in `validation/` for the fix to matter to --
 `validation/`'s own quad-precision tests (see the top-level `README.md`'s
-Acknowledgments and `validation/README.md`) are original tests written for
+Acknowledgments and `validation/asm/README.md`) are original tests written for
 this project, not adaptations of AJIT's `unimplemented/` suite, and already
 give real coverage of `FITOQ` and `FSUBQ` on their own. Flagging this purely
 in case it's useful to AJIT's own test-suite maintenance.

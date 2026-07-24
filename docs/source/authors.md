@@ -35,7 +35,7 @@ above:
 - Aniket Deshmukh
 - Ashfaque Ahammed
 
-See `validation/README.md` for which tests were adapted as-is versus
+See `validation/asm/README.md` for which tests were adapted as-is versus
 written new for this project (the quad-precision suite), and
 `docs/compliance/README.md` for a handful of specific, documented divergences
 between this model's behavior and AJIT's own reference results.
