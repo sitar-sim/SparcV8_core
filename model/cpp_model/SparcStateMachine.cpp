@@ -22,6 +22,14 @@ bool SparcStateMachine::run(unsigned long maxCycles)
 
 void SparcStateMachine::runOneCycle()
 {
+	//Snapshot taken before RESET/checkExternalTraps below get a chance to
+	//set core.trap fresh this cycle -- distinguishes that (reset_trap, or
+	//an external interrupt just noticed: nothing has logged TRAP_RAISED
+	//for either yet) from a trap carried over from last cycle (already
+	//logged then, at the point it was actually raised -- see the three
+	//other log_trap_raised() call sites below).
+	bool trapWasAlreadyPending = core.trap;
+
 	//-------------------------------------------------------------------
 	//RESET state (Ref Section C.5, Appendix C of the SPARC V8 manual)
 	//-------------------------------------------------------------------
@@ -33,6 +41,7 @@ void SparcStateMachine::runOneCycle()
 		core.state      = SparcCore::EXECUTE;
 		core.trap       = true;
 		core.reset_trap = true;
+		core.logger.log_generic(cyclesExecuted, "RESET", "reset_trap -> EXECUTE");
 	}
 
 	if (core.state != SparcCore::EXECUTE)
@@ -56,6 +65,13 @@ void SparcStateMachine::runOneCycle()
 	core.checkExternalTraps();
 	if (core.trap)
 	{
+		if (!trapWasAlreadyPending)
+			//Fresh this cycle: reset_trap (set just above) or an
+			//external interrupt (set by checkExternalTraps() just
+			//above). Anything else reaching here was already logged
+			//as TRAP_RAISED last cycle, at the point it was raised.
+			core.logger.log_trap_raised(cyclesExecuted);
+
 		core.executeTraps(); //Ref Section C.8. select_trap enters
 		                      //error_mode itself if traps are disabled
 		                      //(ET==0); otherwise this dispatches
@@ -63,9 +79,11 @@ void SparcStateMachine::runOneCycle()
 
 		if (core.state == SparcCore::ERROR)
 		{
+			core.logger.log_generic(cyclesExecuted, "HALT", "entering error_mode");
 			halted = true;
 			return;
 		}
+		core.logger.log_trap_enter(cyclesExecuted);
 	}
 
 	//-------------------------------------------------------------------
@@ -79,7 +97,10 @@ void SparcStateMachine::runOneCycle()
 		core.instruction_access_exception = true;
 	}
 	if (core.trap)
+	{
+		core.logger.log_trap_raised(cyclesExecuted);
 		return;
+	}
 
 	if (core.annul)
 	{
@@ -87,6 +108,7 @@ void SparcStateMachine::runOneCycle()
 		core.annul = false;
 		core.reg.W_PC(core.reg.R_nPC());
 		core.reg.W_nPC(core.reg.R_nPC() + 4);
+		core.logger.log_generic(cyclesExecuted, "ANNUL", "instruction annulled");
 		return;
 	}
 
@@ -95,11 +117,18 @@ void SparcStateMachine::runOneCycle()
 	//(Ref Section C.6)
 	//-------------------------------------------------------------------
 	Opcode op = core.decoder.decode(&core.reg);
+	core.logger.log_fetch(cyclesExecuted, op);
+
 	core.checkInstructionException(op);
 	if (core.trap)
+	{
+		core.logger.log_trap_raised(cyclesExecuted);
 		return;
+	}
 
 	executeCurrentInstruction(op);
+	if (core.trap)
+		core.logger.log_trap_raised(cyclesExecuted);
 
 	if (!core.trap && (isFpop1Instruction(op) || isFpop2Instruction(op)))
 		core.complete_fp_execution(op); //Ref Section C.7
@@ -137,6 +166,10 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			uint32_t word1       = mem.readWord(alignedAddr + 4);
 			core.MAE             = false; //flat memory model: accesses never fault
 			core.execute_PostLoad(op, word0, word1);
+			//core.address (not alignedAddr): the instruction's own,
+			//byte-precise target address -- matches SparcThread.sitar's
+			//equivalent log_mem_read() call.
+			core.logger.log_mem_read(cyclesExecuted, core.address, word0, word1, isDoubleLoadInstruction(op), core.MAE);
 		}
 	}
 	else if (isStoreInstruction(op))
@@ -146,6 +179,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		{
 			uint32_t alignedAddr = core.address & (~0x7u);
 			mem.writeMaskedDoubleWord(alignedAddr, core.writeWord0, core.writeWord1, core.byte_mask);
+			core.logger.log_mem_write(cyclesExecuted, core.address, core.writeWord0, core.writeWord1, core.byte_mask, false);
 		}
 	}
 	else if (isLoadStoreAtomicInstruction(op))
@@ -158,6 +192,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			mem.atomicReadModifyWrite(alignedAddr, core.writeWord0, core.writeWord1, core.byte_mask, word0, word1);
 			core.MAE = false; //flat memory model: accesses never fault
 			core.execute_PostAtomicLoadStore(op, word0, word1);
+			core.logger.log_atomic(cyclesExecuted, core.address, word0, core.writeWord0, core.MAE);
 		}
 	}
 	else if (op == FLUSH)
@@ -167,6 +202,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		//flush to -- computing the address is enough to keep decode/register
 		//behavior faithful to the manual (Ref Appendix B.32).
 		core.execute_PreFlush(op);
+		core.logger.log_generic(cyclesExecuted, "FLUSH", "");
 	}
 	else
 	{

@@ -101,8 +101,46 @@ int main(int argc, char** argv)
 	TOP->setHierarchicalId("");
 
 #ifdef SITAR_ENABLE_LOGGING
-	logger::default_logstream = &std::cerr;   //stderr: keeps PASS/FAIL/OVERALL on stdout parseable
+	//Sitar's own per-request/response log (mainMemory, ifetchThread and
+	//the other MemoryInterface instances) -- everything except
+	//sparcThread's own CoreLogger trace, which gets its own dedicated
+	//file below.
+	std::ofstream sitarLogFile("sitar.log");
+	if (sitarLogFile.is_open())
+	{
+		logger::default_logstream = &sitarLogFile;
+	}
+	else
+	{
+		std::cerr << "warning: could not open sitar.log for writing; logging to stderr instead\n";
+		logger::default_logstream = &std::cerr;
+	}
 	setHierarchicalOstream(TOP, logger::default_logstream);
+
+	//sparcThread's own log carries nothing but SparcCore::logger's
+	//CoreLogger trace rows (see SparcThread.sitar) -- give it a
+	//dedicated file, with the "(time)hierarchicalId:" prefix every
+	//other module gets (see sitar_module.cpp's setLogPrefix()) turned
+	//off, so the result is directly loadable into log_viewer/ with no
+	//extraction/stripping needed first. Same filename convention as
+	//the cpp model's --logging build -- see model/cpp_model/main.cpp.
+	std::ofstream sparcTraceFile("sparc_trace.log");
+	if (sparcTraceFile.is_open())
+	{
+		TOP->core.sparcThread.log.setOstream(&sparcTraceFile);
+		TOP->core.sparcThread.log.useDefaultPrefix = false;
+		TOP->core.sparcThread.log.setPrefix("");
+
+		//CoreLogger only writes this itself when do_print is on (see
+		//CoreLogger.h) -- we're not using that here (each row still
+		//goes through sparcThread's own log<<, so it's forwarded like
+		//everything else Sitar logs), so write it ourselves, once.
+		sparcTraceFile << TOP->core.sparcThread.core.logger.header() << "\n";
+	}
+	else
+	{
+		std::cerr << "warning: could not open sparc_trace.log for writing; sparcThread's trace will go to stderr instead\n";
+	}
 #endif
 
 	TOP->core.mainMemory.mem.initializeMemory(hexFile);

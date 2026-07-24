@@ -44,8 +44,11 @@ def run(cmd, **kwargs):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('--logging', action='store_true',
-                     help="build with Sitar's per-cycle logging enabled (off by default -- "
-                          "noisy and slower; useful for debugging timing, e.g. delay parameters)")
+                     help="build with Sitar's own per-cycle logging enabled (off by default -- "
+                          "noisy and slower; useful for debugging timing, e.g. delay parameters), "
+                          "and with SparcCore::logger's CoreLogger methods doing real work instead "
+                          "of compiling to no-op stubs (see cpp_common_code/CoreLogger.h) -- both "
+                          "controlled by this one flag, same as cpp_model/build.sh's --logging")
     args = ap.parse_args()
 
     if not shutil.which('sitar'):
@@ -70,15 +73,21 @@ def main():
             sys.exit(1)
 
     print("Compiling...")
-    r = run(['sitar', 'compile',
-             '-o', EXECUTABLE,
-             '-d', OUTPUT_DIR,
-             '-d', CPP_CODE_DIR,
-             '-d', CPP_COMMON_CODE_DIR,
-             '-m', MAIN_FILE,
-             '-l', 'quadmath',
-             '--logging' if args.logging else '--no-logging'],
-            cwd=SCRIPT_DIR)
+    cmd = ['sitar', 'compile',
+           '-o', EXECUTABLE,
+           '-d', OUTPUT_DIR,
+           '-d', CPP_CODE_DIR,
+           '-d', CPP_COMMON_CODE_DIR,
+           '-m', MAIN_FILE,
+           '-l', 'quadmath',
+           '--logging' if args.logging else '--no-logging']
+    if args.logging:
+        # CoreLogger.h/.cpp (cpp_common_code/, compiled in via -d above)
+        # needs this to do real work rather than compile to no-op stubs --
+        # see cpp_common_code/CoreLogger.h. Independent of Sitar's own
+        # --logging above, which only affects Sitar's own logger.
+        cmd += ['--cflags=-DSPARC_LOGGING_ENABLED']
+    r = run(cmd, cwd=SCRIPT_DIR)
     if r.returncode != 0:
         print("error: compile/link failed")
         sys.exit(1)

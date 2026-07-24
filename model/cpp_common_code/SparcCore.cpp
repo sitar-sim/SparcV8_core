@@ -70,7 +70,10 @@ SparcCore::SparcCore()
 	implementation_has_no_floating_point_queue=1;
 	implementation_has_no_coprocessor_queue=1;
 
-
+	logger.init(*this); //do_print stays off, no ostream attached, until a
+	                     //driver that wants a written trace calls this
+	                     //again itself (see main.cpp) -- this call just
+	                     //guarantees logger.print_state() always works.
 };
 
 
@@ -269,27 +272,25 @@ bool SparcCore::instructionFetch()
 	uint32_t addr;
 	uint32_t instruction;
 
-	//addr_space is not currently used
-	//uint32_t addr_space;
-	//if(reg.R_S() ==0)
-	//	addr_space=8; //user-mode
-	//else
-	//	addr_space=9; //supervisor-mode
+	uint32_t addr_space;
+	if(reg.R_S() ==0)
+		addr_space=8; //user-mode
+	else
+		addr_space=9; //supervisor-mode
 
 
 
 	addr = reg.R_PC();
 	assert(memCore!=NULL);
-	//NOTE: addr_space is ignored for now
 	instruction= memCore->readWord(addr);
 	MAE=0;
 
-	////check for instruction access exception
-	//if(  (MAE == 1) && (annul == 0) ) 
-	//{
-	//	trap=1;
-	//	instruction_access_exception=1;
-	//}
+	//check for instruction access exception
+	if(  (MAE == 1) && (annul == 0) ) 
+	{
+		trap=1;
+		instruction_access_exception=1;
+	}
 
 	//if memory read succeeded
 	reg.W_instruction(instruction);
@@ -424,16 +425,6 @@ void SparcCore::executeInstruction(Opcode op)
 	else {assert(0);} //Unimplemented instruction
 };
 
-
-
-//void SparcCore::execute_MemoryInstruction(Opcode op)
-//{
-//	if(isLoadInstruction(op)) 		execute_Load(op);
-//	if(isStoreInstruction(op))		execute_Store(op);
-//	else if(op>=LDSTUB and op<=LDSTUBA) 	execute_AtomicLoadStore(op);
-//	else if(op>=SWAP and op<=SWAPA) 	execute_Swap(op);
-//	else if(op==FLUSH)			execute_FLUSH(op);
-//};
 
 
 //Load Instructions ===================================
@@ -2046,11 +2037,6 @@ void SparcCore::execute_PreFlush(Opcode op)
 };
 
 
-//void SparcCore::execute_AtomicLoadStore(Opcode op)
-//{
-//	assert(0); //not implemented
-//};
-
 
 void SparcCore::executeTraps() 
 {
@@ -2218,79 +2204,6 @@ division_by_zero
 trap_instruction  */		
 
 
-
-//Printing function
-
-std::string SparcCore::printSparcRegisters()
-{
-	using namespace std;
-	string s;
-	stringstream ss;
-
-
-	ss<<"\nPROCESSOR STATE: "<<printSparcState();
-	//print values of some registers in the current window
-	ss<<"\nRegister values in Hex: ";
-	ss<<"\n PC  "<<hex<<reg.R_PC();
-	ss<<"\n nPC "<<hex<<reg.R_nPC();
-	ss<<"\n CWP "<<hex<<reg.R_CWP();
-	ss<<"\n WIM "<<hex<<reg.R_WIM();
-	{
-		int n=reg.R_WIM();
-		int logn;
-		for(logn=0;(1<<logn)<n;logn++);
-		ss<<" (window "<<logn<<" is invalid)";
-	}
-
-
-	ss<<"\n sp  "<<hex<<reg.R_r(14);
-	ss<<"\n fp  "<<hex<<reg.R_r(30);
-	ss<<"\n PSR "<<hex<<reg.R_PSR();
-
-	ss<<"\n\n Global:";
-	ss<<"\n g0 "<<hex<<reg.R_r(0);
-	ss<<"\n g1 "<<hex<<reg.R_r(1);
-	ss<<"\n g2 "<<hex<<reg.R_r(2);	
-	ss<<"\n g3 "<<hex<<reg.R_r(3);    
-	ss<<"\n g4 "<<hex<<reg.R_r(4);
-	ss<<"\n g5 "<<hex<<reg.R_r(5);
-	ss<<"\n g6 "<<hex<<reg.R_r(6);
-	ss<<"\n g7 "<<hex<<reg.R_r(7);
-
-	ss<<"\n\n Out:";
-	ss<<"\n o0 "<<hex<<reg.R_r(8);
-	ss<<"\n o1 "<<hex<<reg.R_r(9);
-	ss<<"\n o2 "<<hex<<reg.R_r(10);	
-	ss<<"\n o3 "<<hex<<reg.R_r(11);    
-	ss<<"\n o4 "<<hex<<reg.R_r(12);
-	ss<<"\n o5 "<<hex<<reg.R_r(13);
-	ss<<"\n o6 "<<hex<<reg.R_r(14);
-	ss<<"\n o7 "<<hex<<reg.R_r(15);
-
-	ss<<"\n\n Local:";
-	ss<<"\n l0 "<<hex<<reg.R_r(16);
-	ss<<"\n l1 "<<hex<<reg.R_r(17);
-	ss<<"\n l2 "<<hex<<reg.R_r(18);	
-	ss<<"\n l3 "<<hex<<reg.R_r(19);    
-	ss<<"\n l4 "<<hex<<reg.R_r(20);
-	ss<<"\n l5 "<<hex<<reg.R_r(21);
-	ss<<"\n l6 "<<hex<<reg.R_r(22);
-	ss<<"\n l7 "<<hex<<reg.R_r(23);
-
-	ss<<"\n\n In:";
-	ss<<"\n i0 "<<hex<<reg.R_r(24);
-	ss<<"\n i1 "<<hex<<reg.R_r(25);
-	ss<<"\n i2 "<<hex<<reg.R_r(26);	
-	ss<<"\n i3 "<<hex<<reg.R_r(27);    
-	ss<<"\n i4 "<<hex<<reg.R_r(28);
-	ss<<"\n i5 "<<hex<<reg.R_r(29);
-	ss<<"\n i6 "<<hex<<reg.R_r(30);
-	ss<<"\n i7 "<<hex<<reg.R_r(31);
-	ss<<"\n--------------------"<<dec;
-	s=ss.str();
-	return s;
-
-};
 
 
 

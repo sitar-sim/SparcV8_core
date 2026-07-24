@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Processor Trace Viewer</title>
+<style>
+  :root{
+    --bg:#12161c;
+    --panel:#171c24;
+    --line:#3d4a5c;
+    --text:#c9d1d9;
+    --dim:#8592a3;
+    --amber:#e8a33d;
+    --cyan:#5fb3b3;
+    --sel:#1c2733;
+    --hover:#1a2029;
+    --rowline:#232b36;
+    --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  }
+  :root[data-theme="light"]{
+    --bg:#f5f6f8;
+    --panel:#ffffff;
+    --line:#b7c0cc;
+    --text:#1b2430;
+    --dim:#5b6472;
+    --amber:#a8631a;
+    --cyan:#0f7c7c;
+    --sel:#e3edf5;
+    --hover:#eef1f5;
+    --rowline:#e2e6ec;
+  }
+  *{box-sizing:border-box}
+  html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);}
+  body{display:flex;flex-direction:column;}
+
+  header{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    padding:10px 14px;border-bottom:1px solid var(--line);
+    background:var(--panel);font-weight:700;
+  }
+  header .title{font-family:var(--sans);font-size:14px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);margin-right:8px;white-space:nowrap;}
+  .prompt{color:var(--cyan);}
+  .searchLabel{font-family:var(--sans);color:var(--dim);white-space:nowrap;}
+  #search{
+    background:var(--bg);border:1px solid var(--line);color:var(--text);
+    font-family:var(--mono);font-size:15px;font-weight:700;padding:6px 8px;border-radius:3px;
+    width:220px;outline:none;
+  }
+  #search:focus{border-color:var(--cyan);}
+  .btn{
+    background:var(--bg);border:1px solid var(--line);color:var(--text);
+    font-family:var(--sans);font-size:14px;font-weight:700;padding:6px 10px;border-radius:3px;cursor:pointer;
+  }
+  .btn:hover:not(:disabled){border-color:var(--cyan);color:var(--cyan);}
+  .btn:disabled{opacity:.35;cursor:default;}
+  .btn.active{border-color:var(--cyan);color:var(--cyan);}
+  #matchInfo{font-family:var(--sans);font-size:14px;color:var(--dim);}
+  #spacer{flex:1;}
+
+  .fileGroup{display:flex;flex-direction:column;align-items:flex-start;gap:2px;}
+  .fileName{
+    font-family:var(--sans);font-size:11px;font-weight:400;color:var(--dim);
+    max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;
+  }
+
+  #themeToggle{display:flex;align-items:center;justify-content:center;width:32px;height:32px;padding:0;}
+  #themeToggle svg{display:block;}
+
+  main{flex:1;display:flex;min-height:0;}
+
+  #left{width:46%;display:flex;flex-direction:column;min-height:0;}
+  .paneLabel{
+    font-family:var(--sans);font-size:11px;font-weight:700;text-transform:uppercase;
+    letter-spacing:.06em;color:var(--cyan);padding:6px 10px;background:var(--panel);
+    border-bottom:1px solid var(--line);
+  }
+  .paneLabelHint{font-weight:400;text-transform:none;letter-spacing:normal;color:var(--dim);}
+  #objdumpPane{height:50%;min-height:0;display:flex;flex-direction:column;}
+  #tracePane{flex:1;min-height:0;display:flex;flex-direction:column;}
+
+  .vresizer{width:6px;flex-shrink:0;cursor:col-resize;background:var(--line);}
+  .vresizer:hover, .vresizer.dragging{background:var(--cyan);}
+  .hresizer{height:6px;flex-shrink:0;cursor:row-resize;background:var(--line);}
+  .hresizer:hover, .hresizer.dragging{background:var(--cyan);}
+  #tableWrap{flex:1;overflow-y:auto;min-height:0;}
+  table{border-collapse:collapse;width:100%;font-size:12px;}
+  thead th{
+    position:sticky;top:0;background:var(--panel);color:var(--dim);
+    font-family:var(--sans);font-size:10px;text-transform:uppercase;letter-spacing:.06em;
+    text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);z-index:1;
+  }
+  tbody td{padding:6px 10px;border-bottom:1px solid var(--rowline);white-space:nowrap;}
+  tbody tr{cursor:pointer;}
+  tbody tr:hover{background:var(--hover);}
+  tbody tr.selected{background:var(--sel);}
+  tbody tr.selected td.col-pc{color:var(--cyan);}
+  tbody tr.matched td.col-pc{outline:1px solid var(--amber);outline-offset:-1px;}
+  td.col-pc{color:#9fb2c9;}
+  td.col-time{color:var(--dim);}
+  td.col-event{color:var(--amber);}
+  td.col-detail{color:var(--dim);}
+
+  #objdumpView{flex:1;overflow-y:auto;min-height:0;background:var(--panel);padding:8px 0;font-size:12px;}
+  .objline{padding:2px 12px;white-space:pre;}
+  .objline.clickable{cursor:pointer;}
+  .objline.clickable:hover{background:var(--hover);}
+  .objline.current{background:var(--sel);outline:1px solid var(--cyan);outline-offset:-1px;}
+  #objdumpEmpty{color:var(--dim);font-family:var(--sans);font-size:12px;padding:10px 14px;}
+
+  #right{flex:1;min-width:0;padding:14px;overflow:hidden;display:flex;flex-direction:column;gap:10px;}
+  #rowHeader{
+    font-family:var(--sans);font-size:12px;color:var(--dim);
+    padding-bottom:8px;border-bottom:1px solid var(--line);
+  }
+  #rowHeader b{color:var(--text);}
+  #rowHeader .ev{color:var(--amber);font-weight:bold;}
+
+  .group{border:1.5px solid var(--line);border-radius:4px;padding:10px 12px;background:var(--panel);}
+  .group h3{
+    margin:0 0 8px 0;font-family:var(--sans);font-size:10px;text-transform:uppercase;
+    letter-spacing:.08em;color:var(--cyan);font-weight:600;
+  }
+  .fields{display:flex;flex-wrap:wrap;gap:6px;}
+  .field{
+    background:var(--bg);border:1.5px solid var(--line);border-radius:3px;
+    padding:4px 8px;min-width:56px;text-align:center;
+  }
+  .field .label{display:block;font-family:var(--sans);font-size:10px;font-weight:400;color:var(--cyan);letter-spacing:.03em;text-transform:uppercase;}
+  .field .value{display:block;font-size:13px;margin-top:2px;color:var(--text);}
+  .field.changed{border-color:var(--amber);background:#241c10;}
+  :root[data-theme="light"] .field.changed{background:#fdf1e0;}
+  .field.changed .value{color:var(--amber);font-weight:bold;}
+  .field.wide{min-width:92px;}
+  #stateView{overflow-y:auto;display:flex;flex-direction:column;gap:12px;padding-right:2px;}
+  #emptyState{color:var(--dim);font-family:var(--sans);font-size:13px;padding:20px;}
+
+  #loadError{
+    display:none;background:#3a1414;color:#ffb4b4;border-bottom:1px solid #7a2020;
+    font-family:var(--sans);font-size:13px;font-weight:700;padding:8px 14px;
+  }
+  :root[data-theme="light"] #loadError{background:#fde2e2;color:#8a1f1f;border-bottom-color:#e39a9a;}
+</style>
+</head>
+<body>
+
+<div id="loadError"></div>
+
+<header>
+  <span class="title">Trace Viewer</span>
+  <span class="prompt">&gt;</span>
+  <span class="searchLabel">Search:</span>
+  <input id="search" placeholder="e.g. PC=0x1c, l4=0x3434, T=56, or plain text" autocomplete="off">
+  <button class="btn" id="prevMatch" title="Previous search match">&lsaquo; prev</button>
+  <button class="btn" id="nextMatch" title="Next search match">next &rsaquo;</button>
+  <span id="matchInfo"></span>
+  <span id="spacer"></span>
+  <div class="fileGroup">
+    <button class="btn" id="traceBtn">Load trace</button>
+    <div class="fileName" id="traceFileName"></div>
+  </div>
+  <div class="fileGroup">
+    <button class="btn" id="objdumpBtn">Load objdump</button>
+    <div class="fileName" id="objdumpFileName"></div>
+  </div>
+  <input type="file" id="traceInput" accept=".tsv,.txt,.log" style="display:none">
+  <input type="file" id="objdumpInput" accept=".objdump,.txt,.s,.asm" style="display:none">
+  <button class="btn" id="themeToggle" title="Toggle light/dark theme"></button>
+</header>
+
+<main id="main">
+  <div id="left">
+    <div id="objdumpPane">
+      <div class="paneLabel">Disassembly <span class="paneLabelHint">(use up/down keys to step forward/back)</span></div>
+      <div id="objdumpView"><div id="objdumpEmpty">No disassembly loaded.</div></div>
+    </div>
+    <div class="hresizer" id="hResizer" title="Drag to resize"></div>
+    <div id="tracePane">
+      <div class="paneLabel">Trace</div>
+      <div id="tableWrap">
+        <table>
+          <thead><tr id="headRow"></tr></thead>
+          <tbody id="bodyRows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+  <div class="vresizer" id="vResizer" title="Drag to resize"></div>
+  <div id="right">
+    <div id="emptyState">No trace loaded.</div>
+    <div id="rowHeader" style="display:none;"></div>
+    <div id="stateView" style="display:none;"></div>
+  </div>
+</main>
+
+<script>
+let cols = [];
+let rows = [];
+let selectedIdx = -1;
+let matches = [];
+let matchPos = -1;
+let objdumpLines = null; // array of {text, addr(int)|null}
+
+const SEQ_COLS = ["seq","time","pc","event","detail"];
+const FIELD_ALIASES = {t:"time", sr:"seq", pc:"pc"};
+
+// Every trace this viewer understands has at least these identity columns.
+// Anything else in the header (state fields, or model-specific extras like
+// a sitar "hierarchical_id") is fine and simply gets grouped or ignored --
+// see classify() -- this just catches "that's not a trace file at all".
+const REQUIRED_TRACE_COLS = ["seq","time","pc","event","detail"];
+
+function showError(msg){
+  const el = document.getElementById("loadError");
+  el.textContent = msg || "";
+  el.style.display = msg ? "block" : "none";
+}
+
+function validateTraceHeader(header){
+  if (header.length < 2 || header[0] !== "seq")
+    return "Not a valid trace file: expected a tab-separated file with a 'seq' column first.";
+  const missing = REQUIRED_TRACE_COLS.filter(c => !header.includes(c));
+  if (missing.length)
+    return "Not a valid trace file: missing required column(s): " + missing.join(", ");
+  return null;
+}
+
+function validateObjdump(lines){
+  if (!lines.some(l => l.addr !== null))
+    return "Not a valid disassembly file: no address-labeled lines found (expected e.g. '  10:\\t...').";
+  return null;
+}
+
+const SUN_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"></circle><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"></path></svg>';
+const MOON_SVG = '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M20.7 14.3A8.5 8.5 0 1 1 9.7 3.3a7 7 0 0 0 11 11z"></path></svg>';
+
+// pc doubles as this row's identity column (shown in #rowHeader/the trace
+// table) and as ordinary state (it's a real register, and belongs here
+// too, right before npc) -- this fixed order is what the Control group
+// renders in, regardless of where "pc" happens to fall in the TSV header.
+const CONTROL_ORDER = ["mode","wim","y","tbr","pc","npc"];
+
+function classify(col){
+  if (/^psr_/.test(col)) return "PSR / Flags";
+  if (/^g[0-7]$/.test(col)) return "Globals";
+  if (/^o[0-7]$/.test(col)) return "Outputs";
+  if (/^l[0-7]$/.test(col)) return "Locals";
+  if (/^i[0-7]$/.test(col)) return "Inputs";
+  if (CONTROL_ORDER.includes(col)) return "Control";
+  return null; // seq/time/event/detail: shown in #rowHeader instead
+}
+
+function parseTSV(text){
+  const lines = text.replace(/\r/g,"").split("\n").filter(l => l.length>0);
+  const header = lines[0].split("\t");
+  const data = lines.slice(1).map(line=>{
+    const parts = line.split("\t");
+    const obj = {};
+    header.forEach((h,i)=> obj[h]=parts[i] ?? "");
+    return obj;
+  });
+  return {header, data};
+}
+
+function buildLeftTable(){
+  const headRow = document.getElementById("headRow");
+  headRow.innerHTML = "";
+  SEQ_COLS.forEach(c=>{
+    const th = document.createElement("th");
+    th.textContent = c;
+    headRow.appendChild(th);
+  });
+
+  const body = document.getElementById("bodyRows");
+  body.innerHTML = "";
+  rows.forEach((r, idx)=>{
+    const tr = document.createElement("tr");
+    tr.dataset.idx = idx;
+    SEQ_COLS.forEach(c=>{
+      const td = document.createElement("td");
+      td.className = "col-"+c;
+      td.textContent = r[c];
+      tr.appendChild(td);
+    });
+    tr.addEventListener("click", ()=> selectRow(idx));
+    body.appendChild(tr);
+  });
+}
+
+function renderState(idx){
+  const wrap = document.getElementById("stateView");
+  wrap.innerHTML = "";
+
+  const cur = rows[idx];
+  const prev = idx > 0 ? rows[idx-1] : null;
+
+  const groups = {};
+  cols.forEach(c=>{
+    const g = classify(c);
+    if (!g) return;
+    if (!groups[g]) groups[g] = [];
+    groups[g].push(c);
+  });
+  if (groups["Control"])
+    groups["Control"].sort((a,b) => CONTROL_ORDER.indexOf(a) - CONTROL_ORDER.indexOf(b));
+
+  const order = ["Control","PSR / Flags","Globals","Outputs","Locals","Inputs"];
+  order.forEach(gname=>{
+    if (!groups[gname]) return;
+    const div = document.createElement("div");
+    div.className = "group";
+    const h3 = document.createElement("h3");
+    h3.textContent = gname;
+    div.appendChild(h3);
+    const fields = document.createElement("div");
+    fields.className = "fields";
+    groups[gname].forEach(col=>{
+      const f = document.createElement("div");
+      const changed = prev && prev[col] !== cur[col];
+      f.className = "field" + (changed ? " changed" : "") + (cur[col].length > 4 ? " wide" : "");
+      f.innerHTML = `<span class="label">${col}</span><span class="value">${cur[col]}</span>`;
+      fields.appendChild(f);
+    });
+    div.appendChild(fields);
+    wrap.appendChild(div);
+  });
+}
+
+function renderRowHeader(idx){
+  const cur = rows[idx];
+  const el = document.getElementById("rowHeader");
+  el.innerHTML = `seq <b>${cur.seq}</b> &middot; t=<b>${cur.time}</b> &middot; pc=<b>${cur.pc}</b> &middot; `
+    + `<span class="ev">${cur.event}</span> &middot; ${cur.detail}`;
+}
+
+// Parses a hex-address label like "1c:" or "  10:" from an objdump line.
+function parseObjdumpAddr(line){
+  const m = line.match(/^\s*([0-9a-fA-F]+):/);
+  return m ? parseInt(m[1], 16) : null;
+}
+
+function renderObjdump(){
+  const wrap = document.getElementById("objdumpView");
+  if (!objdumpLines){
+    wrap.innerHTML = '<div id="objdumpEmpty">No disassembly loaded.</div>';
+    return;
+  }
+  wrap.innerHTML = "";
+  objdumpLines.forEach((l, i)=>{
+    const div = document.createElement("div");
+    div.className = "objline" + (l.addr !== null ? " clickable" : "");
+    div.textContent = l.text;
+    div.dataset.idx = i;
+    // Clicking a disassembled line jumps the trace to the first row at that
+    // PC and shows its state -- a plain selection, independent of the
+    // search bar (search stays untouched, no matches are populated).
+    if (l.addr !== null)
+      div.addEventListener("click", ()=> selectRowForAddr(l.addr));
+    wrap.appendChild(div);
+  });
+}
+
+function highlightObjdumpForPC(pcStr){
+  if (!objdumpLines) return;
+  const pc = parseInt(pcStr, 16);
+  document.querySelectorAll("#objdumpView .objline").forEach(d=>d.classList.remove("current"));
+  if (isNaN(pc)) return;
+  const i = objdumpLines.findIndex(l => l.addr === pc);
+  if (i < 0) return;
+  const div = document.querySelector(`#objdumpView .objline[data-idx="${i}"]`);
+  if (div){
+    div.classList.add("current");
+    div.scrollIntoView({block:"center"});
+  }
+}
+
+function selectRow(idx){
+  selectedIdx = idx;
+  document.querySelectorAll("#bodyRows tr").forEach(tr=>tr.classList.remove("selected"));
+  const tr = document.querySelector(`#bodyRows tr[data-idx="${idx}"]`);
+  if (tr){
+    tr.classList.add("selected");
+    tr.scrollIntoView({block:"nearest"});
+  }
+  document.getElementById("emptyState").style.display = "none";
+  document.getElementById("rowHeader").style.display = "block";
+  document.getElementById("stateView").style.display = "flex";
+  renderRowHeader(idx);
+  renderState(idx);
+  highlightObjdumpForPC(rows[idx].pc);
+}
+
+// Finds the first row at the given address and selects it. Used by
+// disassembly-line clicks -- a direct lookup, deliberately independent of
+// the search bar/matches (see valuesMatch() below for the hex comparison).
+function selectRowForAddr(addr){
+  const hexQuery = "0x" + addr.toString(16);
+  const idx = rows.findIndex(r => valuesMatch(r.pc, hexQuery));
+  if (idx >= 0) selectRow(idx);
+}
+
+// Parses "field=value" (field matched case-insensitively against a column
+// name, with a couple of short aliases) or, with no "=", treats the whole
+// query as a plain substring to look for in any column.
+function evalQuery(raw){
+  const q = raw.trim();
+  if (!q) return null;
+  const eq = q.indexOf("=");
+  if (eq > 0){
+    const fieldRaw = q.slice(0, eq).trim().toLowerCase();
+    const value = q.slice(eq+1).trim();
+    const field = FIELD_ALIASES[fieldRaw] || fieldRaw;
+    if (cols.includes(field)) return {field, value};
+  }
+  return {field: null, value: q};
+}
+
+function valuesMatch(cell, query){
+  cell = (cell ?? "").trim();
+  query = query.trim();
+  const stripHex = s => s.replace(/^0x/i, "");
+  const cellHex = /^0x/i.test(cell);
+  const queryHex = /^0x/i.test(query);
+  if (cellHex && queryHex)
+    return parseInt(stripHex(cell),16) === parseInt(stripHex(query),16);
+  if (cellHex && /^\d+$/.test(query))
+    return parseInt(stripHex(cell),16) === parseInt(query,10);
+  if (!cellHex && /^\d+$/.test(cell) && /^\d+$/.test(query))
+    return parseInt(cell,10) === parseInt(query,10);
+  return cell.toLowerCase() === query.toLowerCase();
+}
+
+function rowMatchesQuery(r, parsed){
+  if (parsed.field)
+    return valuesMatch(r[parsed.field], parsed.value);
+  const needle = parsed.value.toLowerCase();
+  return cols.some(c => (r[c] ?? "").toLowerCase().includes(needle));
+}
+
+function doSearch(){
+  document.querySelectorAll("#bodyRows tr").forEach(tr=>tr.classList.remove("matched"));
+  const parsed = evalQuery(document.getElementById("search").value);
+  if (!parsed){ matches=[]; matchPos=-1; updateMatchInfo(); return; }
+  matches = [];
+  rows.forEach((r, idx)=>{ if (rowMatchesQuery(r, parsed)) matches.push(idx); });
+  matchPos = matches.length ? 0 : -1;
+  matches.forEach(i=>{
+    const tr = document.querySelector(`#bodyRows tr[data-idx="${i}"]`);
+    if (tr) tr.classList.add("matched");
+  });
+  if (matchPos >= 0) selectRow(matches[matchPos]);
+  updateMatchInfo();
+}
+
+// prev/next step through the current search's matches only -- rows are
+// stepped one at a time with the Up/Down arrow keys instead (see the
+// keydown listener below). Keeping these two forms of navigation separate
+// avoids the confusing case where clicking a disassembly line (which runs
+// a search under the hood, see renderObjdump()) would silently repurpose
+// "next" from "next row" to "next match".
+function step(delta){
+  if (!matches.length) return;
+  matchPos = (matchPos + delta + matches.length) % matches.length;
+  selectRow(matches[matchPos]);
+  updateMatchInfo();
+}
+
+function updatePrevNextEnabled(){
+  const prevBtn = document.getElementById("prevMatch");
+  const nextBtn = document.getElementById("nextMatch");
+  prevBtn.disabled = nextBtn.disabled = matches.length < 2;
+}
+
+function updateMatchInfo(){
+  const info = document.getElementById("matchInfo");
+  if (!matches.length){ info.textContent = document.getElementById("search").value ? "no matches" : ""; }
+  else info.textContent = `${matchPos+1} / ${matches.length}`;
+  updatePrevNextEnabled();
+}
+
+// Returns true on success. On failure, shows an error banner and leaves
+// whatever was previously loaded untouched (a bad file shouldn't blank out
+// a good one that's already on screen).
+function loadTraceText(text){
+  const parsed = parseTSV(text);
+  const err = validateTraceHeader(parsed.header);
+  if (err){ showError(err); return false; }
+  showError(null);
+  cols = parsed.header;
+  rows = parsed.data;
+  matches = []; matchPos = -1;
+  buildLeftTable();
+  if (rows.length) selectRow(0);
+  updateMatchInfo();
+  return true;
+}
+
+function loadObjdumpText(text){
+  const lines = text.replace(/\r/g,"").split("\n").map(line => ({
+    text: line,
+    addr: parseObjdumpAddr(line),
+  }));
+  const err = validateObjdump(lines);
+  if (err){ showError(err); return false; }
+  showError(null);
+  objdumpLines = lines;
+  renderObjdump();
+  if (selectedIdx >= 0) highlightObjdumpForPC(rows[selectedIdx].pc);
+  return true;
+}
+
+function basename(path){
+  return path.split("/").pop();
+}
+
+document.getElementById("traceBtn").addEventListener("click", ()=> document.getElementById("traceInput").click());
+document.getElementById("objdumpBtn").addEventListener("click", ()=> document.getElementById("objdumpInput").click());
+
+document.getElementById("traceInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (loadTraceText(reader.result))
+      document.getElementById("traceFileName").textContent = file.name;
+  };
+  reader.readAsText(file);
+});
+document.getElementById("objdumpInput").addEventListener("change", (e)=>{
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = () => {
+    if (loadObjdumpText(reader.result))
+      document.getElementById("objdumpFileName").textContent = file.name;
+  };
+  reader.readAsText(file);
+});
+
+document.getElementById("search").addEventListener("keydown", (e)=>{
+  if (e.key === "Enter") doSearch();
+});
+document.getElementById("nextMatch").addEventListener("click", ()=> step(1));
+document.getElementById("prevMatch").addEventListener("click", ()=> step(-1));
+updatePrevNextEnabled(); //nothing loaded yet: both start disabled
+
+document.addEventListener("keydown",(e)=>{
+  if (document.activeElement === document.getElementById("search")) return;
+  if (e.key === "ArrowDown" && selectedIdx < rows.length-1) selectRow(selectedIdx+1);
+  if (e.key === "ArrowUp" && selectedIdx > 0) selectRow(selectedIdx-1);
+});
+
+// Theme: explicit user choice (localStorage) wins; otherwise follow the
+// browser/OS preference. Icon reflects the theme currently active.
+function applyTheme(theme){
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem("sparc_trace_viewer_theme", theme);
+  document.getElementById("themeToggle").innerHTML = theme === "light" ? SUN_SVG : MOON_SVG;
+}
+(function initTheme(){
+  const saved = localStorage.getItem("sparc_trace_viewer_theme");
+  const theme = saved || (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  applyTheme(theme);
+})();
+document.getElementById("themeToggle").addEventListener("click", ()=>{
+  const cur = document.documentElement.getAttribute("data-theme");
+  applyTheme(cur === "light" ? "dark" : "light");
+});
+
+// Drag-to-resize for the three panels (Disassembly/Trace split within the
+// left column, and the left-column/State split). Percentages are clamped
+// so no pane can be dragged down to nothing, and persisted across reloads.
+function makeResizer(resizerEl, containerEl, sizedEl, axis, storageKey, defaultPct){
+  const saved = parseFloat(localStorage.getItem(storageKey));
+  const initialPct = isNaN(saved) ? defaultPct : saved;
+  sizedEl.style[axis === "x" ? "width" : "height"] = initialPct + "%";
+
+  let dragging = false;
+  resizerEl.addEventListener("mousedown", (e)=>{
+    dragging = true;
+    resizerEl.classList.add("dragging");
+    document.body.style.userSelect = "none";
+    e.preventDefault();
+  });
+  document.addEventListener("mousemove", (e)=>{
+    if (!dragging) return;
+    const rect = containerEl.getBoundingClientRect();
+    let pct = axis === "x"
+      ? ((e.clientX - rect.left) / rect.width) * 100
+      : ((e.clientY - rect.top) / rect.height) * 100;
+    pct = Math.min(80, Math.max(20, pct));
+    sizedEl.style[axis === "x" ? "width" : "height"] = pct + "%";
+    localStorage.setItem(storageKey, pct);
+  });
+  document.addEventListener("mouseup", ()=>{
+    if (!dragging) return;
+    dragging = false;
+    resizerEl.classList.remove("dragging");
+    document.body.style.userSelect = "";
+  });
+}
+makeResizer(document.getElementById("vResizer"), document.getElementById("main"),
+            document.getElementById("left"), "x", "sparc_trace_viewer_left_pct", 46);
+makeResizer(document.getElementById("hResizer"), document.getElementById("left"),
+            document.getElementById("objdumpPane"), "y", "sparc_trace_viewer_objdump_pct", 50);
+
+// Auto-load via ?trace=<path>[&objdump=<path>] -- only meaningful when this
+// page is served over http(s), since fetch() of another file:// path is
+// blocked by the browser. If no objdump= is given, derive one by replacing
+// the trace's extension with .objdump, and try it (silently skipped if it
+// 404s -- the manual file picker above always remains available).
+(function autoLoadFromQuery(){
+  const params = new URLSearchParams(location.search);
+  const tracePath = params.get("trace");
+  if (!tracePath) return;
+  fetch(tracePath).then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(text => { if (loadTraceText(text)) document.getElementById("traceFileName").textContent = basename(tracePath); })
+    .catch(err => console.warn("could not fetch trace:", tracePath, err));
+
+  const objdumpPath = params.get("objdump") || tracePath.replace(/\.[^./]+$/, ".objdump");
+  fetch(objdumpPath).then(r => r.ok ? r.text() : Promise.reject(r.status))
+    .then(text => { if (loadObjdumpText(text)) document.getElementById("objdumpFileName").textContent = basename(objdumpPath); })
+    .catch(() => {}); // fine -- disassembly panel just stays empty until picked manually
+})();
+</script>
+</body>
+</html>

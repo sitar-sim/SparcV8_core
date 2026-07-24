@@ -51,21 +51,36 @@ module Core
 
 	behavior
 		[
+			// sparcThread's own procedure never returns -- it loops
+			// forever across RESET/EXECUTE/ERROR, by design (see the
+			// "Conventions" note in SparcThread.sitar) -- so this branch
+			// never completes either. That's fine: nothing here waits
+			// on it to.
 			run sparcThread;
+		||
+			// mainMemory is persistent -- this branch runs for the whole
+			// simulation, servicing requests until the monitor branch
+			// below calls `stop simulation`.
+			run mainMemory;
+		||
+			// Watches for the core halting and stops the whole
+			// simulation once it does. Has to live out here, watching
+			// sparcThread.HALT.VALUE from outside, rather than as
+			// something sparcThread does itself when its own procedure
+			// returns -- see above, it never does.
+			wait until (sparcThread.HALT.VALUE);
 
-			// When sparcThread terminates, the core has halted.
-			// Print summary info.
+			// HALT.VALUE just became true in phase 0 of this same cycle
+			// (see SparcThread.sitar's ERROR branch); let phase 1 run
+			// its course too before tearing the simulation down, rather
+			// than stopping mid-cycle.
+			wait until (this_phase==1);
+
 			$
 			log<<endl<<"Core halted.";
 			log<<endl<<sparcThread.printInfo();
 			$;
-
 			stop simulation;
-		||
-			// mainMemory is persistent -- this branch runs for the whole
-			// simulation, servicing requests until the `stop simulation`
-			// above ends things regardless of where this branch is.
-			run mainMemory;
 		]
 	end behavior
 end module

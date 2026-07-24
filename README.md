@@ -71,6 +71,10 @@ https://sitar-sim.github.io/SparcV8_core/
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker/objdump,
   plus a minimal bundled C compiler for `validation/C/`) used to build
   test programs, and the scripts that drive it.
+- `log_viewer/` -- a self-contained, offline browser tool for viewing the
+  instruction/state trace either model can produce (`--logging` builds --
+  see `model/cpp_model/README.md`/`model/sitar_model/README.md`); see its
+  own `README.md`.
 - `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
   `generated_site/` (prebuilt, committed output -- open `index.html`
   directly), `mkdocs.yml`, the vendored `sitar_pygments_lexer/`, and
