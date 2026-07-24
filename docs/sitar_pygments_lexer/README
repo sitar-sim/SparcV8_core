@@ -1,6 +1,0 @@
-Vendored copy of the Sitar language's Pygments lexer, from the sitar
-repository (https://github.com/sitar-sim/sitar/tree/master/sitar_pygments_lexer),
-so this repo's docs/requirements.txt is self-contained and doesn't need a
-sibling checkout of sitar. Provides syntax highlighting for ```sitar code
-blocks in this repo's own MkDocs documentation. See docs/README for how
-it's installed.

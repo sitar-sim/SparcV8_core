@@ -60,13 +60,11 @@ repo, and move completed "Next steps" items into it.
   `model/.gitignore` catches every extensionless build product across
   both `cpp_model/` and `sitar_model/`; `validation/.gitignore` tracks
   `.hex` deliberately, ignores `.o`/`.elf`/`.expected`).
-- Filed in the separate `sitar` repo's `TODO.md`: `sitar compile --cflags`
-  doesn't propagate to the link step (`LIBS`/`LINKFLAGS`), only to
-  `CCFLAGS` -- worked around throughout this repo (both
-  `model/sitar_model/build.py` and the earlier `--cflags` bug report) by
-  manually re-invoking the final `g++` link command with `-lquadmath`
-  appended. Not fixed yet (needs a `sitar` CLI change + doc update,
-  deferred).
+- Fixed upstream in the separate `sitar` repo: `sitar compile` now has a
+  `-l`/`--libs` option to link against an extra library (e.g.
+  `-l quadmath`), separate from `--cflags` which only ever reached the
+  compile step. `model/sitar_model/build.py` uses `-l quadmath` directly
+  now, no manual re-link workaround needed.
 
 **Milestone 2 -- Sitar model: architecture redesigned, implemented, and
 now fully validated (223/223) end to end.**
@@ -84,7 +82,7 @@ model/
       cpp_code/        MemAccessInterface.h, OpcodeLatencies.h
       sitar_check_test.cpp
     executable/        (built, gitignored)
-    build.py            (translate + compile + the -lquadmath re-link workaround)
+    build.py            (translate + compile, linking -l quadmath)
 ```
 
 Design changes made:
