@@ -92,7 +92,7 @@ how to observe the effect):
 
 !!! note "Stub"
     This section is a placeholder. This project models the core only (see
-    [What this project offers](index.md#what-this-project-offers)). A
+    [Models](index.md#models)). A
     worked example of connecting an external component to it, a cache
     sitting between `SparcThread`'s memory-interface threads and
     `MainMemory`, is planned for this page. It will demonstrate the

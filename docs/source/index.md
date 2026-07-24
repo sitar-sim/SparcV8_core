@@ -1,9 +1,45 @@
 # Sitar model of a SPARC V8 core
 
-This project is a [Sitar](https://sitar-sim.github.io/sitar/) model of a
-**SPARC V8** processor core: a timing-agnostic C++ functional model of the
-core, plus a simple cycle-driven timing model built on top of it using
-Sitar, both validated against the same instruction-level test suite.
+SPARC (Scalable Processor ARChitecture) is a RISC instruction set
+architecture originally developed at Sun Microsystems, derived from the
+Berkeley RISC I/II research designs. SPARC V8 is the 32-bit revision of
+this architecture, standardized as ANSI/IEEE Std 1754-1994. See the
+[Wikipedia SPARC article](https://en.wikipedia.org/wiki/SPARC) for general
+background and history, and "What is SPARC V8?" below for how this project
+relates to the standard.
+
+This project presents two simulation models of a SPARC V8 processor core.
+
+1. A pure C++ functional model. It represents the processor's state and
+   runs an instruction loop, decoding and executing instructions one at a
+   time to update that state exactly as the SPARC V8 manual prescribes.
+2. A simple timing model, written using a modeling framework called
+   [Sitar](https://sitar-sim.github.io/sitar/), that lets you specify and
+   observe opcode-wise latency, along with separate, independently
+   configurable interconnect and memory latencies.
+
+The Sitar model of the core can be used as a component, connected together
+with other models (for caches, devices, memory, and so on) to form a larger
+system. Such a system can be simulated in parallel, using the shared-memory
+parallel execution support that the Sitar framework provides.
+
+The model provided in this repository does not include an MMU, a cache, or
+any peripheral or device model. Only the processor core itself is modeled
+here. A full SoC-level model built around this core is planned as a
+separate repository or version.
+
+The repository also provides the following.
+
+- A bundled SPARC V8 assembler and linker toolchain, used to build test
+  programs for the model (a C compiler can also be built on top of it, see
+  [Installation](installation.md)).
+- Complete models consisting of the core connected to a simple stub memory,
+  along with documentation showing how to run simple assembly and C
+  programs against them, either by observing state changes directly or with
+  detailed cycle-by-cycle logging.
+- A detailed, instruction-level validation suite for the core model,
+  adapted in large part from the AJIT processor project's own test suite
+  (see [Model Components](model_components.md) and `validation/README.md`).
 
 ---
 
@@ -26,26 +62,21 @@ kernel, follow the links above.
 
 ## What is SPARC V8?
 
-SPARC (**S**calable **P**rocessor **AR**Chitecture) is a RISC instruction-set
-architecture originally developed at Sun Microsystems, derived from the
-Berkeley RISC I/II research designs. Its most distinctive architectural
-feature is a **register-window** file: procedure calls can get a fresh set
-of registers without spilling to memory, by advancing a circular window
-into a larger physical register file.
+SPARC's most distinctive architectural feature is a **register window**
+file. A procedure call can get a fresh set of registers without spilling
+to memory, simply by advancing a circular window into a larger physical
+register file.
 
-SPARC V8 is the 32-bit revision of the architecture. The authoritative
-specification is *The SPARC Architecture Manual, Version 8*, included in
-this repository at
+The authoritative specification for SPARC V8 is *The SPARC Architecture
+Manual, Version 8*, included in this repository at
 [`docs/source/sparcv8_Architecture_reference_Manual.pdf`](sparcv8_Architecture_reference_Manual.pdf).
 This project's model follows it closely, with section references cited
 throughout the source (`model/cpp_common_code/SparcCore.cpp` in
-particular). See also the
-[Wikipedia SPARC article](https://en.wikipedia.org/wiki/SPARC) for general
-background and history.
+particular).
 
 ---
 
-## What this project offers
+## Models
 
 A SPARC V8 **core** is modeled at two levels, both built on the same
 timing-agnostic core implementation. The core includes an integer unit, a
@@ -68,24 +99,20 @@ full trap and memory-access instruction set.
 
 2. **A Sitar-timed model** (`model/sitar_model/`). This drives the same
    core through Sitar with a **simple, non-pipelined cycle-level timing
-   model**:
-   a fixed, configurable per-opcode delay, plus separate, independently
-   configurable latencies for the memory interconnect and the memory
-   itself (so loads/stores/instruction-fetch can be given realistic,
-   detailed timing without modeling a pipeline).
+   model**: a fixed, configurable per-opcode delay, plus separate,
+   independently configurable latencies for the memory interconnect and
+   the memory itself, so loads, stores, and instruction fetch can be given
+   realistic, detailed timing without modeling a pipeline.
 
-**This project models the core only.** There is no MMU, cache, or
-peripheral/device model here. A full SoC-level model built around this
-core, with those components, is planned as a separate repository or
-version. This repository's own documentation does include one
-illustrative example of connecting an external component (a cache) to the
-core, as a pattern for anyone wanting to build a larger model around it.
-See [Model Components](model_components.md#connecting-other-components)
-for a stub of this (not yet a full worked example).
+This repository's own documentation includes one illustrative example of
+connecting an external component (a cache) to the core, as a pattern for
+anyone wanting to build a larger model around it. See
+[Model Components](model_components.md#connecting-other-components) for a
+stub of this (not yet a full worked example).
 
 Both models are validated against the same instruction-level assembly test
 suite, and against a planned suite of bare-metal C test programs. See
-[Writing and Running Programs](writing_and_running_assembly_programs.md).
+[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md).
 
 ---
 
