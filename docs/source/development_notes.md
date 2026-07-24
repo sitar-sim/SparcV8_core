@@ -49,16 +49,14 @@ Timing is deliberately kept out of `cpp_common_code/` entirely.
 `MemoryInterface.sitar`, `MainMemory.sitar`) are the only place cycle
 counts exist. See [Performance Modeling](performance_modeling.md).
 
-## A known Sitar CLI wrinkle
+## Linking against libquadmath
 
-`sitar compile --cflags` currently only reaches the compile step
-(`CCFLAGS`), not the link step (`LIBS`/`LINKFLAGS`). This is filed in the
-separate `sitar` repository's own `TODO.md`, not yet fixed there.
-`model/sitar_model/build.py` works around this by letting the `sitar
-compile` link step fail as expected, then manually re-invoking `g++` with
-`-lquadmath` appended (needed for `FloatingPointFunctions.h`'s quad-
-precision support). If you're writing your own build script against this
-model instead of using `build.py`, you'll hit the same issue.
+`FloatingPointFunctions.h` needs `libquadmath` for quad-precision support.
+`sitar compile --cflags` only reaches the compile step (`CCFLAGS`), never
+the link step, so linking an extra library needs `sitar compile`'s
+separate `-l`/`--libs` option instead. `model/sitar_model/build.py` builds
+with `-l quadmath`. If you're writing your own build script against this
+model instead of using `build.py`, do the same.
 
 ## Test-suite conventions
 

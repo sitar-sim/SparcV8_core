@@ -12,11 +12,8 @@ of the standalone C++ SparcStateMachine. Lets validation/run_tests.py
 Requires the `sitar` CLI on PATH (see the separate sitar repo).
 
 Links against libquadmath, needed by cpp_common_code/FloatingPointFunctions.h
-for quad-precision (128-bit) floating point support. Worked around here by
-re-linking manually with -lquadmath appended, because `sitar compile
---cflags` currently only reaches the compile step (CCFLAGS), never the
-link step -- see the separate sitar repo's TODO.md for the root cause;
-not fixed there yet.
+for quad-precision (128-bit) floating point support, via `sitar compile`'s
+`-l`/`--libs` option.
 """
 import argparse
 import glob
@@ -51,11 +48,9 @@ def main():
                           "noisy and slower; useful for debugging timing, e.g. delay parameters)")
     args = ap.parse_args()
 
-    sitar_bin = shutil.which('sitar')
-    if not sitar_bin:
+    if not shutil.which('sitar'):
         print("error: `sitar` not found on PATH -- see the separate sitar repo")
         sys.exit(1)
-    sitar_core_dir = os.path.join(os.path.dirname(os.path.dirname(sitar_bin)), 'core')
 
     if os.path.isdir(OUTPUT_DIR):
         shutil.rmtree(OUTPUT_DIR)
@@ -74,29 +69,18 @@ def main():
             print("error: translating %s failed" % f)
             sys.exit(1)
 
-    print("Compiling (link step is expected to fail here -- see re-link below)...")
-    run(['sitar', 'compile',
-         '-o', EXECUTABLE,
-         '-d', OUTPUT_DIR,
-         '-d', CPP_CODE_DIR,
-         '-d', CPP_COMMON_CODE_DIR,
-         '-m', MAIN_FILE,
-         '--cflags=-lquadmath',
-         '--logging' if args.logging else '--no-logging'],
-        cwd=SCRIPT_DIR)
-    # (sitar's own exit code is ignored -- the link step above is known to
-    # fail, see the module docstring; we re-link manually below instead of
-    # trying to distinguish that expected failure from a real compile error.)
-
-    print("Re-linking with -lquadmath...")
-    objects = (glob.glob(os.path.join(OUTPUT_DIR, '*.o'))
-               + glob.glob(os.path.join(CPP_CODE_DIR, '*.o'))
-               + glob.glob(os.path.join(CPP_COMMON_CODE_DIR, '*.o'))
-               + glob.glob(os.path.join(sitar_core_dir, '*.o'))
-               + [MAIN_FILE[:-4] + '.o'])
-    r = run(['g++', '-g', '-o', EXECUTABLE] + objects + ['-lquadmath'])
+    print("Compiling...")
+    r = run(['sitar', 'compile',
+             '-o', EXECUTABLE,
+             '-d', OUTPUT_DIR,
+             '-d', CPP_CODE_DIR,
+             '-d', CPP_COMMON_CODE_DIR,
+             '-m', MAIN_FILE,
+             '-l', 'quadmath',
+             '--logging' if args.logging else '--no-logging'],
+            cwd=SCRIPT_DIR)
     if r.returncode != 0:
-        print("error: link failed")
+        print("error: compile/link failed")
         sys.exit(1)
 
     print("Built %s" % EXECUTABLE)
