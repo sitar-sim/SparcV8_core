@@ -56,6 +56,12 @@ venv/
 *.exp
 *.lib
 
+# test_simple_ADD.s: a hand-written, tracked example assembly source (not a
+# compiler-generated .s intermediate), see cpp_model/README.md and
+# sitar_model/README.md
+!/cpp_model/test/test_simple_ADD.s
+!/sitar_model/executable/test_simple_ADD.s
+
 # Editor/OS
 .DS_Store
 Thumbs.db

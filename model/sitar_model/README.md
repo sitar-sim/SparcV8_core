@@ -53,8 +53,14 @@ live here -- everything else about ISA behavior still comes from
   `../../validation/run_tests.py` can point at either model interchangeably.
 - **`build.py`** -- translates the 5 `.sitar` files and builds
   `executable/sitar_check_test` (requires the `sitar` CLI on `PATH`; see the
-  sibling `sitar` repo). `build/` and `executable/` are gitignored build
-  products.
+  sibling `sitar` repo). `build/` and the executable itself are gitignored
+  build products.
+- **`executable/test_simple_ADD.s`** -- a minimal, beginner-friendly example
+  program (see below). Its assembled memory image
+  (`executable/test_simple_ADD.hex`), a readable assembler listing
+  (`executable/test_simple_ADD.lst`), and its expected-results file
+  (`executable/test_simple_ADD.expected`) are committed alongside it, so
+  trying it out needs no toolchain at all.
 
 ## Latency model
 
@@ -75,22 +81,45 @@ to `cpp_model`.
 
 ## How to build and run it
 
-Requires the `sitar` CLI on `PATH` (see the sibling `sitar` repo). Build:
+Requires the `sitar` CLI on `PATH` (see the sibling `sitar` repo).
+Commands below are relative to this directory (`model/sitar_model/`).
+
+Build:
 
 ```sh
-model/sitar_model/build.py
+./build.py
 ```
 
-Run a single test directly, same CLI as `cpp_model/check_test`:
+### A first, minimal example
+
+`executable/test_simple_ADD.s` adds two numbers and puts the result in a
+register, then halts. It's a good first program to read end to end.
 
 ```sh
-model/sitar_model/executable/sitar_check_test \
-    validation/asm/integer_alu/Arithmetic/Add/ADD.hex \
-    validation/asm/integer_alu/Arithmetic/Add/ADD.expected
+cat executable/test_simple_ADD.s
 ```
 
-Run the full 223-test suite against the Sitar model instead of the plain
-C++ one:
+Run it, same CLI as `cpp_model/check_test`:
+
+```sh
+./executable/sitar_check_test executable/test_simple_ADD.hex executable/test_simple_ADD.expected
+```
+
+```
+PASS: o0 = 0xc
+PASS: l0 = 0x5
+PASS: l1 = 0x7
+OVERALL: PASS (3 checks)
+```
+
+### Next steps
+
+To write your own assembly or C program, see
+`../../docs/source/writing_and_running_assembly_programs.md` and
+`../../docs/source/writing_and_running_c_programs.md`.
+
+To run the full validation suite instead, against this Sitar-timed model
+rather than the plain C++ one, from the repository root:
 
 ```sh
 validation/run_tests.py validation/asm --sitar
@@ -98,11 +127,11 @@ validation/run_tests.py validation/asm --sitar
 
 To inspect timing (e.g. while changing a `delay` value), rebuild with
 per-cycle logging enabled (off by default -- noisy and slower) and pipe
-stderr somewhere readable; log lines are timestamped `[t=<cycle>]`:
+stderr somewhere readable. Log lines are timestamped `[t=<cycle>]`:
 
 ```sh
-model/sitar_model/build.py --logging
-model/sitar_model/executable/sitar_check_test  <hex>  <expected>  2> trace.log
+./build.py --logging
+./executable/sitar_check_test  <hex>  <expected>  2> trace.log
 ```
 
 To change a latency knob, edit the relevant source and rebuild:

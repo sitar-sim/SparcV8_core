@@ -26,45 +26,58 @@ modeled only in `../sitar_model/`.
 - **`build.sh`** -- builds both `sparc_cpp_sim` and `check_test` (links
   `../cpp_common_code/*.cpp` plus `-lquadmath`). Both binaries are
   gitignored build products.
+- **`test/`** -- a minimal, beginner-friendly example program (see below),
+  with its assembled memory image and expected-results file committed
+  alongside it, so trying it out needs no toolchain at all.
 
 ## How to run it
+
+Commands below are relative to this directory (`model/cpp_model/`).
 
 Build once:
 
 ```sh
-model/cpp_model/build.sh
+./build.sh
 ```
 
-Run a single memory image and see final register state:
+### A first, minimal example
+
+`test/test_simple_ADD.s` adds two numbers and puts the result in a
+register, then halts. It's a good first program to read end to end.
 
 ```sh
-model/cpp_model/sparc_cpp_sim  validation/asm/integer_alu/Arithmetic/Add/ADD.hex
-# optional: cap the cycle count (default 1,000,000)
-model/cpp_model/sparc_cpp_sim  validation/asm/integer_alu/Arithmetic/Add/ADD.hex  5000
+cat test/test_simple_ADD.s
 ```
 
-Check one test's pass/fail verdict directly (expects an `.expected` file in
-the normalized `REG`/`MEM` format produced from a test's `.vprj`, see
-`../../validation/README.md`):
+Run it and see the final register state:
 
 ```sh
-model/cpp_model/check_test  validation/asm/integer_alu/Arithmetic/Add/ADD.hex \
-                             validation/asm/integer_alu/Arithmetic/Add/ADD.expected
+./sparc_cpp_sim test/test_simple_ADD.hex
+```
+
+Or check it against its expected result:
+
+```sh
+./check_test test/test_simple_ADD.hex test/test_simple_ADD.expected
 ```
 
 ```
-PASS: i0 = 0xfffffffe
-PASS: i1 = 0xe0
-...
-OVERALL: PASS (13 checks)
+PASS: o0 = 0xc
+PASS: l0 = 0x5
+PASS: l1 = 0x7
+OVERALL: PASS (3 checks)
 ```
 
-In practice you won't invoke `check_test` by hand like that -- the whole
-suite (223 tests) is run via:
+### Next steps
+
+To write your own assembly or C program, see
+`../../docs/source/writing_and_running_assembly_programs.md` and
+`../../docs/source/writing_and_running_c_programs.md`.
+
+To run the full validation suite instead, from the repository root:
 
 ```sh
 validation/run_tests.py validation/asm
 ```
 
-See `../../validation/README.md` for the full pipeline (building `.hex`
-files from `.s` sources, `--max-cycles`, `-v`, etc.).
+See `../../validation/README.md` for the full pipeline.
