@@ -10,7 +10,7 @@ tests, and how to write and run a new one.
 Every test is a pair of files: `<name>.s` (the assembly source) and
 `<name>.vprj` (the expected final state). The `.vprj` extension is for
 historical reasons, since this format is adapted from the AJIT project
-(see `validation/README.md`). A `.s` file is fully self-contained and
+(see `validation/asm/README.md`). A `.s` file is fully self-contained and
 always has the same shape:
 
 ```asm
@@ -155,7 +155,7 @@ the appropriate category. For example,
 exception-subtype tests. `run_tests.py` recurses, so nesting is free.
 It just needs to find `.vprj` files.
 
-See `validation/README.md` for the AJIT-adaptation attribution and
+See `validation/asm/README.md` for the AJIT-adaptation attribution and
 `docs/compliance/README.md` for documented, specific divergences from AJIT's
 own reference results (kept separate from the maintained suite since they
 represent understood implementation differences, not bugs).

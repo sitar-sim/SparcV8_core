@@ -103,7 +103,7 @@ validation/run_tests.py validation --sitar
 Most of the functional validation suite under `validation/asm/`
 (and the toolchain scripts that build/run it under `compiler/`) is adapted
 from the **AJIT processor project** (IIT Bombay) -- specifically its `ajit32`
-instruction-level verification suite. See `validation/README.md` for
+instruction-level verification suite. See `validation/asm/README.md` for
 details, per-file author credit, and the quad-precision tests that are this
 project's own (AJIT's own suite assumes quad ops are unimplemented; this
 project implements them). `docs/compliance/README.md` documents three specific,
