@@ -5,4 +5,9 @@ __pycache__/
 
 # NOTE: *.hex is deliberately NOT ignored here -- these files are committed
 # so run_tests.py can be used with no cross-compiler installed. Regenerate
-# and commit them with build_hex.py whenever a .s source changes.
+# and commit them with build_hex.py whenever a .s/.c source changes.
+
+# NOTE: C/'s compiler-generated .s and .objdump (see compiler/compile_c.sh)
+# are deliberately NOT ignored either -- unlike a .o/.elf, both are
+# human-readable and worth committing so someone can step through a small
+# C test's actual generated code without needing the toolchain installed.

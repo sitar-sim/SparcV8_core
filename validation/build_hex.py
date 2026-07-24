@@ -3,19 +3,21 @@
 build_hex.py <root_folder>
 
 Phase 1 of the test pipeline. Recursively finds .vprj files under
-<root_folder>, and for each one, assembles/links/hex-dumps its paired .s
-file (via compiler/assemble.sh) into a .hex memory image next to it.
+<root_folder>, and for each one, builds its paired source file into a
+.hex memory image next to it: a .s file via compiler/assemble.sh
+(assemble+link+hex-dump), or a .c file via compiler/compile_c.sh
+(compile+assemble+link+hex-dump), picked by the source's extension.
 
 Requires the sparc-elf toolchain (see compiler/README.md). Automatically
 uses compiler/toolchain/bin if compiler/install_toolchain.sh has been run;
 otherwise falls back to whatever is already on PATH.
 
-Only needed when a test's .s source has changed, or for a fresh test added
+Only needed when a test's source has changed, or for a fresh test added
 to the suite -- the resulting .hex files are committed to git specifically
 so that run_tests.py (phase 2, the actual simulation) can be used on its
 own, with no cross-compiler installed, by anyone who only wants to run the
 existing tests against a modified model. Run this script again and commit
-the updated .hex whenever a .s file changes.
+the updated .hex whenever a .s/.c source changes.
 """
 import argparse
 import os
@@ -24,7 +26,13 @@ import sys
 
 import vprj
 
-ASSEMBLE_SH = os.path.join(vprj.REPO_ROOT, 'compiler', 'assemble.sh')
+ASSEMBLE_SH  = os.path.join(vprj.REPO_ROOT, 'compiler', 'assemble.sh')
+COMPILE_C_SH = os.path.join(vprj.REPO_ROOT, 'compiler', 'compile_c.sh')
+
+BUILD_SCRIPT_FOR_EXT = {
+    '.s': ASSEMBLE_SH,
+    '.c': COMPILE_C_SH,
+}
 
 
 def build_one(vprj_path, env):
@@ -32,7 +40,11 @@ def build_one(vprj_path, env):
     source, _ = vprj.parse_vprj(vprj_path)
     source_path = os.path.join(test_dir, source)
 
-    asm = subprocess.run([ASSEMBLE_SH, source_path], capture_output=True, text=True, env=env)
+    ext = os.path.splitext(source)[1]
+    if ext not in BUILD_SCRIPT_FOR_EXT:
+        return False, "ERROR: don't know how to build a %r source (%s)" % (ext, source)
+
+    asm = subprocess.run([BUILD_SCRIPT_FOR_EXT[ext], source_path], capture_output=True, text=True, env=env)
     return asm.returncode == 0, asm.stdout + asm.stderr
 
 

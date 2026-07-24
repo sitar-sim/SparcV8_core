@@ -1,0 +1,4 @@
+SOURCES = array_sum.c
+
+RESULTS =
+m[0x2090] = 0x0000000F

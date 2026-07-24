@@ -54,7 +54,7 @@ it -- see "Connecting other components" in the documentation (a stub for
 now; the worked example is planned).
 
 Both models are validated against the same instruction-level test suite
-(`validation/`, `validation/run_tests.py`, currently 230/230 passing on
+(`validation/`, `validation/run_tests.py`, currently 231/231 passing on
 both) -- see `validation/README.md`.
 
 ## Documentation
@@ -75,12 +75,12 @@ For a quick start without building the docs site:
 ```sh
 # build the plain C++ model and run the validation suite against it
 model/cpp_model/build.sh
-validation/run_tests.py validation/asm
+validation/run_tests.py validation
 
 # build the Sitar-timed model and run the same suite against it
 # (requires the sitar CLI on PATH -- see the sitar repository above)
 model/sitar_model/build.py
-validation/run_tests.py validation/asm --sitar
+validation/run_tests.py validation --sitar
 ```
 
 ## Repository layout
@@ -88,10 +88,10 @@ validation/run_tests.py validation/asm --sitar
 - `model/` -- the two models described above (`cpp_common_code/`,
   `cpp_model/`, `sitar_model/`), each with its own `README.md`.
 - `validation/` -- the instruction-level test suite (`asm/`, hand-written
-  assembly; `C/`, bare-metal C, not yet populated) and the scripts that
-  build and run it.
-- `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker) used to
-  build test programs, and the scripts that drive it.
+  assembly; `C/`, bare-metal C) and the scripts that build and run it.
+- `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker/objdump,
+  plus a minimal bundled C compiler for `validation/C/`) used to build
+  test programs, and the scripts that drive it.
 - `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
   `generated_site/` (prebuilt, committed output -- open `index.html`
   directly), `mkdocs.yml`, the vendored `sitar_pygments_lexer/`, and

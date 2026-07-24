@@ -9,8 +9,12 @@
 #
 # Deliberately does NOT remove .hex files -- those are committed to git
 # (see validation/README.md) specifically so the test suite can be run
-# without a cross-compiler installed; only .s/.vprj changes should require
-# regenerating them, via build_hex.py.
+# without a cross-compiler installed; only .s/.c/.vprj changes should
+# require regenerating them, via build_hex.py. Also deliberately does NOT
+# remove C/'s compiler-generated .s or .objdump (see compiler/compile_c.sh)
+# -- unlike a .o/.elf, both are human-readable and committed on purpose, so
+# someone can step through a small C test's actual generated code without
+# needing the toolchain installed.
 
 set -e
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -19,4 +23,4 @@ ROOT="${1:-$SCRIPT_DIR}"
 find "$ROOT" -type f \( -name '*.o' -o -name '*.elf' -o -name '*.expected' \) -print -delete
 find "$ROOT" -type d -name '__pycache__' -print -exec rm -rf {} +
 
-echo "Cleaned generated temp files under $ROOT (.hex/.s/.vprj left untouched)."
+echo "Cleaned generated temp files under $ROOT (.hex/.s/.c/.vprj/.objdump left untouched)."
