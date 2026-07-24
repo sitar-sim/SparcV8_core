@@ -170,9 +170,6 @@ Design changes made:
   suite runs against either model unchanged. **Full suite run against the
   Sitar-driven model: 223/223 passing** (confirmed via a from-scratch
   clean rebuild of both models, not just incrementally).
-- Every `.sitar` file now has a consistent header (procedure/module name,
-  `Author: Neha Karanjkar`, and a description) and was reviewed for
-  comments/formatting.
 
 ## Next steps
 
