@@ -70,6 +70,7 @@ nav:
   - Writing and Running Programs:
       - Assembly Programs: writing_and_running_assembly_programs.md
       - C Programs: writing_and_running_c_programs.md
+      - Examining Core State with GDB: examining_core_state_with_gdb.md
 
   - The Model:
       - Model Components: model_components.md
