@@ -15,13 +15,14 @@ SparcV8_core/
     sitar_model/         Sitar-timed driver.
   validation/
     asm/                Instruction-level assembly test suite.
-    C/                  Bare-metal C test suite (planned, not yet populated).
+    C/                  Self-validating bare-metal C mini-benchmark suite.
   compiler/               SPARC V8 cross-toolchain + build scripts.
   docs/                    This documentation site.
     source/                  The .md pages you're reading (MkDocs docs_dir).
     generated_site/           Prebuilt, committed output. Open index.html directly.
     mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
     compliance/               Documented, specific divergences from AJIT's own reference results.
+  log_viewer/              Offline browser tool for viewing an instruction/state trace.
 ```
 
 Each of `model/cpp_common_code/`, `model/cpp_model/`, and

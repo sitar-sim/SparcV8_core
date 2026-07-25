@@ -1147,23 +1147,29 @@ and puts the result in a register, then halts. View it first:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>model/cpp_model/test/test_simple_ADD.hex
 </span></code></pre></div>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>PROCESSOR STATE: ERROR
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>...
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a> Out:
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a> o0 c
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a> ...
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Simulation halted (error_mode) after 9 cycles.
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>PSR.impl 0b0000
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>...
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>PC  0x1c
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>nPC 0x20
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>...
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>o0 0xc
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>...
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>Simulation halted (error_mode) after 9 cycles.
 </span></code></pre></div>
 <p>This prints every register's final value once the program halts. <code>o0</code> is
 <code>0xc</code> (12), the sum of the two numbers the program added. <code>sparc_cpp_sim</code>
-always prints this final state. It has no separate logging mode. For an
-instruction-by-instruction trace instead, see the Sitar-timed model below.</p>
+always prints this final state, regardless of how it was built.
+Rebuilding with <code>./build.sh --logging</code> additionally writes a full
+instruction-by-instruction trace, viewable in <code>log_viewer/</code>, alongside
+it -- see <a href="getting_started.html">Getting Started</a> for a full walkthrough,
+including what each part of the trace means.</p>
 <hr />
 <h2 id="3-optional-install-sitar-and-build-the-timing-model">3. (Optional) Install Sitar, and build the timing model<a class="headerlink" href="#3-optional-install-sitar-and-build-the-timing-model" title="Permanent link">&para;</a></h2>
 <p>Only needed if you want the cycle-timed Sitar model, not just the plain
 C++ one. Follow Sitar's own
 <a href="https://sitar-sim.github.io/sitar/getting_started.html">installation instructions</a>
 first, to build the <code>sitar</code> CLI and put it on your <code>PATH</code>.</p>
-<p>Build with logging enabled, so a first, simple log is produced:</p>
+<p>Build with logging enabled, so a first, simple trace is produced:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
 </span></code></pre></div>
 <p>This builds <code>sitar_check_test</code> inside <code>model/sitar_model/executable/</code>.
@@ -1172,15 +1178,17 @@ Run the same example program as above:</p>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.expected
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(0,0)TOP.core.sparcThread:[t=(0,0)] Fetched Instruction: WRPSR; Instruction word: 0x81880000
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>(1,0)TOP.core.sparcThread:[t=(1,0)] Fetched Instruction: NOP; Instruction word: 0x1000000
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>...
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>PASS: o0 = 0xc
-</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>OVERALL: PASS (1 checks)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>PASS: o0 = 0xc
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>OVERALL: PASS (1 checks)
 </span></code></pre></div>
-<p>Each <code>Fetched Instruction</code> line is one instruction being executed, with the
-memory reference and state update it causes logged around it, so you can
-follow the program's execution one instruction at a time.</p>
+<p>This also writes two files into the current directory: <code>sparc_trace.log</code>
+(one row per fetched instruction/trap/memory access, with the entire
+processor state at that point) and <code>sitar.log</code> (Sitar's own lower-level
+per-request/response messages). Open <code>sparc_trace.log</code> in
+<code>log_viewer/viewer.html</code> to step through the program instruction by
+instruction and watch the processor state evolve -- see
+<a href="getting_started.html">Getting Started</a> for a full walkthrough, and
+<code>log_viewer/README.md</code> for the viewer itself.</p>
 <h3 id="running-larger-programs">Running larger programs<a class="headerlink" href="#running-larger-programs" title="Permanent link">&para;</a></h3>
 <p>Full per-cycle logging like this gets noisy and slow for anything bigger
 than the tiny example above. Build without <code>--logging</code> (the default) for

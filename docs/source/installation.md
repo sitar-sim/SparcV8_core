@@ -61,17 +61,23 @@ model/cpp_model/sparc_cpp_sim model/cpp_model/test/test_simple_ADD.hex
 
 ```
 PROCESSOR STATE: ERROR
+PSR.impl 0b0000
 ...
- Out:
- o0 c
- ...
+PC  0x1c
+nPC 0x20
+...
+o0 0xc
+...
 Simulation halted (error_mode) after 9 cycles.
 ```
 
 This prints every register's final value once the program halts. `o0` is
 `0xc` (12), the sum of the two numbers the program added. `sparc_cpp_sim`
-always prints this final state. It has no separate logging mode. For an
-instruction-by-instruction trace instead, see the Sitar-timed model below.
+always prints this final state, regardless of how it was built.
+Rebuilding with `./build.sh --logging` additionally writes a full
+instruction-by-instruction trace, viewable in `log_viewer/`, alongside
+it -- see [Getting Started](getting_started.md) for a full walkthrough,
+including what each part of the trace means.
 
 ---
 
@@ -82,7 +88,7 @@ C++ one. Follow Sitar's own
 [installation instructions](https://sitar-sim.github.io/sitar/getting_started.html)
 first, to build the `sitar` CLI and put it on your `PATH`.
 
-Build with logging enabled, so a first, simple log is produced:
+Build with logging enabled, so a first, simple trace is produced:
 
 ```sh
 model/sitar_model/build.py --logging
@@ -98,16 +104,18 @@ model/sitar_model/executable/sitar_check_test \
 ```
 
 ```
-(0,0)TOP.core.sparcThread:[t=(0,0)] Fetched Instruction: WRPSR; Instruction word: 0x81880000
-(1,0)TOP.core.sparcThread:[t=(1,0)] Fetched Instruction: NOP; Instruction word: 0x1000000
-...
 PASS: o0 = 0xc
 OVERALL: PASS (1 checks)
 ```
 
-Each `Fetched Instruction` line is one instruction being executed, with the
-memory reference and state update it causes logged around it, so you can
-follow the program's execution one instruction at a time.
+This also writes two files into the current directory: `sparc_trace.log`
+(one row per fetched instruction/trap/memory access, with the entire
+processor state at that point) and `sitar.log` (Sitar's own lower-level
+per-request/response messages). Open `sparc_trace.log` in
+`log_viewer/viewer.html` to step through the program instruction by
+instruction and watch the processor state evolve -- see
+[Getting Started](getting_started.md) for a full walkthrough, and
+`log_viewer/README.md` for the viewer itself.
 
 ### Running larger programs
 

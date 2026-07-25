@@ -29,9 +29,12 @@ benefits both.
 
 Also here: `Decoder` (instruction word -> `Opcode`), `MemCore` (flat,
 byte-addressed functional memory, used directly by `cpp_model` and wrapped
-with timing by `sitar_model`'s `MainMemory`), and
-`FloatingPointFunctions.h` (IEEE-754 single/double/quad-precision
-arithmetic, quad via `libquadmath`).
+with timing by `sitar_model`'s `MainMemory`), `FloatingPointFunctions.h`
+(IEEE-754 single/double/quad-precision arithmetic, quad via
+`libquadmath`), and `CoreLogger` (`SparcCore::logger` -- formats and,
+depending on how a driver configures it, emits this core's state as a
+trace of architectural events; both drivers below produce the identical
+format, viewable in `log_viewer/`, see that directory's own `README.md`).
 
 ---
 
@@ -54,13 +57,16 @@ cycle-level timing model**. Structurally:
 behavior
     [
         run sparcThread;
+    ||
+        run mainMemory;
+    ||
+        wait until (sparcThread.HALT.VALUE);
+        wait until (this_phase==1);
         $
         log<<endl<<"Core halted.";
         log<<endl<<sparcThread.printInfo();
         $;
         stop simulation;
-    ||
-        run mainMemory;
     ]
 end behavior
 ```
@@ -69,11 +75,14 @@ This is `Core.sitar`'s top-level behavior: `sparcThread` (the state
 machine, which owns `SparcCore` plus five memory-interface threads for
 ifetch/read/write/atomic/flush) and `mainMemory` (a persistent procedure
 owning the actual `MemCore` storage) run as two branches of one **parallel
-block**, communicating through a shared request/response struct. They are
-procedures on branches of the same parallel block, not modules connected
-by ports/nets. Because of that, their handshake can complete within a
-single phase, meaning zero added cycles, before either side's own
-configured latency is even applied.
+block**, communicating through a shared request/response struct, alongside
+a third branch that watches for `sparcThread` halting (its own procedure
+never returns -- it loops forever across `RESET`/`EXECUTE`/`ERROR` by
+design) and stops the simulation once it does. `sparcThread` and
+`mainMemory` are procedures on branches of the same parallel block, not
+modules connected by ports/nets. Because of that, their handshake can
+complete within a single phase, meaning zero added cycles, before either
+side's own configured latency is even applied.
 
 Three independent, additive latency knobs, all ordinary `int >= 0` values
 with no special-casing at zero (see

@@ -1084,30 +1084,30 @@ alongside the <code>interface = &amp;memInterface</code> wiring:</p>
 </span></code></pre></div>
 <hr />
 <h2 id="confirming-a-change-took-effect">Confirming a change took effect<a class="headerlink" href="#confirming-a-change-took-effect" title="Permanent link">&para;</a></h2>
-<p>Rebuild with logging enabled and grep the trace for <code>Fetched Instruction</code>
-lines, which are timestamped <code>[t=(cycle,phase)]</code>:</p>
+<p>Rebuild with logging enabled and run a test:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;<span class="w"> </span><span class="m">2</span>&gt;<span class="p">&amp;</span><span class="m">1</span><span class="w"> </span><span class="m">1</span>&gt;/dev/null<span class="w"> </span><span class="p">|</span><span class="w"> </span>grep<span class="w"> </span><span class="s2">&quot;Fetched Instruction&quot;</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;
 </span></code></pre></div>
-<p>For example, overriding <code>ADD</code>'s latency to 4 cycles
-(<code>{ADD, 4}</code> in <code>OPCODE_LATENCY_OVERRIDES</code>) and running
-<code>validation/asm/integer_alu/Arithmetic/Add/ADD.hex</code> produces:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(13,0)TOP.core.sparcThread:[t=(13,0)] Fetched Instruction: OR;    Instruction word: 0x82102bad
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>(14,0)TOP.core.sparcThread:[t=(14,0)] Fetched Instruction: OR;    Instruction word: 0xa0102002
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>(15,0)TOP.core.sparcThread:[t=(15,0)] Fetched Instruction: ADD;   Instruction word: 0x90042003
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>(19,0)TOP.core.sparcThread:[t=(19,0)] Fetched Instruction: RDPSR; Instruction word: 0x93480000
+<p>This writes <code>sparc_trace.log</code> (see <a href="getting_started.html">Getting Started</a>
+and <code>log_viewer/README.md</code>) into the current directory -- its <code>time</code>
+column is exactly the per-instruction cycle count this page is about.
+Either open it in <code>log_viewer/viewer.html</code> and read <code>time</code> off
+consecutive <code>FETCH</code> rows directly, or grep it on the command line:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;$4==&quot;FETCH&quot;{print $2, $3, $5}&#39;</span><span class="w"> </span>sparc_trace.log
 </span></code></pre></div>
-<p>Every other opcode (<code>OR</code>, <code>RDPSR</code>, ...) is fetched one cycle after the
-previous one, at the unmodified default. <code>ADD</code> at <code>t=15</code> is the
-exception. It is followed by the next fetch only at <code>t=19</code>, exactly the
-overridden 4-cycle gap. Reverting the override (back to the empty
-<code>OPCODE_LATENCY_OVERRIDES = {};</code> default) and rebuilding restores the
-uniform 1-cycle spacing.</p>
-<p>The same approach (rebuild with <code>--logging</code>, grep the relevant log lines)
-works for <code>MemoryInterface.delay</code>/<code>MainMemory.delay</code> too. Look for
-<code>"servicing"</code>/<code>"response ready"</code> (<code>MainMemory</code>) and
-<code>"Started memory reference"</code>/<code>"Finished memory reference"</code>
-(<code>MemoryInterface</code>) instead.</p>
+<p>For example, overriding <code>ADD</code>'s latency to 4 cycles (<code>{ADD, 4}</code> in
+<code>OPCODE_LATENCY_OVERRIDES</code>) and running
+<code>validation/asm/integer_alu/Arithmetic/Add/ADD.hex</code> produces <code>time</code>
+values increasing by 1 between fetches, except right after the <code>ADD</code>
+row, where it jumps by 4 -- exactly the overridden gap. Reverting the
+override (back to the empty <code>OPCODE_LATENCY_OVERRIDES = {};</code> default) and
+rebuilding restores the uniform 1-cycle spacing.</p>
+<p>For <code>MemoryInterface.delay</code>/<code>MainMemory.delay</code>, look in the <em>other</em> file
+<code>--logging</code> produces, <code>sitar.log</code> (Sitar's own per-request/response
+messages, not part of the architectural trace -- see
+<code>model/sitar_model/README.md</code>) for <code>"servicing"</code>/<code>"response ready"</code>
+(<code>MainMemory</code>) and <code>"Started memory reference"</code>/<code>"Finished memory
+reference"</code> (<code>MemoryInterface</code>), each timestamped <code>[t=&lt;cycle&gt;]</code>.</p>
 <p>Logging is off by default. Rebuild without <code>--logging</code> to go back to
 that. It's noticeably slower and noisier, meant for exactly this kind of
 debugging rather than everyday use.</p>

@@ -434,10 +434,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-toolchain-in-one-picture" class="md-nav__link">
+  <a href="#what-is-sparc-v8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The toolchain, in one picture
+        What is SPARC V8?
       
     </span>
   </a>
@@ -445,10 +445,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-a-single-test-by-hand" class="md-nav__link">
+  <a href="#a-first-program-on-the-plain-c-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run a single test by hand
+        A first program, on the plain C++ model
       
     </span>
   </a>
@@ -456,10 +456,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-the-whole-suite" class="md-nav__link">
+  <a href="#the-sitar-timed-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run the whole suite
+        The Sitar-timed model
       
     </span>
   </a>
@@ -467,10 +467,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#turning-on-logging-sitar-model-only" class="md-nav__link">
+  <a href="#building-without-logging-and-running-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Turning on logging (Sitar model only)
+        Building without logging, and running the validation suite
       
     </span>
   </a>
@@ -960,10 +960,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-toolchain-in-one-picture" class="md-nav__link">
+  <a href="#what-is-sparc-v8" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The toolchain, in one picture
+        What is SPARC V8?
       
     </span>
   </a>
@@ -971,10 +971,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-a-single-test-by-hand" class="md-nav__link">
+  <a href="#a-first-program-on-the-plain-c-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run a single test by hand
+        A first program, on the plain C++ model
       
     </span>
   </a>
@@ -982,10 +982,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#run-the-whole-suite" class="md-nav__link">
+  <a href="#the-sitar-timed-model" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Run the whole suite
+        The Sitar-timed model
       
     </span>
   </a>
@@ -993,10 +993,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#turning-on-logging-sitar-model-only" class="md-nav__link">
+  <a href="#building-without-logging-and-running-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Turning on logging (Sitar model only)
+        Building without logging, and running the validation suite
       
     </span>
   </a>
@@ -1035,95 +1035,177 @@
 
 
 <h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
-<p>This page assumes you've completed <a href="installation.html">Installation</a>. Let's
-run something.</p>
+<p>This page assumes you've completed <a href="installation.html">Installation</a>. It
+walks through the whole toolchain hands-on, in the order you'd actually
+use it: what SPARC V8 is and where to read more about it, building and
+running a first program on the plain C++ model while watching it execute
+in the trace viewer, the same again on the Sitar-timed model (and what it
+adds), the full validation suite, and where to find more example
+programs to learn from.</p>
 <hr />
-<h2 id="the-toolchain-in-one-picture">The toolchain, in one picture<a class="headerlink" href="#the-toolchain-in-one-picture" title="Permanent link">&para;</a></h2>
-<p>The build and run pipeline has three steps.</p>
-<ol>
-<li><code>sparc-elf-as</code> and <code>sparc-elf-ld</code> assemble and link <code>test.s</code> into <code>test.elf</code>.</li>
-<li><code>readelf</code> and <code>compiler/hexdump_to_memimage.py</code> convert <code>test.elf</code> into
-   <code>test.hex</code>, a plain text memory image.</li>
-<li><code>sparc_cpp_sim</code> or <code>check_test</code> run <code>test.hex</code> on the plain C++ model.
-   <code>sitar_check_test</code> runs the same <code>test.hex</code> on the Sitar timed model.
-   Either path produces the final register state and a pass or fail result.</li>
-</ol>
-<p>The <code>.hex</code> format is the one format both models load, through
-<code>MemCore::initializeMemory()</code>. Everything upstream of it is identical
-regardless of which model you run it on afterward.</p>
+<h2 id="what-is-sparc-v8">What is SPARC V8?<a class="headerlink" href="#what-is-sparc-v8" title="Permanent link">&para;</a></h2>
+<p>SPARC (Scalable Processor ARChitecture) is a RISC instruction set
+architecture, notable for its <strong>register window</strong> file: a procedure call
+can get a fresh set of registers without spilling to memory, simply by
+advancing a circular window into a larger physical register file. SPARC
+V8 is the 32-bit revision of the architecture this project models.</p>
+<p>The authoritative specification is <em>The SPARC Architecture Manual,
+Version 8</em>, bundled in this repository at
+<a href="sparcv8_Architecture_reference_Manual.pdf"><code>docs/source/sparcv8_Architecture_reference_Manual.pdf</code></a>.
+It's long (295 pages, most of it appendices for implementers). For
+learning the processor itself, four chapters cover everything this
+project's own documentation assumes you know:</p>
+<table>
+<thead>
+<tr>
+<th>Chapter</th>
+<th>Topic</th>
+<th>Pages</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>2</td>
+<td>Overview -- the architecture end to end, briefly: registers, instruction categories, traps, memory</td>
+<td>~9-16</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Registers -- the register file and windowing mechanism in full detail, PSR/WIM/TBR</td>
+<td>~23-42</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Instructions -- the instruction set itself: formats, addressing, every opcode</td>
+<td>~43-58</td>
+</tr>
+<tr>
+<td>7</td>
+<td>Traps -- trap handling, directly relevant to how every test program in this repository halts (see below)</td>
+<td>~69-80</td>
+</tr>
+</tbody>
+</table>
+<p>The rest (appendices A-N) is reference material for implementers --
+suggested assembly syntax, ABI conventions, an MMU specification, and
+similar -- worth knowing exists, not worth reading up front.</p>
 <hr />
-<h2 id="run-a-single-test-by-hand">Run a single test by hand<a class="headerlink" href="#run-a-single-test-by-hand" title="Permanent link">&para;</a></h2>
-<p>The validation suite's <code>.hex</code> files are committed to git, so you can run
-one immediately without needing the cross-toolchain:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex
+<h2 id="a-first-program-on-the-plain-c-model">A first program, on the plain C++ model<a class="headerlink" href="#a-first-program-on-the-plain-c-model" title="Permanent link">&para;</a></h2>
+<p><code>model/cpp_model/test/test_simple_ADD.s</code> is the simplest possible test
+program: it adds two numbers and halts.</p>
+<div class="language-asm highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="err">!</span><span class="w"> </span><span class="nf">test_simple_ADD.s</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="err">!</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="err">!</span><span class="w"> </span><span class="nf">The</span><span class="w"> </span><span class="no">simplest</span><span class="w"> </span><span class="no">possible</span><span class="w"> </span><span class="no">SPARC</span><span class="w"> </span><span class="no">V8</span><span class="w"> </span><span class="no">test</span><span class="w"> </span><span class="no">program</span><span class="p">:</span><span class="w"> </span><span class="no">add</span><span class="w"> </span><span class="no">two</span><span class="w"> </span><span class="no">numbers</span><span class="w"> </span><span class="no">and</span><span class="w"> </span><span class="no">put</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="err">!</span><span class="w"> </span><span class="nf">the</span><span class="w"> </span><span class="no">result</span><span class="w"> </span><span class="no">in</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">register</span><span class="p">,</span><span class="w"> </span><span class="no">then</span><span class="w"> </span><span class="no">halt.</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="na">.global</span><span class="w"> </span><span class="no">main</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nl">main:</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nl">_start:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">Disable</span><span class="w"> </span><span class="no">traps.</span><span class="w"> </span><span class="nv">%g0</span><span class="w"> </span><span class="no">always</span><span class="w"> </span><span class="no">reads</span><span class="w"> </span><span class="no">as</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="no">so</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">writes</span><span class="w"> </span><span class="mi">0</span><span class="w"> </span><span class="no">into</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">every</span><span class="w"> </span><span class="no">bit</span><span class="w"> </span><span class="no">of</span><span class="w"> </span><span class="nv">%psr</span><span class="p">,</span><span class="w"> </span><span class="no">including</span><span class="w"> </span><span class="no">ET</span><span class="w"> </span><span class="p">(</span><span class="no">trap-enable</span><span class="p">).</span><span class="w"> </span><span class="no">A</span><span class="w"> </span><span class="no">write</span><span class="w"> </span><span class="no">to</span><span class="w"> </span><span class="nv">%psr</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">takes</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">couple</span><span class="w"> </span><span class="no">of</span><span class="w"> </span><span class="no">cycles</span><span class="w"> </span><span class="no">to</span><span class="w"> </span><span class="no">take</span><span class="w"> </span><span class="no">effect</span><span class="p">,</span><span class="w"> </span><span class="no">hence</span><span class="w"> </span><span class="no">the</span><span class="w"> </span><span class="no">nops</span><span class="w"> </span><span class="no">after</span><span class="w"> </span><span class="no">it.</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nf">wr</span><span class="w"> </span><span class="nv">%g0</span><span class="p">,</span><span class="w"> </span><span class="nv">%psr</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">The</span><span class="w"> </span><span class="no">actual</span><span class="w"> </span><span class="no">computation</span><span class="p">:</span><span class="w"> </span><span class="nv">%o0</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">5</span><span class="w"> </span><span class="err">+</span><span class="w"> </span><span class="mi">7</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="nf">mov</span><span class="w"> </span><span class="mi">5</span><span class="p">,</span><span class="w"> </span><span class="nv">%l0</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nf">mov</span><span class="w"> </span><span class="mi">7</span><span class="p">,</span><span class="w"> </span><span class="nv">%l1</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a><span class="w">    </span><span class="nf">add</span><span class="w"> </span><span class="nv">%l0</span><span class="p">,</span><span class="w"> </span><span class="nv">%l1</span><span class="p">,</span><span class="w"> </span><span class="nv">%o0</span><span class="w">   </span><span class="p">!</span><span class="w"> </span><span class="nv">%o0</span><span class="w"> </span><span class="err">=</span><span class="w"> </span><span class="mi">0xc</span><span class="w"> </span><span class="p">(</span><span class="mi">12</span><span class="p">)</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">Halt.</span><span class="w"> </span><span class="no">Traps</span><span class="w"> </span><span class="no">are</span><span class="w"> </span><span class="no">disabled</span><span class="w"> </span><span class="p">(</span><span class="no">ET</span><span class="err">=</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="no">set</span><span class="w"> </span><span class="no">above</span><span class="p">),</span><span class="w"> </span><span class="no">so</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="err">`</span><span class="no">ta</span><span class="w"> </span><span class="mi">0</span><span class="err">`</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">is</span><span class="w"> </span><span class="no">not</span><span class="w"> </span><span class="no">taken</span><span class="w"> </span><span class="no">as</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">trap</span><span class="p">:</span><span class="w"> </span><span class="no">it</span><span class="w"> </span><span class="no">forces</span><span class="w"> </span><span class="no">the</span><span class="w"> </span><span class="no">processor</span><span class="w"> </span><span class="no">straight</span><span class="w"> </span><span class="no">into</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">error_mode</span><span class="w"> </span><span class="no">instead</span><span class="p">,</span><span class="w"> </span><span class="no">which</span><span class="w"> </span><span class="no">every</span><span class="w"> </span><span class="no">model</span><span class="w"> </span><span class="no">in</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">repo</span><span class="w"> </span><span class="no">recognizes</span><span class="w"> </span><span class="no">as</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="nf">a</span><span class="w"> </span><span class="no">deliberate</span><span class="p">,</span><span class="w"> </span><span class="no">successful</span><span class="w"> </span><span class="no">stop</span><span class="w"> </span><span class="p">(</span><span class="no">not</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="no">bug</span><span class="p">).</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nf">ta</span><span class="w"> </span><span class="mi">0</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="nf">nop</span>
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>PROCESSOR STATE: ERROR
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>...
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> In:
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a> i0 fffffffe
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a> i1 e0
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a> i2 2
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a> i3 e0
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a> ...
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>--------------------
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>Simulation halted (error_mode) after 46 cycles.
+<p>Build the plain C++ model with logging enabled, and run it:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/build.sh<span class="w"> </span>--logging
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/cpp_model/sparc_cpp_sim<span class="w"> </span>model/cpp_model/test/test_simple_ADD.hex
 </span></code></pre></div>
-<p>(<code>ERROR</code>/<code>error_mode</code> here just means the core hit its final <code>ta 0</code> with
-traps disabled. This is the standard, deliberate way every test in this
-suite signals "done". See
-<a href="writing_and_running_assembly_programs.html#the-pass-fail-convention">Writing and Running Assembly Programs</a>.)</p>
-<p><code>sparc_cpp_sim</code> just runs a memory image and prints final register state.
-It's handy for ad hoc use, but it doesn't check pass/fail. For that, use
-<code>check_test</code> with the test's paired expected-results file:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/cpp_model/check_test<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
-</span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>PASS: i0 = 0xfffffffe
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>PASS: i1 = 0xe0
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>...
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>OVERALL: PASS (13 checks)
-</span></code></pre></div>
-<p>(<code>ADD.expected</code> is generated from the test's <code>.vprj</code> file by
-<code>validation/run_tests.py</code>. See
-<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
-for the full test-authoring format.)</p>
-<p>To run the same test against the Sitar-timed model instead (same CLI,
-same expected-results format, same output):</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span>validation/asm/integer_alu/Arithmetic/Add/ADD.expected
-</span></code></pre></div>
+<p>This writes <code>sparc_trace.log</code>, a full instruction/state trace, into the
+current directory. Open <code>log_viewer/viewer.html</code> in a browser, click
+<strong>Load trace</strong> and pick <code>sparc_trace.log</code>, then <strong>Load objdump</strong> and pick
+<code>model/cpp_model/test/test_simple_ADD.objdump</code> (the matching disassembly,
+committed alongside the test). See <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/log_viewer/README.md">log_viewer/README.md</a>
+for the full walkthrough.</p>
+<p>Step through the trace row by row (arrow keys) and watch the processor
+evolve:</p>
+<ul>
+<li><strong><code>RESET</code> then <code>TRAP_ENTER</code></strong>, at the very start -- every run begins
+  this way. The model always boots by taking an implicit reset trap into
+  the first instruction; you didn't write this, it's automatic.</li>
+<li><strong><code>FETCH</code> rows</strong>, one per instruction, each showing the entire
+  current-window register state at that point, with whatever changed
+  since the previous row highlighted. Watch <code>%l0</code>/<code>%l1</code>/<code>%o0</code> fill in as
+  the <code>mov</code>/<code>mov</code>/<code>add</code> sequence runs.</li>
+<li><strong><code>TRAP_RAISED</code> then <code>HALT</code></strong>, at the end. The final <code>ta 0</code> is executed
+  with traps already disabled (that's what the <code>wr %g0, %psr</code> at the top
+  did), so it has no handler to jump to -- the processor forces itself
+  into <code>error_mode</code> instead. This is this project's halt convention, used
+  by every test program in the repository: it's what <code>sparc_cpp_sim</code>'s
+  <code>"Simulation halted (error_mode)"</code> message means, and it's expected,
+  not a bug. (This particular program has no trap table at all, so any
+  <code>ta 0</code> halts it -- programs with a full trap table refine this into an
+  actual pass/fail signal; see
+  <a href="writing_and_running_assembly_programs.html#the-pass-fail-convention">Writing and Running Assembly Programs</a>.)</li>
+</ul>
+<p>For automated pass/fail checking instead of watching a trace by hand, use
+<code>check_test</code> with the test's paired expected-results file -- see
+<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>.</p>
 <hr />
-<h2 id="run-the-whole-suite">Run the whole suite<a class="headerlink" href="#run-the-whole-suite" title="Permanent link">&para;</a></h2>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm
+<h2 id="the-sitar-timed-model">The Sitar-timed model<a class="headerlink" href="#the-sitar-timed-model" title="Permanent link">&para;</a></h2>
+<p>The plain C++ model above has no notion of cycles at all -- every
+instruction "completes" instantly. <code>model/sitar_model/</code> drives the exact
+same core through <a href="https://sitar-sim.github.io/sitar/">Sitar</a> instead,
+adding a simple, non-pipelined <strong>cycle-level timing model</strong>: a
+configurable per-opcode delay, plus separate interconnect and memory
+latencies. See <a href="model_components.html#sitar_model-the-cycle-timed-driver">Model Components</a>
+for how it's structured, and <a href="performance_modeling.html">Performance Modeling</a>
+for the three latency knobs and how to change them.</p>
+<p>It produces the same kind of trace, the same way:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.expected
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>230/230 tests passed
+<p>This also writes <code>sparc_trace.log</code> -- open it in <code>log_viewer/viewer.html</code>
+exactly as above (same format; the trace viewer doesn't know or care
+which model produced it). A second file, <code>sitar.log</code>, also appears:
+everything else Sitar itself logs (memory-interface/main-memory activity,
+useful when working on the timing model itself, not part of the
+architectural trace) -- see <code>model/sitar_model/README.md</code>.</p>
+<hr />
+<h2 id="building-without-logging-and-running-the-validation-suite">Building without logging, and running the validation suite<a class="headerlink" href="#building-without-logging-and-running-the-validation-suite" title="Permanent link">&para;</a></h2>
+<p>Logging is off by default -- it's slower and, for anything bigger than
+one instruction, noisier than you want. Rebuild without <code>--logging</code> (or
+just omit the flag) for everyday use:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/build.sh
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>model/sitar_model/build.py
+</span></code></pre></div>
+<p>Run the full instruction-level validation suite against either model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>240/240 tests passed
 </span></code></pre></div>
 <p>Add <code>--sitar</code> to run the identical suite against the Sitar-timed model,
 <code>-v</code> to see every check (not just failures), or point at a subfolder
-(e.g. <code>validation/asm/floating_point</code>) to run a subset. See
+(e.g. <code>validation/asm</code> for only the hand-written assembly tests, or
+<code>validation/C</code> for only the C mini-benchmarks below) to run a subset. See
 <code>validation/README.md</code> for the full pipeline, including how to add a new
-test and regenerate <code>.hex</code> files if you edit a <code>.s</code> source.</p>
-<hr />
-<h2 id="turning-on-logging-sitar-model-only">Turning on logging (Sitar model only)<a class="headerlink" href="#turning-on-logging-sitar-model-only" title="Permanent link">&para;</a></h2>
-<p>The plain C++ model has no notion of cycles or timing, so there's nothing
-to log. The Sitar model can be rebuilt with per-cycle trace logging:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>model/sitar_model/executable/sitar_check_test<span class="w">  </span>&lt;hex&gt;<span class="w">  </span>&lt;expected&gt;<span class="w">  </span><span class="m">2</span>&gt;<span class="w"> </span>trace.log
-</span></code></pre></div>
-<p>Logging is off by default. Rebuild without <code>--logging</code> to go back to that.
-It's noisy and slower, meant for debugging timing (e.g. verifying a
-latency change actually took effect). Log lines are timestamped
-<code>[t=&lt;cycle&gt;]</code>. See <a href="performance_modeling.html">Performance Modeling</a> for a
-worked example.</p>
+test.</p>
 <hr />
 <h2 id="whats-next">What's next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
 <ul>
+<li><code>validation/C/</code> has ten small, self-validating C mini-benchmarks
+  (array sum, matrix multiply, FFT, sorting, and more) worth reading as
+  worked examples -- see <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</li>
 <li>Write your own test: <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
   or <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</li>
 <li>Understand how the pieces fit together: <a href="model_components.html">Model Components</a>.</li>
