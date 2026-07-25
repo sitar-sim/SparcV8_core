@@ -63,37 +63,37 @@ $
 
 ## Confirming a change took effect
 
-Rebuild with logging enabled and grep the trace for `Fetched Instruction`
-lines, which are timestamped `[t=(cycle,phase)]`:
+Rebuild with logging enabled and run a test:
 
 ```sh
 model/sitar_model/build.py --logging
-model/sitar_model/executable/sitar_check_test <hex> <expected> 2>&1 1>/dev/null | grep "Fetched Instruction"
+model/sitar_model/executable/sitar_check_test <hex> <expected>
 ```
 
-For example, overriding `ADD`'s latency to 4 cycles
-(`{ADD, 4}` in `OPCODE_LATENCY_OVERRIDES`) and running
-`validation/asm/integer_alu/Arithmetic/Add/ADD.hex` produces:
+This writes `sparc_trace.log` (see [Getting Started](getting_started.md)
+and `log_viewer/README.md`) into the current directory -- its `time`
+column is exactly the per-instruction cycle count this page is about.
+Either open it in `log_viewer/viewer.html` and read `time` off
+consecutive `FETCH` rows directly, or grep it on the command line:
 
+```sh
+awk -F'\t' '$4=="FETCH"{print $2, $3, $5}' sparc_trace.log
 ```
-(13,0)TOP.core.sparcThread:[t=(13,0)] Fetched Instruction: OR;    Instruction word: 0x82102bad
-(14,0)TOP.core.sparcThread:[t=(14,0)] Fetched Instruction: OR;    Instruction word: 0xa0102002
-(15,0)TOP.core.sparcThread:[t=(15,0)] Fetched Instruction: ADD;   Instruction word: 0x90042003
-(19,0)TOP.core.sparcThread:[t=(19,0)] Fetched Instruction: RDPSR; Instruction word: 0x93480000
-```
 
-Every other opcode (`OR`, `RDPSR`, ...) is fetched one cycle after the
-previous one, at the unmodified default. `ADD` at `t=15` is the
-exception. It is followed by the next fetch only at `t=19`, exactly the
-overridden 4-cycle gap. Reverting the override (back to the empty
-`OPCODE_LATENCY_OVERRIDES = {};` default) and rebuilding restores the
-uniform 1-cycle spacing.
+For example, overriding `ADD`'s latency to 4 cycles (`{ADD, 4}` in
+`OPCODE_LATENCY_OVERRIDES`) and running
+`validation/asm/integer_alu/Arithmetic/Add/ADD.hex` produces `time`
+values increasing by 1 between fetches, except right after the `ADD`
+row, where it jumps by 4 -- exactly the overridden gap. Reverting the
+override (back to the empty `OPCODE_LATENCY_OVERRIDES = {};` default) and
+rebuilding restores the uniform 1-cycle spacing.
 
-The same approach (rebuild with `--logging`, grep the relevant log lines)
-works for `MemoryInterface.delay`/`MainMemory.delay` too. Look for
-`"servicing"`/`"response ready"` (`MainMemory`) and
-`"Started memory reference"`/`"Finished memory reference"`
-(`MemoryInterface`) instead.
+For `MemoryInterface.delay`/`MainMemory.delay`, look in the *other* file
+`--logging` produces, `sitar.log` (Sitar's own per-request/response
+messages, not part of the architectural trace -- see
+`model/sitar_model/README.md`) for `"servicing"`/`"response ready"`
+(`MainMemory`) and `"Started memory reference"`/`"Finished memory
+reference"` (`MemoryInterface`), each timestamped `[t=<cycle>]`.
 
 Logging is off by default. Rebuild without `--logging` to go back to
 that. It's noticeably slower and noisier, meant for exactly this kind of

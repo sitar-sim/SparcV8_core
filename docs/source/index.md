@@ -111,8 +111,9 @@ anyone wanting to build a larger model around it. See
 stub of this (not yet a full worked example).
 
 Both models are validated against the same instruction-level assembly test
-suite, and against a planned suite of bare-metal C test programs. See
-[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md).
+suite, and against a suite of self-validating bare-metal C mini-benchmarks.
+See [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+and [Writing and Running C Programs](writing_and_running_c_programs.md).
 
 ---
 

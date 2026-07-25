@@ -5,15 +5,6 @@ root. This page summarizes the larger, still-open directions.
 
 ---
 
-## Bare-metal C test suite
-
-`validation/C/` is planned but not yet populated. It will exercise
-sequences of operations together (matrix multiply, compound data types)
-rather than one opcode at a time, complementing `validation/asm/`'s
-instruction-level coverage. See
-[Writing and Running C Programs](writing_and_running_c_programs.md) for
-the intended approach and current toolchain status.
-
 ## Remaining Sitar testbench configurations
 
 The current Sitar model (`model/sitar_model/`) tightly couples
