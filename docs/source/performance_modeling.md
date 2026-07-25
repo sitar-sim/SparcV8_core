@@ -4,7 +4,9 @@ The Sitar model (`model/sitar_model/`) is a **simple, non-pipelined
 cycle-level timing model**. There is no pipelining and no out-of-order
 execution, just a fixed delay per opcode plus separately configurable
 memory-access latencies. This page covers where to change those numbers, and how to
-confirm a change actually took effect.
+confirm a change actually took effect. See [Logging](logging.md) for how
+logging itself is architected (this page just uses it) and how to narrow
+a trace down at runtime.
 
 ---
 
