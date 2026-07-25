@@ -1,0 +1,4 @@
+SOURCES = prime_sieve.c
+
+RESULTS =
+o0=1

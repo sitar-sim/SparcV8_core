@@ -1,0 +1,4 @@
+SOURCES = matrix_mul.c
+
+RESULTS =
+o0=1

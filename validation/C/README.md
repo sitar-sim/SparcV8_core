@@ -2,12 +2,36 @@
 
 Bare-metal C tests (`<TEST>.c` + `<TEST>.vprj` pairs, same `.vprj` format as
 `asm/`). These exercise a sequence of C-level operations together (loops,
-arrays, structs, global variables), rather than one instruction at a time.
+arrays, structs, global variables), rather than one instruction at a time
+-- small, self-validating mini-benchmarks:
+
+- `array_sum` -- sum of a small int array
+- `matrix_mul` -- 3x3 integer matrix multiply
+- `fft` -- 4-point integer radix-2 FFT
+- `root_finding` -- integer square root via Newton-Raphson
+- `integer_sort` -- bubble sort
+- `gcd` -- Euclidean algorithm
+- `fibonacci` -- iterative Fibonacci
+- `prime_sieve` -- Sieve of Eratosthenes
+- `checksum` -- byte-array checksum
+- `dot_product` -- integer vector dot product
 
 Write an ordinary, freestanding `main()` (no libc, see
-`docs/writing_and_running_c_programs.md`), and end it with
+`docs/writing_and_running_c_programs.md`). Each test computes something,
+compares it against a golden value computed once on the host machine and
+hardcoded in the same source file (so the `.vprj` never has to re-embed
+it independently), writes 1 (pass) or 0 (fail) into `%o0`, then ends with
 `__asm__ volatile ("ta 0")`, since `main()` must never return. See
-`array_sum/array_sum.c` for a working example.
+`array_sum/array_sum.c` for a working example, and every other test here
+for the same pattern applied to a different small algorithm.
+
+`../../compiler/freestanding_stubs.c` supplies `memcpy()` -- GCC's own
+`-O0` codegen sometimes lowers a large aggregate initializer (a 2D array
+literal, or a big enough 1D one) into a `memcpy()` call from a read-only
+template rather than a sequence of stores, and this is a `-nostdlib`
+build with no libc to provide one otherwise. Built once and linked into
+every test by `compile_c.sh`, not something any test's own source calls
+directly.
 
 Each test's compiler-generated `<TEST>.s` (assembly) and `<TEST>.objdump`
 (disassembly of the linked binary, addresses and symbols included) are

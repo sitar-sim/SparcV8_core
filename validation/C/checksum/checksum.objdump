@@ -1,5 +1,5 @@
 
-validation/C/array_sum/array_sum.elf:     file format elf32-sparc
+validation/C/checksum/checksum.elf:     file format elf32-sparc
 
 
 Disassembly of section .text:
@@ -19,14 +19,14 @@ Disassembly of section .text:
       2c:	01 00 00 00 	nop 
       30:	01 00 00 00 	nop 
       34:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <memcpy+0xfffdf48>
+      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <memcpy+0xfffdf38>
       3c:	82 10 2b ad 	mov  0xbad, %g1
       40:	40 00 07 f0 	call  2000 <main>
       44:	01 00 00 00 	nop 
 
 00000048 <not_reached>:
       48:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <memcpy+0xbe05>
+      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <memcpy+0xbdf5>
       50:	91 d0 20 00 	ta  0
       54:	01 00 00 00 	nop 
       58:	01 00 00 00 	nop 
@@ -2567,79 +2567,83 @@ Disassembly of section .text:
     1ffc:	01 00 00 00 	nop 
 
 00002000 <main>:
-    2000:	9d e3 bf 78 	save  %sp, -136, %sp
-    2004:	82 10 20 01 	mov  1, %g1
-    2008:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
-    200c:	82 10 20 02 	mov  2, %g1
-    2010:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
-    2014:	82 10 20 03 	mov  3, %g1
-    2018:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
-    201c:	82 10 20 04 	mov  4, %g1
+    2000:	9d e3 bf 80 	save  %sp, -128, %sp
+    2004:	05 12 19 5b 	sethi  %hi(0x48656c00), %g2
+    2008:	84 10 a0 6c 	or  %g2, 0x6c, %g2	! 48656c6c <memcpy+0x48654bb4>
+    200c:	07 1b cb 08 	sethi  %hi(0x6f2c2000), %g3
+    2010:	86 10 e0 53 	or  %g3, 0x53, %g3	! 6f2c2053 <memcpy+0x6f2bff9b>
+    2014:	c4 3f bf e0 	std  %g2, [ %fp + -32 ]
+    2018:	03 14 10 54 	sethi  %hi(0x50415000), %g1
+    201c:	82 10 62 43 	or  %g1, 0x243, %g1	! 50415243 <memcpy+0x5041318b>
     2020:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
-    2024:	82 10 20 05 	mov  5, %g1
-    2028:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    202c:	c0 27 bf f0 	clr  [ %fp + -16 ]
+    2024:	03 00 00 08 	sethi  %hi(0x2000), %g1
+    2028:	82 10 61 00 	or  %g1, 0x100, %g1	! 2100 <memcpy+0x48>
+    202c:	c2 37 bf ec 	sth  %g1, [ %fp + -20 ]
     2030:	c0 27 bf f4 	clr  [ %fp + -12 ]
-    2034:	10 80 00 0c 	b  2064 <main+0x64>
-    2038:	01 00 00 00 	nop 
-    203c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    2040:	83 28 60 02 	sll  %g1, 2, %g1
+    2034:	c0 27 bf f0 	clr  [ %fp + -16 ]
+    2038:	10 80 00 0c 	b  2068 <main+0x68>
+    203c:	01 00 00 00 	nop 
+    2040:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
     2044:	82 07 80 01 	add  %fp, %g1, %g1
-    2048:	c2 00 7f dc 	ld  [ %g1 + -36 ], %g1
-    204c:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
-    2050:	82 00 80 01 	add  %g2, %g1, %g1
-    2054:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
-    2058:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    205c:	82 00 60 01 	inc  %g1
-    2060:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    2064:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    2068:	80 a0 60 04 	cmp  %g1, 4
-    206c:	04 bf ff f4 	ble  203c <main+0x3c>
-    2070:	01 00 00 00 	nop 
-    2074:	82 10 20 0f 	mov  0xf, %g1	! f <_start+0xf>
-    2078:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    207c:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
-    2080:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    2084:	82 18 80 01 	xor  %g2, %g1, %g1
-    2088:	80 a0 00 01 	cmp  %g0, %g1
-    208c:	82 60 3f ff 	subx  %g0, -1, %g1
-    2090:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    2094:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2098:	90 10 00 01 	mov  %g1, %o0
-    209c:	91 d0 20 00 	ta  0
-    20a0:	10 80 00 00 	b  20a0 <main+0xa0>
-    20a4:	01 00 00 00 	nop 
+    2048:	c2 08 7f e0 	ldub  [ %g1 + -32 ], %g1
+    204c:	82 08 60 ff 	and  %g1, 0xff, %g1
+    2050:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    2054:	82 00 80 01 	add  %g2, %g1, %g1
+    2058:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    205c:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    2060:	82 00 60 01 	inc  %g1
+    2064:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    2068:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    206c:	82 07 80 01 	add  %fp, %g1, %g1
+    2070:	c2 08 7f e0 	ldub  [ %g1 + -32 ], %g1
+    2074:	82 08 60 ff 	and  %g1, 0xff, %g1
+    2078:	80 a0 60 00 	cmp  %g1, 0
+    207c:	12 bf ff f1 	bne  2040 <main+0x40>
+    2080:	01 00 00 00 	nop 
+    2084:	82 10 23 da 	mov  0x3da, %g1	! 3da <not_reached+0x392>
+    2088:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    208c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    2090:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    2094:	82 18 80 01 	xor  %g2, %g1, %g1
+    2098:	80 a0 00 01 	cmp  %g0, %g1
+    209c:	82 60 3f ff 	subx  %g0, -1, %g1
+    20a0:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    20a4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    20a8:	90 10 00 01 	mov  %g1, %o0
+    20ac:	91 d0 20 00 	ta  0
+    20b0:	10 80 00 00 	b  20b0 <main+0xb0>
+    20b4:	01 00 00 00 	nop 
 
-000020a8 <memcpy>:
-    20a8:	9d e3 bf 90 	save  %sp, -112, %sp
-    20ac:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    20b0:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    20b4:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    20b8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    20bc:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    20c0:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    20c4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    20c8:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    20cc:	10 80 00 0d 	b  2100 <memcpy+0x58>
-    20d0:	01 00 00 00 	nop 
-    20d4:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    20d8:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    20dc:	82 00 80 01 	add  %g2, %g1, %g1
-    20e0:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
-    20e4:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    20e8:	84 00 c0 02 	add  %g3, %g2, %g2
-    20ec:	c4 08 80 00 	ldub  [ %g2 ], %g2
-    20f0:	c4 28 40 00 	stb  %g2, [ %g1 ]
-    20f4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    20f8:	82 00 60 01 	inc  %g1
-    20fc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    2100:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    2104:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    2108:	80 a0 80 01 	cmp  %g2, %g1
-    210c:	0a bf ff f2 	bcs  20d4 <memcpy+0x2c>
-    2110:	01 00 00 00 	nop 
-    2114:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    2118:	b0 10 00 01 	mov  %g1, %i0
-    211c:	81 e8 00 00 	restore 
-    2120:	81 c3 e0 08 	retl 
-    2124:	01 00 00 00 	nop 
+000020b8 <memcpy>:
+    20b8:	9d e3 bf 90 	save  %sp, -112, %sp
+    20bc:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    20c0:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    20c4:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    20c8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    20cc:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    20d0:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    20d4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    20d8:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    20dc:	10 80 00 0d 	b  2110 <memcpy+0x58>
+    20e0:	01 00 00 00 	nop 
+    20e4:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    20e8:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    20ec:	82 00 80 01 	add  %g2, %g1, %g1
+    20f0:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    20f4:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    20f8:	84 00 c0 02 	add  %g3, %g2, %g2
+    20fc:	c4 08 80 00 	ldub  [ %g2 ], %g2
+    2100:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    2104:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2108:	82 00 60 01 	inc  %g1
+    210c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    2110:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    2114:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    2118:	80 a0 80 01 	cmp  %g2, %g1
+    211c:	0a bf ff f2 	bcs  20e4 <memcpy+0x2c>
+    2120:	01 00 00 00 	nop 
+    2124:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    2128:	b0 10 00 01 	mov  %g1, %i0
+    212c:	81 e8 00 00 	restore 
+    2130:	81 c3 e0 08 	retl 
+    2134:	01 00 00 00 	nop 

@@ -1,1 +1,7 @@
 toolchain/
+
+# freestanding_stubs.o/.s: built once by compile_c.sh from
+# freestanding_stubs.c (tracked), not committed itself -- same as any
+# other build byproduct
+freestanding_stubs.o
+freestanding_stubs.s

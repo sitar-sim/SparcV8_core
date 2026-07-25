@@ -93,7 +93,7 @@ validation/run_tests.py validation/asm
 [PASS] validation/asm/misc/save_restore/SAVE.vprj
 [PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
 
-230/230 tests passed
+240/240 tests passed
 ```
 
 Add `--sitar` to run the identical suite against the Sitar-timed model,

@@ -1,0 +1,4 @@
+SOURCES = checksum.c
+
+RESULTS =
+o0=1

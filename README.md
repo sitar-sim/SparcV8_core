@@ -54,7 +54,7 @@ it -- see "Connecting other components" in the documentation (a stub for
 now; the worked example is planned).
 
 Both models are validated against the same instruction-level test suite
-(`validation/`, `validation/run_tests.py`, currently 231/231 passing on
+(`validation/`, `validation/run_tests.py`, currently 240/240 passing on
 both) -- see `validation/README.md`.
 
 ## Documentation
