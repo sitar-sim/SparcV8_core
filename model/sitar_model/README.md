@@ -19,7 +19,10 @@ live here -- everything else about ISA behavior still comes from
     plus a third parallel branch that watches `sparcThread.HALT.VALUE`
     (`sparcThread`'s own procedure never returns -- it loops forever
     across `RESET`/`EXECUTE`/`ERROR` by design) and, once it's set,
-    prints `sparcThread.printInfo()` and calls `stop simulation`.
+    prints `sparcThread.printInfo()` and calls `stop simulation`. Also has
+    a commented-out fourth branch, a worked example of turning
+    `sparcThread`'s own logging on/off at runtime for just a given
+    time/PC range -- see `../../docs/source/logging.md`.
   - `SparcThread.sitar` -- the core driver. State machine (`RESET` ->
     `EXECUTE`); the `EXECUTE` state is a plain loop: fetch one instruction
     (via `MemoryInterface`), decode it, execute it (via `SparcCore`,

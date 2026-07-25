@@ -185,3 +185,5 @@ test.
 - Write your own test: [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
   or [Writing and Running C Programs](writing_and_running_c_programs.md).
 - Understand how the pieces fit together: [Model Components](model_components.md).
+- How logging is architected across both models, and how to narrow a
+  trace down to just the part of a run you care about: [Logging](logging.md).

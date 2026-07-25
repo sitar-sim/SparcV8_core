@@ -74,6 +74,7 @@ nav:
 
   - The Model:
       - Model Components: model_components.md
+      - Logging: logging.md
       - Performance Modeling: performance_modeling.md
 
   - More:
