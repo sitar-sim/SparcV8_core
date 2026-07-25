@@ -1,0 +1,4 @@
+SOURCES = integer_sort.c
+
+RESULTS =
+o0=1

@@ -1,0 +1,4 @@
+SOURCES = fibonacci.c
+
+RESULTS =
+o0=1

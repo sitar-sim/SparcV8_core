@@ -63,15 +63,26 @@ writeup this is based on.
 
 ## Structuring a test program
 
-Write an ordinary, freestanding C `main()`:
+Write an ordinary, freestanding C `main()`. Every test in
+`validation/C/` follows the same self-validating shape: compute
+something, compare it against a golden value computed once on the host
+machine and hardcoded right there in the source, and report pass(1)/
+fail(0) in `%o0`:
 
 ```c
-int result;
-
 int main(void)
 {
-    // ... your test's actual computation ...
-    result = 42;
+    int computed;
+    int expected;
+    int pass;
+
+    // ... your test's actual computation, into `computed` ...
+
+    expected = 42; // computed on the host, see the comment near it
+    pass = (computed == expected) ? 1 : 0;
+
+    // Report pass(1)/fail(0) in %o0.
+    __asm__ volatile ("mov %0, %%o0" : : "r" (pass));
 
     // Halt: traps are enabled (crt0.s), so this ta 0 is caught by its
     // trap-table slot, which re-traps with traps now disabled, forcing
@@ -105,12 +116,27 @@ step. The result is that a C test's `ta 0` halts exactly the same way an
 assembly test's does, and an unexpected trap during your test is caught
 the same way too.
 
-Checking results works the same way as the assembly tests: write results
-to fixed, known memory addresses (globals) or registers, and check them
-via a `.vprj` file, the same [`REG`/`MEM` format](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
-already used throughout `validation/asm/`. For a memory check, you need
-the linked address of a global variable, found via `readelf -s
-your_program.elf` (or the generated `.objdump`).
+Checking the result is then a single line -- the `.vprj` only ever has to
+check that `%o0` is `1`:
+
+```
+SOURCES = your_test.c
+
+RESULTS =
+o0=1
+```
+
+The alternative -- writing a raw computed value to a global and checking
+it directly via a `.vprj` `MEM` line, the address found via `readelf -s
+your_program.elf` -- still works (it's the same [`REG`/`MEM`
+format](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
+`validation/asm/` uses), but means the golden value is embedded in two
+places (the `.vprj` and, if the test computes its own pass/fail, the
+source) instead of one. Doing the comparison in C and reporting a single
+pass/fail flag avoids that, and doubles as a self-contained mini-benchmark
+that also happens to check itself; see `array_sum/array_sum.c` and the
+rest of `validation/C/` for worked examples across several small
+algorithms.
 
 ---
 

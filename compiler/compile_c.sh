@@ -20,6 +20,9 @@
 # (unlike a hand-written .s file, this isn't something the test's author
 # wrote directly).
 #
+# Also compiles and links in freestanding_stubs.c (memcpy() -- see that
+# file for why a -nostdlib build needs it at all) alongside crt0.o.
+#
 # Requires the sparc-elf toolchain on PATH -- run
 #     source compiler/toolchain_env.sh
 # first (after compiler/install_toolchain.sh, if not done already).
@@ -46,10 +49,19 @@ fi
 INPUT="$1"
 PREFIX="${2:-${INPUT%.c}}"
 
+# Built once, shared by every test (not per-test alongside $PREFIX): it's
+# a fixed build byproduct, identical every time, not something worth
+# recompiling -- let alone committing -- once per test.
+STUBS_OBJ="$SCRIPT_DIR/freestanding_stubs.o"
+if [ ! -f "$STUBS_OBJ" ]; then
+	sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib "$SCRIPT_DIR/freestanding_stubs.c" -o "$SCRIPT_DIR/freestanding_stubs.s"
+	sparc-elf-as -Av8 -am "$SCRIPT_DIR/freestanding_stubs.s" -o "$STUBS_OBJ"
+fi
+
 sparc-elf-as -Av8 -am "$SCRIPT_DIR/crt0.s" -o "$PREFIX.crt0.o"
 sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib "$INPUT" -o "$PREFIX.s"
 sparc-elf-as -Av8 -am "$PREFIX.s" -o "$PREFIX.o"
-sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e _start "$PREFIX.crt0.o" "$PREFIX.o" -o "$PREFIX.elf"
+sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e _start "$PREFIX.crt0.o" "$PREFIX.o" "$STUBS_OBJ" -o "$PREFIX.elf"
 sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data "$PREFIX.elf" \
 	| python3 "$SCRIPT_DIR/hexdump_to_memimage.py" > "$PREFIX.hex"
 sparc-elf-objdump -d "$PREFIX.elf" > "$PREFIX.objdump"

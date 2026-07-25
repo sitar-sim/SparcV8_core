@@ -1,0 +1,4 @@
+SOURCES = gcd.c
+
+RESULTS =
+o0=1

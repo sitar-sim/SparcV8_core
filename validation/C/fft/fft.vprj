@@ -1,0 +1,4 @@
+SOURCES = fft.c
+
+RESULTS =
+o0=1

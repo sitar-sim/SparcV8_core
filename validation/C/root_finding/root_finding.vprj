@@ -1,0 +1,4 @@
+SOURCES = root_finding.c
+
+RESULTS =
+o0=1

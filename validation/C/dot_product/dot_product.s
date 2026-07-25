@@ -1,11 +1,11 @@
-	.file	"array_sum.c"
+	.file	"dot_product.c"
 	.section	".text"
 	.align 4
 	.global main
 	.type	main, #function
 	.proc	04
 main:
-	save	%sp, -136, %sp
+	save	%sp, -152, %sp
 	mov	1, %g1
 	st	%g1, [%fp-36]
 	mov	2, %g1
@@ -16,39 +16,54 @@ main:
 	st	%g1, [%fp-24]
 	mov	5, %g1
 	st	%g1, [%fp-20]
-	st	%g0, [%fp-16]
+	mov	5, %g1
+	st	%g1, [%fp-56]
+	mov	4, %g1
+	st	%g1, [%fp-52]
+	mov	3, %g1
+	st	%g1, [%fp-48]
+	mov	2, %g1
+	st	%g1, [%fp-44]
+	mov	1, %g1
+	st	%g1, [%fp-40]
 	st	%g0, [%fp-12]
+	st	%g0, [%fp-16]
 	b	.LL2
 	 nop
 .LL3:
-	ld	[%fp-12], %g1
+	ld	[%fp-16], %g1
 	sll	%g1, 2, %g1
 	add	%fp, %g1, %g1
-	ld	[%g1-36], %g1
-	ld	[%fp-16], %g2
+	ld	[%g1-36], %g2
+	ld	[%fp-16], %g1
+	sll	%g1, 2, %g1
+	add	%fp, %g1, %g1
+	ld	[%g1-56], %g1
+	smul	%g2, %g1, %g1
+	ld	[%fp-12], %g2
 	add	%g2, %g1, %g1
-	st	%g1, [%fp-16]
-	ld	[%fp-12], %g1
-	add	%g1, 1, %g1
 	st	%g1, [%fp-12]
+	ld	[%fp-16], %g1
+	add	%g1, 1, %g1
+	st	%g1, [%fp-16]
 .LL2:
-	ld	[%fp-12], %g1
+	ld	[%fp-16], %g1
 	cmp	%g1, 4
 	ble	.LL3
 	 nop
-	mov	15, %g1
+	mov	35, %g1
 	st	%g1, [%fp-8]
-	ld	[%fp-16], %g2
+	ld	[%fp-12], %g2
 	ld	[%fp-8], %g1
 	xor	%g2, %g1, %g1
 	subcc	%g0, %g1, %g0
 	subx	%g0, -1, %g1
 	st	%g1, [%fp-4]
 	ld	[%fp-4], %g1
-! 30 "validation/C/array_sum/array_sum.c" 1
+! 22 "validation/C/dot_product/dot_product.c" 1
 	mov %g1, %o0
 ! 0 "" 2
-! 36 "validation/C/array_sum/array_sum.c" 1
+! 26 "validation/C/dot_product/dot_product.c" 1
 	ta 0
 ! 0 "" 2
 .LL4:

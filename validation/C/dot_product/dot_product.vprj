@@ -1,0 +1,4 @@
+SOURCES = dot_product.c
+
+RESULTS =
+o0=1
