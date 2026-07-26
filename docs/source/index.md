@@ -128,3 +128,8 @@ and [Writing and Running C Programs](writing_and_running_c_programs.md).
   [Model Components](model_components.md).
 - Want to change the timing model? See
   [Performance Modeling](performance_modeling.md).
+- Want to watch a program execute, or narrow a trace down to the part you
+  care about? See [Logging](logging.md).
+- Want to break on a specific PC/register/memory condition and inspect
+  state directly, without a full trace? See
+  [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).

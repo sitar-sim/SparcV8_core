@@ -125,6 +125,7 @@ procedure SparcThread
 	$
 	#include"SparcCore.h"
 	#include"OpcodeLatencies.h"
+	#include"DebugHooks.h"
 	$
 
 
@@ -235,6 +236,7 @@ procedure SparcThread
 								//is serviced (SparcCore::selectTrap()), so this is
 								//the last point they're still valid to read.
 								log<<endl<<core.logger.log_trap_raised(current_time.cycle());
+								debug_hook_trap_raised(core);
 
 								//Ref Section C.5: "if (trap = 1) then execute_trap;" --
 								//unconditional, every trap is dispatched the same way;
@@ -274,6 +276,8 @@ procedure SparcThread
 
 							//examine the fetched instruction
 							$
+							core.MAE = ifetchThread.MAE;
+							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchThread.instruction, 0);
 							//check for instruction access exception
 							if(  (ifetchThread.MAE == 1) && (core.annul == 0) )
 							{
@@ -297,11 +301,18 @@ procedure SparcThread
 								if(core.annul==1) then
 									//Do not execute this instruction.
 									//just proceed to the next one.
+									//Hook fires before PC/nPC are
+									//overwritten below -- see
+									//DebugHooks.h's own comment -- so
+									//core.reg.PC/nPC here are still the
+									//annulled instruction's own address
+									//and what it advances to.
 									$
 									core.annul=0;
+									log<<endl<<core.logger.log_generic(current_time.cycle(), "ANNUL", "instruction annulled");
+									debug_hook_annulled(core);
 									core.reg.W_PC(core.reg.R_nPC()); //PC=nPC
 									core.reg.W_nPC(core.reg.R_nPC()+4); //nPC=nPC+4;
-									log<<endl<<core.logger.log_generic(current_time.cycle(), "ANNUL", "instruction annulled");
 									$;
 								else
 									//this instruction is to be executed
@@ -359,6 +370,7 @@ procedure SparcThread
 													core.readWord1=memReadThread.readWord1;
 													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_mem_read(current_time.cycle(), core.address, core.readWord0, core.readWord1, isDoubleLoadInstruction(opcode), core.MAE);
+													debug_hook_mem_access(core, DebugMemAccessKind::LOAD, core.address, core.readWord0, core.readWord1);
 													$;
 												end if;
 											end if;
@@ -387,6 +399,7 @@ procedure SparcThread
 
 														$
 														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteThread.MAE);
+														debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 														$;
 
 													end if;
@@ -416,6 +429,7 @@ procedure SparcThread
 													core.readWord1=atomicLoadStoreThread.readWord1;
 													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_atomic(current_time.cycle(), core.address, core.readWord0, core.writeWord0, core.MAE);
+													debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, core.readWord0, core.writeWord0);
 													$;
 												end if;
 											end if;
@@ -437,9 +451,20 @@ procedure SparcThread
 
 												run flushThread;
 
-												$log<<endl<<core.logger.log_generic(current_time.cycle(), "FLUSH", "");$;
+												$
+										log<<endl<<core.logger.log_generic(current_time.cycle(), "FLUSH", "");
+										debug_hook_mem_access(core, DebugMemAccessKind::FLUSH, core.address, 0, 0);
+										$;
 											end if;
 										end if;
+
+										//Instruction fully executed, PC/nPC not yet advanced --
+										//see DebugHooks.h/CoreLogger.h's file comments for why
+										//this exact point.
+										$
+										log<<endl<<core.logger.log_generic(current_time.cycle(), "EXECUTED", "");
+										debug_hook_after_execute(core, opcode);
+										$;
 
 										// update PC and nPC if this is not a branch instruction
 										if(core.trap==0 and not(isBranchInstruction(opcode))) then

@@ -113,6 +113,15 @@ class Registers
 
 
 	//General purpose r(n) Windowed Registers
+	//
+	//__attribute__((optimize("O0"))) pins this one function's own codegen
+	//to -O0 regardless of the translation unit's overall optimization
+	//level -- so gdb can reliably `call`/`print` core.reg.R_r(n) (e.g.
+	//from debug/sparc.gdb's sparc-reg command) even in a --debug build that
+	//otherwise keeps full -O3 (gdb's inferior function calls are
+	//unreliable against optimized code in general -- see
+	//docs/source/examining_core_state_with_gdb.md).
+	__attribute__((optimize("O0")))
 	inline uint32_t R_r(uint32_t n)
 	{
 		assert(n<32);

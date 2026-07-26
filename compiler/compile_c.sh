@@ -18,7 +18,12 @@
 # Also produces <output_prefix>.objdump, a readable disassembly of the
 # linked program, useful for seeing what the compiler actually generated
 # (unlike a hand-written .s file, this isn't something the test's author
-# wrote directly).
+# wrote directly), followed by the full symbol table (function AND global
+# variable addresses -- disassembly alone only annotates symbols incidentally,
+# as branch/call targets, and never shows data symbols at all). Useful for
+# gdb-based debugging (see docs/source/examining_core_state_with_gdb.md):
+# finding a symbol's simulated address without needing the toolchain
+# installed to run readelf/objdump directly against the (gitignored) .elf.
 #
 # Also compiles and links in freestanding_stubs.c (memcpy() -- see that
 # file for why a -nostdlib build needs it at all) alongside crt0.o.
@@ -65,5 +70,9 @@ sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e _start "$PREFIX.crt0.o" "$PREFIX.o" "$
 sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data "$PREFIX.elf" \
 	| python3 "$SCRIPT_DIR/hexdump_to_memimage.py" > "$PREFIX.hex"
 sparc-elf-objdump -d "$PREFIX.elf" > "$PREFIX.objdump"
+echo "" >> "$PREFIX.objdump"
+echo "Symbol table:" >> "$PREFIX.objdump"
+echo "" >> "$PREFIX.objdump"
+sparc-elf-readelf -s "$PREFIX.elf" >> "$PREFIX.objdump"
 
 echo "Built $PREFIX.hex"

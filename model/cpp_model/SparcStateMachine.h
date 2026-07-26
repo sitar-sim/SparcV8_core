@@ -32,6 +32,7 @@
 #include "SparcCore.h"
 #include "MemCore.h"
 #include "Opcodes.h"
+#include "DebugHooks.h"
 
 class SparcStateMachine
 {

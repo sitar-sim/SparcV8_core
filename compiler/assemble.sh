@@ -5,6 +5,10 @@
 # produces a memory-image hex-dump file (<output_prefix>.hex) directly
 # loadable via MemCore::initializeMemory().
 #
+# Also produces <output_prefix>.objdump: a readable disassembly of the
+# linked program, followed by its full symbol table (see compile_c.sh's own
+# file comment for why -- same reasoning applies here).
+#
 # Requires the sparc-elf toolchain on PATH -- run
 #     source compiler/toolchain_env.sh
 # first (after compiler/install_toolchain.sh, if not done already).
@@ -24,5 +28,10 @@ sparc-elf-as -Av8 -am "$INPUT" -o "$PREFIX.o"
 sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e main "$PREFIX.o" -o "$PREFIX.elf"
 sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data "$PREFIX.elf" \
 	| python3 "$SCRIPT_DIR/hexdump_to_memimage.py" > "$PREFIX.hex"
+sparc-elf-objdump -d "$PREFIX.elf" > "$PREFIX.objdump"
+echo "" >> "$PREFIX.objdump"
+echo "Symbol table:" >> "$PREFIX.objdump"
+echo "" >> "$PREFIX.objdump"
+sparc-elf-readelf -s "$PREFIX.elf" >> "$PREFIX.objdump"
 
 echo "Built $PREFIX.hex"

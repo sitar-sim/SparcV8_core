@@ -33,7 +33,26 @@ class MemCore
 		//the text file has format (\naddr, word, word, [word], ...)
 		bool initializeMemory(std::string hex_dump_file); 
 
-		inline uint32_t readWord(uint32_t address) 		
+		//Address of the word holding a given byte address, for setting a
+		//gdb watchpoint directly on simulated memory (see
+		//debug/sparc.gdb's sparc-watch-mem command and
+		//docs/source/examining_core_state_with_gdb.md) -- e.g.
+		//`watch *mem.wordPtr(0x2000)`. __attribute__((optimize("O0"))):
+		//meant to be `call`ed live from gdb even in a --debug build that
+		//otherwise keeps full -O3, same reasoning as
+		//Registers::R_r()/CoreLogger::print_state(). __attribute__((used)):
+		//unlike those two, nothing in the model itself ever calls this --
+		//only gdb does -- so without `used` the compiler drops it entirely
+		//(dead-code elimination), leaving no callable body at all.
+		__attribute__((optimize("O0"), used))
+		inline uint32_t* wordPtr(uint32_t address)
+		{
+			address = address >> 2;
+			assert(address < nwords);
+			return &core[address];
+		};
+
+		inline uint32_t readWord(uint32_t address)
 		{
 			address=address>>2;
 			if(address<nwords) 

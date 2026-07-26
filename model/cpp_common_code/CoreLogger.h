@@ -75,7 +75,12 @@ class CoreLogger
 		//Always does real work, regardless of SPARC_LOGGING_ENABLED:
 		//unlike log_*, this isn't part of the per-cycle trace, so there
 		//is no hot-loop cost here to guard against.
-		std::string print_state();
+		//
+		//__attribute__((optimize("O0"))): meant to be `call`ed live from
+		//gdb (see docs/source/examining_core_state_with_gdb.md) even in a
+		//--debug build that otherwise keeps full -O3 -- pinned to -O0 like
+		//Registers::R_r() so that call remains reliable.
+		std::string print_state() __attribute__((optimize("O0")));
 
 		//One fetched-and-decoded instruction. op is passed in because
 		//it's decoded locally by the driver and never stored on

@@ -1,6 +1,7 @@
 //MemCore.cpp
 
 #include"MemCore.h"
+#include"DebugRegistry.h"
 #include<iostream>
 #include<stdint.h>
 #include<fstream>
@@ -13,6 +14,9 @@ MemCore::MemCore()
 {
 	core.resize(nwords, 0);
 	std::cout<<"\nTotal Main Memory size :0x"<<std::hex<<memSize<<std::dec;
+
+	DebugRegistry::registerMemCore(this); //see DebugRegistry.h -- no-op
+	                                       //unless built with --debug
 };
 
 //Initialize memory image by reading a text file
