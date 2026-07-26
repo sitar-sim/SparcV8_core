@@ -66,11 +66,14 @@ void SparcStateMachine::runOneCycle()
 	if (core.trap)
 	{
 		if (!trapWasAlreadyPending)
+		{
 			//Fresh this cycle: reset_trap (set just above) or an
 			//external interrupt (set by checkExternalTraps() just
 			//above). Anything else reaching here was already logged
 			//as TRAP_RAISED last cycle, at the point it was raised.
 			core.logger.log_trap_raised(cyclesExecuted);
+			debug_hook_trap_raised(core);
+		}
 
 		core.executeTraps(); //Ref Section C.8. select_trap enters
 		                      //error_mode itself if traps are disabled
@@ -91,6 +94,7 @@ void SparcStateMachine::runOneCycle()
 	//have been pointed at this SparcStateMachine's MemCore instance beforehand.
 	//-------------------------------------------------------------------
 	core.instructionFetch();
+	debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), core.reg.R_instruction(), 0);
 	if (core.MAE)
 	{
 		core.trap                         = true;
@@ -99,16 +103,21 @@ void SparcStateMachine::runOneCycle()
 	if (core.trap)
 	{
 		core.logger.log_trap_raised(cyclesExecuted);
+		debug_hook_trap_raised(core);
 		return;
 	}
 
 	if (core.annul)
 	{
 		//Previous instruction was an annulling branch not taken: skip this one.
+		//Hook fires before PC/nPC are overwritten below -- see
+		//DebugHooks.h's own comment -- so core.reg.PC/nPC here are still
+		//the annulled instruction's own address and what it advances to.
 		core.annul = false;
+		core.logger.log_generic(cyclesExecuted, "ANNUL", "instruction annulled");
+		debug_hook_annulled(core);
 		core.reg.W_PC(core.reg.R_nPC());
 		core.reg.W_nPC(core.reg.R_nPC() + 4);
-		core.logger.log_generic(cyclesExecuted, "ANNUL", "instruction annulled");
 		return;
 	}
 
@@ -123,15 +132,24 @@ void SparcStateMachine::runOneCycle()
 	if (core.trap)
 	{
 		core.logger.log_trap_raised(cyclesExecuted);
+		debug_hook_trap_raised(core);
 		return;
 	}
 
 	executeCurrentInstruction(op);
 	if (core.trap)
+	{
 		core.logger.log_trap_raised(cyclesExecuted);
+		debug_hook_trap_raised(core);
+	}
 
 	if (!core.trap && (isFpop1Instruction(op) || isFpop2Instruction(op)))
 		core.complete_fp_execution(op); //Ref Section C.7
+
+	//Instruction fully executed, PC/nPC not yet advanced -- see
+	//DebugHooks.h/CoreLogger.h's file comments for why this exact point.
+	core.logger.log_generic(cyclesExecuted, "EXECUTED", "");
+	debug_hook_after_execute(core, op);
 
 	//Update PC/nPC, unless this was a branching instruction (which updates
 	//PC/nPC itself) or a trap occurred (handled at the start of the next cycle).
@@ -170,6 +188,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			//byte-precise target address -- matches SparcThread.sitar's
 			//equivalent log_mem_read() call.
 			core.logger.log_mem_read(cyclesExecuted, core.address, word0, word1, isDoubleLoadInstruction(op), core.MAE);
+			debug_hook_mem_access(core, DebugMemAccessKind::LOAD, core.address, word0, word1);
 		}
 	}
 	else if (isStoreInstruction(op))
@@ -180,6 +199,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			uint32_t alignedAddr = core.address & (~0x7u);
 			mem.writeMaskedDoubleWord(alignedAddr, core.writeWord0, core.writeWord1, core.byte_mask);
 			core.logger.log_mem_write(cyclesExecuted, core.address, core.writeWord0, core.writeWord1, core.byte_mask, false);
+			debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 		}
 	}
 	else if (isLoadStoreAtomicInstruction(op))
@@ -193,6 +213,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			core.MAE = false; //flat memory model: accesses never fault
 			core.execute_PostAtomicLoadStore(op, word0, word1);
 			core.logger.log_atomic(cyclesExecuted, core.address, word0, core.writeWord0, core.MAE);
+			debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, word0, core.writeWord0);
 		}
 	}
 	else if (op == FLUSH)
@@ -203,6 +224,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		//behavior faithful to the manual (Ref Appendix B.32).
 		core.execute_PreFlush(op);
 		core.logger.log_generic(cyclesExecuted, "FLUSH", "");
+		debug_hook_mem_access(core, DebugMemAccessKind::FLUSH, core.address, 0, 0);
 	}
 	else
 	{

@@ -1213,6 +1213,15 @@ without a cross-compiler installed at all:</p>
 <p><code>.hex</code> files are committed to git specifically so phase 2 alone is enough
 for anyone who just wants to run the existing suite. Commit the <code>.hex</code>
 alongside your <code>.s</code>/<code>.vprj</code> whenever you add or edit a test.</p>
+<p>Phase 1 also produces a <code>.objdump</code>, the same kind <code>compiler/compile_c.sh</code>
+produces for C tests (disassembly plus the full symbol table -- see
+<a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>):
+useful for finding an address to give gdb (see
+<a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>),
+though for a hand-written <code>.s</code> test you already know the addresses of
+anything you labeled yourself. The existing 230 tests don't have one
+committed yet (this is a recent addition); rerun <code>build_hex.py</code> on one to
+get it.</p>
 <p>Add <code>--sitar</code> to <code>run_tests.py</code> to run against the Sitar-timed model
 instead of the plain C++ one (see <a href="installation.html">Installation</a> step 3
 and <code>model/sitar_model/build.py</code>), and <code>--max-cycles N</code> to change the

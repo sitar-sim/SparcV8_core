@@ -5,6 +5,7 @@
 #include"ConvertToString.h"
 #include"FloatingPointFunctions.h"
 #include"MemCore.h"
+#include"DebugRegistry.h"
 #include<iostream>
 #include<stdint.h>
 #include<fstream>
@@ -74,6 +75,9 @@ SparcCore::SparcCore()
 	                     //driver that wants a written trace calls this
 	                     //again itself (see main.cpp) -- this call just
 	                     //guarantees logger.print_state() always works.
+
+	DebugRegistry::registerCore(this); //see DebugRegistry.h -- no-op
+	                                    //unless built with --debug
 };
 
 
@@ -2136,6 +2140,7 @@ void SparcCore::selectTrap()
 
 
 
+__attribute__((optimize("O0")))
 std::string SparcCore::printTrap()
 {
 	//Examines the 	state of the processor

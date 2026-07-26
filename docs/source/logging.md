@@ -112,3 +112,9 @@ Since this toggles `sparcThread.log` itself, it narrows `sparc_trace.log`
 down directly -- rows outside the window/range are simply never written,
 not filtered out afterward -- turning a long run's trace into something
 small and targeted enough to load into `log_viewer/` right away.
+
+The condition above still has to be decided in advance and built into
+`Core.sitar`. For a condition that depends on the program's own data at
+runtime -- a register or memory location reaching a specific value -- see
+[Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md)
+instead.

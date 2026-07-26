@@ -37,10 +37,12 @@ compiler/compile_c.sh your_program.c
 
 This produces `your_program.hex`, the same kind of memory image
 `compiler/assemble.sh` produces for assembly tests, loadable the same way
-by `MemCore::initializeMemory()`. It also produces `your_program.objdump`,
-a readable disassembly of the linked program, useful for seeing what the
-compiler actually generated (unlike a hand-written `.s` file, this isn't
-something you wrote directly).
+by `MemCore::initializeMemory()`. It also produces `your_program.objdump`:
+a readable disassembly of the linked program (useful for seeing what the
+compiler actually generated -- unlike a hand-written `.s` file, this isn't
+something you wrote directly), followed by the full symbol table, function
+and global-variable addresses included -- see
+[Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses).
 
 See `compiler/README.md` for exactly what's bundled and why. If you want
 to write more serious C programs of your own, rather than just work with
@@ -50,7 +52,11 @@ cross-compiler instead, with [Buildroot](http://buildroot.uclibc.org/download.ht
 ```sh
 # download and extract Buildroot, then:
 make qemu_sparc_ss10_defconfig && make menuconfig
-# under "Toolchain", enable "Build cross gdb for the host" if you want gdb too
+# under "Toolchain", enable "Build cross gdb for the host" if you want a
+# cross gdb -- for debugging a *target* SPARC binary running under, say,
+# QEMU. Unrelated to this repo's own gdb support (see "Examining Core
+# State at Runtime Using GDB"), which uses the *host's* own gdb directly
+# on the host-native simulator process -- no cross gdb needed for that.
 make      # downloads and builds everything, takes a while
 ```
 
@@ -127,8 +133,9 @@ o0=1
 ```
 
 The alternative -- writing a raw computed value to a global and checking
-it directly via a `.vprj` `MEM` line, the address found via `readelf -s
-your_program.elf` -- still works (it's the same [`REG`/`MEM`
+it directly via a `.vprj` `MEM` line, the address found in
+`your_program.objdump`'s symbol table (or `readelf -s your_program.elf`
+directly) -- still works (it's the same [`REG`/`MEM`
 format](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
 `validation/asm/` uses), but means the golden value is embedded in two
 places (the `.vprj` and, if the test computes its own pass/fail, the

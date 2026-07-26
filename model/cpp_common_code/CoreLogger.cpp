@@ -32,6 +32,7 @@ void CoreLogger::init(SparcCore& core, std::ostream* out, bool doPrint)
 	do_print  = doPrint;
 }
 
+__attribute__((optimize("O0")))
 std::string CoreLogger::print_state()
 {
 	Registers& reg = core_->reg;

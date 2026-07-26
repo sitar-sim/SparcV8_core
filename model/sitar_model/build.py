@@ -49,7 +49,25 @@ def main():
                           "and with SparcCore::logger's CoreLogger methods doing real work instead "
                           "of compiling to no-op stubs (see cpp_common_code/CoreLogger.h) -- both "
                           "controlled by this one flag, same as cpp_model/build.sh's --logging")
+    ap.add_argument('--debug', action='store_true',
+                     help="build for examination under a debugger (gdb -- see "
+                          "docs/source/examining_core_state_with_gdb.md -- but nothing here is "
+                          "actually gdb-specific): -g (debug symbols) and "
+                          "-DSPARC_DEBUG_HOOKS_ENABLED (real, noinline debug_hook_*() functions "
+                          "instead of empty stubs -- see cpp_common_code/DebugHooks.h). Stays at "
+                          "-O3 -- a debugger's `call`/`print` of a live function is generally "
+                          "unreliable against optimized code, but the handful of functions "
+                          "actually meant to be called this way (Registers::R_r(), "
+                          "CoreLogger::print_state()) are individually pinned to -O0 at their own "
+                          "definitions, so this stays fast without de-optimizing the whole binary "
+                          "-- same reasoning as cpp_model/build.sh's --debug.")
+    ap.add_argument('--debug-o0', action='store_true',
+                     help="like --debug, but the whole binary at -O0 -- for debugging something "
+                          "that isn't one of the hook points or pinned functions above (arbitrary "
+                          "breakpoints/single-stepping/local-variable inspection elsewhere).")
     args = ap.parse_args()
+    if args.debug_o0:
+        args.debug = True
 
     if not shutil.which('sitar'):
         print("error: `sitar` not found on PATH -- see the separate sitar repo")
@@ -81,12 +99,23 @@ def main():
            '-m', MAIN_FILE,
            '-l', 'quadmath',
            '--logging' if args.logging else '--no-logging']
+    cflags = []
     if args.logging:
         # CoreLogger.h/.cpp (cpp_common_code/, compiled in via -d above)
         # needs this to do real work rather than compile to no-op stubs --
         # see cpp_common_code/CoreLogger.h. Independent of Sitar's own
         # --logging above, which only affects Sitar's own logger.
-        cmd += ['--cflags=-DSPARC_LOGGING_ENABLED']
+        cflags.append('-DSPARC_LOGGING_ENABLED')
+    if args.debug:
+        # DebugHooks.h/.cpp needs this to compile in real, noinline hook
+        # functions instead of empty stubs. The -O level here overrides
+        # sitar compile's own default -O2 (gcc takes the last -O flag on
+        # the command line, and this one is appended after it) -- see
+        # --debug/--debug-o0's help above.
+        opt = '-O0' if args.debug_o0 else '-O3'
+        cflags.append('-DSPARC_DEBUG_HOOKS_ENABLED -g ' + opt)
+    if cflags:
+        cmd += ['--cflags=' + ' '.join(cflags)]
     r = run(cmd, cwd=SCRIPT_DIR)
     if r.returncode != 0:
         print("error: compile/link failed")

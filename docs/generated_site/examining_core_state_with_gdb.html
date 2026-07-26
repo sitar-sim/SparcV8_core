@@ -526,6 +526,24 @@
         
       
       
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
       <a href="examining_core_state_with_gdb.html" class="md-nav__link md-nav__link--active">
         
   
@@ -542,6 +560,152 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-use-gdb-instead-of-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why use gdb instead of logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-gdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installing gdb
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-with-debug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building with --debug
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-first-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A first walkthrough
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finding-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding addresses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
       
     </li>
   
@@ -889,6 +1053,141 @@
     
   
   
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#why-use-gdb-instead-of-logging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Why use gdb instead of logging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#installing-gdb" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Installing gdb
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-with-debug" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building with --debug
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-first-walkthrough" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A first walkthrough
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#command-reference" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Command reference
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Command reference">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#finding-addresses" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Finding addresses
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
 </nav>
                   </div>
                 </div>
@@ -908,13 +1207,554 @@
 
 
 <h1 id="examining-core-state-at-runtime-using-gdb">Examining Core State at Runtime Using GDB<a class="headerlink" href="#examining-core-state-at-runtime-using-gdb" title="Permanent link">&para;</a></h1>
-<div class="admonition note">
-<p class="admonition-title">Stub</p>
-<p>This page is a placeholder. It will describe how to run a simulation
-under host <code>gdb</code>, set breakpoints, and examine the simulated core's
-registers and memory at runtime, as an alternative to enabling Sitar's
-own logging (see <a href="installation.html">Installation</a>). Not yet populated.</p>
-</div>
+<p>Both models are, underneath everything else, plain host C++ programs
+(<code>sparc_cpp_sim</code>/<code>check_test</code>, <code>sitar_check_test</code>). That means the host's own
+<code>gdb</code> can attach to them directly -- no cross-debugger, no special
+protocol -- and step through simulated SPARC execution one instruction at a
+time, break on a specific PC/register/memory condition, and inspect the
+entire architectural state, all without touching the model's own source.</p>
+<h2 id="why-use-gdb-instead-of-logging">Why use gdb instead of logging<a class="headerlink" href="#why-use-gdb-instead-of-logging" title="Permanent link">&para;</a></h2>
+<p><a href="logging.html">Logging</a> is the right tool when you want to <em>watch a program
+run</em> -- a full instruction-by-instruction trace, loaded into
+<code>log_viewer/</code>. It has a real cost, though: formatting the entire
+current-window state (~50 fields) on every single instruction is
+non-negligible work, and a long-running program produces a trace too large
+to comfortably load or scroll through.</p>
+<p>GDB is the better tool for the opposite situation: you already know
+<em>roughly</em> what you're looking for -- a specific PC, a specific trap, a
+memory location or register reaching a specific value -- and want to stop
+exactly there without generating a full trace at all. Selective logging
+(<code>log.turnOFF()</code>/<code>turnON()</code>, see <a href="logging.html">Logging</a>) can narrow a trace
+down by time/PC range, but the condition has to be decided <em>in advance</em> and
+built into <code>Core.sitar</code> -- checking a genuinely dynamic condition (a
+register reaching a value that depends on the program's own data) means
+adding that check into the model's source and recompiling. A gdb
+conditional breakpoint is the same check, attached at the debugger prompt,
+changeable between runs with no recompile.</p>
+<h2 id="installing-gdb">Installing gdb<a class="headerlink" href="#installing-gdb" title="Permanent link">&para;</a></h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>sudo<span class="w"> </span>apt<span class="w"> </span>install<span class="w"> </span>gdb
+</span></code></pre></div>
+<h2 id="building-with-debug">Building with <code>--debug</code><a class="headerlink" href="#building-with-debug" title="Permanent link">&para;</a></h2>
+<p>By default, neither model is built with debug symbols -- there's no reason
+to pay for <code>-g</code> in an ordinary build. Rebuild with <code>--debug</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/sitar_model/build.py<span class="w"> </span>--debug
+</span></code></pre></div>
+<p>This adds <code>-g</code> and compiles in a handful of named, otherwise-empty
+<code>debug_hook_*()</code> functions (see <code>model/cpp_common_code/DebugHooks.h</code>) that
+exist purely so gdb has a stable place to break on by name, at exactly the
+points an instruction can finish (executed, trapped, or annulled) or a
+memory reference completes -- covered in the walkthrough below. It
+deliberately <em>stays</em> at <code>-O3</code>: gdb's <code>call</code>/<code>print</code> of a live function is
+generally unreliable against optimized code, but the handful of functions
+this actually relies on for that (<code>Registers::R_r()</code>,
+<code>CoreLogger::print_state()</code>, <code>SparcCore::printTrap()</code>, <code>MemCore::wordPtr()</code>)
+are individually pinned to <code>-O0</code> in their own definitions, so the rest of
+the simulator stays fast. <code>--logging</code> combines with <code>--debug</code> freely (all
+four combinations are valid) but for a gdb session you normally don't want
+it -- avoiding logging's per-instruction cost is the whole point.</p>
+<p>If you need to debug something <em>outside</em> those hook points -- an arbitrary
+breakpoint or single-step deep inside <code>SparcCore</code> itself, where <code>-O3</code>'s
+inlining and register allocation make local variables unreliable to
+inspect -- use <code>--debug-o0</code> instead, which rebuilds the whole binary at
+<code>-O0</code>. Slower; only worth it for that kind of deep dive.</p>
+<h2 id="a-first-walkthrough">A first walkthrough<a class="headerlink" href="#a-first-walkthrough" title="Permanent link">&para;</a></h2>
+<p>This uses a small, frozen copy of the <code>array_sum</code> test committed alongside
+this page (<code>docs/source/examples/array_sum/</code>), rather than
+<code>validation/C/array_sum/</code> directly -- built once with the toolchain this
+repository vendors, so the addresses below stay correct regardless of
+which cross-compiler version you have installed. The source:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// array_sum.c</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1">//</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c1">// A first bare-metal C validation test, and the template every other</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="c1">// validation/C/ test follows: sums the elements of a small integer array</span>
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1">// in a loop, then checks the result against a golden value computed once</span>
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="c1">// on the host machine (here, by hand: 1+2+3+4+5=15) and hardcoded below.</span>
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="c1">// Self-validating this way means the .vprj only ever has to check one</span>
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="c1">// thing -- that %o0 is 1 -- rather than re-embedding (and risking a</span>
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="c1">// second, independent typo in) the actual expected sum.</span>
+</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="c1">//</span>
+</span><span id="__span-2-11"><a id="__codelineno-2-11" name="__codelineno-2-11" href="#__codelineno-2-11"></a><span class="c1">// See docs/writing_and_running_c_programs.md and compiler/crt0.s for how</span>
+</span><span id="__span-2-12"><a id="__codelineno-2-12" name="__codelineno-2-12" href="#__codelineno-2-12"></a><span class="c1">// this gets a working stack, trap table, and pass/fail halt convention,</span>
+</span><span id="__span-2-13"><a id="__codelineno-2-13" name="__codelineno-2-13" href="#__codelineno-2-13"></a><span class="c1">// the same way every validation/asm/ test does.</span>
+</span><span id="__span-2-14"><a id="__codelineno-2-14" name="__codelineno-2-14" href="#__codelineno-2-14"></a>
+</span><span id="__span-2-15"><a id="__codelineno-2-15" name="__codelineno-2-15" href="#__codelineno-2-15"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-2-16"><a id="__codelineno-2-16" name="__codelineno-2-16" href="#__codelineno-2-16"></a><span class="p">{</span>
+</span><span id="__span-2-17"><a id="__codelineno-2-17" name="__codelineno-2-17" href="#__codelineno-2-17"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">values</span><span class="p">[</span><span class="mi">5</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="mi">3</span><span class="p">,</span><span class="w"> </span><span class="mi">4</span><span class="p">,</span><span class="w"> </span><span class="mi">5</span><span class="p">};</span>
+</span><span id="__span-2-18"><a id="__codelineno-2-18" name="__codelineno-2-18" href="#__codelineno-2-18"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-2-19"><a id="__codelineno-2-19" name="__codelineno-2-19" href="#__codelineno-2-19"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">i</span><span class="p">;</span>
+</span><span id="__span-2-20"><a id="__codelineno-2-20" name="__codelineno-2-20" href="#__codelineno-2-20"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">expected</span><span class="p">;</span>
+</span><span id="__span-2-21"><a id="__codelineno-2-21" name="__codelineno-2-21" href="#__codelineno-2-21"></a><span class="w">    </span><span class="kt">int</span><span class="w"> </span><span class="n">pass</span><span class="p">;</span>
+</span><span id="__span-2-22"><a id="__codelineno-2-22" name="__codelineno-2-22" href="#__codelineno-2-22"></a>
+</span><span id="__span-2-23"><a id="__codelineno-2-23" name="__codelineno-2-23" href="#__codelineno-2-23"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="mi">5</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span id="__span-2-24"><a id="__codelineno-2-24" name="__codelineno-2-24" href="#__codelineno-2-24"></a><span class="w">        </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">values</span><span class="p">[</span><span class="n">i</span><span class="p">];</span>
+</span><span id="__span-2-25"><a id="__codelineno-2-25" name="__codelineno-2-25" href="#__codelineno-2-25"></a>
+</span><span id="__span-2-26"><a id="__codelineno-2-26" name="__codelineno-2-26" href="#__codelineno-2-26"></a><span class="w">    </span><span class="n">expected</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">15</span><span class="p">;</span><span class="w"> </span><span class="c1">// 1+2+3+4+5, computed on the host</span>
+</span><span id="__span-2-27"><a id="__codelineno-2-27" name="__codelineno-2-27" href="#__codelineno-2-27"></a><span class="w">    </span><span class="n">pass</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">(</span><span class="n">sum</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="n">expected</span><span class="p">)</span><span class="w"> </span><span class="o">?</span><span class="w"> </span><span class="mi">1</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-2-28"><a id="__codelineno-2-28" name="__codelineno-2-28" href="#__codelineno-2-28"></a>
+</span><span id="__span-2-29"><a id="__codelineno-2-29" name="__codelineno-2-29" href="#__codelineno-2-29"></a><span class="w">    </span><span class="c1">// Report pass(1)/fail(0) in %o0 -- see the file comment above.</span>
+</span><span id="__span-2-30"><a id="__codelineno-2-30" name="__codelineno-2-30" href="#__codelineno-2-30"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;mov %0, %%o0&quot;</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="o">:</span><span class="w"> </span><span class="s">&quot;r&quot;</span><span class="w"> </span><span class="p">(</span><span class="n">pass</span><span class="p">));</span>
+</span><span id="__span-2-31"><a id="__codelineno-2-31" name="__codelineno-2-31" href="#__codelineno-2-31"></a>
+</span><span id="__span-2-32"><a id="__codelineno-2-32" name="__codelineno-2-32" href="#__codelineno-2-32"></a><span class="w">    </span><span class="c1">// Halt: traps are enabled (crt0.s), so this ta 0 is caught by its</span>
+</span><span id="__span-2-33"><a id="__codelineno-2-33" name="__codelineno-2-33" href="#__codelineno-2-33"></a><span class="w">    </span><span class="c1">// trap-table slot, which re-traps with traps now disabled, forcing</span>
+</span><span id="__span-2-34"><a id="__codelineno-2-34" name="__codelineno-2-34" href="#__codelineno-2-34"></a><span class="w">    </span><span class="c1">// the model into error_mode. That&#39;s this project&#39;s pass/fail halt</span>
+</span><span id="__span-2-35"><a id="__codelineno-2-35" name="__codelineno-2-35" href="#__codelineno-2-35"></a><span class="w">    </span><span class="c1">// convention, see writing_and_running_assembly_programs.md.</span>
+</span><span id="__span-2-36"><a id="__codelineno-2-36" name="__codelineno-2-36" href="#__codelineno-2-36"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;ta 0&quot;</span><span class="p">);</span>
+</span><span id="__span-2-37"><a id="__codelineno-2-37" name="__codelineno-2-37" href="#__codelineno-2-37"></a>
+</span><span id="__span-2-38"><a id="__codelineno-2-38" name="__codelineno-2-38" href="#__codelineno-2-38"></a><span class="w">    </span><span class="c1">// Never reached: ta 0 above always halts the simulation first. This</span>
+</span><span id="__span-2-39"><a id="__codelineno-2-39" name="__codelineno-2-39" href="#__codelineno-2-39"></a><span class="w">    </span><span class="c1">// just satisfies the compiler, which otherwise warns that a</span>
+</span><span id="__span-2-40"><a id="__codelineno-2-40" name="__codelineno-2-40" href="#__codelineno-2-40"></a><span class="w">    </span><span class="c1">// non-void main() falls off the end without returning a value.</span>
+</span><span id="__span-2-41"><a id="__codelineno-2-41" name="__codelineno-2-41" href="#__codelineno-2-41"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-2-42"><a id="__codelineno-2-42" name="__codelineno-2-42" href="#__codelineno-2-42"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-2-43"><a id="__codelineno-2-43" name="__codelineno-2-43" href="#__codelineno-2-43"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>It sums <code>{1,2,3,4,5}</code> in a loop and reports pass/fail in <code>%o0</code>. Build the
+cpp model with <code>--debug</code> (the sitar model works identically -- see the note
+at the end of this section) and load the convenience commands from
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
+(this walkthrough only uses a few -- see "Command reference" below for
+every one):</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gdb<span class="w"> </span>model/cpp_model/sparc_cpp_sim
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(gdb) source debug/sparc.gdb
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>(gdb) run docs/source/examples/array_sum/array_sum.hex
+</span></code></pre></div>
+<p><code>0x203c</code> is the loop body's own address (<code>ld [%fp+-12],%g1</code> -- see
+"Finding addresses" below for where that number comes from). This stops
+once per loop iteration, right after that iteration's instruction has
+fully executed:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Breakpoint 1, debug_hook_after_execute (core=..., op=LD) at .../DebugHooks.cpp:13
+</span></code></pre></div>
+<p>From here:</p>
+<p><div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>(gdb) sparc-print-regs
+</span></code></pre></div>
+prints the entire current-window register/PSR state. For just one
+register:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>(gdb) sparc-print-reg l0
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>l0 = 0xe0 (224)
+</span></code></pre></div>
+<code>continue</code> re-hits the same breakpoint at the next loop iteration -- this
+is effectively "single-step one SPARC instruction," for free, since it's
+the same condition matching the next occurrence:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>(gdb) continue
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>Breakpoint 1, debug_hook_after_execute (core=..., op=LD) at ...
+</span></code></pre></div></p>
+<p>To watch the running sum itself change, you first need its address --
+<code>array_sum.c</code> never spells it out, <code>sum</code> is a local, stack-resident
+variable (see "Finding addresses" below for why that's the one thing an
+objdump can't give you directly). Discover it live instead, by breaking on
+every store and looking at where each one goes:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>(gdb) sparc-break-mem kind=store
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>(gdb) continue
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>(gdb) sparc-print-mem
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>kind=STORE address=0xfffffc8 word0=0x0 word1=0x1 MAE=0
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>(gdb) continue
+</span><span id="__span-9-6"><a id="__codelineno-9-6" name="__codelineno-9-6" href="#__codelineno-9-6"></a>(gdb) sparc-print-mem
+</span><span id="__span-9-7"><a id="__codelineno-9-7" name="__codelineno-9-7" href="#__codelineno-9-7"></a>kind=STORE address=0xfffffe0 word0=0x0 word1=0x5 MAE=0
+</span></code></pre></div>
+The first few hits are the array literal <code>{1,2,3,4,5}</code> itself being
+written, once each, to increasing addresses. <code>0xfffffc8</code> above is actually
+earlier still -- <code>crt0.s</code>'s own setup, before <code>main</code> even starts. Keep
+<code>continue</code>-ing and one address starts repeating every loop iteration
+instead of appearing once: that's <code>sum</code>. Set the watchpoint on it:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>(gdb) continue
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>Hardware watchpoint 2: *(unsigned int*)...
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a>Old value = 1
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>New value = 3
+</span></code></pre></div></p>
+<p>To catch the final pass/fail write into <code>%o0</code> directly:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>(gdb) sparc-watch-reg o0
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>(gdb) continue
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>Breakpoint N, debug_hook_after_execute (core=..., op=OR) at ...
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>(gdb) sparc-print-reg o0
+</span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>o0 = 0x1 (1)
+</span></code></pre></div></p>
+<p><strong>Sitar model</strong>: everything above works identically against
+<code>model/sitar_model/executable/sitar_check_test</code> (built with
+<code>model/sitar_model/build.py --debug</code>), same commands, same addresses --
+both models drive the same <code>SparcCore</code>, and the debug hooks live in the
+shared <code>cpp_common_code/</code>, not in either driver. The only difference is the
+CLI takes an extra expected-results argument:
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gdb<span class="w"> </span>model/sitar_model/executable/sitar_check_test
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>debug/sparc.gdb
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>sparc-break<span class="w"> </span><span class="nv">pc</span><span class="o">=</span>0x203c
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>run<span class="w"> </span>docs/source/examples/array_sum/array_sum.hex<span class="w"> </span>docs/source/examples/array_sum/array_sum.expected
+</span></code></pre></div></p>
+<h2 id="command-reference">Command reference<a class="headerlink" href="#command-reference" title="Permanent link">&para;</a></h2>
+<p><code>debug/sparc.gdb</code> (loaded with <code>source debug/sparc.gdb</code>) adds every
+command below. Three groups: <strong>breakpoints</strong> stop execution at one of the
+four <code>debug_hook_*()</code> points (see <code>model/cpp_common_code/DebugHooks.h</code>);
+<strong>watchpoints</strong> stop when a value changes; <strong>probe/print</strong> commands read
+state without stopping anything, usable once you're already stopped
+somewhere.</p>
+<p>Two syntax conventions apply throughout:</p>
+<p><strong>Address/PC arguments</strong> (<code>pc=</code>, <code>addr=</code>) accept one of three forms:</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2054</code></td>
+<td>exact match</td>
+</tr>
+<tr>
+<td><code>0x2000:0x2100</code></td>
+<td>half-open range: <code>addr &gt;= lo &amp;&amp; addr &lt; hi</code></td>
+</tr>
+<tr>
+<td><code>0x2000/0xfffff000</code></td>
+<td>masked match: <code>(addr &amp; mask) == (base &amp; mask)</code></td>
+</tr>
+</tbody>
+</table>
+<p>The <code>base/mask</code> form is restricted to masks of the form <code>0xfff...000</code>
+(trailing zero bits) -- a contiguous, power-of-2-aligned range, same as the
+<code>lo:hi</code> form, just expressed differently, and the only form
+<code>sparc-watch-mem</code> can turn into a single watched region. For anything that
+genuinely isn't contiguous, use several breakpoints/watchpoints.</p>
+<p><strong>Register-name arguments</strong> accept windowed mnemonics (<code>g0</code>-<code>g7</code>,
+<code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>), flat SPARC r-numbering (<code>r0</code>-<code>r31</code> --
+<code>r1</code>==<code>g1</code>, <code>r9</code>==<code>o1</code>, the same numbering <code>Registers::R_r()</code> itself uses),
+or the specials <code>pc</code>, <code>npc</code>, <code>y</code>, <code>psr</code>, <code>wim</code>, <code>tbr</code>.</p>
+<p>One asymmetry to know about: for the <em>breakpoint</em> commands, <code>coreid=</code> is a
+<strong>filter</strong> on the hook's own <code>core.coreID</code> -- omit it and any core matches.
+For the <em>probe/print</em> and <code>sparc-watch-reg</code> commands, <code>coreid=</code> is a
+<strong>selector</strong> into the runtime registry that finds a live <code>SparcCore</code> to
+read from (see <code>model/cpp_common_code/DebugRegistry.h</code>) -- there's no "no
+selection" concept there, so it defaults to <code>0</code>. <code>sparc-watch-mem</code>/
+<code>sparc-print-mem</code> take no <code>coreid=</code> at all: memory isn't owned per-core in
+this model (there is exactly one <code>MemCore</code> regardless of core count).</p>
+<h3 id="breakpoints">Breakpoints<a class="headerlink" href="#breakpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Stops at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-break</code></td>
+<td><code>pc=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_after_execute</code> -- an instruction has fully executed, PC/nPC not yet advanced -- when PC matches</td>
+</tr>
+<tr>
+<td><code>sparc-break-nth</code></td>
+<td><code>pc=&lt;addr-expr&gt; n=&lt;k&gt; [coreid=&lt;n&gt;]</code></td>
+<td>same, but only the k-th match actually stops (gdb's own <code>ignore</code> under the hood)</td>
+</tr>
+<tr>
+<td><code>sparc-break-trap</code></td>
+<td><code>[type=&lt;name&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_trap_raised</code>, optionally filtered to one cause (see below)</td>
+</tr>
+<tr>
+<td><code>sparc-break-mae</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_mem_access</code> with <code>core.MAE</code> set -- any kind, any address</td>
+</tr>
+<tr>
+<td><code>sparc-break-mem</code></td>
+<td><code>[kind=&lt;k&gt;] [addr=&lt;addr-expr&gt;] [data=&lt;hex&gt;] [mae] [coreid=&lt;n&gt;]</code> (<code>&lt;k&gt;</code> is <code>ifetch</code>, <code>load</code>, <code>store</code>, <code>atomic</code>, or <code>flush</code>)</td>
+<td><code>debug_hook_mem_access</code>, filtered by any combination of kind/address/data (<code>word0</code>)/fault</td>
+</tr>
+<tr>
+<td><code>sparc-break-annulled</code></td>
+<td><code>[pc=&lt;addr-expr&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_annulled</code> -- a delay-slot instruction skipped by an untaken annulling branch; fires <em>before</em> PC/nPC update for the skip, so they're still the annulled instruction's own address and what it advances to</td>
+</tr>
+</tbody>
+</table>
+<p><code>sparc-break-trap</code>'s <code>type=</code> is one of the same cause names
+<code>core.printTrap()</code> itself reports:</p>
+<p><code>reset_trap</code> &middot; <code>data_store_error</code> &middot; <code>instruction_access_error</code> &middot;
+<code>r_register_access_error</code> &middot; <code>instruction_access_exception</code> &middot;
+<code>privileged_instruction</code> &middot; <code>illegal_instruction</code> &middot; <code>fp_disabled</code> &middot;
+<code>cp_disabled</code> &middot; <code>unimplemented_FLUSH</code> &middot; <code>window_overflow</code> &middot;
+<code>window_underflow</code> &middot; <code>mem_address_not_aligned</code> &middot; <code>fp_exception</code> &middot;
+<code>cp_exception</code> &middot; <code>data_access_error</code> &middot; <code>data_access_exception</code> &middot;
+<code>tag_overflow</code> &middot; <code>division_by_zero</code> &middot; <code>trap_instruction</code> &middot;
+<code>external_interrupt</code> -- omit <code>type=</code> for any cause.</p>
+<p><code>sparc-break-mae</code> is the simple, no-thought shortcut for a rare event; for
+anything more specific (a particular kind/address that also faults), use
+<code>sparc-break-mem</code> with <code>mae</code> added.</p>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>(gdb) sparc-break-nth pc=0x203c n=10
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>(gdb) sparc-break-trap type=illegal_instruction
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>(gdb) sparc-break-mae
+</span><span id="__span-13-5"><a id="__codelineno-13-5" name="__codelineno-13-5" href="#__codelineno-13-5"></a>(gdb) sparc-break-mem kind=load addr=0x2000:0x2100
+</span><span id="__span-13-6"><a id="__codelineno-13-6" name="__codelineno-13-6" href="#__codelineno-13-6"></a>(gdb) sparc-break-mem kind=load mae
+</span><span id="__span-13-7"><a id="__codelineno-13-7" name="__codelineno-13-7" href="#__codelineno-13-7"></a>(gdb) sparc-break-mem kind=ifetch addr=0x2054
+</span><span id="__span-13-8"><a id="__codelineno-13-8" name="__codelineno-13-8" href="#__codelineno-13-8"></a>(gdb) sparc-break-mem kind=store data=0xdeadbeef
+</span><span id="__span-13-9"><a id="__codelineno-13-9" name="__codelineno-13-9" href="#__codelineno-13-9"></a>(gdb) sparc-break-annulled pc=0x2038
+</span></code></pre></div></p>
+<h3 id="watchpoints">Watchpoints<a class="headerlink" href="#watchpoints" title="Permanent link">&para;</a></h3>
+<p>Both called "watchpoints" despite very different mechanisms underneath --
+from the user's side, both mean "tell me when this changes."</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-watch-mem</code></td>
+<td><code>addr=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td>true hardware watchpoint -- fires the instant the value changes, wherever/whenever that happens (mid-instruction included). Large ranges may silently fall back to a slow software watchpoint if the host has no hardware debug register wide enough</td>
+</tr>
+<tr>
+<td><code>sparc-watch-reg</code></td>
+<td><code>&lt;reg&gt; [value=&lt;hex&gt;] [mask=&lt;hex&gt;] [persist] [coreid=&lt;n&gt;]</code></td>
+<td><strong>not</strong> a hardware watchpoint -- see below</td>
+</tr>
+</tbody>
+</table>
+<p><code>sparc-watch-reg</code> is deliberately not a real watchpoint: a real one fires
+the instant the underlying storage changes, which for a register can be
+mid-instruction (e.g. window shuffling), before the value is
+architecturally committed. This instead checks <code>&lt;reg&gt;</code> once per
+instruction, at <code>debug_hook_after_execute</code> -- the stable, retired value --
+comparing it against its value at the previous check:</p>
+<table>
+<thead>
+<tr>
+<th>Arguments given</th>
+<th>Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>(none)</em></td>
+<td>on any change from the previous check</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code></td>
+<td>once, on the transition <em>into</em> a matching value (edge-triggered)</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code> + <code>persist</code></td>
+<td>on <em>every</em> instruction the value/mask condition holds, not just the transition into it -- a corner case, but a real one</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>(gdb) sparc-watch-reg cwp
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>(gdb) sparc-watch-reg o1 value=0x10000000 mask=0xf0000000
+</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>(gdb) sparc-watch-reg o1 value=0x1 persist
+</span></code></pre></div></p>
+<h3 id="probe-print">Probe / print<a class="headerlink" href="#probe-print" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-print-regs</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>full register/PSR dump (<code>CoreLogger::print_state()</code>) -- works from any frame, not just inside a hook</td>
+</tr>
+<tr>
+<td><code>sparc-print-reg</code></td>
+<td><code>&lt;reg&gt; [coreid=&lt;n&gt;]</code></td>
+<td>one register's value, either naming scheme</td>
+</tr>
+<tr>
+<td><code>sparc-print-traps</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>trap cause (<code>core.printTrap()</code>), TBR, PC, and the ET/PS/S PSR bits</td>
+</tr>
+<tr>
+<td><code>sparc-print-annulled</code></td>
+<td><em>(none)</em></td>
+<td>pc/npc/raw instruction word of the annul currently stopped at (<code>debug_hook_annulled</code>) -- not decoded to a mnemonic (annulled instructions are deliberately never decoded by the model itself); cross-check the pc against an objdump instead</td>
+</tr>
+<tr>
+<td><code>sparc-print-mem</code></td>
+<td><code>[addr=&lt;addr-expr&gt;] [count=&lt;n&gt;] [format=&lt;f&gt;]</code> (<code>&lt;f&gt;</code> is <code>hex</code>, <code>bin</code>, <code>dec</code>, or <code>str</code>)</td>
+<td>no <code>addr=</code>, while stopped in <code>debug_hook_mem_access</code>: that access's own kind/address/word0/word1/MAE. With <code>addr=</code>: live memory content there instead, from anywhere -- <code>count</code> words (default 1, or however many an <code>addr=</code> range covers)</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>(gdb) sparc-print-regs
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>(gdb) sparc-print-reg o1
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>(gdb) sparc-print-reg r9
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a>(gdb) sparc-print-traps
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a>(gdb) sparc-print-annulled
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a>(gdb) sparc-print-mem
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a>kind=LOAD address=0xfffffe0 word0=0x1 word1=0x0 MAE=0
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a>(gdb) sparc-print-mem addr=0xfffffe0
+</span><span id="__span-15-9"><a id="__codelineno-15-9" name="__codelineno-15-9" href="#__codelineno-15-9"></a>(gdb) sparc-print-mem addr=0x2000:0x2020 format=dec
+</span></code></pre></div></p>
+<h3 id="managing-breakpointswatchpoints">Managing breakpoints/watchpoints<a class="headerlink" href="#managing-breakpointswatchpoints" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-list</code></td>
+<td><em>(none)</em></td>
+<td>list every sparc-* breakpoint/watchpoint set so far, with the friendly label each was created with</td>
+</tr>
+<tr>
+<td><code>sparc-delete</code></td>
+<td><code>&lt;id&gt;</code></td>
+<td>remove one, by the id <code>sparc-list</code> shows</td>
+</tr>
+</tbody>
+</table>
+<p>Every command above prints a line when it creates a breakpoint/watchpoint,
+e.g. <code>[sparc #2] break pc=0x203c (gdb breakpoint #1)</code>. gdb's own <code>info
+breakpoints</code> shows the same entries, but only their raw translated
+condition string, which for these is rarely readable at a glance:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>(gdb) sparc-list
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>id   gdb#   kind   hits   description
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>1    1      break  2      break pc=0x203c
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>2    2      watch  0      watch-mem addr=0xfffffe0
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>(gdb) sparc-delete 1
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a>Deleted sparc #1 (break pc=0x203c)
+</span></code></pre></div></p>
+<h2 id="finding-addresses">Finding addresses<a class="headerlink" href="#finding-addresses" title="Permanent link">&para;</a></h2>
+<p>Every <code>.objdump</code> (produced by <code>compiler/compile_c.sh</code>/<code>assemble.sh</code>
+alongside a test's <code>.hex</code>) now includes the full symbol table after the
+disassembly (<code>sparc-elf-readelf -s</code>), not just the incidental branch/call
+target annotations disassembly alone provides. For <code>array_sum</code>,
+<code>docs/source/examples/array_sum/array_sum.objdump</code> shows:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>   265: 00002000   168 FUNC    GLOBAL DEFAULT    1 main
+</span></code></pre></div>
+and <code>main</code>'s own disassembly gives the loop body's address used above:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>00002000 &lt;main&gt;:
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>    2000:   9d e3 bf 78     save  %sp, -136, %sp
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>    2004:   82 10 20 01     mov  1, %g1
+</span><span id="__span-18-4"><a id="__codelineno-18-4" name="__codelineno-18-4" href="#__codelineno-18-4"></a>    2008:   c2 27 bf dc     st  %g1, [ %fp + -36 ]
+</span><span id="__span-18-5"><a id="__codelineno-18-5" name="__codelineno-18-5" href="#__codelineno-18-5"></a>    200c:   82 10 20 02     mov  2, %g1
+</span><span id="__span-18-6"><a id="__codelineno-18-6" name="__codelineno-18-6" href="#__codelineno-18-6"></a>    2010:   c2 27 bf e0     st  %g1, [ %fp + -32 ]
+</span><span id="__span-18-7"><a id="__codelineno-18-7" name="__codelineno-18-7" href="#__codelineno-18-7"></a>    2014:   82 10 20 03     mov  3, %g1
+</span><span id="__span-18-8"><a id="__codelineno-18-8" name="__codelineno-18-8" href="#__codelineno-18-8"></a>    2018:   c2 27 bf e4     st  %g1, [ %fp + -28 ]
+</span><span id="__span-18-9"><a id="__codelineno-18-9" name="__codelineno-18-9" href="#__codelineno-18-9"></a>    201c:   82 10 20 04     mov  4, %g1
+</span><span id="__span-18-10"><a id="__codelineno-18-10" name="__codelineno-18-10" href="#__codelineno-18-10"></a>    2020:   c2 27 bf e8     st  %g1, [ %fp + -24 ]
+</span><span id="__span-18-11"><a id="__codelineno-18-11" name="__codelineno-18-11" href="#__codelineno-18-11"></a>    2024:   82 10 20 05     mov  5, %g1
+</span><span id="__span-18-12"><a id="__codelineno-18-12" name="__codelineno-18-12" href="#__codelineno-18-12"></a>    2028:   c2 27 bf ec     st  %g1, [ %fp + -20 ]
+</span><span id="__span-18-13"><a id="__codelineno-18-13" name="__codelineno-18-13" href="#__codelineno-18-13"></a>    202c:   c0 27 bf f0     clr  [ %fp + -16 ]
+</span><span id="__span-18-14"><a id="__codelineno-18-14" name="__codelineno-18-14" href="#__codelineno-18-14"></a>    2030:   c0 27 bf f4     clr  [ %fp + -12 ]
+</span><span id="__span-18-15"><a id="__codelineno-18-15" name="__codelineno-18-15" href="#__codelineno-18-15"></a>    2034:   10 80 00 0c     b  2064 &lt;main+0x64&gt;
+</span><span id="__span-18-16"><a id="__codelineno-18-16" name="__codelineno-18-16" href="#__codelineno-18-16"></a>    2038:   01 00 00 00     nop 
+</span><span id="__span-18-17"><a id="__codelineno-18-17" name="__codelineno-18-17" href="#__codelineno-18-17"></a>    203c:   c2 07 bf f4     ld  [ %fp + -12 ], %g1
+</span><span id="__span-18-18"><a id="__codelineno-18-18" name="__codelineno-18-18" href="#__codelineno-18-18"></a>    2040:   83 28 60 02     sll  %g1, 2, %g1
+</span><span id="__span-18-19"><a id="__codelineno-18-19" name="__codelineno-18-19" href="#__codelineno-18-19"></a>    2044:   82 07 80 01     add  %fp, %g1, %g1
+</span><span id="__span-18-20"><a id="__codelineno-18-20" name="__codelineno-18-20" href="#__codelineno-18-20"></a>    2048:   c2 00 7f dc     ld  [ %g1 + -36 ], %g1
+</span><span id="__span-18-21"><a id="__codelineno-18-21" name="__codelineno-18-21" href="#__codelineno-18-21"></a>    204c:   c4 07 bf f0     ld  [ %fp + -16 ], %g2
+</span><span id="__span-18-22"><a id="__codelineno-18-22" name="__codelineno-18-22" href="#__codelineno-18-22"></a>    2050:   82 00 80 01     add  %g2, %g1, %g1
+</span><span id="__span-18-23"><a id="__codelineno-18-23" name="__codelineno-18-23" href="#__codelineno-18-23"></a>    2054:   c2 27 bf f0     st  %g1, [ %fp + -16 ]
+</span><span id="__span-18-24"><a id="__codelineno-18-24" name="__codelineno-18-24" href="#__codelineno-18-24"></a>    2058:   c2 07 bf f4     ld  [ %fp + -12 ], %g1
+</span><span id="__span-18-25"><a id="__codelineno-18-25" name="__codelineno-18-25" href="#__codelineno-18-25"></a>    205c:   82 00 60 01     inc  %g1
+</span><span id="__span-18-26"><a id="__codelineno-18-26" name="__codelineno-18-26" href="#__codelineno-18-26"></a>    2060:   c2 27 bf f4     st  %g1, [ %fp + -12 ]
+</span><span id="__span-18-27"><a id="__codelineno-18-27" name="__codelineno-18-27" href="#__codelineno-18-27"></a>    2064:   c2 07 bf f4     ld  [ %fp + -12 ], %g1
+</span><span id="__span-18-28"><a id="__codelineno-18-28" name="__codelineno-18-28" href="#__codelineno-18-28"></a>    2068:   80 a0 60 04     cmp  %g1, 4
+</span><span id="__span-18-29"><a id="__codelineno-18-29" name="__codelineno-18-29" href="#__codelineno-18-29"></a>    206c:   04 bf ff f4     ble  203c &lt;main+0x3c&gt;
+</span><span id="__span-18-30"><a id="__codelineno-18-30" name="__codelineno-18-30" href="#__codelineno-18-30"></a>    2070:   01 00 00 00     nop 
+</span><span id="__span-18-31"><a id="__codelineno-18-31" name="__codelineno-18-31" href="#__codelineno-18-31"></a>    2074:   82 10 20 0f     mov  0xf, %g1   ! f &lt;_start+0xf&gt;
+</span><span id="__span-18-32"><a id="__codelineno-18-32" name="__codelineno-18-32" href="#__codelineno-18-32"></a>    2078:   c2 27 bf f8     st  %g1, [ %fp + -8 ]
+</span><span id="__span-18-33"><a id="__codelineno-18-33" name="__codelineno-18-33" href="#__codelineno-18-33"></a>    207c:   c4 07 bf f0     ld  [ %fp + -16 ], %g2
+</span><span id="__span-18-34"><a id="__codelineno-18-34" name="__codelineno-18-34" href="#__codelineno-18-34"></a>    2080:   c2 07 bf f8     ld  [ %fp + -8 ], %g1
+</span><span id="__span-18-35"><a id="__codelineno-18-35" name="__codelineno-18-35" href="#__codelineno-18-35"></a>    2084:   82 18 80 01     xor  %g2, %g1, %g1
+</span><span id="__span-18-36"><a id="__codelineno-18-36" name="__codelineno-18-36" href="#__codelineno-18-36"></a>    2088:   80 a0 00 01     cmp  %g0, %g1
+</span><span id="__span-18-37"><a id="__codelineno-18-37" name="__codelineno-18-37" href="#__codelineno-18-37"></a>    208c:   82 60 3f ff     subx  %g0, -1, %g1
+</span><span id="__span-18-38"><a id="__codelineno-18-38" name="__codelineno-18-38" href="#__codelineno-18-38"></a>    2090:   c2 27 bf fc     st  %g1, [ %fp + -4 ]
+</span><span id="__span-18-39"><a id="__codelineno-18-39" name="__codelineno-18-39" href="#__codelineno-18-39"></a>    2094:   c2 07 bf fc     ld  [ %fp + -4 ], %g1
+</span><span id="__span-18-40"><a id="__codelineno-18-40" name="__codelineno-18-40" href="#__codelineno-18-40"></a>    2098:   90 10 00 01     mov  %g1, %o0
+</span><span id="__span-18-41"><a id="__codelineno-18-41" name="__codelineno-18-41" href="#__codelineno-18-41"></a>    209c:   91 d0 20 00     ta  0
+</span><span id="__span-18-42"><a id="__codelineno-18-42" name="__codelineno-18-42" href="#__codelineno-18-42"></a>    20a0:   10 80 00 00     b  20a0 &lt;main+0xa0&gt;
+</span><span id="__span-18-43"><a id="__codelineno-18-43" name="__codelineno-18-43" href="#__codelineno-18-43"></a>    20a4:   01 00 00 00     nop
+</span></code></pre></div></p>
+<p>One real limitation, accepted rather than worked around: this gives you
+function and global-variable addresses, but <em>not</em> addresses for local C
+variables (<code>sum</code>, <code>i</code>, <code>values</code> in <code>array_sum.c</code>) -- those are
+stack-resident at <code>-O0</code> and never appear in the ELF symbol table at all
+(that would need DWARF debug info compiled into the <em>target</em> SPARC binary,
+a separate, heavier thing this repository doesn't do). Reading the
+disassembly's <code>%fp</code>-relative offsets directly, as the walkthrough's
+<code>0xfffffe0</code> address for <code>sum</code> did, is the way around this -- once you have
+one such address from a live run, it stays valid for that test.</p>
+<h2 id="gdb-itself-briefly">GDB itself, briefly<a class="headerlink" href="#gdb-itself-briefly" title="Permanent link">&para;</a></h2>
+<p>A few native commands worth knowing, independent of anything above:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>break LOCATION if COND</code></td>
+<td>conditional breakpoint in one line</td>
+</tr>
+<tr>
+<td><code>watch EXPR</code></td>
+<td>hardware watchpoint -- breaks the instant <code>EXPR</code>'s value changes</td>
+</tr>
+<tr>
+<td><code>ignore N COUNT</code></td>
+<td>skip the next <code>COUNT</code> hits of breakpoint <code>N</code> silently, stopping on hit <code>COUNT+1</code> -- <code>ignore N 9</code> for "stop on the 10th occurrence" (this is exactly what <code>sparc-break-nth</code> does internally)</td>
+</tr>
+<tr>
+<td><code>call EXPR</code></td>
+<td>invoke a real function/method in the debuggee, print its result</td>
+</tr>
+<tr>
+<td><code>continue</code> / <code>c</code></td>
+<td>resume until the next breakpoint/watchpoint</td>
+</tr>
+<tr>
+<td><code>next</code> / <code>step</code></td>
+<td>step one <em>host</em> C++ line (steps through driver code, not one simulated SPARC instruction -- use a <code>sparc-break</code>+<code>continue</code> loop for that instead)</td>
+</tr>
+<tr>
+<td><code>bt</code></td>
+<td>backtrace</td>
+</tr>
+<tr>
+<td><code>delete N</code></td>
+<td>remove breakpoint/watchpoint <code>N</code></td>
+</tr>
+<tr>
+<td><code>quit</code></td>
+<td>exit</td>
+</tr>
+</tbody>
+</table>
+<p>Every <code>sparc-*</code> command above is built entirely out of these -- intuitive
+names standing in for the underlying condition syntax and symbol names,
+not a replacement for knowing them. See
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
+for the implementation, and its own
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/README.md">README</a>
+for the design notes behind it (why each function is pinned to <code>-O0</code>, how
+<code>DebugRegistry</code> makes state reachable from any frame, and so on).</p>
 
 
 

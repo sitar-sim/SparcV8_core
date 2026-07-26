@@ -132,9 +132,8 @@ options:
 
 - Enable Sitar's logging surgically, for a specific time window or
   condition instead of the whole run, using `log.turnOFF()`/`log.turnON()`
-  in the model source. See Sitar's own
-  [Logging](https://sitar-sim.github.io/sitar/3_language_and_examples/logging.html)
-  documentation for the full mechanism.
+  in the model source -- see [Logging](logging.md#selective-onoff-at-runtime)
+  for a ready-to-copy example.
 - Run the simulation under host `gdb` instead, setting breakpoints and
   examining the simulated core's registers and memory directly. See
   [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).

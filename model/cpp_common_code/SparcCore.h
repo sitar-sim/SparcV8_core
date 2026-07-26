@@ -85,7 +85,11 @@ class SparcCore
 		void executeTraps(); 
 			//selectTrap() and 
 			//update PC, nPC to jump to the appropriate trap handler
-		std::string printTrap(); 
+		//__attribute__((optimize("O0"))): meant to be `call`ed live from
+		//gdb (debug/sparc.gdb's sparc-print-traps) even in a --debug
+		//build that otherwise keeps full -O3 -- same reasoning as
+		//Registers::R_r()/CoreLogger::print_state().
+		__attribute__((optimize("O0"))) std::string printTrap();
 			//returns a string corresponding to the name of the trap that has occured.
 		void checkInstructionException(Opcode op);
 			//check for exceptions related to the fetched instruction,
