@@ -136,14 +136,14 @@ for anyone who just wants to run the existing suite. Commit the `.hex`
 alongside your `.s`/`.vprj` whenever you add or edit a test.
 
 Phase 1 also produces a `.objdump`, the same kind `compiler/compile_c.sh`
-produces for C tests (disassembly plus the full symbol table -- see
-[Writing and Running C Programs](writing_and_running_c_programs.md)):
+produces for C tests: disassembly plus the full symbol table. See
+[Writing and Running C Programs](writing_and_running_c_programs.md). It's
 useful for finding an address to give gdb (see
 [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses)),
 though for a hand-written `.s` test you already know the addresses of
-anything you labeled yourself. The existing 230 tests don't have one
-committed yet (this is a recent addition); rerun `build_hex.py` on one to
-get it.
+anything you labeled yourself. The existing 230 tests each already have
+one committed. If you add or edit a `.s` source, rerun `build_hex.py` on
+it to regenerate its `.objdump`.
 
 Add `--sitar` to `run_tests.py` to run against the Sitar-timed model
 instead of the plain C++ one (see [Installation](installation.md) step 3

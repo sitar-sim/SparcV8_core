@@ -39,9 +39,9 @@ This produces `your_program.hex`, the same kind of memory image
 `compiler/assemble.sh` produces for assembly tests, loadable the same way
 by `MemCore::initializeMemory()`. It also produces `your_program.objdump`:
 a readable disassembly of the linked program (useful for seeing what the
-compiler actually generated -- unlike a hand-written `.s` file, this isn't
-something you wrote directly), followed by the full symbol table, function
-and global-variable addresses included -- see
+compiler actually generated, unlike a hand-written `.s` file, this isn't
+something you wrote directly), followed by the full symbol table,
+function and global-variable addresses included. See
 [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses).
 
 See `compiler/README.md` for exactly what's bundled and why. If you want
@@ -53,10 +53,10 @@ cross-compiler instead, with [Buildroot](http://buildroot.uclibc.org/download.ht
 # download and extract Buildroot, then:
 make qemu_sparc_ss10_defconfig && make menuconfig
 # under "Toolchain", enable "Build cross gdb for the host" if you want a
-# cross gdb -- for debugging a *target* SPARC binary running under, say,
+# cross gdb, for debugging a *target* SPARC binary running under, say,
 # QEMU. Unrelated to this repo's own gdb support (see "Examining Core
 # State at Runtime Using GDB"), which uses the *host's* own gdb directly
-# on the host-native simulator process -- no cross gdb needed for that.
+# on the host-native simulator process. No cross gdb needed for that.
 make      # downloads and builds everything, takes a while
 ```
 
@@ -122,7 +122,7 @@ step. The result is that a C test's `ta 0` halts exactly the same way an
 assembly test's does, and an unexpected trap during your test is caught
 the same way too.
 
-Checking the result is then a single line -- the `.vprj` only ever has to
+Checking the result is then a single line. The `.vprj` only ever has to
 check that `%o0` is `1`:
 
 ```
@@ -132,16 +132,16 @@ RESULTS =
 o0=1
 ```
 
-The alternative -- writing a raw computed value to a global and checking
-it directly via a `.vprj` `MEM` line, the address found in
-`your_program.objdump`'s symbol table (or `readelf -s your_program.elf`
-directly) -- still works (it's the same [`REG`/`MEM`
+The alternative, writing a raw computed value to a global and checking it
+directly via a `.vprj` `MEM` line (the address found in
+`your_program.objdump`'s symbol table, or `readelf -s your_program.elf`
+directly), still works. It's the same [`REG`/`MEM`
 format](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
-`validation/asm/` uses), but means the golden value is embedded in two
+`validation/asm/` uses, but means the golden value is embedded in two
 places (the `.vprj` and, if the test computes its own pass/fail, the
 source) instead of one. Doing the comparison in C and reporting a single
 pass/fail flag avoids that, and doubles as a self-contained mini-benchmark
-that also happens to check itself; see `array_sum/array_sum.c` and the
+that also happens to check itself. See `array_sum/array_sum.c` and the
 rest of `validation/C/` for worked examples across several small
 algorithms.
 

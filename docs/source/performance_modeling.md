@@ -73,8 +73,9 @@ model/sitar_model/executable/sitar_check_test <hex> <expected>
 ```
 
 This writes `sparc_trace.log` (see [Getting Started](getting_started.md)
-and `log_viewer/README.md`) into the current directory -- its `time`
-column is exactly the per-instruction cycle count this page is about.
+and [The log viewer](logging.md#the-log-viewer)) into the current
+directory. Its `time` column is exactly the per-instruction cycle count
+this page is about.
 Either open it in `log_viewer/viewer.html` and read `time` off
 consecutive `FETCH` rows directly, or grep it on the command line:
 
@@ -86,13 +87,13 @@ For example, overriding `ADD`'s latency to 4 cycles (`{ADD, 4}` in
 `OPCODE_LATENCY_OVERRIDES`) and running
 `validation/asm/integer_alu/Arithmetic/Add/ADD.hex` produces `time`
 values increasing by 1 between fetches, except right after the `ADD`
-row, where it jumps by 4 -- exactly the overridden gap. Reverting the
+row, where it jumps by 4, exactly the overridden gap. Reverting the
 override (back to the empty `OPCODE_LATENCY_OVERRIDES = {};` default) and
 rebuilding restores the uniform 1-cycle spacing.
 
 For `MemoryInterface.delay`/`MainMemory.delay`, look in the *other* file
 `--logging` produces, `sitar.log` (Sitar's own per-request/response
-messages, not part of the architectural trace -- see
+messages, not part of the architectural trace, see
 `model/sitar_model/README.md`) for `"servicing"`/`"response ready"`
 (`MainMemory`) and `"Started memory reference"`/`"Finished memory
 reference"` (`MemoryInterface`), each timestamped `[t=<cycle>]`.

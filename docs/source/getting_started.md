@@ -27,14 +27,14 @@ project's own documentation assumes you know:
 
 | Chapter | Topic | Pages |
 |---|---|---|
-| 2 | Overview -- the architecture end to end, briefly: registers, instruction categories, traps, memory | ~9-16 |
-| 4 | Registers -- the register file and windowing mechanism in full detail, PSR/WIM/TBR | ~23-42 |
-| 5 | Instructions -- the instruction set itself: formats, addressing, every opcode | ~43-58 |
-| 7 | Traps -- trap handling, directly relevant to how every test program in this repository halts (see below) | ~69-80 |
+| 2 | Overview, the architecture end to end, briefly: registers, instruction categories, traps, memory | ~9-16 |
+| 4 | Registers, the register file and windowing mechanism in full detail: PSR/WIM/TBR | ~23-42 |
+| 5 | Instructions, the instruction set itself: formats, addressing, every opcode | ~43-58 |
+| 7 | Traps, trap handling, directly relevant to how every test program in this repository halts (see below) | ~69-80 |
 
-The rest (appendices A-N) is reference material for implementers --
+The rest (appendices A-N) is reference material for implementers:
 suggested assembly syntax, ABI conventions, an MMU specification, and
-similar -- worth knowing exists, not worth reading up front.
+similar. Worth knowing it exists, not worth reading up front.
 
 ---
 
@@ -85,39 +85,42 @@ This writes `sparc_trace.log`, a full instruction/state trace, into the
 current directory. Open `log_viewer/viewer.html` in a browser, click
 **Load trace** and pick `sparc_trace.log`, then **Load objdump** and pick
 `model/cpp_model/test/test_simple_ADD.objdump` (the matching disassembly,
-committed alongside the test). See [log_viewer/README.md](https://github.com/sitar-sim/SparcV8_core/blob/main/log_viewer/README.md)
-for the full walkthrough.
+committed alongside the test). See [The log viewer](logging.md#the-log-viewer)
+for the full reference.
 
 Step through the trace row by row (arrow keys) and watch the processor
 evolve:
 
-- **`RESET` then `TRAP_ENTER`**, at the very start -- every run begins
-  this way. The model always boots by taking an implicit reset trap into
-  the first instruction; you didn't write this, it's automatic.
-- **`FETCH` rows**, one per instruction, each showing the entire
-  current-window register state at that point, with whatever changed
-  since the previous row highlighted. Watch `%l0`/`%l1`/`%o0` fill in as
-  the `mov`/`mov`/`add` sequence runs.
-- **`TRAP_RAISED` then `HALT`**, at the end. The final `ta 0` is executed
-  with traps already disabled (that's what the `wr %g0, %psr` at the top
-  did), so it has no handler to jump to -- the processor forces itself
-  into `error_mode` instead. This is this project's halt convention, used
-  by every test program in the repository: it's what `sparc_cpp_sim`'s
-  `"Simulation halted (error_mode)"` message means, and it's expected,
-  not a bug. (This particular program has no trap table at all, so any
-  `ta 0` halts it -- programs with a full trap table refine this into an
-  actual pass/fail signal; see
-  [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#the-pass-fail-convention).)
+- **`RESET` then `TRAP_ENTER`**  
+    At the very start of every run. The model always boots by taking an
+    implicit reset trap into the first instruction. You didn't write
+    this, it's automatic.
+- **`FETCH` rows**  
+    One per instruction, each showing the entire current-window register
+    state at that point, with whatever changed since the previous row
+    highlighted. Watch `%l0`/`%l1`/`%o0` fill in as the `mov`/`mov`/`add`
+    sequence runs.
+- **`TRAP_RAISED` then `HALT`**  
+    At the end. The final `ta 0` is executed with traps already disabled
+    (that's what the `wr %g0, %psr` at the top did), so it has no
+    handler to jump to. The processor forces itself into `error_mode`
+    instead. This is this project's halt convention, used by every test
+    program in the repository. It's what `sparc_cpp_sim`'s
+    `"Simulation halted (error_mode)"` message means, and it's expected,
+    not a bug. (This particular program has no trap table at all, so any
+    `ta 0` halts it. Programs with a full trap table refine this into an
+    actual pass/fail signal, see
+    [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#the-pass-fail-convention).)
 
 For automated pass/fail checking instead of watching a trace by hand, use
-`check_test` with the test's paired expected-results file -- see
+`check_test` with the test's paired expected-results file. See
 [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md).
 
 ---
 
 ## The Sitar-timed model
 
-The plain C++ model above has no notion of cycles at all -- every
+The plain C++ model above has no notion of cycles at all. Every
 instruction "completes" instantly. `model/sitar_model/` drives the exact
 same core through [Sitar](https://sitar-sim.github.io/sitar/) instead,
 adding a simple, non-pipelined **cycle-level timing model**: a
@@ -135,18 +138,19 @@ model/sitar_model/executable/sitar_check_test \
     model/sitar_model/executable/test_simple_ADD.expected
 ```
 
-This also writes `sparc_trace.log` -- open it in `log_viewer/viewer.html`
-exactly as above (same format; the trace viewer doesn't know or care
-which model produced it). A second file, `sitar.log`, also appears:
-everything else Sitar itself logs (memory-interface/main-memory activity,
-useful when working on the timing model itself, not part of the
-architectural trace) -- see `model/sitar_model/README.md`.
+This also writes `sparc_trace.log`. Open it in the
+[log viewer](logging.md#the-log-viewer) exactly as above (same format,
+the trace viewer doesn't know or care which model produced it). A second
+file, `sitar.log`, also appears: everything else Sitar itself logs
+(memory-interface/main-memory activity, useful when working on the
+timing model itself, not part of the architectural trace). See
+`model/sitar_model/README.md`.
 
 ---
 
 ## Building without logging, and running the validation suite
 
-Logging is off by default -- it's slower and, for anything bigger than
+Logging is off by default. It's slower and, for anything bigger than
 one instruction, noisier than you want. Rebuild without `--logging` (or
 just omit the flag) for everyday use:
 
@@ -180,8 +184,8 @@ test.
 ## What's next
 
 - `validation/C/` has ten small, self-validating C mini-benchmarks
-  (array sum, matrix multiply, FFT, sorting, and more) worth reading as
-  worked examples -- see [Writing and Running C Programs](writing_and_running_c_programs.md).
+  (array sum, matrix multiply, FFT, sorting, and more), worth reading as
+  worked examples. See [Writing and Running C Programs](writing_and_running_c_programs.md).
 - Write your own test: [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
   or [Writing and Running C Programs](writing_and_running_c_programs.md).
 - Understand how the pieces fit together: [Model Components](model_components.md).

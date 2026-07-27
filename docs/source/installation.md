@@ -75,9 +75,10 @@ This prints every register's final value once the program halts. `o0` is
 `0xc` (12), the sum of the two numbers the program added. `sparc_cpp_sim`
 always prints this final state, regardless of how it was built.
 Rebuilding with `./build.sh --logging` additionally writes a full
-instruction-by-instruction trace, viewable in `log_viewer/`, alongside
-it -- see [Getting Started](getting_started.md) for a full walkthrough,
-including what each part of the trace means.
+instruction-by-instruction trace, viewable in the
+[log viewer](logging.md#the-log-viewer), alongside it. See
+[Getting Started](getting_started.md) for a full walkthrough, including
+what each part of the trace means.
 
 ---
 
@@ -111,11 +112,10 @@ OVERALL: PASS (1 checks)
 This also writes two files into the current directory: `sparc_trace.log`
 (one row per fetched instruction/trap/memory access, with the entire
 processor state at that point) and `sitar.log` (Sitar's own lower-level
-per-request/response messages). Open `sparc_trace.log` in
-`log_viewer/viewer.html` to step through the program instruction by
-instruction and watch the processor state evolve -- see
-[Getting Started](getting_started.md) for a full walkthrough, and
-`log_viewer/README.md` for the viewer itself.
+per-request/response messages). Open `sparc_trace.log` in the
+[log viewer](logging.md#the-log-viewer) to step through the program
+instruction by instruction and watch the processor state evolve. See
+[Getting Started](getting_started.md) for a full walkthrough.
 
 ### Running larger programs
 
@@ -132,7 +132,7 @@ options:
 
 - Enable Sitar's logging surgically, for a specific time window or
   condition instead of the whole run, using `log.turnOFF()`/`log.turnON()`
-  in the model source -- see [Logging](logging.md#selective-onoff-at-runtime)
+  in the model source. See [Logging](logging.md#selective-onoff-at-runtime)
   for a ready-to-copy example.
 - Run the simulation under host `gdb` instead, setting breakpoints and
   examining the simulated core's registers and memory directly. See
