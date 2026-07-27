@@ -42,7 +42,7 @@ These models are meant to be used as:
 
 4. **A large number of assembly and C test programs**  
     Serving both as educational examples and as a validation suite for
-    the processor. See "Validation Suite" below.
+    the processor. See [Validation Suite](validation_suite.md).
 
 ---
 
@@ -104,14 +104,3 @@ instruction in the core is automatically reflected in both.
 See [Model Components](model_components.md) for how the core, the
 memory, and any other components fit together, including a stub example
 of connecting an external component such as a cache.
-
----
-
-## Validation Suite
-
-*(stub, more detail to come)*
-
-A large number of assembly and C test programs validate both models,
-adapted in large part from the AJIT processor project's own test suite.
-See [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
-and [Writing and Running C Programs](writing_and_running_c_programs.md).
