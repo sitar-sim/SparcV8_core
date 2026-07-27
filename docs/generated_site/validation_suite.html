@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="examining_core_state_with_gdb.html">
+        <link rel="prev" href="model_components.html">
       
       
-        <link rel="next" href="validation_suite.html">
+        <link rel="next" href="performance_modeling.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Model Components - Sitar model of a SPARC V8 core</title>
+        <title>Validation Suite - Sitar model of a SPARC V8 core</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#model-components" class="md-skip">
+        <a href="#validation-suite" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Model Components
+              Validation Suite
             
           </span>
         </div>
@@ -629,6 +629,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -648,7 +676,7 @@
   <span class="md-ellipsis">
     
   
-    Model Components
+    Validation Suite
   
 
     
@@ -659,14 +687,14 @@
           <span class="md-nav__icon md-icon"></span>
         </label>
       
-      <a href="model_components.html" class="md-nav__link md-nav__link--active">
+      <a href="validation_suite.html" class="md-nav__link md-nav__link--active">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    Validation Suite
   
 
     
@@ -692,10 +720,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cpp_common_code-the-core-itself" class="md-nav__link">
+  <a href="#how-its-organized" class="md-nav__link">
     <span class="md-ellipsis">
       
-        cpp_common_code/: the core itself
+        How it's organized
       
     </span>
   </a>
@@ -703,10 +731,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cpp_model-the-0-delay-functional-driver" class="md-nav__link">
+  <a href="#the-vprj-expected-results-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        cpp_model/: the 0-delay functional driver
+        The .vprj expected-results format
       
     </span>
   </a>
@@ -714,10 +742,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sitar_model-the-cycle-timed-driver" class="md-nav__link">
+  <a href="#self-validating-c-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        sitar_model/: the cycle-timed driver
+        Self-validating C tests
       
     </span>
   </a>
@@ -725,10 +753,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#connecting-other-components" class="md-nav__link">
+  <a href="#running-the-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connecting other components
+        Running the suite
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running the suite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-new-test-goes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a new test goes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provenance
       
     </span>
   </a>
@@ -739,34 +806,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Validation Suite
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1005,10 +1044,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#cpp_common_code-the-core-itself" class="md-nav__link">
+  <a href="#how-its-organized" class="md-nav__link">
     <span class="md-ellipsis">
       
-        cpp_common_code/: the core itself
+        How it's organized
       
     </span>
   </a>
@@ -1016,10 +1055,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#cpp_model-the-0-delay-functional-driver" class="md-nav__link">
+  <a href="#the-vprj-expected-results-format" class="md-nav__link">
     <span class="md-ellipsis">
       
-        cpp_model/: the 0-delay functional driver
+        The .vprj expected-results format
       
     </span>
   </a>
@@ -1027,10 +1066,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#sitar_model-the-cycle-timed-driver" class="md-nav__link">
+  <a href="#self-validating-c-tests" class="md-nav__link">
     <span class="md-ellipsis">
       
-        sitar_model/: the cycle-timed driver
+        Self-validating C tests
       
     </span>
   </a>
@@ -1038,10 +1077,49 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#connecting-other-components" class="md-nav__link">
+  <a href="#running-the-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Connecting other components
+        Running the suite
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running the suite">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-a-new-test-goes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where a new test goes
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#provenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Provenance
       
     </span>
   </a>
@@ -1068,104 +1146,194 @@
   
 
 
-<h1 id="model-components">Model Components<a class="headerlink" href="#model-components" title="Permanent link">&para;</a></h1>
-<p>An overview of what's in <code>model/</code>, and how the pieces relate. See each
-subdirectory's own <code>README.md</code> for full detail. This page is the map.</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  cpp_common_code/   SparcCore, the core itself. Timing-agnostic.
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  cpp_model/          SparcStateMachine, 0-delay driver, no Sitar.
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  sitar_model/        Top/Core/SparcThread/MemoryInterface/MainMemory,
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                       Sitar-timed driver, cycle-level (non-pipelined).
+<h1 id="validation-suite">Validation Suite<a class="headerlink" href="#validation-suite" title="Permanent link">&para;</a></h1>
+<p><code>validation/</code> holds this project's functional validation suite: 240
+tests that check the core's instruction-level behavior against the SPARC
+V8 manual. There are no timing tests here. Both models drive the exact
+same <code>SparcCore</code> (see <a href="index.html#models">Models</a>), so this one suite
+validates both, and catches a regression in either.</p>
+<p>This page covers how the suite itself is put together, how to run it,
+and where a new test goes. For how to actually <em>write</em> a new test, see
+<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
+<hr />
+<h2 id="how-its-organized">How it's organized<a class="headerlink" href="#how-its-organized" title="Permanent link">&para;</a></h2>
+<p>Every test is a pair of files: <code>&lt;name&gt;.s</code> or <code>&lt;name&gt;.c</code> (the program)
+and <code>&lt;name&gt;.vprj</code> (its expected final state). There are two sub-suites,
+side by side under <code>validation/</code>.</p>
+<ul>
+<li><strong><code>asm/</code></strong><br />
+    230 hand-written assembly tests, one small instruction sequence per
+    test, checking opcodes one at a time: integer ALU ops, control
+    transfer (branches, traps, call, jump, <code>rett</code>), loads and stores
+    (including atomic and coprocessor variants), and floating point.
+    Organized into category subfolders: <code>integer_alu/</code>,
+    <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>, <code>misc/</code>.</li>
+<li><strong><code>C/</code></strong><br />
+    10 self-validating bare-metal C mini-benchmarks, each exercising a
+    sequence of C-level operations together (loops, arrays, structs,
+    global variables) rather than one instruction at a time. See
+    "Self-validating C tests" below.</li>
+</ul>
+<p>Both sub-suites use the same <code>.vprj</code> format and the same two-phase
+build/run pipeline, described below.</p>
+<hr />
+<h2 id="the-vprj-expected-results-format">The <code>.vprj</code> expected-results format<a class="headerlink" href="#the-vprj-expected-results-format" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SOURCES = ADD.s
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>RESULTS =
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>g1=0x00000080
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>o0=0x00000005
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>o2=0xFFFFFFFB
 </span></code></pre></div>
+<p><code>SOURCES</code> names the paired <code>.s</code>/<code>.c</code> file. Each <code>RESULTS</code> line is either
+a register check (<code>&lt;name&gt;=&lt;hex value&gt;</code>) or a memory check
+(<code>m[&lt;hex addr&gt;]=&lt;hex value&gt;</code>, a word-aligned 32-bit read), either kind
+optionally followed by a trailing mask to check only specific bits. See
+<a href="writing_and_running_assembly_programs.html#the-vprj-expected-results-file">Writing and Running Assembly Programs</a>
+for the full field reference.</p>
 <hr />
-<h2 id="cpp_common_code-the-core-itself"><code>cpp_common_code/</code>: the core itself<a class="headerlink" href="#cpp_common_code-the-core-itself" title="Permanent link">&para;</a></h2>
-<p><code>SparcCore</code> is a pure C++ class implementing SPARC V8 instruction
-semantics. This includes decode dispatch, ALU/FPU operations, trap logic
-(<code>checkExternalTraps()</code>, <code>checkInstructionException()</code>, <code>executeTraps()</code>,
-following Appendix C's reference algorithms closely, with section
-citations throughout the source), and the register file (<code>Registers.h</code>,
-including windowed integer registers, <code>f0</code>-<code>f31</code>, and all state
-registers). <strong>It has no notion of cycles, timing, or a driving loop of its
-own.</strong> A driver calls its methods in the right order and supplies memory
-access itself. This is deliberate: it's the one place ISA semantics live,
-shared unmodified by both models below, so a bug fix or new instruction
-benefits both.</p>
-<p>Also here: <code>Decoder</code> (instruction word -&gt; <code>Opcode</code>), <code>MemCore</code> (flat,
-byte-addressed functional memory, used directly by <code>cpp_model</code> and wrapped
-with timing by <code>sitar_model</code>'s <code>MainMemory</code>), <code>FloatingPointFunctions.h</code>
-(IEEE-754 single/double/quad-precision arithmetic, quad via
-<code>libquadmath</code>), and <code>CoreLogger</code> (<code>SparcCore::logger</code>, which formats and,
-depending on how a driver configures it, emits this core's state as a
-trace of architectural events). Both drivers below produce the identical
-trace format, viewable in the <a href="logging.html#the-log-viewer">log viewer</a>.</p>
+<h2 id="self-validating-c-tests">Self-validating C tests<a class="headerlink" href="#self-validating-c-tests" title="Permanent link">&para;</a></h2>
+<p>Every test in <code>validation/C/</code> follows the same shape: compute something,
+compare it against a golden value computed once on the host machine and
+hardcoded right there in the source, and report pass (<code>1</code>) or fail (<code>0</code>)
+in <code>%o0</code>. Its <code>.vprj</code> then only ever has to check <code>o0=1</code>, instead of
+re-embedding the golden value a second time. See
+<a href="writing_and_running_c_programs.html#structuring-a-test-program">Writing and Running C Programs</a>
+for the full convention, and <code>array_sum/array_sum.c</code> for a worked
+example.</p>
+<p>The ten benchmarks:</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>What it computes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>array_sum</code></td>
+<td>Sum of a small int array</td>
+</tr>
+<tr>
+<td><code>matrix_mul</code></td>
+<td>3x3 integer matrix multiply</td>
+</tr>
+<tr>
+<td><code>fft</code></td>
+<td>4-point integer radix-2 FFT</td>
+</tr>
+<tr>
+<td><code>root_finding</code></td>
+<td>Integer square root via Newton-Raphson</td>
+</tr>
+<tr>
+<td><code>integer_sort</code></td>
+<td>Bubble sort</td>
+</tr>
+<tr>
+<td><code>gcd</code></td>
+<td>Euclidean algorithm</td>
+</tr>
+<tr>
+<td><code>fibonacci</code></td>
+<td>Iterative Fibonacci</td>
+</tr>
+<tr>
+<td><code>prime_sieve</code></td>
+<td>Sieve of Eratosthenes</td>
+</tr>
+<tr>
+<td><code>checksum</code></td>
+<td>Byte-array checksum</td>
+</tr>
+<tr>
+<td><code>dot_product</code></td>
+<td>Integer vector dot product</td>
+</tr>
+</tbody>
+</table>
 <hr />
-<h2 id="cpp_model-the-0-delay-functional-driver"><code>cpp_model/</code>: the 0-delay functional driver<a class="headerlink" href="#cpp_model-the-0-delay-functional-driver" title="Permanent link">&para;</a></h2>
-<p><code>SparcStateMachine</code> drives <code>SparcCore</code> through an ordinary
-fetch-decode-execute-trap loop, with <strong>zero modeled latency</strong>. Every
-instruction "completes" in the same iteration it starts. No Sitar
-dependency at all. This is the fast, simple reference to check ISA-level
-correctness against. It's what <code>validation/run_tests.py</code> uses by default.</p>
-<hr />
-<h2 id="sitar_model-the-cycle-timed-driver"><code>sitar_model/</code>: the cycle-timed driver<a class="headerlink" href="#sitar_model-the-cycle-timed-driver" title="Permanent link">&para;</a></h2>
-<p>The same <code>SparcCore</code>, driven through Sitar with a <strong>simple, non-pipelined
-cycle-level timing model</strong>. Structurally:</p>
-<div class="language-sitar highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kd">behavior</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>    <span class="p">[</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>        <span class="k">run</span> <span class="n">sparcThread</span><span class="p">;</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>    <span class="p">||</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>        <span class="k">run</span> <span class="n">mainMemory</span><span class="p">;</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="p">||</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>        <span class="k">wait</span> <span class="k">until</span> (<span class="n">sparcThread</span>.<span class="n">HALT</span>.<span class="n">VALUE</span>)<span class="p">;</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>        <span class="k">wait</span> <span class="k">until</span> (<span class="k">this_phase</span>==<span class="mi">1</span>)<span class="p">;</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>        <span class="g">$</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="g">        log&lt;&lt;endl&lt;&lt;&quot;Core halted.&quot;;</span>
-</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="g">        log&lt;&lt;endl&lt;&lt;sparcThread.printInfo();</span>
-</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="g">        $</span><span class="p">;</span>
-</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>        <span class="k">stop</span> <span class="k">simulation</span><span class="p">;</span>
-</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="p">]</span>
-</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">end</span> <span class="kd">behavior</span>
+<h2 id="running-the-suite">Running the suite<a class="headerlink" href="#running-the-suite" title="Permanent link">&para;</a></h2>
+<p>A two-phase pipeline, so the existing suite can be run without a
+cross-compiler installed at all.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># phase 1 (needs the sparc-elf toolchain): assembles/compiles .s or .c</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># into .hex, only needed when you add or edit a test&#39;s source</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>validation/build_hex.py<span class="w"> </span>validation
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># phase 2: runs the already-built .hex against a model</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>validation/run_tests.py<span class="w"> </span>validation
 </span></code></pre></div>
-<p>This is <code>Core.sitar</code>'s top-level behavior: <code>sparcThread</code> (the state
-machine, which owns <code>SparcCore</code> plus five memory-interface threads for
-ifetch/read/write/atomic/flush) and <code>mainMemory</code> (a persistent procedure
-owning the actual <code>MemCore</code> storage) run as two branches of one <strong>parallel
-block</strong>, communicating through a shared request/response struct, alongside
-a third branch that watches for <code>sparcThread</code> halting (its own procedure
-never returns, it loops forever across <code>RESET</code>/<code>EXECUTE</code>/<code>ERROR</code> by
-design) and stops the simulation once it does. <code>sparcThread</code> and
-<code>mainMemory</code> are procedures on branches of the same parallel block, not
-modules connected by ports/nets. Because of that, their handshake can
-complete within a single phase, meaning zero added cycles, before either
-side's own configured latency is even applied.</p>
-<p>Three independent, additive latency knobs, all ordinary <code>int &gt;= 0</code> values
-with no special-casing at zero (see
-<a href="performance_modeling.html">Performance Modeling</a> for where to set them and
-how to observe the effect):</p>
-<ol>
-<li><strong>Opcode latency</strong>. Charged by <code>SparcThread</code> for every instruction.</li>
-<li><strong><code>MemoryInterface.delay</code></strong>. Per memory-access channel, on the
-   requester side (models interconnect/cache latency).</li>
-<li><strong><code>MainMemory.delay</code></strong>. The memory's own service time, shared by all
-   requesters.</li>
-</ol>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>240/240 tests passed
+</span></code></pre></div>
+<p><code>.hex</code> files are committed to git, so phase 2 alone is enough to run the
+existing suite. Phase 1 is only needed after adding or editing a <code>.s</code>/<code>.c</code>
+source, and also (re)generates that test's <code>.objdump</code>, useful for
+finding addresses, see
+<a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>.</p>
+<p><code>run_tests.py</code> takes a folder, not just the <code>validation</code> root, so you can
+point it at any subset:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/floating_point
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>validation/run_tests.py<span class="w"> </span>validation/C
+</span></code></pre></div>
+<p>It recurses to find <code>.vprj</code> files, so nesting is free.</p>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--sitar</code></td>
+<td>Run against the Sitar-timed model (<code>model/sitar_model/executable/sitar_check_test</code>) instead of the plain C++ model (<code>model/cpp_model/check_test</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+</tr>
+<tr>
+<td><code>--max-cycles N</code></td>
+<td>Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug.</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>Show every check's result, not just failures.</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--sitar<span class="w"> </span>-v
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm/control_transfer<span class="w"> </span>--max-cycles<span class="w"> </span><span class="m">50000</span>
+</span></code></pre></div>
+<p><code>validation/clean.sh [folder]</code> removes generated build byproducts (<code>.o</code>,
+<code>.elf</code>, <code>.expected</code>) without touching <code>.hex</code>/<code>.s</code>/<code>.c</code>/<code>.vprj</code>/<code>.objdump</code>.</p>
 <hr />
-<h2 id="connecting-other-components">Connecting other components<a class="headerlink" href="#connecting-other-components" title="Permanent link">&para;</a></h2>
-<div class="admonition note">
-<p class="admonition-title">Stub</p>
-<p>This section is a placeholder. This project models the core only (see
-<a href="index.html#models">Models</a>). A
-worked example of connecting an external component to it, a cache
-sitting between <code>SparcThread</code>'s memory-interface threads and
-<code>MainMemory</code>, is planned for this page. It will demonstrate the
-general pattern for building a larger Sitar model around this core.
-Until then, the shape of the pattern is already visible in how
-<code>MemoryInterface</code> and <code>MainMemory</code> connect today. They share a
-<code>MemAccessInterface</code> struct plus a request/response valid-bit
-handshake (see <code>model/sitar_model/src/cpp_code/MemAccessInterface.h</code>'s
-header comment for the exact protocol). An interposed cache would be
-another <code>MainMemory</code>-like persistent procedure, itself acting as a
-requester to a further <code>MemoryInterface</code>/<code>MainMemory</code> pair behind it.</p>
-</div>
+<h2 id="where-a-new-test-goes">Where a new test goes<a class="headerlink" href="#where-a-new-test-goes" title="Permanent link">&para;</a></h2>
+<p>For <code>validation/asm/</code>, follow the existing category structure
+(<code>integer_alu/</code>, <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>,
+<code>misc/</code>), putting a new, focused group of tests in its own subfolder
+inside the appropriate category. For <code>validation/C/</code>, add a new sibling
+folder next to the ten above. Either way, <code>run_tests.py</code> and
+<code>build_hex.py</code> both recurse automatically, no registration step needed
+anywhere.</p>
+<hr />
+<h2 id="provenance">Provenance<a class="headerlink" href="#provenance" title="Permanent link">&para;</a></h2>
+<p>Most of <code>validation/asm/</code>'s tests, and the scripts that build and run
+this suite, are adapted from the <strong>AJIT processor project</strong> (IIT
+Bombay), specifically its <code>ajit32</code> instruction-level verification suite.
+Individual test files carry their original author credit inline. See
+<a href="authors.html">Authors</a> for the full attribution, and
+<code>validation/asm/README.md</code> for which tests were adapted as-is versus
+written new for this project (the quad-precision suite, not present in
+AJIT's own tests at all).</p>
+<p>A handful of specific, well-understood divergences between this model's
+behavior and AJIT's own reference results are documented, with
+side-by-side expected-vs-actual data, in <code>docs/compliance/README.md</code>,
+rather than silently patched or dropped. These are kept separate from
+the maintained suite (<code>docs/compliance/</code>, not <code>validation/</code>), since they
+represent understood implementation differences from AJIT's own
+hardware, not bugs in this model.</p>
 
 
 

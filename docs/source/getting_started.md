@@ -176,8 +176,8 @@ Add `--sitar` to run the identical suite against the Sitar-timed model,
 `-v` to see every check (not just failures), or point at a subfolder
 (e.g. `validation/asm` for only the hand-written assembly tests, or
 `validation/C` for only the C mini-benchmarks below) to run a subset. See
-`validation/README.md` for the full pipeline, including how to add a new
-test.
+[Validation Suite](validation_suite.md) for the full pipeline, including
+how to add a new test.
 
 ---
 
