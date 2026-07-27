@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="logging.html">
+        <link rel="prev" href="model_components.html">
       
       
         <link rel="next" href="next_steps.html">
@@ -515,6 +515,34 @@
   
   
     <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examining_core_state_with_gdb.html" class="md-nav__link">
         
   
@@ -612,34 +640,6 @@
     
   
     Model Components
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="logging.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging
   
 
     
@@ -1119,8 +1119,9 @@ alongside the <code>interface = &amp;memInterface</code> wiring:</p>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;
 </span></code></pre></div>
 <p>This writes <code>sparc_trace.log</code> (see <a href="getting_started.html">Getting Started</a>
-and <code>log_viewer/README.md</code>) into the current directory -- its <code>time</code>
-column is exactly the per-instruction cycle count this page is about.
+and <a href="logging.html#the-log-viewer">The log viewer</a>) into the current
+directory. Its <code>time</code> column is exactly the per-instruction cycle count
+this page is about.
 Either open it in <code>log_viewer/viewer.html</code> and read <code>time</code> off
 consecutive <code>FETCH</code> rows directly, or grep it on the command line:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;$4==&quot;FETCH&quot;{print $2, $3, $5}&#39;</span><span class="w"> </span>sparc_trace.log
@@ -1129,12 +1130,12 @@ consecutive <code>FETCH</code> rows directly, or grep it on the command line:</p
 <code>OPCODE_LATENCY_OVERRIDES</code>) and running
 <code>validation/asm/integer_alu/Arithmetic/Add/ADD.hex</code> produces <code>time</code>
 values increasing by 1 between fetches, except right after the <code>ADD</code>
-row, where it jumps by 4 -- exactly the overridden gap. Reverting the
+row, where it jumps by 4, exactly the overridden gap. Reverting the
 override (back to the empty <code>OPCODE_LATENCY_OVERRIDES = {};</code> default) and
 rebuilding restores the uniform 1-cycle spacing.</p>
 <p>For <code>MemoryInterface.delay</code>/<code>MainMemory.delay</code>, look in the <em>other</em> file
 <code>--logging</code> produces, <code>sitar.log</code> (Sitar's own per-request/response
-messages, not part of the architectural trace -- see
+messages, not part of the architectural trace, see
 <code>model/sitar_model/README.md</code>) for <code>"servicing"</code>/<code>"response ready"</code>
 (<code>MainMemory</code>) and <code>"Started memory reference"</code>/<code>"Finished memory
 reference"</code> (<code>MemoryInterface</code>), each timestamped <code>[t=&lt;cycle&gt;]</code>.</p>

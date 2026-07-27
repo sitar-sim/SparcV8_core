@@ -16,7 +16,7 @@
         <link rel="prev" href="examining_core_state_with_gdb.html">
       
       
-        <link rel="next" href="logging.html">
+        <link rel="next" href="performance_modeling.html">
       
       
         
@@ -515,6 +515,34 @@
   
   
     <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examining_core_state_with_gdb.html" class="md-nav__link">
         
   
@@ -711,34 +739,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="logging.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1066,10 +1066,10 @@ benefits both.</p>
 byte-addressed functional memory, used directly by <code>cpp_model</code> and wrapped
 with timing by <code>sitar_model</code>'s <code>MainMemory</code>), <code>FloatingPointFunctions.h</code>
 (IEEE-754 single/double/quad-precision arithmetic, quad via
-<code>libquadmath</code>), and <code>CoreLogger</code> (<code>SparcCore::logger</code> -- formats and,
+<code>libquadmath</code>), and <code>CoreLogger</code> (<code>SparcCore::logger</code>, which formats and,
 depending on how a driver configures it, emits this core's state as a
-trace of architectural events; both drivers below produce the identical
-format, viewable in <code>log_viewer/</code>, see that directory's own <code>README.md</code>).</p>
+trace of architectural events). Both drivers below produce the identical
+trace format, viewable in the <a href="logging.html#the-log-viewer">log viewer</a>.</p>
 <hr />
 <h2 id="cpp_model-the-0-delay-functional-driver"><code>cpp_model/</code>: the 0-delay functional driver<a class="headerlink" href="#cpp_model-the-0-delay-functional-driver" title="Permanent link">&para;</a></h2>
 <p><code>SparcStateMachine</code> drives <code>SparcCore</code> through an ordinary
@@ -1103,7 +1103,7 @@ ifetch/read/write/atomic/flush) and <code>mainMemory</code> (a persistent proced
 owning the actual <code>MemCore</code> storage) run as two branches of one <strong>parallel
 block</strong>, communicating through a shared request/response struct, alongside
 a third branch that watches for <code>sparcThread</code> halting (its own procedure
-never returns -- it loops forever across <code>RESET</code>/<code>EXECUTE</code>/<code>ERROR</code> by
+never returns, it loops forever across <code>RESET</code>/<code>EXECUTE</code>/<code>ERROR</code> by
 design) and stops the simulation once it does. <code>sparcThread</code> and
 <code>mainMemory</code> are procedures on branches of the same parallel block, not
 modules connected by ports/nets. Because of that, their handshake can

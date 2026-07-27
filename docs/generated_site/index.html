@@ -376,6 +376,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#this-repository-also-provides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        This repository also provides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-is-sitar" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -409,10 +420,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-to-go-next" class="md-nav__link">
+  <a href="#validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to go next
+        Validation Suite
       
     </span>
   </a>
@@ -606,6 +617,34 @@
   
   
     <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examining_core_state_with_gdb.html" class="md-nav__link">
         
   
@@ -701,34 +740,6 @@
     
   
     Model Components
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="logging.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging
   
 
     
@@ -975,6 +986,17 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#this-repository-also-provides" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        This repository also provides
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#what-is-sitar" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1008,10 +1030,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-to-go-next" class="md-nav__link">
+  <a href="#validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to go next
+        Validation Suite
       
     </span>
   </a>
@@ -1039,44 +1061,57 @@
 
 
 <h1 id="sitar-model-of-a-sparc-v8-core">Sitar model of a SPARC V8 core<a class="headerlink" href="#sitar-model-of-a-sparc-v8-core" title="Permanent link">&para;</a></h1>
-<p>SPARC (Scalable Processor ARChitecture) is a RISC instruction set
-architecture originally developed at Sun Microsystems, derived from the
-Berkeley RISC I/II research designs. SPARC V8 is the 32-bit revision of
-this architecture, standardized as ANSI/IEEE Std 1754-1994. See the
-<a href="https://en.wikipedia.org/wiki/SPARC">Wikipedia SPARC article</a> for general
-background and history, and "What is SPARC V8?" below for how this project
-relates to the standard.</p>
-<p>This project presents two simulation models of a SPARC V8 processor core.</p>
+<p>This repository provides software <strong>simulation models</strong> of a
+<a href="sparcv8_Architecture_reference_Manual.pdf">SPARC V8</a> processor core.
+SPARC V8 is a 32-bit RISC instruction set architecture, standardized as
+ANSI/IEEE Std 1754-1994.</p>
+<p>Two models of the core are provided.</p>
 <ol>
-<li>A pure C++ functional model. It represents the processor's state and
-   runs an instruction loop, decoding and executing instructions one at a
-   time to update that state exactly as the SPARC V8 manual prescribes.</li>
-<li>A simple timing model, written using a modeling framework called
-   <a href="https://sitar-sim.github.io/sitar/">Sitar</a>, that lets you specify and
-   observe opcode-wise latency, along with separate, independently
-   configurable interconnect and memory latencies.</li>
+<li>
+<p><strong>A C++ only functional model</strong><br />
+    A fast, zero-latency instruction-set simulator of the core.</p>
+</li>
+<li>
+<p><strong>A Sitar cycle-based timing model</strong><br />
+    The same functional core, driven inside a cycle-based timing model
+    built using the <a href="https://sitar-sim.github.io/sitar/">Sitar</a> parallel simulation
+    framework.</p>
+</li>
 </ol>
-<p>The Sitar model of the core can be used as a component, connected together
-with other models (for caches, devices, memory, and so on) to form a larger
-system. Such a system can be simulated in parallel, using the shared-memory
-parallel execution support that the Sitar framework provides.</p>
-<p>The model provided in this repository does not include an MMU, a cache, or
-any peripheral or device model. Only the processor core itself is modeled
-here. A full SoC-level model built around this core is planned as a
-separate repository or version.</p>
-<p>The repository also provides the following.</p>
+<p>Both models provide only the processor core (no MMU/cache/devices). The
+full executable testbenches provided here connect the cores to a simple
+array-like byte addressable memory that allows a user to run programs.
+These models are meant to be used as:</p>
 <ul>
-<li>A bundled SPARC V8 assembler and linker toolchain, used to build test
-  programs for the model (a C compiler can also be built on top of it, see
-  <a href="installation.html">Installation</a>).</li>
-<li>Complete models consisting of the core connected to a simple stub memory,
-  along with documentation showing how to run simple assembly and C
-  programs against them, either by observing state changes directly or with
-  detailed cycle-by-cycle logging.</li>
-<li>A detailed, instruction-level validation suite for the core model,
-  adapted in large part from the AJIT processor project's own test suite
-  (see <a href="model_components.html">Model Components</a> and <code>validation/README.md</code>).</li>
+<li>Educational simulation models, to run programs on the core and observe their execution.<br />
+    ...and, most importantly,  </li>
+<li>As a component in large-scale many-core/SoC cycle based simulation models.</li>
 </ul>
+<h2 id="this-repository-also-provides">This repository also provides<a class="headerlink" href="#this-repository-also-provides" title="Permanent link">&para;</a></h2>
+<ol>
+<li>
+<p><strong>A bundled toolchain</strong><br />
+    For compiling and running programs on the simulated models. See
+    <a href="installation.html">Installation</a>.</p>
+</li>
+<li>
+<p><strong>Extensive support for logging</strong><br />
+    Along with a visualizer tool for stepping through an execution trace
+    and viewing the processor state at each step. Logging can be disabled
+    at compile time, for significantly faster long simulations. See
+    <a href="logging.html">Logging</a>.</p>
+</li>
+<li>
+<p><strong>Intuitive GDB-based runtime inspection of the processor state</strong><br />
+    Independent of logging. See <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using
+    GDB</a>.</p>
+</li>
+<li>
+<p><strong>A large number of assembly and C test programs</strong><br />
+    Serving both as educational examples and as a validation suite for
+    the processor. See "Validation Suite" below.</p>
+</li>
+</ol>
 <hr />
 <h2 id="what-is-sitar">What is Sitar?<a class="headerlink" href="#what-is-sitar" title="Permanent link">&para;</a></h2>
 <p><a href="https://sitar-sim.github.io/sitar/">Sitar</a> is a framework for modeling and
@@ -1093,6 +1128,12 @@ Sitar itself. If you're looking for the modeling language and simulation
 kernel, follow the links above.</p>
 <hr />
 <h2 id="what-is-sparc-v8">What is SPARC V8?<a class="headerlink" href="#what-is-sparc-v8" title="Permanent link">&para;</a></h2>
+<p>SPARC (Scalable Processor ARChitecture) is a RISC instruction set
+architecture originally developed at Sun Microsystems, derived from the
+Berkeley RISC I/II research designs. SPARC V8 is the 32-bit revision of
+this architecture, standardized as ANSI/IEEE Std 1754-1994. See the
+<a href="https://en.wikipedia.org/wiki/SPARC">Wikipedia SPARC article</a> for general
+background and history.</p>
 <p>SPARC's most distinctive architectural feature is a <strong>register window</strong>
 file. A procedure call can get a fresh set of registers without spilling
 to memory, simply by advancing a circular window into a larger physical
@@ -1105,63 +1146,28 @@ throughout the source (<code>model/cpp_common_code/SparcCore.cpp</code> in
 particular).</p>
 <hr />
 <h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
-<p>A SPARC V8 <strong>core</strong> is modeled at two levels, both built on the same
-timing-agnostic core implementation. The core includes an integer unit, a
-floating-point unit (including quad-precision), register windows, and the
-full trap and memory-access instruction set.</p>
-<div class="admonition tip">
-<p class="admonition-title">Two models, one core</p>
-<p>Both models below drive the <em>same</em> <code>SparcCore</code> C++ class
-(<code>model/cpp_common_code/</code>), which implements SPARC V8 instruction
-semantics with no notion of cycles, timing, or pipelining of its own.
-The two models differ only in how they <em>drive</em> it. One applies no
-modeled delay at all. The other drives it through Sitar with a
-configurable, non-pipelined cycle-level timing model. This means a bug
-fix or new instruction in the core is automatically reflected in both.</p>
-</div>
-<ol>
-<li>
-<p><strong>A plain C++ functional model</strong> (<code>model/cpp_model/</code>). This is a
-   fetch-decode-execute loop with zero modeled latency. It is fast and
-   simple, has no Sitar dependency at all, and is useful for pure
-   ISA-correctness testing.</p>
-</li>
-<li>
-<p><strong>A Sitar-timed model</strong> (<code>model/sitar_model/</code>). This drives the same
-   core through Sitar with a <strong>simple, non-pipelined cycle-level timing
-   model</strong>: a fixed, configurable per-opcode delay, plus separate,
-   independently configurable latencies for the memory interconnect and
-   the memory itself, so loads, stores, and instruction fetch can be given
-   realistic, detailed timing without modeling a pipeline.</p>
-</li>
-</ol>
-<p>This repository's own documentation includes one illustrative example of
-connecting an external component (a cache) to the core, as a pattern for
-anyone wanting to build a larger model around it. See
-<a href="model_components.html#connecting-other-components">Model Components</a> for a
-stub of this (not yet a full worked example).</p>
-<p>Both models are validated against the same instruction-level assembly test
-suite, and against a suite of self-validating bare-metal C mini-benchmarks.
+<p>Both models described above are built on the same core implementation
+(<code>model/cpp_common_code/</code>): an integer unit, a floating-point unit
+(including quad-precision), register windows, and the full trap and
+memory-access instruction set, with no notion of cycles, timing, or
+pipelining of its own. The two models differ only in how they drive this
+common code.</p>
+<ul>
+<li><strong>The C++ only functional model</strong> lives in <code>model/cpp_model/</code>.</li>
+<li><strong>The Sitar cycle-based timing model</strong> lives in <code>model/sitar_model/</code>.</li>
+</ul>
+<p>Because both models drive the same underlying code, a bug fix or new
+instruction in the core is automatically reflected in both.</p>
+<p>See <a href="model_components.html">Model Components</a> for how the core, the
+memory, and any other components fit together, including a stub example
+of connecting an external component such as a cache.</p>
+<hr />
+<h2 id="validation-suite">Validation Suite<a class="headerlink" href="#validation-suite" title="Permanent link">&para;</a></h2>
+<p><em>(stub, more detail to come)</em></p>
+<p>A large number of assembly and C test programs validate both models,
+adapted in large part from the AJIT processor project's own test suite.
 See <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
 and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
-<hr />
-<h2 id="where-to-go-next">Where to go next<a class="headerlink" href="#where-to-go-next" title="Permanent link">&para;</a></h2>
-<ul>
-<li>New to this project? Start with <a href="installation.html">Installation</a> and
-  <a href="getting_started.html">Getting Started</a>.</li>
-<li>Want to write your own test program? See
-  <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
-  and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</li>
-<li>Want to understand how the pieces fit together? See
-  <a href="model_components.html">Model Components</a>.</li>
-<li>Want to change the timing model? See
-  <a href="performance_modeling.html">Performance Modeling</a>.</li>
-<li>Want to watch a program execute, or narrow a trace down to the part you
-  care about? See <a href="logging.html">Logging</a>.</li>
-<li>Want to break on a specific PC/register/memory condition and inspect
-  state directly, without a full trace? See
-  <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</li>
-</ul>
 
 
 

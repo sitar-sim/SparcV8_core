@@ -1,45 +1,48 @@
 # Sitar model of a SPARC V8 core
 
-SPARC (Scalable Processor ARChitecture) is a RISC instruction set
-architecture originally developed at Sun Microsystems, derived from the
-Berkeley RISC I/II research designs. SPARC V8 is the 32-bit revision of
-this architecture, standardized as ANSI/IEEE Std 1754-1994. See the
-[Wikipedia SPARC article](https://en.wikipedia.org/wiki/SPARC) for general
-background and history, and "What is SPARC V8?" below for how this project
-relates to the standard.
+This repository provides software **simulation models** of a
+[SPARC V8](sparcv8_Architecture_reference_Manual.pdf) processor core.
+SPARC V8 is a 32-bit RISC instruction set architecture, standardized as
+ANSI/IEEE Std 1754-1994.
 
-This project presents two simulation models of a SPARC V8 processor core.
+Two models of the core are provided.
 
-1. A pure C++ functional model. It represents the processor's state and
-   runs an instruction loop, decoding and executing instructions one at a
-   time to update that state exactly as the SPARC V8 manual prescribes.
-2. A simple timing model, written using a modeling framework called
-   [Sitar](https://sitar-sim.github.io/sitar/), that lets you specify and
-   observe opcode-wise latency, along with separate, independently
-   configurable interconnect and memory latencies.
+1. **A C++ only functional model**  
+    A fast, zero-latency instruction-set simulator of the core.
 
-The Sitar model of the core can be used as a component, connected together
-with other models (for caches, devices, memory, and so on) to form a larger
-system. Such a system can be simulated in parallel, using the shared-memory
-parallel execution support that the Sitar framework provides.
+2. **A Sitar cycle-based timing model**  
+    The same functional core, driven inside a cycle-based timing model
+    built using the [Sitar](https://sitar-sim.github.io/sitar/) parallel simulation
+    framework.
 
-The model provided in this repository does not include an MMU, a cache, or
-any peripheral or device model. Only the processor core itself is modeled
-here. A full SoC-level model built around this core is planned as a
-separate repository or version.
+Both models provide only the processor core (no MMU/cache/devices). The
+full executable testbenches provided here connect the cores to a simple
+array-like byte addressable memory that allows a user to run programs.
+These models are meant to be used as:
 
-The repository also provides the following.
+- Educational simulation models, to run programs on the core and observe their execution.  
+    ...and, most importantly,  
+- As a component in large-scale many-core/SoC cycle based simulation models.
 
-- A bundled SPARC V8 assembler and linker toolchain, used to build test
-  programs for the model (a C compiler can also be built on top of it, see
-  [Installation](installation.md)).
-- Complete models consisting of the core connected to a simple stub memory,
-  along with documentation showing how to run simple assembly and C
-  programs against them, either by observing state changes directly or with
-  detailed cycle-by-cycle logging.
-- A detailed, instruction-level validation suite for the core model,
-  adapted in large part from the AJIT processor project's own test suite
-  (see [Model Components](model_components.md) and `validation/README.md`).
+## This repository also provides
+
+1. **A bundled toolchain**  
+    For compiling and running programs on the simulated models. See
+    [Installation](installation.md).
+
+2. **Extensive support for logging**  
+    Along with a visualizer tool for stepping through an execution trace
+    and viewing the processor state at each step. Logging can be disabled
+    at compile time, for significantly faster long simulations. See
+    [Logging](logging.md).
+
+3. **Intuitive GDB-based runtime inspection of the processor state**  
+    Independent of logging. See [Examining Core State at Runtime Using
+    GDB](examining_core_state_with_gdb.md).
+
+4. **A large number of assembly and C test programs**  
+    Serving both as educational examples and as a validation suite for
+    the processor. See "Validation Suite" below.
 
 ---
 
@@ -62,6 +65,13 @@ kernel, follow the links above.
 
 ## What is SPARC V8?
 
+SPARC (Scalable Processor ARChitecture) is a RISC instruction set
+architecture originally developed at Sun Microsystems, derived from the
+Berkeley RISC I/II research designs. SPARC V8 is the 32-bit revision of
+this architecture, standardized as ANSI/IEEE Std 1754-1994. See the
+[Wikipedia SPARC article](https://en.wikipedia.org/wiki/SPARC) for general
+background and history.
+
 SPARC's most distinctive architectural feature is a **register window**
 file. A procedure call can get a fresh set of registers without spilling
 to memory, simply by advancing a circular window into a larger physical
@@ -78,58 +88,30 @@ particular).
 
 ## Models
 
-A SPARC V8 **core** is modeled at two levels, both built on the same
-timing-agnostic core implementation. The core includes an integer unit, a
-floating-point unit (including quad-precision), register windows, and the
-full trap and memory-access instruction set.
+Both models described above are built on the same core implementation
+(`model/cpp_common_code/`): an integer unit, a floating-point unit
+(including quad-precision), register windows, and the full trap and
+memory-access instruction set, with no notion of cycles, timing, or
+pipelining of its own. The two models differ only in how they drive this
+common code.
 
-!!! tip "Two models, one core"
-    Both models below drive the *same* `SparcCore` C++ class
-    (`model/cpp_common_code/`), which implements SPARC V8 instruction
-    semantics with no notion of cycles, timing, or pipelining of its own.
-    The two models differ only in how they *drive* it. One applies no
-    modeled delay at all. The other drives it through Sitar with a
-    configurable, non-pipelined cycle-level timing model. This means a bug
-    fix or new instruction in the core is automatically reflected in both.
+- **The C++ only functional model** lives in `model/cpp_model/`.
+- **The Sitar cycle-based timing model** lives in `model/sitar_model/`.
 
-1. **A plain C++ functional model** (`model/cpp_model/`). This is a
-   fetch-decode-execute loop with zero modeled latency. It is fast and
-   simple, has no Sitar dependency at all, and is useful for pure
-   ISA-correctness testing.
+Because both models drive the same underlying code, a bug fix or new
+instruction in the core is automatically reflected in both.
 
-2. **A Sitar-timed model** (`model/sitar_model/`). This drives the same
-   core through Sitar with a **simple, non-pipelined cycle-level timing
-   model**: a fixed, configurable per-opcode delay, plus separate,
-   independently configurable latencies for the memory interconnect and
-   the memory itself, so loads, stores, and instruction fetch can be given
-   realistic, detailed timing without modeling a pipeline.
-
-This repository's own documentation includes one illustrative example of
-connecting an external component (a cache) to the core, as a pattern for
-anyone wanting to build a larger model around it. See
-[Model Components](model_components.md#connecting-other-components) for a
-stub of this (not yet a full worked example).
-
-Both models are validated against the same instruction-level assembly test
-suite, and against a suite of self-validating bare-metal C mini-benchmarks.
-See [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
-and [Writing and Running C Programs](writing_and_running_c_programs.md).
+See [Model Components](model_components.md) for how the core, the
+memory, and any other components fit together, including a stub example
+of connecting an external component such as a cache.
 
 ---
 
-## Where to go next
+## Validation Suite
 
-- New to this project? Start with [Installation](installation.md) and
-  [Getting Started](getting_started.md).
-- Want to write your own test program? See
-  [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
-  and [Writing and Running C Programs](writing_and_running_c_programs.md).
-- Want to understand how the pieces fit together? See
-  [Model Components](model_components.md).
-- Want to change the timing model? See
-  [Performance Modeling](performance_modeling.md).
-- Want to watch a program execute, or narrow a trace down to the part you
-  care about? See [Logging](logging.md).
-- Want to break on a specific PC/register/memory condition and inspect
-  state directly, without a full trace? See
-  [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
+*(stub, more detail to come)*
+
+A large number of assembly and C test programs validate both models,
+adapted in large part from the AJIT processor project's own test suite.
+See [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+and [Writing and Running C Programs](writing_and_running_c_programs.md).

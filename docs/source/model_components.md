@@ -31,10 +31,10 @@ Also here: `Decoder` (instruction word -> `Opcode`), `MemCore` (flat,
 byte-addressed functional memory, used directly by `cpp_model` and wrapped
 with timing by `sitar_model`'s `MainMemory`), `FloatingPointFunctions.h`
 (IEEE-754 single/double/quad-precision arithmetic, quad via
-`libquadmath`), and `CoreLogger` (`SparcCore::logger` -- formats and,
+`libquadmath`), and `CoreLogger` (`SparcCore::logger`, which formats and,
 depending on how a driver configures it, emits this core's state as a
-trace of architectural events; both drivers below produce the identical
-format, viewable in `log_viewer/`, see that directory's own `README.md`).
+trace of architectural events). Both drivers below produce the identical
+trace format, viewable in the [log viewer](logging.md#the-log-viewer).
 
 ---
 
@@ -77,7 +77,7 @@ ifetch/read/write/atomic/flush) and `mainMemory` (a persistent procedure
 owning the actual `MemCore` storage) run as two branches of one **parallel
 block**, communicating through a shared request/response struct, alongside
 a third branch that watches for `sparcThread` halting (its own procedure
-never returns -- it loops forever across `RESET`/`EXECUTE`/`ERROR` by
+never returns, it loops forever across `RESET`/`EXECUTE`/`ERROR` by
 design) and stops the simulation once it does. `sparcThread` and
 `mainMemory` are procedures on branches of the same parallel block, not
 modules connected by ports/nets. Because of that, their handshake can
