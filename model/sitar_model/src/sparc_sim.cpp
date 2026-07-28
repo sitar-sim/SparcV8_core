@@ -1,20 +1,27 @@
-//sitar_check_test.cpp
+//sparc_sim.cpp
 //Author: Neha Karanjkar
 //
-//Sitar-driven counterpart to model/cpp_model/check_test.cpp -- same job
-//(load a hex-dump memory image, run to halt or a cycle limit, check final
-//register/memory state against an expected-results file, print PASS/FAIL
-//per check and an OVERALL verdict), but drives the actual Sitar
+//Builds sparc_sim_sitar: the Sitar-driven counterpart to
+//model/cpp_model's sparc_sim_cpp -- same job (load a hex-dump memory
+//image, run to halt or a cycle limit, either just report the final state
+//or, if given an expected-results file, check it and print PASS/FAIL per
+//check and an OVERALL verdict), but drives the actual Sitar
 //Top/Core/SparcThread model instead of the standalone C++
 //SparcStateMachine. This is the `-m` custom main file for `sitar compile`
 //-- see build.py.
 //
-//Kept as a near-duplicate of check_test.cpp (same CLI, same expected-file
-//format, same output format) rather than a shared library, so that
-//validation/run_tests.py can point at either binary interchangeably (see
-//its --sitar flag) with zero changes to the test-comparison logic itself.
+//Kept as a near-duplicate of sparc_sim_cpp's source (same CLI, same
+//expected-file format, same output format) rather than a shared library,
+//so that validation/run_tests.py can point at either binary
+//interchangeably (see its --sitar flag) with zero changes to the
+//test-comparison logic itself.
 //
-//Usage: sitar_check_test <hex_file> <expected_file> [max_cycles]
+//expected_file is optional, exactly as in sparc_sim_cpp: pass "" (or
+//omit it, along with max_cycles) to skip validation and just run the
+//program, printing the final processor state instead of
+//PASS/FAIL/OVERALL.
+//
+//Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles]
 
 #include "Top.h"
 #include "Registers.h"
@@ -29,8 +36,7 @@
 #ifdef SITAR_ENABLE_LOGGING
 //Recursively points every submodule/procedure's log stream at `stream`.
 //Only needed when build.py is run with --logging (off by default, since
-//normal check_test runs don't want per-cycle trace noise); identical to
-//the helper of the same name in sitar_default_main.cpp.
+//a normal run doesn't want per-cycle trace noise).
 static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
 {
 	m->log.setOstream(stream);
@@ -41,9 +47,27 @@ static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
 }
 #endif
 
+//Derives the trace filename from the hex file's own name. (Identical to
+//cpp_model's sparc_sim.cpp copy, see that one's own comment for why.)
+static std::string traceFileName(const std::string& hexFile)
+{
+	std::string base = hexFile;
+	std::string::size_type slash = base.find_last_of("/\\");
+	if (slash != std::string::npos)
+		base = base.substr(slash + 1);
+
+	const std::string suffix = ".hex";
+	if (base.size() >= suffix.size() &&
+	    base.compare(base.size() - suffix.size(), suffix.size(), suffix) == 0)
+		base = base.substr(0, base.size() - suffix.size());
+
+	return base + ".log";
+}
+
 //Maps a RESULTS-block register mnemonic to its value in the current window.
-//Returns false if the name isn't recognized. (Identical to check_test.cpp's
-//copy -- Registers.h is the same shared cpp_common_code either way.)
+//Returns false if the name isn't recognized. (Identical to cpp_model's
+//sparc_sim.cpp copy -- Registers.h is the same shared cpp_common_code
+//either way.)
 static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& value)
 {
 	if (name.size() >= 2 && (name[0] == 'g' || name[0] == 'o' || name[0] == 'l' || name[0] == 'i')
@@ -84,14 +108,14 @@ static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& 
 
 int main(int argc, char** argv)
 {
-	if (argc < 3)
+	if (argc < 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <hex_file> <expected_file> [max_cycles]\n";
+		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles]\n";
 		return 1;
 	}
 
 	std::string   hexFile      = argv[1];
-	std::string   expectedFile = argv[2];
+	std::string   expectedFile = (argc >= 3) ? argv[2] : "";
 	unsigned long maxCycles    = (argc >= 4) ? std::strtoul(argv[3], NULL, 10) : 1000000UL;
 
 	using namespace sitar;
@@ -123,8 +147,9 @@ int main(int argc, char** argv)
 	//other module gets (see sitar_module.cpp's setLogPrefix()) turned
 	//off, so the result is directly loadable into log_viewer/ with no
 	//extraction/stripping needed first. Same filename convention as
-	//the cpp model's --logging build -- see model/cpp_model/main.cpp.
-	std::ofstream sparcTraceFile("sparc_trace.log");
+	//the cpp model's --logging build -- see model/cpp_model/sparc_sim.cpp.
+	std::string traceFile = traceFileName(hexFile);
+	std::ofstream sparcTraceFile(traceFile.c_str());
 	if (sparcTraceFile.is_open())
 	{
 		TOP->core.sparcThread.log.setOstream(&sparcTraceFile);
@@ -139,7 +164,7 @@ int main(int argc, char** argv)
 	}
 	else
 	{
-		std::cerr << "warning: could not open sparc_trace.log for writing; sparcThread's trace will go to stderr instead\n";
+		std::cerr << "warning: could not open " << traceFile << " for writing; sparcThread's trace will go to stderr instead\n";
 	}
 #endif
 
@@ -156,12 +181,31 @@ int main(int argc, char** argv)
 			break;
 	}
 
-	if (!TOP->core.sparcThread.HALT.VALUE)
+	bool          halted        = TOP->core.sparcThread.HALT.VALUE;
+	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
+
+	//No expected-results file: just run the program and report the
+	//final state, the same idea as cpp_model's sparc_sim_cpp. Nothing
+	//here is a pass/fail check, so PASS/FAIL/OVERALL don't apply.
+	if (expectedFile.empty())
+	{
+		std::cout << "\n" << TOP->core.sparcThread.core.logger.print_state() << "\n";
+		if (halted)
+			std::cout << "Simulation halted after " << cyclesExecuted << " cycles.\n";
+		else
+			std::cout << "Simulation stopped: cycle limit (" << maxCycles
+			          << ") reached without halting.\n";
+		return halted ? 0 : 1;
+	}
+
+	if (!halted)
 	{
 		std::cout << "FAIL: core did not halt within " << maxCycles << " cycles\n";
 		std::cout << "OVERALL: FAIL (0 checks)\n";
 		return 1;
 	}
+
+	std::cout << "\n";
 
 	std::ifstream in(expectedFile.c_str());
 	if (!in.is_open())

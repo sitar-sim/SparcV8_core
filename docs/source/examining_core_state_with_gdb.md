@@ -1,7 +1,7 @@
 # Examining Core State at Runtime Using GDB
 
 Both models are, underneath everything else, plain host C++ programs
-(`sparc_cpp_sim`/`check_test`, `sitar_check_test`). That means the host's
+(`sparc_sim_cpp`, `sparc_sim_sitar`). That means the host's
 own `gdb` can attach to them directly. No cross-debugger and no special
 protocol are needed. It can step through simulated SPARC execution one
 instruction at a time, break on a specific PC/register/memory condition,
@@ -87,7 +87,7 @@ every one):
 
 ```sh
 model/cpp_model/build.sh --debug
-gdb model/cpp_model/sparc_cpp_sim
+gdb model/cpp_model/sparc_sim_cpp
 ```
 
 ```
@@ -163,13 +163,12 @@ o0 = 0x1 (1)
 ```
 
 **Sitar model**: everything above works identically against
-`model/sitar_model/executable/sitar_check_test` (built with
-`model/sitar_model/build.py --debug`), same commands, same addresses.
-Both models drive the same `SparcCore`, and the debug hooks live in the
-shared `cpp_common_code/`, not in either driver. The only difference is
-the CLI takes an extra expected-results argument:
+`model/sitar_model/executable/sparc_sim_sitar` (built with
+`model/sitar_model/build.py --debug`), same commands, same addresses,
+same CLI. Both models drive the same `SparcCore`, and the debug hooks
+live in the shared `cpp_common_code/`, not in either driver.
 ```sh
-gdb model/sitar_model/executable/sitar_check_test
+gdb model/sitar_model/executable/sparc_sim_sitar
 (gdb) source debug/sparc.gdb
 (gdb) sparc-break pc=0x203c
 (gdb) run docs/source/examples/array_sum/array_sum.hex docs/source/examples/array_sum/array_sum.expected

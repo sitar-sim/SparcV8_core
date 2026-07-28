@@ -18,18 +18,18 @@ for this model must be **freestanding**: no `#!c #include <stdio.h>`, no
 libc at all, just the C language itself plus whatever you implement by
 hand against the flat memory space `MemCore` provides.
 
-This is the same reason `model/cpp_model/main.cpp`'s driver doesn't try to
-model a console. There's genuinely nothing on the other end of one yet.
+This is the same reason `model/cpp_model/sparc_sim.cpp`'s driver doesn't
+try to model a console. There's genuinely nothing on the other end of
+one yet.
 
 ---
 
 ## Toolchain
 
 A minimal, freestanding C compiler (GCC 4.4.3) is bundled alongside the
-existing `sparc-elf` assembler, linker, `readelf`, and `objdump` (see
-[Installation](installation.md)). It exists for one narrow purpose:
-building this project's own `validation/C/` tests, with no setup beyond
-installing the bundled toolchain.
+existing `sparc-elf` assembler, linker, `readelf`, and `objdump`. See
+[Cross Compiler](cross_compiler.md) for what's bundled and why, and for
+building your own, more modern cross-toolchain instead.
 
 ```sh
 compiler/compile_c.sh your_program.c
@@ -44,26 +44,12 @@ something you wrote directly), followed by the full symbol table,
 function and global-variable addresses included. See
 [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses).
 
-See `compiler/README.md` for exactly what's bundled and why. If you want
-to write more serious C programs of your own, rather than just work with
-this project's own test suite, build a proper, modern, actively-supported
-cross-compiler instead, with [Buildroot](http://buildroot.uclibc.org/download.html):
+Run it directly against the model the same way as an assembly test, see
+[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#building-and-running-it):
 
 ```sh
-# download and extract Buildroot, then:
-make qemu_sparc_ss10_defconfig && make menuconfig
-# under "Toolchain", enable "Build cross gdb for the host" if you want a
-# cross gdb, for debugging a *target* SPARC binary running under, say,
-# QEMU. Unrelated to this repo's own gdb support (see "Examining Core
-# State at Runtime Using GDB"), which uses the *host's* own gdb directly
-# on the host-native simulator process. No cross gdb needed for that.
-make      # downloads and builds everything, takes a while
+model/cpp_model/sparc_sim_cpp your_program.hex
 ```
-
-The resulting tools (`sparc-linux-gcc`, `sparc-linux-as`, ...) end up in
-`<buildroot>/output/host/usr/bin`. Add that to your `PATH`. See
-`compiler/README.md` for the full note, including a link to the original
-writeup this is based on.
 
 ---
 
@@ -136,7 +122,7 @@ The alternative, writing a raw computed value to a global and checking it
 directly via a `.vprj` `MEM` line (the address found in
 `your_program.objdump`'s symbol table, or `readelf -s your_program.elf`
 directly), still works. It's the same [`REG`/`MEM`
-format](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
+format](validation_suite.md#the-vprj-expected-results-format)
 `validation/asm/` uses, but means the golden value is embedded in two
 places (the `.vprj` and, if the test computes its own pass/fail, the
 source) instead of one. Doing the comparison in C and reporting a single
@@ -150,7 +136,6 @@ algorithms.
 ## Running the tests
 
 Same two-phase pipeline as `validation/asm/`, see
-[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#running-it)
-and `validation/README.md`. `build_hex.py` picks `compiler/assemble.sh` or
-`compiler/compile_c.sh` automatically, based on whether a test's `SOURCES`
-line names a `.s` or a `.c` file.
+[Validation Suite](validation_suite.md#running-the-suite). `build_hex.py`
+picks `compiler/assemble.sh` or `compiler/compile_c.sh` automatically,
+based on whether a test's `SOURCES` line names a `.s` or a `.c` file.

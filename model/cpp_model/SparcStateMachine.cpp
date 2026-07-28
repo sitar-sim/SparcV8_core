@@ -148,7 +148,7 @@ void SparcStateMachine::runOneCycle()
 
 	//Instruction fully executed, PC/nPC not yet advanced -- see
 	//DebugHooks.h/CoreLogger.h's file comments for why this exact point.
-	core.logger.log_generic(cyclesExecuted, "EXECUTED", "");
+	core.logger.log_execute(cyclesExecuted, op);
 	debug_hook_after_execute(core, op);
 
 	//Update PC/nPC, unless this was a branching instruction (which updates

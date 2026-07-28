@@ -17,6 +17,12 @@
     --rowline:#232b36;
     --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
     --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    /* Per-event-type trace colors -- see the .evt-* rules below. */
+    --evt-green:#7cc576;
+    --evt-orange:#e2925c;
+    --evt-red:#e0585a;
+    --evt-purple:#a993e0;
+    --evt-blue:#5f9fe0;
   }
   :root[data-theme="light"]{
     --bg:#f5f6f8;
@@ -29,6 +35,11 @@
     --sel:#e3edf5;
     --hover:#eef1f5;
     --rowline:#e2e6ec;
+    --evt-green:#2f7a3d;
+    --evt-orange:#b35a1a;
+    --evt-red:#b23b3b;
+    --evt-purple:#6a4fb0;
+    --evt-blue:#2665a3;
   }
   *{box-sizing:border-box}
   html,body{height:100%;margin:0;background:var(--bg);color:var(--text);font-family:var(--mono);}
@@ -98,8 +109,24 @@
   tbody tr.matched td.col-pc{outline:1px solid var(--amber);outline-offset:-1px;}
   td.col-pc{color:#9fb2c9;}
   td.col-time{color:var(--dim);}
-  td.col-event{color:var(--amber);}
+  td.col-event{color:var(--amber);font-weight:700;}
   td.col-detail{color:var(--dim);}
+
+  /* Per-event-type coloring for the Trace panel's event column. Grouped
+     by what the event means, not one color per name: FETCH/EXECUTED (the
+     per-instruction pair) share amber/green, the two trap events share
+     orange, HALT gets its own red (it's always the last row), RESET its
+     own purple, the memory-access events share blue, and the rare
+     ANNUL/FLUSH events are left at the plain default above, not worth a
+     dedicated color for how seldom they appear. */
+  td.col-event.evt-EXECUTED{color:var(--evt-green);}
+  td.col-event.evt-TRAP_RAISED,
+  td.col-event.evt-TRAP_ENTER{color:var(--evt-orange);}
+  td.col-event.evt-HALT{color:var(--evt-red);}
+  td.col-event.evt-RESET{color:var(--evt-purple);}
+  td.col-event.evt-MEM_READ,
+  td.col-event.evt-MEM_WRITE,
+  td.col-event.evt-ATOMIC{color:var(--evt-blue);}
 
   #objdumpView{flex:1;overflow-y:auto;min-height:0;background:var(--panel);padding:8px 0;font-size:12px;}
   .objline{padding:2px 12px;white-space:pre;}
@@ -279,6 +306,8 @@ function buildLeftTable(){
     SEQ_COLS.forEach(c=>{
       const td = document.createElement("td");
       td.className = "col-"+c;
+      if (c === "event")
+        td.classList.add("evt-"+r[c]);
       td.textContent = r[c];
       tr.appendChild(td);
     });

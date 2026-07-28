@@ -2181,6 +2181,48 @@ std::string SparcCore::printTrap()
 	return trap_name;
 };
 
+__attribute__((optimize("O0")))
+std::string SparcCore::trapTypeName(uint32_t tt)
+{
+	//Mirrors selectTrap()'s own encoding exactly (same file, above):
+	//each case here is the identical bit pattern selectTrap() writes
+	//into tt for that trap. None of selectTrap()'s branches ever write
+	//0, so tt==0 uniquely identifies the reset trap (TBR's power-on
+	//value, before selectTrap() has run for the first time).
+	if (tt == 0)
+		return "reset trap";
+	if (tt & 0x80)
+		return "trap_instruction(" + ToString(tt & 0x7F) + ")";
+	if ((tt & 0xF0) == 0x10)
+		return "external_interrupt(" + ToString(tt & 0x0F) + ")";
+
+	switch (tt)
+	{
+		case 0x01: return "instruction_access_exception";
+		case 0x02: return "illegal_instruction";
+		case 0x03: return "privileged_instruction";
+		case 0x04: return "fp_disabled";
+		case 0x05: return "window_overflow";
+		case 0x06: return "window_underflow";
+		case 0x07: return "mem_address_not_aligned";
+		case 0x08: return "fp_exception";
+		case 0x09: return "data_access_exception";
+		case 0x0A: return "tag_overflow";
+		case 0x20: return "r_register_access_error";
+		case 0x21: return "instruction_access_error";
+		case 0x24: return "cp_disabled";
+		case 0x25: return "unimplemented_FLUSH";
+		case 0x28: return "cp_exception";
+		case 0x29: return "data_access_error";
+		case 0x2A: return "division_by_zero";
+		case 0x2B: return "data_store_error";
+	}
+
+	std::stringstream ss;
+	ss << "unknown(0x" << std::hex << tt << ")";
+	return ss.str();
+};
+
 
 
 

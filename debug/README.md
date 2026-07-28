@@ -1,7 +1,7 @@
 # debug/
 
 `sparc.gdb` -- convenience commands for examining a running
-`sparc_cpp_sim`/`sitar_check_test` (built with `--debug`, see
+`sparc_sim_cpp`/`sparc_sim_sitar` (built with `--debug`, see
 `model/cpp_model/build.sh`/`model/sitar_model/build.py`) under host gdb.
 
 ## Why this file exists
@@ -35,7 +35,7 @@ Load it once per gdb session:
 or non-interactively:
 
 ```
-gdb -x debug/sparc.gdb ./sparc_cpp_sim
+gdb -x debug/sparc.gdb ./sparc_sim_cpp
 ```
 
 `sparc-list` at any point shows every sparc-\* breakpoint/watchpoint

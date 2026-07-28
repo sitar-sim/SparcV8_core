@@ -42,9 +42,14 @@ trace format, viewable in the [log viewer](logging.md#the-log-viewer).
 
 `SparcStateMachine` drives `SparcCore` through an ordinary
 fetch-decode-execute-trap loop, with **zero modeled latency**. Every
-instruction "completes" in the same iteration it starts. No Sitar
-dependency at all. This is the fast, simple reference to check ISA-level
-correctness against. It's what `validation/run_tests.py` uses by default.
+instruction "completes" in the same iteration it starts, and that
+iteration, one complete instruction execution, is counted and reported
+as 1 "cycle" by `sparc_sim_cpp` (see `--max-cycles`/its halt message).
+This is purely an iteration count, with no notion of how long a real
+instruction or memory access would actually take, unlike the Sitar model
+below where a cycle is an actual elapsed clock cycle. No Sitar dependency
+at all. This is the fast, simple reference to check ISA-level correctness
+against. It's what `validation/run_tests.py` uses by default.
 
 ---
 

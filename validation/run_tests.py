@@ -14,9 +14,9 @@ Point this at any subfolder to run only a subset of the suite, e.g.:
     validation/run_tests.py validation/asm/floating_point
     validation/run_tests.py validation/asm/integer_alu/Arithmetic
 
-By default this drives model/cpp_model/check_test (the plain C++ core +
+By default this drives model/cpp_model/sparc_sim_cpp (the plain C++ core +
 SparcStateMachine, no Sitar). Pass --sitar to instead drive
-model/sitar_model/executable/sitar_check_test (the actual Sitar
+model/sitar_model/executable/sparc_sim_sitar (the actual Sitar
 Top/Core/SparcThread model) -- same CLI, same expected-results format, same
 PASS/FAIL/OVERALL output, so the exact same suite runs against either model
 unchanged; see model/sitar_model/build.py to build it.
@@ -33,8 +33,8 @@ import sys
 
 import vprj
 
-CHECK_TEST_CPP   = os.path.join(vprj.REPO_ROOT, 'model', 'cpp_model', 'check_test')
-CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'sitar_model', 'executable', 'sitar_check_test')
+CHECK_TEST_CPP   = os.path.join(vprj.REPO_ROOT, 'model', 'cpp_model', 'sparc_sim_cpp')
+CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'sitar_model', 'executable', 'sparc_sim_sitar')
 
 
 def run_one_test(vprj_path, max_cycles, env, check_test):
@@ -65,8 +65,8 @@ def main():
     ap.add_argument('--max-cycles', type=int, default=10000, help="cycle limit per test (default: 10000)")
     ap.add_argument('-v', '--verbose', action='store_true', help="show per-check output for every test, not just failures")
     ap.add_argument('--sitar', action='store_true',
-                     help="drive model/sitar_model/executable/sitar_check_test (the actual Sitar model) "
-                          "instead of model/cpp_model/check_test (the default)")
+                     help="drive model/sitar_model/executable/sparc_sim_sitar (the actual Sitar model) "
+                          "instead of model/cpp_model/sparc_sim_cpp (the default)")
     args = ap.parse_args()
 
     check_test = CHECK_TEST_SITAR if args.sitar else CHECK_TEST_CPP

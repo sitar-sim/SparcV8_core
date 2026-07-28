@@ -25,9 +25,9 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`pip install` also pulls in the vendored Pygments lexer used for Sitar
-syntax highlighting (the `-e ./sitar_pygments_lexer` line inside
-`requirements.txt`).
+`pip install` also pulls in the two vendored Pygments lexers used for
+Sitar and SPARC assembly syntax highlighting (the `-e ./sitar_pygments_lexer`
+and `-e ./sparc_pygments_lexer` lines inside `requirements.txt`).
 
 With the venv active, still from `docs/`:
 

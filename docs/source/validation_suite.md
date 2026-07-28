@@ -1,10 +1,10 @@
 # Validation Suite
 
-`validation/` holds this project's functional validation suite: 240
-tests that check the core's instruction-level behavior against the SPARC
-V8 manual. There are no timing tests here. Both models drive the exact
-same `SparcCore` (see [Models](index.md#models)), so this one suite
-validates both, and catches a regression in either.
+`validation/` holds this project's functional validation suite: a large
+number of tests that check the core's instruction-level behavior against
+the SPARC V8 manual. There are no timing tests here. Both models drive
+the exact same `SparcCore` (see [Models](index.md#models)), so this one
+suite validates both, and catches a regression in either.
 
 This page covers how the suite itself is put together, how to run it,
 and where a new test goes. For how to actually *write* a new test, see
@@ -20,20 +20,26 @@ and `<name>.vprj` (its expected final state). There are two sub-suites,
 side by side under `validation/`.
 
 - **`asm/`**  
-    230 hand-written assembly tests, one small instruction sequence per
+    Hand-written assembly tests, one small instruction sequence per
     test, checking opcodes one at a time: integer ALU ops, control
     transfer (branches, traps, call, jump, `rett`), loads and stores
     (including atomic and coprocessor variants), and floating point.
     Organized into category subfolders: `integer_alu/`,
     `floating_point/`, `control_transfer/`, `data_transfer/`, `misc/`.
 - **`C/`**  
-    10 self-validating bare-metal C mini-benchmarks, each exercising a
+    Self-validating bare-metal C mini-benchmarks, each exercising a
     sequence of C-level operations together (loops, arrays, structs,
     global variables) rather than one instruction at a time. See
     "Self-validating C tests" below.
 
 Both sub-suites use the same `.vprj` format and the same two-phase
 build/run pipeline, described below.
+
+`test_simple_ADD/` sits alongside them, one more `.vprj` test, but its
+main job is as the small worked example used throughout the docs
+(`model/cpp_model/test/`, `model/sitar_model/executable/`, and
+`log_viewer/` all symlink to the files here rather than keeping their
+own copies), see `validation/README.md`.
 
 ---
 
@@ -48,12 +54,24 @@ o0=0x00000005
 o2=0xFFFFFFFB
 ```
 
-`SOURCES` names the paired `.s`/`.c` file. Each `RESULTS` line is either
-a register check (`<name>=<hex value>`) or a memory check
-(`m[<hex addr>]=<hex value>`, a word-aligned 32-bit read), either kind
-optionally followed by a trailing mask to check only specific bits. See
-[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md#the-vprj-expected-results-file)
-for the full field reference.
+- `SOURCES` names the paired `.s`/`.c` file.
+- Each `RESULTS` line is either a register check (`<name>=<hex value>`,
+  register mnemonics `g1`-`g7`, `o0`-`o7`, `l0`-`l7`, `i0`-`i7`,
+  `f0`-`f31`, `psr`, `fpsr`, `y`, `wim`, `tbr`, `pc`, `npc`,
+  `asr0`-`asr31`) or a memory check (`m[<hex addr>]=<hex value>`, a
+  word-aligned 32-bit read).
+- Either kind of line accepts an optional trailing mask
+  (`m[0x148] = 0x00000021 0x00000021` checks only the bits set in the
+  mask. See `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`
+  for a real example distinguishing individual FSR bits.)
+- `asi = ...` lines (an AJIT-format leftover) are recognized and ignored.
+  `MemCore` is a single flat address space with no ASI distinction.
+
+`run_tests.py` parses this and normalizes it into the plain
+`REG <name> <hex value> [mask]` / `MEM <addr> <hex value> [mask]` format
+the checker executables themselves take as a direct command-line
+argument (see [Getting Started](getting_started.md#running-the-simulator)),
+writing it to a `.expected` file alongside the test before running it.
 
 ---
 
@@ -68,7 +86,7 @@ re-embedding the golden value a second time. See
 for the full convention, and `array_sum/array_sum.c` for a worked
 example.
 
-The ten benchmarks:
+The benchmarks:
 
 | Test | What it computes |
 |---|---|
@@ -103,7 +121,7 @@ validation/run_tests.py validation
 [PASS] validation/asm/misc/save_restore/SAVE.vprj
 [PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
 
-240/240 tests passed
+<passed>/<total> tests passed
 ```
 
 `.hex` files are committed to git, so phase 2 alone is enough to run the
@@ -126,8 +144,8 @@ It recurses to find `.vprj` files, so nesting is free.
 
 | Option | Does |
 |---|---|
-| `--sitar` | Run against the Sitar-timed model (`model/sitar_model/executable/sitar_check_test`) instead of the plain C++ model (`model/cpp_model/check_test`, the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
-| `--max-cycles N` | Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. |
+| `--sitar` | Run against the Sitar-timed model (`model/sitar_model/executable/sparc_sim_sitar`) instead of the plain C++ model (`model/cpp_model/sparc_sim_cpp`, the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
+| `--max-cycles N` | Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
 | `-v` | Show every check's result, not just failures. |
 
 ```sh
@@ -146,7 +164,7 @@ For `validation/asm/`, follow the existing category structure
 (`integer_alu/`, `floating_point/`, `control_transfer/`, `data_transfer/`,
 `misc/`), putting a new, focused group of tests in its own subfolder
 inside the appropriate category. For `validation/C/`, add a new sibling
-folder next to the ten above. Either way, `run_tests.py` and
+folder next to the ones above. Either way, `run_tests.py` and
 `build_hex.py` both recurse automatically, no registration step needed
 anywhere.
 

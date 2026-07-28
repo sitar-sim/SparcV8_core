@@ -58,7 +58,7 @@ class CoreLogger
 		//separated, in the same order). Written automatically ahead of
 		//the first row when do_print is on; a caller that instead
 		//collects rows itself (do_print off -- e.g. the sitar model,
-		//writing its own file -- see sitar_check_test.cpp) needs to
+		//writing its own file -- see sitar_model/src/sparc_sim.cpp) needs to
 		//write this once, itself, before the first row it writes.
 		std::string header();
 
@@ -99,8 +99,19 @@ class CoreLogger
 
 		//A previously-raised trap has just been serviced by jumping to
 		//its handler (as opposed to going straight to error_mode --
-		//that's a HALT event, via log_generic(), not this).
+		//that's a HALT event, via log_generic(), not this). Detail names
+		//the trap (SparcCore::trapTypeName(), reading TBR's tt field,
+		//still valid here unlike printTrap()'s own flags, see that
+		//function's own comment) and the handler address jumped to
+		//(already resolved into PC/TBR by SparcCore::executeTraps() by
+		//this point, no further decoding needed).
 		std::string log_trap_enter(unsigned long time);
+
+		//A previously-fetched instruction has just finished executing
+		//(PC/nPC not yet advanced -- see DebugHooks.h/this file's own
+		//comments for why this exact point). op is passed in for the
+		//same reason log_fetch's is.
+		std::string log_execute(unsigned long time, Opcode op);
 
 		//A load (including its double/half/byte variants) has just
 		//completed. address/word0/word1/isDouble/mae are all local to

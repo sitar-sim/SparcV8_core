@@ -52,21 +52,21 @@ live here -- everything else about ISA behavior still comes from
     multi-cycle multiplier/divider -- see the commented example in the
     file). Edit and rebuild to change latencies; this deliberately isn't a
     runtime-loaded config.
-- **`src/sitar_check_test.cpp`** -- the `-m` custom main for `sitar
-  compile`, building `sitar_check_test`: the Sitar-driven counterpart to
-  `../cpp_model/check_test`, with the identical CLI, expected-results
+- **`src/sparc_sim.cpp`** -- the `-m` custom main for `sitar compile`,
+  building `sparc_sim_sitar`: the Sitar-driven counterpart to
+  `../cpp_model/sparc_sim_cpp`, with the identical CLI, expected-results
   format, and `PASS`/`FAIL`/`OVERALL` output, so
   `../../validation/run_tests.py` can point at either model interchangeably.
 - **`build.py`** -- translates the 5 `.sitar` files and builds
-  `executable/sitar_check_test` (requires the `sitar` CLI on `PATH`; see the
+  `executable/sparc_sim_sitar` (requires the `sitar` CLI on `PATH`; see the
   sibling `sitar` repo). `build/` and the executable itself are gitignored
   build products.
 - **`executable/test_simple_ADD.s`** -- a minimal, beginner-friendly example
-  program (see below). Its assembled memory image
-  (`executable/test_simple_ADD.hex`), a readable disassembly
-  (`executable/test_simple_ADD.objdump`), and its expected-results file
-  (`executable/test_simple_ADD.expected`) are committed alongside it, so
-  trying it out needs no toolchain at all.
+  program (see below), its assembled memory image (`.hex`), a readable
+  disassembly (`.objdump`), and its expected-results file (`.expected`).
+  All four are symlinks into `../../validation/test_simple_ADD/` (the
+  canonical copy, shared with `cpp_model/test/`), so trying it out needs
+  no toolchain at all.
 
 ## Latency model
 
@@ -105,10 +105,10 @@ register, then halts. It's a good first program to read end to end.
 cat executable/test_simple_ADD.s
 ```
 
-Run it, same CLI as `cpp_model/check_test`:
+Run it, same CLI as `cpp_model/sparc_sim_cpp`:
 
 ```sh
-./executable/sitar_check_test executable/test_simple_ADD.hex executable/test_simple_ADD.expected
+./executable/sparc_sim_sitar executable/test_simple_ADD.hex executable/test_simple_ADD.expected
 ```
 
 ```
@@ -137,17 +137,18 @@ noisy and slower):
 
 ```sh
 ./build.py --logging
-./executable/sitar_check_test  <hex>  <expected>
+./executable/sparc_sim_sitar  <hex>  <expected>
 ```
 
 This writes two files into the current directory, instead of Sitar's
 usual stderr output:
 
-- **`sparc_trace.log`** -- `sparcThread`'s own log only, one tab-separated
+- **`<hex>.log`** (named after `<hex>`, the file just run, `.hex`
+  replaced by `.log`) -- `sparcThread`'s own log only, one tab-separated
   row per architectural event from `SparcCore`'s `CoreLogger`, with
   Sitar's usual `(time)hierarchicalId:` line prefix turned off. Same
   format the cpp model's `--logging` build writes (see
-  `../cpp_common_code/CoreLogger.h`); load it directly into
+  `../cpp_common_code/CoreLogger.h`). Load it directly into
   `../../log_viewer/` (see that directory's `README.md`) with no
   extraction needed.
 - **`sitar.log`** -- everything else: `mainMemory`/`ifetchThread`/the

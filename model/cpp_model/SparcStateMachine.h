@@ -24,7 +24,7 @@
 //validation/instruction_tests/README.md for the convention used there);
 //whether a given halt represents a passing or failing test is decided by
 //comparing final register/memory state against that test's expected
-//results (see check_test.cpp), not by anything intrinsic to the halt itself.
+//results (see sparc_sim.cpp), not by anything intrinsic to the halt itself.
 
 #ifndef SPARC_STATE_MACHINE_H
 #define SPARC_STATE_MACHINE_H

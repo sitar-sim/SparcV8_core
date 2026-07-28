@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="examining_core_state_with_gdb.html">
+        <link rel="prev" href="sparcv8_architecture.html">
       
       
-        <link rel="next" href="validation_suite.html">
+        <link rel="next" href="performance_modeling.html">
       
       
         
@@ -564,6 +564,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -624,6 +680,34 @@
 
           </label>
           <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
             
               
                 
@@ -739,34 +823,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Validation Suite
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1102,9 +1158,14 @@ trace format, viewable in the <a href="logging.html#the-log-viewer">log viewer</
 <h2 id="cpp_model-the-0-delay-functional-driver"><code>cpp_model/</code>: the 0-delay functional driver<a class="headerlink" href="#cpp_model-the-0-delay-functional-driver" title="Permanent link">&para;</a></h2>
 <p><code>SparcStateMachine</code> drives <code>SparcCore</code> through an ordinary
 fetch-decode-execute-trap loop, with <strong>zero modeled latency</strong>. Every
-instruction "completes" in the same iteration it starts. No Sitar
-dependency at all. This is the fast, simple reference to check ISA-level
-correctness against. It's what <code>validation/run_tests.py</code> uses by default.</p>
+instruction "completes" in the same iteration it starts, and that
+iteration, one complete instruction execution, is counted and reported
+as 1 "cycle" by <code>sparc_sim_cpp</code> (see <code>--max-cycles</code>/its halt message).
+This is purely an iteration count, with no notion of how long a real
+instruction or memory access would actually take, unlike the Sitar model
+below where a cycle is an actual elapsed clock cycle. No Sitar dependency
+at all. This is the fast, simple reference to check ISA-level correctness
+against. It's what <code>validation/run_tests.py</code> uses by default.</p>
 <hr />
 <h2 id="sitar_model-the-cycle-timed-driver"><code>sitar_model/</code>: the cycle-timed driver<a class="headerlink" href="#sitar_model-the-cycle-timed-driver" title="Permanent link">&para;</a></h2>
 <p>The same <code>SparcCore</code>, driven through Sitar with a <strong>simple, non-pipelined

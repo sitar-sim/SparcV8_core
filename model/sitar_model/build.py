@@ -2,9 +2,9 @@
 """
 build.py
 
-Builds sitar_check_test: the Sitar-driven counterpart to
-../cpp_model/check_test -- same CLI, same expected-results format, same
-PASS/FAIL/OVERALL output (see src/sitar_check_test.cpp) -- but runs a
+Builds sparc_sim_sitar: the Sitar-driven counterpart to
+../cpp_model's sparc_sim_cpp -- same CLI, same expected-results format,
+same PASS/FAIL/OVERALL output (see src/sparc_sim.cpp) -- but runs a
 memory image through the actual Sitar Top/Core/SparcThread model instead
 of the standalone C++ SparcStateMachine. Lets validation/run_tests.py
 --sitar point the exact same test suite at either model.
@@ -27,11 +27,11 @@ MODEL_DIR           = os.path.dirname(SCRIPT_DIR)
 SITAR_CODE_DIR      = os.path.join(SCRIPT_DIR, 'src', 'sitar_code')
 CPP_CODE_DIR        = os.path.join(SCRIPT_DIR, 'src', 'cpp_code')
 CPP_COMMON_CODE_DIR = os.path.join(MODEL_DIR, 'cpp_common_code')
-MAIN_FILE           = os.path.join(SCRIPT_DIR, 'src', 'sitar_check_test.cpp')
+MAIN_FILE           = os.path.join(SCRIPT_DIR, 'src', 'sparc_sim.cpp')
 BUILD_DIR           = os.path.join(SCRIPT_DIR, 'build')       # scratch, gitignored
 OUTPUT_DIR          = os.path.join(BUILD_DIR, 'Output')       # translated .sitar -> .cpp/.h
 EXECUTABLE_DIR      = os.path.join(SCRIPT_DIR, 'executable')
-EXECUTABLE          = os.path.join(EXECUTABLE_DIR, 'sitar_check_test')
+EXECUTABLE          = os.path.join(EXECUTABLE_DIR, 'sparc_sim_sitar')
 
 SITAR_FILES = ['Top.sitar', 'Core.sitar', 'SparcThread.sitar', 'MemoryInterface.sitar', 'MainMemory.sitar']
 
@@ -114,6 +114,22 @@ def main():
         # --debug/--debug-o0's help above.
         opt = '-O0' if args.debug_o0 else '-O3'
         cflags.append('-DSPARC_DEBUG_HOOKS_ENABLED -g ' + opt)
+    # A handful of locals/parameters in cpp_common_code (e.g. some decoded
+    # register-address fields in execute_FPop()) are computed but not read
+    # on every code path, benign, not a sign of a real bug, but sitar
+    # compile's own warning flags flag them and alarm a first-time
+    # builder. Silenced here rather than in the source.
+    cflags.append('-Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter')
+    # sitar compile's own SConstruct always adds -W (aka -Wextra), on top
+    # of -Wall, unlike cpp_model/build.sh which only uses -Wall. -Wno-extra
+    # cancels that back off, so both build scripts warn at the same level.
+    cflags.append('-Wno-extra')
+    # FloatingPointFunctions.h's #pragma STDC FENV_ACCESS ON is standard
+    # C99/C11, but GCC doesn't implement it, silently ignoring it rather
+    # than acting on it. -Wall flags that as an unknown pragma, benign,
+    # not a sign of a real bug, so silenced here rather than in the
+    # source.
+    cflags.append('-Wno-unknown-pragmas')
     if cflags:
         cmd += ['--cflags=' + ' '.join(cflags)]
     r = run(cmd, cwd=SCRIPT_DIR)

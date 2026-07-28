@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="model_components.html">
+        <link rel="prev" href="examining_core_state_with_gdb.html">
       
       
-        <link rel="next" href="performance_modeling.html">
+        <link rel="next" href="cross_compiler.html">
       
       
         
@@ -404,8 +404,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -416,11 +418,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
         
           
           <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
@@ -441,7 +443,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_2">
             <span class="md-nav__icon md-icon"></span>
             
@@ -551,95 +553,6 @@
     
   
     Examining Core State with GDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
-    
-      
-      
-  
-  
-    
-  
-  
-  
-    
-    
-    
-    
-      
-        
-        
-      
-    
-    
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
-      
-        
-        
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
-        
-          
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
-            
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    The Model
-  
-
-    
-  </span>
-  
-  
-
-            <span class="md-nav__icon md-icon"></span>
-          </label>
-        
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
-          <label class="md-nav__title" for="__nav_3">
-            <span class="md-nav__icon md-icon"></span>
-            
-  
-    The Model
-  
-
-          </label>
-          <ul class="md-nav__list" data-md-scrollfix>
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Components
   
 
     
@@ -806,6 +719,149 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1147,11 +1203,11 @@
 
 
 <h1 id="validation-suite">Validation Suite<a class="headerlink" href="#validation-suite" title="Permanent link">&para;</a></h1>
-<p><code>validation/</code> holds this project's functional validation suite: 240
-tests that check the core's instruction-level behavior against the SPARC
-V8 manual. There are no timing tests here. Both models drive the exact
-same <code>SparcCore</code> (see <a href="index.html#models">Models</a>), so this one suite
-validates both, and catches a regression in either.</p>
+<p><code>validation/</code> holds this project's functional validation suite: a large
+number of tests that check the core's instruction-level behavior against
+the SPARC V8 manual. There are no timing tests here. Both models drive
+the exact same <code>SparcCore</code> (see <a href="index.html#models">Models</a>), so this one
+suite validates both, and catches a regression in either.</p>
 <p>This page covers how the suite itself is put together, how to run it,
 and where a new test goes. For how to actually <em>write</em> a new test, see
 <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
@@ -1163,20 +1219,25 @@ and <code>&lt;name&gt;.vprj</code> (its expected final state). There are two sub
 side by side under <code>validation/</code>.</p>
 <ul>
 <li><strong><code>asm/</code></strong><br />
-    230 hand-written assembly tests, one small instruction sequence per
+    Hand-written assembly tests, one small instruction sequence per
     test, checking opcodes one at a time: integer ALU ops, control
     transfer (branches, traps, call, jump, <code>rett</code>), loads and stores
     (including atomic and coprocessor variants), and floating point.
     Organized into category subfolders: <code>integer_alu/</code>,
     <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>, <code>misc/</code>.</li>
 <li><strong><code>C/</code></strong><br />
-    10 self-validating bare-metal C mini-benchmarks, each exercising a
+    Self-validating bare-metal C mini-benchmarks, each exercising a
     sequence of C-level operations together (loops, arrays, structs,
     global variables) rather than one instruction at a time. See
     "Self-validating C tests" below.</li>
 </ul>
 <p>Both sub-suites use the same <code>.vprj</code> format and the same two-phase
 build/run pipeline, described below.</p>
+<p><code>test_simple_ADD/</code> sits alongside them, one more <code>.vprj</code> test, but its
+main job is as the small worked example used throughout the docs
+(<code>model/cpp_model/test/</code>, <code>model/sitar_model/executable/</code>, and
+<code>log_viewer/</code> all symlink to the files here rather than keeping their
+own copies), see <code>validation/README.md</code>.</p>
 <hr />
 <h2 id="the-vprj-expected-results-format">The <code>.vprj</code> expected-results format<a class="headerlink" href="#the-vprj-expected-results-format" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SOURCES = ADD.s
@@ -1186,12 +1247,25 @@ build/run pipeline, described below.</p>
 </span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>o0=0x00000005
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>o2=0xFFFFFFFB
 </span></code></pre></div>
-<p><code>SOURCES</code> names the paired <code>.s</code>/<code>.c</code> file. Each <code>RESULTS</code> line is either
-a register check (<code>&lt;name&gt;=&lt;hex value&gt;</code>) or a memory check
-(<code>m[&lt;hex addr&gt;]=&lt;hex value&gt;</code>, a word-aligned 32-bit read), either kind
-optionally followed by a trailing mask to check only specific bits. See
-<a href="writing_and_running_assembly_programs.html#the-vprj-expected-results-file">Writing and Running Assembly Programs</a>
-for the full field reference.</p>
+<ul>
+<li><code>SOURCES</code> names the paired <code>.s</code>/<code>.c</code> file.</li>
+<li>Each <code>RESULTS</code> line is either a register check (<code>&lt;name&gt;=&lt;hex value&gt;</code>,
+  register mnemonics <code>g1</code>-<code>g7</code>, <code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>,
+  <code>f0</code>-<code>f31</code>, <code>psr</code>, <code>fpsr</code>, <code>y</code>, <code>wim</code>, <code>tbr</code>, <code>pc</code>, <code>npc</code>,
+  <code>asr0</code>-<code>asr31</code>) or a memory check (<code>m[&lt;hex addr&gt;]=&lt;hex value&gt;</code>, a
+  word-aligned 32-bit read).</li>
+<li>Either kind of line accepts an optional trailing mask
+  (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
+  mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
+  for a real example distinguishing individual FSR bits.)</li>
+<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored.
+  <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
+</ul>
+<p><code>run_tests.py</code> parses this and normalizes it into the plain
+<code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt; [mask]</code> format
+the checker executables themselves take as a direct command-line
+argument (see <a href="getting_started.html#running-the-simulator">Getting Started</a>),
+writing it to a <code>.expected</code> file alongside the test before running it.</p>
 <hr />
 <h2 id="self-validating-c-tests">Self-validating C tests<a class="headerlink" href="#self-validating-c-tests" title="Permanent link">&para;</a></h2>
 <p>Every test in <code>validation/C/</code> follows the same shape: compute something,
@@ -1202,7 +1276,7 @@ re-embedding the golden value a second time. See
 <a href="writing_and_running_c_programs.html#structuring-a-test-program">Writing and Running C Programs</a>
 for the full convention, and <code>array_sum/array_sum.c</code> for a worked
 example.</p>
-<p>The ten benchmarks:</p>
+<p>The benchmarks:</p>
 <table>
 <thead>
 <tr>
@@ -1267,7 +1341,7 @@ cross-compiler installed at all.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>240/240 tests passed
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>&lt;passed&gt;/&lt;total&gt; tests passed
 </span></code></pre></div>
 <p><code>.hex</code> files are committed to git, so phase 2 alone is enough to run the
 existing suite. Phase 1 is only needed after adding or editing a <code>.s</code>/<code>.c</code>
@@ -1291,11 +1365,11 @@ point it at any subset:</p>
 <tbody>
 <tr>
 <td><code>--sitar</code></td>
-<td>Run against the Sitar-timed model (<code>model/sitar_model/executable/sitar_check_test</code>) instead of the plain C++ model (<code>model/cpp_model/check_test</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+<td>Run against the Sitar-timed model (<code>model/sitar_model/executable/sparc_sim_sitar</code>) instead of the plain C++ model (<code>model/cpp_model/sparc_sim_cpp</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
 </tr>
 <tr>
 <td><code>--max-cycles N</code></td>
-<td>Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug.</td>
+<td>Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#building-the-sparc-models">Getting Started</a>.</td>
 </tr>
 <tr>
 <td><code>-v</code></td>
@@ -1314,7 +1388,7 @@ point it at any subset:</p>
 (<code>integer_alu/</code>, <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>,
 <code>misc/</code>), putting a new, focused group of tests in its own subfolder
 inside the appropriate category. For <code>validation/C/</code>, add a new sibling
-folder next to the ten above. Either way, <code>run_tests.py</code> and
+folder next to the ones above. Either way, <code>run_tests.py</code> and
 <code>build_hex.py</code> both recurse automatically, no registration step needed
 anywhere.</p>
 <hr />

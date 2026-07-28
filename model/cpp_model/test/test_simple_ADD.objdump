@@ -1,17 +1,1 @@
-
-test_simple_ADD.elf:     file format elf32-sparc
-
-
-Disassembly of section .text:
-
-00000000 <main>:
-   0:	81 88 00 00 	mov  %g0, %psr
-   4:	01 00 00 00 	nop 
-   8:	01 00 00 00 	nop 
-   c:	01 00 00 00 	nop 
-  10:	a0 10 20 05 	mov  5, %l0	! 5 <main+0x5>
-  14:	a2 10 20 07 	mov  7, %l1
-  18:	90 04 00 11 	add  %l0, %l1, %o0
-  1c:	91 d0 20 00 	ta  0
-  20:	01 00 00 00 	nop 
-  24:	01 00 00 00 	nop 
+../../../validation/test_simple_ADD/test_simple_ADD.objdump

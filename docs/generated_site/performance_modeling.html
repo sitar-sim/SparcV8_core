@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="validation_suite.html">
+        <link rel="prev" href="model_components.html">
       
       
         <link rel="next" href="next_steps.html">
@@ -564,6 +564,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -632,14 +688,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -660,14 +716,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1144,15 +1200,17 @@ alongside the <code>interface = &amp;memInterface</code> wiring:</p>
 <h2 id="confirming-a-change-took-effect">Confirming a change took effect<a class="headerlink" href="#confirming-a-change-took-effect" title="Permanent link">&para;</a></h2>
 <p>Rebuild with logging enabled and run a test:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sitar_check_test<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sparc_sim_sitar<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;
 </span></code></pre></div>
-<p>This writes <code>sparc_trace.log</code> (see <a href="getting_started.html">Getting Started</a>
+<p>This writes <code>&lt;hex&gt;</code>'s own trace file (<code>&lt;hex&gt;</code> with its <code>.hex</code> replaced by
+<code>.log</code>, see <a href="getting_started.html#observing-the-simulation-log">Getting Started</a>
 and <a href="logging.html#the-log-viewer">The log viewer</a>) into the current
-directory. Its <code>time</code> column is exactly the per-instruction cycle count
-this page is about.
+directory. Its
+<code>time</code> column is exactly the per-instruction cycle count this page is
+about.
 Either open it in <code>log_viewer/viewer.html</code> and read <code>time</code> off
 consecutive <code>FETCH</code> rows directly, or grep it on the command line:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;$4==&quot;FETCH&quot;{print $2, $3, $5}&#39;</span><span class="w"> </span>sparc_trace.log
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;$4==&quot;FETCH&quot;{print $2, $3, $5}&#39;</span><span class="w"> </span>&lt;hex_basename&gt;.log
 </span></code></pre></div>
 <p>For example, overriding <code>ADD</code>'s latency to 4 cycles (<code>{ADD, 4}</code> in
 <code>OPCODE_LATENCY_OVERRIDES</code>) and running

@@ -564,6 +564,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -630,14 +686,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -658,14 +714,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1125,13 +1181,16 @@ tests, or building on this model for a larger system.</p>
 </span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  validation/
 </span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    asm/                Instruction-level assembly test suite.
 </span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    C/                  Self-validating bare-metal C mini-benchmark suite.
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  docs/                    This documentation site.
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    generated_site/           Prebuilt, committed output. Open index.html directly.
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  docs/                    This documentation site.
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    generated_site/           Prebuilt, committed output. Open index.html directly.
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    mkdocs.yml, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>      and vendored syntax lexers (Sitar, SPARC assembly).
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
 </span></code></pre></div>
 <p>Each of <code>model/cpp_common_code/</code>, <code>model/cpp_model/</code>, and
 <code>model/sitar_model/</code> has its own <code>README.md</code> with a per-file breakdown.

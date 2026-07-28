@@ -23,7 +23,7 @@ way in the log viewer, regardless of which model produced it. See
 
 A driver uses `CoreLogger` one of two ways.
 
-- **`do_print=true`** (`cpp_model/main.cpp`)  
+- **`do_print=true`** (`cpp_model/sparc_sim.cpp`)  
     `CoreLogger` writes each row directly to a given `ostream` itself.
 - **`do_print=false`** (`sitar_model`)  
     Each `log_*()` call just returns the formatted row. The caller
@@ -38,19 +38,24 @@ for the full mechanism. It can be pointed at:
 
 - **A common stream**  
     Sitar's own default. `setHierarchicalOstream(TOP, stream)` (see
-    `sitar_check_test.cpp`) points every module or procedure's logger at
+    `sparc_sim.cpp`) points every module or procedure's logger at
     the same `ostream`, so everything ends up interleaved together in one
     place.
 - **A per-module stream**  
     Points just one procedure's `.log` at its own dedicated `ostream`.
-    This is what `sitar_check_test.cpp` does for `sparcThread`
+    This is what `sparc_sim.cpp` does for `sparcThread`
     specifically. `sparcThread.log.setOstream(&sparcTraceFile)`, plus
     `useDefaultPrefix=false` and `setPrefix("")` to drop Sitar's own
     `(time)hierarchicalId:` prefix, gives `sparcThread`'s own trace: pure
-    `CoreLogger` rows, nothing else, a clean file (`sparc_trace.log`)
-    completely separate from `mainMemory` and the `MemoryInterface`
-    instances' own messages (`sitar.log`). See
-    `model/sitar_model/README.md`.
+    `CoreLogger` rows, nothing else, a clean file completely separate
+    from `mainMemory` and the `MemoryInterface` instances' own messages
+    (`sitar.log`). See `model/sitar_model/README.md`.
+
+Both models name that trace file after the hex file's own basename, with
+the trailing `.hex` replaced by `.log` (`test_simple_ADD.hex` produces
+`test_simple_ADD.log`, written into the current directory). Running a
+different test right after doesn't clobber the previous one's trace, the
+way a single fixed filename would.
 
 ---
 
@@ -115,7 +120,7 @@ So it spins at the same simulated instant forever, and hits Sitar's
 iteration-limit safety net almost immediately. One cycle is plenty. This
 only needs to re-check once per cycle.
 
-Since this toggles `sparcThread.log` itself, it narrows `sparc_trace.log`
+Since this toggles `sparcThread.log` itself, it narrows the trace file
 down directly. Rows outside the window or range are simply never
 written, not filtered out afterward, turning a long run's trace into
 something small and targeted enough to load into the log viewer right
@@ -141,8 +146,8 @@ It has three independently resizable panels.
     The `.objdump` of the program under test, so you can see the actual
     instructions alongside their addresses.
 - **Trace**  
-    One row per architectural event (`FETCH`, `TRAP_RAISED`, `MEM_READ`,
-    and so on), color coded by event type.
+    One row per architectural event (`FETCH`, `EXECUTED`, `TRAP_RAISED`,
+    `MEM_READ`, and so on), color coded by event type.
 - **State**  
     The full processor state at whichever row is currently selected:
     control fields (PC, nPC, WIM, Y, TBR), PSR flags, and all four
@@ -154,14 +159,14 @@ Up/Down arrow keys to step through the trace row by row, regardless of
 any search. The search box (`field=value`, for example `PC=0x1c` or
 `l4=0x3434`) filters to matching rows, `prev`/`next` step through them.
 
-**[Try the log viewer here](log_viewer/viewer.html?trace=sim_trace.tsv)**,
+**[Try the log viewer here](log_viewer/viewer.html?trace=test_simple_ADD.log)**,
 preloaded with a small sample trace (from the bundled `test_simple_ADD`
 example) so you can explore it right away, no build required.
 
 To view a trace of your own, open `log_viewer/viewer.html` from your own
 clone instead, and use its `Load trace`/`Load objdump` buttons (top
-right) to pick a `sparc_trace.log` you produced yourself (see
-"Compile-time on/off" above) and its matching `.objdump`. See
+right) to pick a trace file you produced yourself (see "Compile-time
+on/off" above) and its matching `.objdump`. See
 `log_viewer/README.md` for the full reference, including how to serve it
 locally so a fresh trace auto-loads from a URL, the same way the embedded
 copy above does.
