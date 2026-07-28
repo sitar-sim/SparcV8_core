@@ -657,6 +657,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -723,14 +779,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -751,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1088,7 +1144,7 @@ way in the log viewer, regardless of which model produced it. See
 "The log viewer" below and <code>model/cpp_common_code/CoreLogger.h</code>.</p>
 <p>A driver uses <code>CoreLogger</code> one of two ways.</p>
 <ul>
-<li><strong><code>do_print=true</code></strong> (<code>cpp_model/main.cpp</code>)<br />
+<li><strong><code>do_print=true</code></strong> (<code>cpp_model/sparc_sim.cpp</code>)<br />
 <code>CoreLogger</code> writes each row directly to a given <code>ostream</code> itself.</li>
 <li><strong><code>do_print=false</code></strong> (<code>sitar_model</code>)<br />
     Each <code>log_*()</code> call just returns the formatted row. The caller
@@ -1103,20 +1159,24 @@ for the full mechanism. It can be pointed at:</p>
 <ul>
 <li><strong>A common stream</strong><br />
     Sitar's own default. <code>setHierarchicalOstream(TOP, stream)</code> (see
-    <code>sitar_check_test.cpp</code>) points every module or procedure's logger at
+    <code>sparc_sim.cpp</code>) points every module or procedure's logger at
     the same <code>ostream</code>, so everything ends up interleaved together in one
     place.</li>
 <li><strong>A per-module stream</strong><br />
     Points just one procedure's <code>.log</code> at its own dedicated <code>ostream</code>.
-    This is what <code>sitar_check_test.cpp</code> does for <code>sparcThread</code>
+    This is what <code>sparc_sim.cpp</code> does for <code>sparcThread</code>
     specifically. <code>sparcThread.log.setOstream(&amp;sparcTraceFile)</code>, plus
     <code>useDefaultPrefix=false</code> and <code>setPrefix("")</code> to drop Sitar's own
     <code>(time)hierarchicalId:</code> prefix, gives <code>sparcThread</code>'s own trace: pure
-    <code>CoreLogger</code> rows, nothing else, a clean file (<code>sparc_trace.log</code>)
-    completely separate from <code>mainMemory</code> and the <code>MemoryInterface</code>
-    instances' own messages (<code>sitar.log</code>). See
-    <code>model/sitar_model/README.md</code>.</li>
+    <code>CoreLogger</code> rows, nothing else, a clean file completely separate
+    from <code>mainMemory</code> and the <code>MemoryInterface</code> instances' own messages
+    (<code>sitar.log</code>). See <code>model/sitar_model/README.md</code>.</li>
 </ul>
+<p>Both models name that trace file after the hex file's own basename, with
+the trailing <code>.hex</code> replaced by <code>.log</code> (<code>test_simple_ADD.hex</code> produces
+<code>test_simple_ADD.log</code>, written into the current directory). Running a
+different test right after doesn't clobber the previous one's trace, the
+way a single fixed filename would.</p>
 <hr />
 <h2 id="compile-time-onoff">Compile-time on/off<a class="headerlink" href="#compile-time-onoff" title="Permanent link">&para;</a></h2>
 <p>Two macros are tied to the same <code>--logging</code> flag. <code>model/cpp_model/build.sh</code>
@@ -1170,7 +1230,7 @@ the very next iteration, with nothing else in the loop to change that.
 So it spins at the same simulated instant forever, and hits Sitar's
 iteration-limit safety net almost immediately. One cycle is plenty. This
 only needs to re-check once per cycle.</p>
-<p>Since this toggles <code>sparcThread.log</code> itself, it narrows <code>sparc_trace.log</code>
+<p>Since this toggles <code>sparcThread.log</code> itself, it narrows the trace file
 down directly. Rows outside the window or range are simply never
 written, not filtered out afterward, turning a long run's trace into
 something small and targeted enough to load into the log viewer right
@@ -1191,8 +1251,8 @@ entirely offline. Open it directly in any browser.</p>
     The <code>.objdump</code> of the program under test, so you can see the actual
     instructions alongside their addresses.</li>
 <li><strong>Trace</strong><br />
-    One row per architectural event (<code>FETCH</code>, <code>TRAP_RAISED</code>, <code>MEM_READ</code>,
-    and so on), color coded by event type.</li>
+    One row per architectural event (<code>FETCH</code>, <code>EXECUTED</code>, <code>TRAP_RAISED</code>,
+    <code>MEM_READ</code>, and so on), color coded by event type.</li>
 <li><strong>State</strong><br />
     The full processor state at whichever row is currently selected:
     control fields (PC, nPC, WIM, Y, TBR), PSR flags, and all four
@@ -1203,13 +1263,13 @@ in Disassembly to jump to the first Trace row at that address. Use the
 Up/Down arrow keys to step through the trace row by row, regardless of
 any search. The search box (<code>field=value</code>, for example <code>PC=0x1c</code> or
 <code>l4=0x3434</code>) filters to matching rows, <code>prev</code>/<code>next</code> step through them.</p>
-<p><strong><a href="log_viewer/viewer.html?trace=sim_trace.tsv">Try the log viewer here</a></strong>,
+<p><strong><a href="log_viewer/viewer.html?trace=test_simple_ADD.log">Try the log viewer here</a></strong>,
 preloaded with a small sample trace (from the bundled <code>test_simple_ADD</code>
 example) so you can explore it right away, no build required.</p>
 <p>To view a trace of your own, open <code>log_viewer/viewer.html</code> from your own
 clone instead, and use its <code>Load trace</code>/<code>Load objdump</code> buttons (top
-right) to pick a <code>sparc_trace.log</code> you produced yourself (see
-"Compile-time on/off" above) and its matching <code>.objdump</code>. See
+right) to pick a trace file you produced yourself (see "Compile-time
+on/off" above) and its matching <code>.objdump</code>. See
 <code>log_viewer/README.md</code> for the full reference, including how to serve it
 locally so a fresh trace auto-loads from a URL, the same way the embedded
 copy above does.</p>

@@ -91,6 +91,16 @@ class SparcCore
 		//Registers::R_r()/CoreLogger::print_state().
 		__attribute__((optimize("O0"))) std::string printTrap();
 			//returns a string corresponding to the name of the trap that has occured.
+
+		//Pure translation, not a state read: given a trap-type byte as
+		//encoded in TBR's tt field (Registers::R_tt(), see selectTrap()),
+		//returns the same name printTrap() would have shown for it at
+		//raise time. tt is passed in explicitly and nothing here touches
+		//core state, so unlike printTrap() (which depends on the
+		//individual trap-cause flags selectTrap() clears once the trap
+		//is serviced), this stays valid at any point afterward, e.g. from
+		//CoreLogger::log_trap_enter().
+		static __attribute__((optimize("O0"))) std::string trapTypeName(uint32_t tt);
 		void checkInstructionException(Opcode op);
 			//check for exceptions related to the fetched instruction,
 			//such as fp_disabled and cp_disabled exception,

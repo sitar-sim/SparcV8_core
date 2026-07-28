@@ -11,10 +11,13 @@ therefore emit the same trace format.
 - **`viewer.html`** -- the viewer itself. A single HTML file, no build
   step, no external dependencies (works entirely offline, nothing is
   fetched from the network). Open it directly in any modern browser.
-- **`sim_trace.tsv`** / **`sim_trace.objdump`** -- a small sample trace
-  and its matching disassembly, generated from the bundled
-  `test_simple_ADD` example (see below), so you can explore the viewer
-  without building or running anything first.
+- **`test_simple_ADD.log`** / **`test_simple_ADD.objdump`** -- symlinks
+  to a small sample trace and its matching disassembly, generated from
+  the bundled `test_simple_ADD` example (see below and
+  `../validation/README.md`), so you can explore the viewer without
+  building or running anything first. Named to match, not
+  `sim_trace.*`, so it's the same file the walkthroughs elsewhere
+  produce, not a differently-named copy.
 
 ## Trace format
 
@@ -32,14 +35,16 @@ adds are simply ignored, not required.
 1. Build the cpp model with logging enabled, and run a test program:
    ```sh
    model/cpp_model/build.sh --logging
-   model/cpp_model/sparc_cpp_sim model/cpp_model/test/test_simple_ADD.hex
+   model/cpp_model/sparc_sim_cpp model/cpp_model/test/test_simple_ADD.hex
    ```
-   This writes `sparc_trace.log` into the current directory.
+   This writes `test_simple_ADD.log` into the current directory (a
+   trace file is always named after the hex file it ran).
 2. Open `log_viewer/viewer.html` in a browser (double-click it, or
    `open log_viewer/viewer.html` / `xdg-open log_viewer/viewer.html`).
-3. Click **Load trace** and pick `sparc_trace.log`; click **Load
+3. Click **Load trace** and pick `test_simple_ADD.log`; click **Load
    objdump** and pick `model/cpp_model/test/test_simple_ADD.objdump`
-   (the matching disassembly, committed alongside the test).
+   (the matching disassembly, symlinked alongside the test, see
+   `../validation/README.md`).
 
 ### Example: viewing the bundled `test_simple_ADD` example
 
@@ -47,25 +52,25 @@ From the repository root:
 
 ```sh
 model/cpp_model/build.sh --logging
-model/cpp_model/sparc_cpp_sim model/cpp_model/test/test_simple_ADD.hex
+model/cpp_model/sparc_sim_cpp model/cpp_model/test/test_simple_ADD.hex
 open log_viewer/viewer.html   # or: xdg-open log_viewer/viewer.html
 ```
 
-Then in the viewer: **Load trace** -> `sparc_trace.log` (written into the
-repository root, since that's where the command above was run from),
+Then in the viewer: **Load trace** -> `test_simple_ADD.log` (written into
+the repository root, since that's where the command above was run from),
 **Load objdump** -> `model/cpp_model/test/test_simple_ADD.objdump`.
 
 ### The same, via the sitar model
 
 ```sh
 model/sitar_model/build.py --logging
-model/sitar_model/executable/sitar_check_test \
+model/sitar_model/executable/sparc_sim_sitar \
     model/sitar_model/executable/test_simple_ADD.hex \
     model/sitar_model/executable/test_simple_ADD.expected
 ```
 
-Writes `sparc_trace.log` (`sparcThread`'s trace, directly loadable, same
-as above) and `sitar.log` (everything else Sitar logs -- see
+Writes `test_simple_ADD.log` (`sparcThread`'s trace, directly loadable,
+same as above) and `sitar.log` (everything else Sitar logs -- see
 `model/sitar_model/README.md`) into the current directory.
 
 ### Optional: serve it for auto-loading
@@ -79,10 +84,11 @@ cd log_viewer
 python3 -m http.server 8000
 ```
 
-then open `http://localhost:8000/viewer.html?trace=sim_trace.tsv` (the
-bundled sample -- the viewer also automatically tries the same basename
-with a `.objdump` extension, `sim_trace.objdump` here). For a freshly
-generated trace, copy it (and its `.objdump`) into this directory first,
+then open `http://localhost:8000/viewer.html?trace=test_simple_ADD.log`
+(the bundled sample -- the viewer also automatically tries the same
+basename with a `.objdump` extension, `test_simple_ADD.objdump` here).
+For a freshly generated trace, copy it (and its `.objdump`) into this
+directory first,
 or point `?trace=` at a relative path if your server root already covers
 both files. This only works over `http(s)`, not a plain `file://` URL --
 browsers block a page from reading another local file just by name.
@@ -97,6 +103,10 @@ browsers block a page from reading another local file just by name.
 - Click a row in the **Trace** panel to select it and see its state.
   Click a line in **Disassembly** to jump to the first trace row at that
   address.
+- The **Trace** panel's event column is colored by event type (e.g.
+  `FETCH` amber, `EXECUTED` green, the two trap events orange, `HALT`
+  red, `RESET` purple, memory events blue), so a given kind of row is
+  easy to pick out while scanning.
 - All three panels (Disassembly, Trace, State) are independently
   resizable -- drag the thin dividers between them.
 - Light/dark theme toggle, top right.

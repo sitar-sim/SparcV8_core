@@ -72,10 +72,12 @@ nav:
       - C Programs: writing_and_running_c_programs.md
       - Logging: logging.md
       - Examining Core State with GDB: examining_core_state_with_gdb.md
+      - Validation Suite: validation_suite.md
+      - Cross Compiler: cross_compiler.md
 
   - The Model:
+      - SPARC V8 Architecture: sparcv8_architecture.md
       - Model Components: model_components.md
-      - Validation Suite: validation_suite.md
       - Performance Modeling: performance_modeling.md
 
   - More:

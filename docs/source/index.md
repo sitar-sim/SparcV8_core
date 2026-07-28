@@ -36,7 +36,8 @@ These models are meant to be used as:
     at compile time, for significantly faster long simulations. See
     [Logging](logging.md).
 
-3. **Intuitive GDB-based runtime inspection of the processor state**  
+3. **Intuitive [GDB](https://en.wikipedia.org/wiki/GNU_Debugger)-based
+    runtime inspection of the processor state**  
     Independent of logging. See [Examining Core State at Runtime Using
     GDB](examining_core_state_with_gdb.md).
 
@@ -77,12 +78,15 @@ file. A procedure call can get a fresh set of registers without spilling
 to memory, simply by advancing a circular window into a larger physical
 register file.
 
-The authoritative specification for SPARC V8 is *The SPARC Architecture
-Manual, Version 8*, included in this repository at
-[`docs/source/sparcv8_Architecture_reference_Manual.pdf`](sparcv8_Architecture_reference_Manual.pdf).
-This project's model follows it closely, with section references cited
-throughout the source (`model/cpp_common_code/SparcCore.cpp` in
-particular).
+The authoritative specification for SPARC V8 is
+[*The SPARC Architecture Manual, Version 8*](sparcv8_Architecture_reference_Manual.pdf),
+included in this repository. This project's model follows it closely,
+with section references cited throughout the source
+(`model/cpp_common_code/SparcCore.cpp` in particular).
+
+See [SPARC V8 Architecture](sparcv8_architecture.md) for an index into
+the manual's chapters and appendices, with each entry linked directly to
+its page in the bundled PDF.
 
 ---
 
@@ -95,8 +99,21 @@ memory-access instruction set, with no notion of cycles, timing, or
 pipelining of its own. The two models differ only in how they drive this
 common code.
 
-- **The C++ only functional model** lives in `model/cpp_model/`.
-- **The Sitar cycle-based timing model** lives in `model/sitar_model/`.
+- **The C++ only functional model**  
+    Lives in `model/cpp_model/`. A plain host C++ fetch-decode-execute-trap
+    loop (`SparcStateMachine`) drives the core directly, with zero modeled
+    latency. Every instruction "completes" the moment it starts. There are
+    no timing knobs here at all. Its intended use is fast, ISA-level
+    correctness checking.
+- **The Sitar cycle-based timing model**  
+    Lives in `model/sitar_model/`. The same core is instead driven through
+    [Sitar](https://sitar-sim.github.io/sitar/), with a configurable opcode
+    latency plus separate interconnect and memory latencies you supply. Its
+    intended use is performance modeling, either standalone (to see how a
+    given latency configuration affects a program's runtime) or as the
+    timed core component inside a larger Sitar-based SoC/many-core
+    simulation. See [Performance Modeling](performance_modeling.md) for the
+    three latency knobs.
 
 Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.
@@ -104,3 +121,30 @@ instruction in the core is automatically reflected in both.
 See [Model Components](model_components.md) for how the core, the
 memory, and any other components fit together, including a stub example
 of connecting an external component such as a cache.
+
+---
+
+## Organization
+
+In the [source repository](https://github.com/sitar-sim/SparcV8_core),
+top-level folders are organized as follows.
+
+- **`model/`**  
+    The core itself (`cpp_common_code/`), and the two testbenches that
+    drive it (`cpp_model/`, `sitar_model/`). See [Model Components](model_components.md).
+- **`validation/`**  
+    The functional validation suite, assembly and C tests. See
+    [Validation Suite](validation_suite.md).
+- **`compiler/`**  
+    The bundled `sparc-elf` cross-toolchain and the scripts that drive it.
+    See [Cross Compiler](cross_compiler.md).
+- **`log_viewer/`**  
+    The trace visualizer tool. See [The log viewer](logging.md#the-log-viewer).
+- **`debug/`**  
+    GDB support files for runtime inspection of a running model. See
+    [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
+- **`docs/`**  
+    This documentation site's source and generator.
+
+To get started, see [Installation](installation.md) and
+[Getting Started](getting_started.md).

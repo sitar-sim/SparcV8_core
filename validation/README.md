@@ -7,9 +7,23 @@ tests here, functional correctness only.
 
 - `asm/` -- hand-written, opcode-level assembly tests. See `asm/README.md`.
 - `C/` -- bare-metal C tests. See `C/README.md`.
+- `test_simple_ADD/` -- one more `.vprj` test, but its main job is as
+  the small example program used throughout the docs and both models'
+  own bundled walkthroughs (`model/cpp_model/test/`,
+  `model/sitar_model/executable/`), which symlink to it rather than
+  keeping their own duplicate `.s`/`.hex`/`.expected`/`.objdump`. Its two
+  reference traces (`test_simple_ADD.cpp_model.log`,
+  `test_simple_ADD.sitar_model.log`) run the other way: each is a
+  symlink back to `test_simple_ADD.log` in the model folder that
+  actually produces it (a trace file is always named after the hex file
+  it ran, see `../docs/source/logging.md`), so building and running the
+  example there keeps the tracked trace here up to date directly,
+  nothing to manually copy. `log_viewer/test_simple_ADD.log` symlinks to
+  the cpp one, for the log viewer's own demo (same name throughout, not
+  a differently-named copy).
 
-Every test is a `<TEST>.<s|c>` + `<TEST>.vprj` pair. `.vprj` lists the
-expected final state as `REG`/`MEM` checks.
+Every test in `asm/`/`C/` is a `<TEST>.<s|c>` + `<TEST>.vprj` pair.
+`.vprj` lists the expected final state as `REG`/`MEM` checks.
 
 ## Scripts
 

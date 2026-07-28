@@ -85,7 +85,7 @@ module Core
 			// Example (commented out): selectively turn sparcThread's own
 			// logging on/off at runtime, based on simulated time and/or
 			// PC, instead of for the whole run -- e.g. to narrow a
-			// --logging build's sparc_trace.log down to just the part of
+			// --logging build's trace file down to just the part of
 			// a long run you actually care about. Uncomment and adjust
 			// the two conditions below to try it; verified working
 			// (compiles, and correctly turns sparcThread.log on and off

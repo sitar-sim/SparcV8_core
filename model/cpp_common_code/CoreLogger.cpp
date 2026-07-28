@@ -160,7 +160,16 @@ std::string CoreLogger::log_trap_raised(unsigned long time)
 
 std::string CoreLogger::log_trap_enter(unsigned long time)
 {
-	return emit(row(time, "TRAP_ENTER", "jumped to trap handler"));
+	Registers& reg = core_->reg;
+	std::stringstream d;
+	d << "jumped to trap handler " << SparcCore::trapTypeName(reg.R_tt())
+	  << ", addr=" << hexField(reg.R_PC());
+	return emit(row(time, "TRAP_ENTER", d.str()));
+}
+
+std::string CoreLogger::log_execute(unsigned long time, Opcode op)
+{
+	return emit(row(time, "EXECUTED", printOpcode(op)));
 }
 
 std::string CoreLogger::log_mem_read(unsigned long time, uint32_t address, uint32_t word0, uint32_t word1, bool isDouble, bool mae)
@@ -201,6 +210,7 @@ std::string CoreLogger::header() { return ""; }
 std::string CoreLogger::log_fetch(unsigned long, Opcode) { return ""; }
 std::string CoreLogger::log_trap_raised(unsigned long) { return ""; }
 std::string CoreLogger::log_trap_enter(unsigned long) { return ""; }
+std::string CoreLogger::log_execute(unsigned long, Opcode) { return ""; }
 std::string CoreLogger::log_mem_read(unsigned long, uint32_t, uint32_t, uint32_t, bool, bool) { return ""; }
 std::string CoreLogger::log_mem_write(unsigned long, uint32_t, uint32_t, uint32_t, uint32_t, bool) { return ""; }
 std::string CoreLogger::log_atomic(unsigned long, uint32_t, uint32_t, uint32_t, bool) { return ""; }

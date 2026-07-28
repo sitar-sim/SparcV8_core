@@ -1,12 +1,21 @@
-//check_test.cpp
+//sparc_sim.cpp
 //
-//Loads a memory image, runs it via SparcStateMachine until it halts (or a cycle limit
-//is reached), then checks final register/memory state against an
-//"expected results" file and prints PASS/FAIL per check plus an overall
-//verdict for the test as a whole.
+//Builds sparc_sim_cpp: loads a memory image, runs it via
+//SparcStateMachine until it halts (or a cycle limit is reached), then
+//either just reports the final state, or -- if an expected-results file
+//is given -- checks final register/memory state against it and prints
+//PASS/FAIL per check plus an overall verdict for the test as a whole.
 //
-//The expected-results file is a normalized format produced by
-//validation/run_tests.py from a test's .vprj RESULTS block:
+//expected_file is optional: pass "" (or omit it, along with max_cycles)
+//to skip validation entirely and just run the program, printing the
+//final processor state instead of PASS/FAIL/OVERALL. Useful for ad hoc
+//runs of a .hex file that has no paired expected-results file at all.
+//This is validation/run_tests.py's own default checker binary (see its
+//--sitar flag for the Sitar-driven counterpart, model/sitar_model's
+//sparc_sim_sitar).
+//
+//The expected-results file, when given, is a normalized format produced
+//by validation/run_tests.py from a test's .vprj RESULTS block:
 //
 //    REG <name> <hex_value>
 //    MEM <hex_addr> <hex_value> <hex_mask>
@@ -17,9 +26,10 @@
 //(word & mask) against (value & mask) -- this is how partial-word
 //store/atomic checks (byte/halfword masks) are expressed.
 //
-//Exit code: 0 if the core halted and every check passed, 1 otherwise.
+//Exit code: 0 if the core halted (and, when validating, every check
+//passed too), 1 otherwise.
 //
-//Usage: check_test <hex_file> <expected_file> [max_cycles]
+//Usage: sparc_sim_cpp <hex_file> [expected_file] [max_cycles]
 
 #include "SparcCore.h"
 #include "MemCore.h"
@@ -30,6 +40,26 @@
 #include <string>
 #include <cctype>
 #include <cstdlib>
+
+//Derives the trace filename from the hex file's own name: the same
+//basename, with a trailing ".hex" replaced by ".log" (or just ".log"
+//appended, if for some reason it doesn't end in ".hex"). Lets multiple
+//tests be run one after another from the same directory without each
+//one overwriting the last one's trace, unlike a single fixed filename.
+static std::string traceFileName(const std::string& hexFile)
+{
+	std::string base = hexFile;
+	std::string::size_type slash = base.find_last_of("/\\");
+	if (slash != std::string::npos)
+		base = base.substr(slash + 1);
+
+	const std::string suffix = ".hex";
+	if (base.size() >= suffix.size() &&
+	    base.compare(base.size() - suffix.size(), suffix.size(), suffix) == 0)
+		base = base.substr(0, base.size() - suffix.size());
+
+	return base + ".log";
+}
 
 //Maps a RESULTS-block register mnemonic to its value in the current window.
 //Returns false if the name isn't recognized.
@@ -73,14 +103,14 @@ static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& 
 
 int main(int argc, char** argv)
 {
-	if (argc < 3)
+	if (argc < 2)
 	{
-		std::cerr << "Usage: " << argv[0] << " <hex_file> <expected_file> [max_cycles]\n";
+		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles]\n";
 		return 1;
 	}
 
 	std::string   hexFile      = argv[1];
-	std::string   expectedFile = argv[2];
+	std::string   expectedFile = (argc >= 3) ? argv[2] : "";
 	unsigned long maxCycles    = (argc >= 4) ? std::strtoul(argv[3], NULL, 10) : 1000000UL;
 
 	MemCore mem;
@@ -90,7 +120,38 @@ int main(int argc, char** argv)
 	core.memCore = &mem;
 
 	SparcStateMachine runner(core, mem);
+
+#ifdef SPARC_LOGGING_ENABLED
+	//Only present in a --logging build (see build.sh). Named after
+	//hexFile (see traceFileName()), written into the current directory.
+	std::string traceFile = traceFileName(hexFile);
+	std::ofstream logFile(traceFile.c_str());
+	if (logFile.is_open())
+	{
+		core.logger.init(core, &logFile, true);
+		std::cout << "Logging instruction trace to " << traceFile << "\n";
+	}
+	else
+	{
+		std::cerr << "warning: could not open " << traceFile << " for writing; continuing without logging\n";
+	}
+#endif
+
 	runner.run(maxCycles);
+
+	//No expected-results file: just run the program and report the
+	//final state. Nothing here is a pass/fail check, so PASS/FAIL/OVERALL
+	//don't apply.
+	if (expectedFile.empty())
+	{
+		std::cout << "\n" << core.logger.print_state() << "\n";
+		if (runner.halted)
+			std::cout << "Simulation halted after " << runner.cyclesExecuted << " cycles.\n";
+		else
+			std::cout << "Simulation stopped: cycle limit (" << maxCycles
+			          << ") reached without halting.\n";
+		return runner.halted ? 0 : 1;
+	}
 
 	if (!runner.halted)
 	{
@@ -98,6 +159,8 @@ int main(int argc, char** argv)
 		std::cout << "OVERALL: FAIL (0 checks)\n";
 		return 1;
 	}
+
+	std::cout << "\n";
 
 	std::ifstream in(expectedFile.c_str());
 	if (!in.is_open())

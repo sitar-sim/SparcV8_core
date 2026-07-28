@@ -521,15 +521,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#anatomy-of-a-test" class="md-nav__link">
+  <a href="#writing-a-test-program" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anatomy of a test
+        Writing a test program
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Anatomy of a test">
+    <nav class="md-nav" aria-label="Writing a test program">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -560,10 +560,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-vprj-expected-results-file" class="md-nav__link">
+  <a href="#building-and-running-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The .vprj expected-results file
+        Building and running it
       
     </span>
   </a>
@@ -571,10 +571,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-it" class="md-nav__link">
+  <a href="#writing-an-expected-results-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running it
+        Writing an expected-results file
       
     </span>
   </a>
@@ -582,10 +582,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-to-put-a-new-test" class="md-nav__link">
+  <a href="#adding-it-to-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to put a new test
+        Adding it to the validation suite
       
     </span>
   </a>
@@ -685,6 +685,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -751,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -779,14 +835,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1033,15 +1089,15 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#anatomy-of-a-test" class="md-nav__link">
+  <a href="#writing-a-test-program" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Anatomy of a test
+        Writing a test program
       
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Anatomy of a test">
+    <nav class="md-nav" aria-label="Writing a test program">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -1072,10 +1128,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-vprj-expected-results-file" class="md-nav__link">
+  <a href="#building-and-running-it" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The .vprj expected-results file
+        Building and running it
       
     </span>
   </a>
@@ -1083,10 +1139,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#running-it" class="md-nav__link">
+  <a href="#writing-an-expected-results-file" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Running it
+        Writing an expected-results file
       
     </span>
   </a>
@@ -1094,10 +1150,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#where-to-put-a-new-test" class="md-nav__link">
+  <a href="#adding-it-to-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Where to put a new test
+        Adding it to the validation suite
       
     </span>
   </a>
@@ -1125,63 +1181,65 @@
 
 
 <h1 id="writing-and-running-assembly-programs">Writing and Running Assembly Programs<a class="headerlink" href="#writing-and-running-assembly-programs" title="Permanent link">&para;</a></h1>
-<p>This page describes the format used by <code>validation/asm/</code>'s 230 existing
-tests, and how to write and run a new one.</p>
+<p>This page covers writing a SPARC assembly test program from scratch,
+building and running it directly against the model, and checking its
+final state against a hand-written expected-results file. To then run it
+alongside the rest of the suite automatically instead of by hand, see
+<a href="validation_suite.html">Validation Suite</a>.</p>
 <hr />
-<h2 id="anatomy-of-a-test">Anatomy of a test<a class="headerlink" href="#anatomy-of-a-test" title="Permanent link">&para;</a></h2>
-<p>Every test is a pair of files: <code>&lt;name&gt;.s</code> (the assembly source) and
-<code>&lt;name&gt;.vprj</code> (the expected final state). The <code>.vprj</code> extension is for
-historical reasons, since this format is adapted from the AJIT project
-(see <code>validation/asm/README.md</code>). A <code>.s</code> file is fully self-contained and
-always has the same shape:</p>
-<div class="language-asm highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="na">.global</span><span class="w"> </span><span class="no">main</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nl">main:</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nl">_start:</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">1.</span><span class="w"> </span><span class="nf">Enable</span><span class="w"> </span><span class="no">traps</span><span class="p">:</span><span class="w"> </span><span class="no">PSR</span><span class="w"> </span><span class="no">ET</span><span class="err">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="no">PS</span><span class="err">=</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="no">S</span><span class="err">=</span><span class="mi">1</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="w">    </span><span class="nf">mov</span><span class="w"> </span><span class="mi">0xE0</span><span class="p">,</span><span class="w"> </span><span class="nv">%l0</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="w">    </span><span class="nf">wr</span><span class="w"> </span><span class="nv">%l0</span><span class="p">,</span><span class="w"> </span><span class="nv">%psr</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="w">    </span><span class="nf">nop</span>
+<h2 id="writing-a-test-program">Writing a test program<a class="headerlink" href="#writing-a-test-program" title="Permanent link">&para;</a></h2>
+<p>Every test is a pair of files: <code>&lt;name&gt;.s</code> (the assembly source) and,
+once you're ready to automate it, <code>&lt;name&gt;.vprj</code> (see "Adding it to the
+validation suite" below). A <code>.s</code> file is fully self-contained and always
+has the same shape:</p>
+<div class="language-sparc highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="kp">.global</span> <span class="n">main</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nl">main</span><span class="p">:</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nl">_start</span><span class="p">:</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    <span class="c1">! 1. Enable traps: PSR ET=1, PS=1, S=1</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="k">mov</span> <span class="mh">0xE0</span><span class="p">,</span> <span class="nv">%l0</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    <span class="k">wr</span> <span class="nv">%l0</span><span class="p">,</span> <span class="nv">%psr</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    <span class="k">nop</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="k">nop</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="k">nop</span>
 </span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">2.</span><span class="w"> </span><span class="nf">Point</span><span class="w"> </span><span class="no">TBR</span><span class="w"> </span><span class="no">at</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">file</span><span class="err">&#39;</span><span class="no">s</span><span class="w"> </span><span class="no">own</span><span class="w"> </span><span class="no">trap</span><span class="w"> </span><span class="no">table</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a><span class="w">    </span><span class="nf">set</span><span class="w"> </span><span class="no">trap_table_base</span><span class="p">,</span><span class="w"> </span><span class="nv">%l0</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a><span class="w">    </span><span class="nf">wr</span><span class="w"> </span><span class="nv">%l0</span><span class="p">,</span><span class="w"> </span><span class="mi">0x0</span><span class="p">,</span><span class="w"> </span><span class="nv">%tbr</span>
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="c1">! 2. Point TBR at this file&#39;s own trap table</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">set</span> <span class="n">trap_table_base</span><span class="p">,</span> <span class="nv">%l0</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">wr</span> <span class="nv">%l0</span><span class="p">,</span> <span class="mh">0x0</span><span class="p">,</span> <span class="nv">%tbr</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">nop</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">nop</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="k">nop</span>
 </span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">3.</span><span class="w"> </span><span class="nl">Sentinel:</span><span class="w"> </span><span class="nf">overwritten</span><span class="w"> </span><span class="no">by</span><span class="w"> </span><span class="no">the</span><span class="w"> </span><span class="no">trap</span><span class="w"> </span><span class="no">number</span><span class="w"> </span><span class="no">if</span><span class="w"> </span><span class="no">anything</span><span class="w"> </span><span class="no">unexpected</span><span class="w"> </span><span class="no">traps</span>
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a><span class="w">    </span><span class="nf">mov</span><span class="w"> </span><span class="mi">0xBAD</span><span class="p">,</span><span class="w"> </span><span class="nv">%g1</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="c1">! 3. Sentinel: overwritten by the trap number if anything unexpected traps</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">mov</span> <span class="mh">0xBAD</span><span class="p">,</span> <span class="nv">%g1</span>
 </span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a><span class="w">    </span><span class="err">!======================================</span>
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">4.</span><span class="w"> </span><span class="nf">The</span><span class="w"> </span><span class="no">instruction</span><span class="p">(</span><span class="no">s</span><span class="p">)</span><span class="w"> </span><span class="no">under</span><span class="w"> </span><span class="no">test</span><span class="w"> </span><span class="no">go</span><span class="w"> </span><span class="no">here</span>
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a><span class="w">    </span><span class="nf">add</span><span class="w"> </span><span class="nv">%o0</span><span class="p">,</span><span class="w"> </span><span class="nv">%o1</span><span class="p">,</span><span class="w"> </span><span class="nv">%o2</span>
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a><span class="w">    </span><span class="err">!======================================</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    <span class="c1">!======================================</span>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="c1">! 4. The instruction(s) under test go here</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="k">add</span> <span class="nv">%o0</span><span class="p">,</span> <span class="nv">%o1</span><span class="p">,</span> <span class="nv">%o2</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="c1">!======================================</span>
 </span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a><span class="w">    </span><span class="nf">ta</span><span class="w"> </span><span class="mi">0</span><span class="w">            </span><span class="p">!</span><span class="w"> </span><span class="mi">5</span><span class="p">.</span><span class="w"> </span><span class="no">normal</span><span class="w"> </span><span class="no">exit</span>
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">ta</span> <span class="mi">0</span>            <span class="c1">! 5. normal exit</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="k">nop</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="k">nop</span>
 </span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>
-</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="nl">not_reached:</span>
-</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a><span class="w">    </span><span class="nf">set</span><span class="w"> </span><span class="mi">0xDEAD</span><span class="p">,</span><span class="w"> </span><span class="nv">%g1</span><span class="w"> </span><span class="p">!</span><span class="w"> </span><span class="no">control</span><span class="w"> </span><span class="no">should</span><span class="w"> </span><span class="no">never</span><span class="w"> </span><span class="no">reach</span><span class="w"> </span><span class="no">here</span>
-</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a><span class="w">    </span><span class="nf">ta</span><span class="w"> </span><span class="mi">0</span>
-</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a><span class="w">    </span><span class="nf">nop</span>
-</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a><span class="w">    </span><span class="nf">nop</span>
+</span><span id="__span-0-30"><a id="__codelineno-0-30" name="__codelineno-0-30" href="#__codelineno-0-30"></a><span class="nl">not_reached</span><span class="p">:</span>
+</span><span id="__span-0-31"><a id="__codelineno-0-31" name="__codelineno-0-31" href="#__codelineno-0-31"></a>    <span class="k">set</span> <span class="mh">0xDEAD</span><span class="p">,</span> <span class="nv">%g1</span> <span class="c1">! control should never reach here</span>
+</span><span id="__span-0-32"><a id="__codelineno-0-32" name="__codelineno-0-32" href="#__codelineno-0-32"></a>    <span class="k">ta</span> <span class="mi">0</span>
+</span><span id="__span-0-33"><a id="__codelineno-0-33" name="__codelineno-0-33" href="#__codelineno-0-33"></a>    <span class="k">nop</span>
+</span><span id="__span-0-34"><a id="__codelineno-0-34" name="__codelineno-0-34" href="#__codelineno-0-34"></a>    <span class="k">nop</span>
 </span><span id="__span-0-35"><a id="__codelineno-0-35" name="__codelineno-0-35" href="#__codelineno-0-35"></a>
-</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a><span class="w">    </span><span class="na">.align</span><span class="w"> </span><span class="mi">4096</span><span class="w">     </span><span class="p">!</span><span class="w"> </span><span class="no">TBR</span><span class="w"> </span><span class="no">only</span><span class="w"> </span><span class="no">captures</span><span class="w"> </span><span class="no">bits</span><span class="w"> </span><span class="mi">31</span><span class="p">:</span><span class="mi">12</span><span class="p">,</span><span class="w"> </span><span class="no">so</span><span class="w"> </span><span class="no">the</span><span class="w"> </span><span class="no">trap</span><span class="w"> </span><span class="no">table</span>
-</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a><span class="w">                     </span><span class="err">!</span><span class="w"> </span><span class="nf">must</span><span class="w"> </span><span class="no">start</span><span class="w"> </span><span class="no">on</span><span class="w"> </span><span class="no">a</span><span class="w"> </span><span class="mi">4096</span><span class="p">-</span><span class="no">byte</span><span class="w"> </span><span class="no">boundary</span>
-</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="nl">trap_table_base:</span>
-</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="err">256</span><span class="w"> </span><span class="nf">four-instruction</span><span class="w"> </span><span class="no">slots</span><span class="p">,</span><span class="w"> </span><span class="no">one</span><span class="w"> </span><span class="no">per</span><span class="w"> </span><span class="no">trap</span><span class="w"> </span><span class="no">type</span><span class="w"> </span><span class="p">(</span><span class="mi">0x00-0</span><span class="no">xff</span><span class="p">):</span>
-</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a><span class="w">    </span><span class="err">!</span><span class="w">   </span><span class="nf">mov</span><span class="w"> </span><span class="err">&lt;</span><span class="no">trap</span><span class="w"> </span><span class="no">number</span><span class="err">&gt;</span><span class="p">,</span><span class="w"> </span><span class="nv">%g1</span><span class="w"> </span><span class="c1">; restore ; ta 0 ; nop</span>
-</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a><span class="w">    </span><span class="err">!</span><span class="w"> </span><span class="na">...</span><span class="w"> </span><span class="p">(</span><span class="no">copy</span><span class="w"> </span><span class="no">this</span><span class="w"> </span><span class="no">verbatim</span><span class="w"> </span><span class="no">from</span><span class="w"> </span><span class="no">any</span><span class="w"> </span><span class="no">existing</span><span class="w"> </span><span class="no">test</span><span class="p">,</span><span class="w"> </span><span class="no">see</span><span class="w"> </span><span class="no">below</span><span class="p">)</span>
+</span><span id="__span-0-36"><a id="__codelineno-0-36" name="__codelineno-0-36" href="#__codelineno-0-36"></a>    <span class="n">.align</span> <span class="mi">4096</span>     <span class="c1">! TBR only captures bits 31:12, so the trap table</span>
+</span><span id="__span-0-37"><a id="__codelineno-0-37" name="__codelineno-0-37" href="#__codelineno-0-37"></a>                     <span class="c1">! must start on a 4096-byte boundary</span>
+</span><span id="__span-0-38"><a id="__codelineno-0-38" name="__codelineno-0-38" href="#__codelineno-0-38"></a><span class="nl">trap_table_base</span><span class="p">:</span>
+</span><span id="__span-0-39"><a id="__codelineno-0-39" name="__codelineno-0-39" href="#__codelineno-0-39"></a>    <span class="c1">! 256 four-instruction slots, one per trap type (0x00-0xff):</span>
+</span><span id="__span-0-40"><a id="__codelineno-0-40" name="__codelineno-0-40" href="#__codelineno-0-40"></a>    <span class="c1">!   mov &lt;trap number&gt;, %g1 ; restore ; ta 0 ; nop</span>
+</span><span id="__span-0-41"><a id="__codelineno-0-41" name="__codelineno-0-41" href="#__codelineno-0-41"></a>    <span class="c1">! ... (copy this verbatim from any existing test, see below)</span>
 </span></code></pre></div>
 <h3 id="the-pass-fail-convention">The pass-fail convention<a class="headerlink" href="#the-pass-fail-convention" title="Permanent link">&para;</a></h3>
 <p>Every test always halts the same way: a <code>ta 0</code> taken with traps disabled
 (<code>ET=0</code>, cleared automatically on trap entry) forces the processor into
 <code>error_mode</code> per the manual (Appendix C, Section C.8). This is what
-"<code>Simulation halted (error_mode)</code>" in <code>sparc_cpp_sim</code>'s output means, and
-it's expected, not a bug.</p>
+<code>PROCESSOR STATE: ERROR</code> in <code>sparc_sim_cpp</code>'s output means, and it's
+expected, not a bug.</p>
 <p><code>%g1</code> distinguishes a clean run from an unexpected trap:</p>
 <ul>
 <li>If the test's own final <code>ta 0</code> (step 5 above) is what triggers this,
@@ -1205,66 +1263,52 @@ a counter and <em>resumes</em> execution right after the trapping instruction
 (via <code>rett</code>), instead of halting. This lets the test both confirm the
 trap fired (<code>%g2</code>) and continue on to a normal exit (<code>%g1 = 0x80</code>).</p>
 <hr />
-<h2 id="the-vprj-expected-results-file">The <code>.vprj</code> expected-results file<a class="headerlink" href="#the-vprj-expected-results-file" title="Permanent link">&para;</a></h2>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>SOURCES = ADD.s
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>RESULTS =
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>g1=0x00000080
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>o0=0x00000005
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>o2=0xFFFFFFFB
+<h2 id="building-and-running-it">Building and running it<a class="headerlink" href="#building-and-running-it" title="Permanent link">&para;</a></h2>
+<p>Assemble the <code>.s</code> file into a memory image:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>compiler/assemble.sh<span class="w"> </span>your_test.s
+</span></code></pre></div>
+<p>This produces <code>your_test.hex</code> (the memory image) and <code>your_test.objdump</code>
+(its disassembly plus full symbol table, useful for finding an address
+to give gdb, see <a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>).
+Requires the <code>sparc-elf</code> toolchain on <code>PATH</code>, see <a href="cross_compiler.html">Cross Compiler</a>.</p>
+<p>Run it directly against the model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>your_test.hex
+</span></code></pre></div>
+<p>This prints the final register state once the program halts, see
+<a href="getting_started.html#running-the-simulator">Getting Started</a> for the full
+walkthrough (including the Sitar-timed model, which takes the identical
+CLI).</p>
+<hr />
+<h2 id="writing-an-expected-results-file">Writing an expected-results file<a class="headerlink" href="#writing-an-expected-results-file" title="Permanent link">&para;</a></h2>
+<p>Instead of reading the final register dump by hand, pass the executable
+a second argument, an expected-results file, and it checks the final
+state against it directly:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>your_test.hex<span class="w"> </span>your_test.expected
+</span></code></pre></div>
+<p><code>your_test.expected</code> is a plain text file, one check per line:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>REG o2 0x0000000c
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>MEM 0x2000 0xdeadbeef
 </span></code></pre></div>
 <ul>
-<li><code>SOURCES</code> names the paired <code>.s</code> file.</li>
-<li>Each <code>RESULTS</code> line is either a register check (<code>&lt;name&gt;=&lt;hex value&gt;</code>,
-  register mnemonics <code>g1</code>-<code>g7</code>, <code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>,
-  <code>f0</code>-<code>f31</code>, <code>psr</code>, <code>fpsr</code>, <code>y</code>, <code>wim</code>, <code>tbr</code>, <code>pc</code>, <code>npc</code>,
-  <code>asr0</code>-<code>asr31</code>) or a memory check (<code>m[&lt;hex addr&gt;]=&lt;hex value&gt;</code>, a
-  word-aligned 32-bit read).</li>
-<li>Either kind of line accepts an optional trailing mask
-  (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
-  mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
-  for a real example distinguishing individual FSR bits.)</li>
-<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored.
-  <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
+<li><code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> checks a register (mnemonics <code>g1</code>-<code>g7</code>,
+  <code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>, <code>f0</code>-<code>f31</code>, <code>psr</code>, <code>fpsr</code>, <code>y</code>, <code>wim</code>,
+  <code>tbr</code>, <code>pc</code>, <code>npc</code>, <code>asr0</code>-<code>asr31</code>).</li>
+<li><code>MEM &lt;hex addr&gt; &lt;hex value&gt; [mask]</code> checks a word-aligned 32-bit
+  memory read.</li>
+<li>Either kind accepts an optional trailing mask, to check only specific
+  bits.</li>
 </ul>
 <hr />
-<h2 id="running-it">Running it<a class="headerlink" href="#running-it" title="Permanent link">&para;</a></h2>
-<p>The pipeline is split into two phases, so the existing suite can be run
-without a cross-compiler installed at all:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1"># phase 1 (needs the sparc-elf toolchain): assembles .s -&gt; .hex,</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="c1"># only needed when you add/edit a .s source</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>validation/build_hex.py<span class="w"> </span>validation/asm/your/new/test/dir
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="c1"># phase 2: runs the already-assembled .hex against a model</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>validation/run_tests.py<span class="w"> </span>validation/asm/your/new/test/dir<span class="w"> </span>-v
-</span></code></pre></div>
-<p><code>.hex</code> files are committed to git specifically so phase 2 alone is enough
-for anyone who just wants to run the existing suite. Commit the <code>.hex</code>
-alongside your <code>.s</code>/<code>.vprj</code> whenever you add or edit a test.</p>
-<p>Phase 1 also produces a <code>.objdump</code>, the same kind <code>compiler/compile_c.sh</code>
-produces for C tests: disassembly plus the full symbol table. See
-<a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>. It's
-useful for finding an address to give gdb (see
-<a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>),
-though for a hand-written <code>.s</code> test you already know the addresses of
-anything you labeled yourself. The existing 230 tests each already have
-one committed. If you add or edit a <code>.s</code> source, rerun <code>build_hex.py</code> on
-it to regenerate its <code>.objdump</code>.</p>
-<p>Add <code>--sitar</code> to <code>run_tests.py</code> to run against the Sitar-timed model
-instead of the plain C++ one (see <a href="installation.html">Installation</a> step 3
-and <code>model/sitar_model/build.py</code>), and <code>--max-cycles N</code> to change the
-per-test cycle limit (default 10000).</p>
-<p><code>validation/clean.sh [folder]</code> removes generated byproducts (<code>.o</code>, <code>.elf</code>,
-<code>.expected</code>) without touching <code>.hex</code>/<code>.s</code>/<code>.vprj</code>.</p>
+<h2 id="adding-it-to-the-validation-suite">Adding it to the validation suite<a class="headerlink" href="#adding-it-to-the-validation-suite" title="Permanent link">&para;</a></h2>
+<p>Hand-writing a <code>.expected</code> file and running it yourself works for one
+test at a time. To run your test alongside the rest of the suite
+automatically instead, and have it re-checked every time the model
+changes, wrap it as a <code>.vprj</code> file (the same <code>REG</code>/<code>MEM</code> checks, in a
+slightly different format that also names the paired <code>.s</code> source). See
+<a href="validation_suite.html">Validation Suite</a> for the <code>.vprj</code> format, the
+two-phase build/run pipeline, and where a new test's category folder
+goes.</p>
 <hr />
-<h2 id="where-to-put-a-new-test">Where to put a new test<a class="headerlink" href="#where-to-put-a-new-test" title="Permanent link">&para;</a></h2>
-<p>Follow the existing category structure under <code>validation/asm/</code>
-(<code>integer_alu/</code>, <code>floating_point/</code>, <code>control_transfer/</code>, <code>data_transfer/</code>,
-<code>misc/</code>). Put a new, focused group of tests in its own subfolder inside
-the appropriate category. For example,
-<code>validation/asm/floating_point/fp_exceptions/</code> holds the FSR
-exception-subtype tests. <code>run_tests.py</code> recurses, so nesting is free.
-It just needs to find <code>.vprj</code> files.</p>
 <p>See <code>validation/asm/README.md</code> for the AJIT-adaptation attribution and
 <code>docs/compliance/README.md</code> for documented, specific divergences from AJIT's
 own reference results (kept separate from the maintained suite since they

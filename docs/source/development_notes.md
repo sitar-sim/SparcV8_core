@@ -16,11 +16,14 @@ SparcV8_core/
   validation/
     asm/                Instruction-level assembly test suite.
     C/                  Self-validating bare-metal C mini-benchmark suite.
+    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
   compiler/               SPARC V8 cross-toolchain + build scripts.
+  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
   docs/                    This documentation site.
     source/                  The .md pages you're reading (MkDocs docs_dir).
     generated_site/           Prebuilt, committed output. Open index.html directly.
-    mkdocs.yml, sitar_pygments_lexer/  Build config and vendored syntax lexer.
+    mkdocs.yml, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config
+      and vendored syntax lexers (Sitar, SPARC assembly).
     compliance/               Documented, specific divergences from AJIT's own reference results.
   log_viewer/              Offline browser tool for viewing an instruction/state trace.
 ```

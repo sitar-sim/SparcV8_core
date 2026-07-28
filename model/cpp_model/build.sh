@@ -1,20 +1,20 @@
 #!/bin/bash
 # build.sh
 #
-# Builds the standalone functional model of the SPARC V8 core:
-#   sparc_cpp_sim -- run a memory image, print final register state
-#   check_test    -- run a memory image and check final state
-#                     against an expected-results file (pass/fail)
+# Builds sparc_sim_cpp, the standalone functional model of the SPARC V8
+# core: runs a memory image, and either just prints the final register
+# state, or -- if given an expected-results file -- checks it and prints
+# a PASS/FAIL verdict (see sparc_sim.cpp).
 #
 # This links against libquadmath, needed by cpp_common_code/FloatingPointFunctions.h
 # for quad-precision (128-bit) floating point support (FSQRTq and friends).
 #
-# --logging / --no-logging (default: --no-logging): whether sparc_cpp_sim
+# --logging / --no-logging (default: --no-logging): whether sparc_sim_cpp
 # is built with the per-cycle instruction/state trace (SparcCore::logger,
 # a CoreLogger -- see cpp_common_code/CoreLogger.h). This is a compile-time
 # choice, via -DSPARC_LOGGING_ENABLED: a --no-logging build's CoreLogger
 # methods are all trivial stubs, none of the real formatting code exists
-# in the binary. See CoreLogger.cpp and main.cpp.
+# in the binary. See CoreLogger.cpp and sparc_sim.cpp.
 #
 # --debug / --no-debug (default: --no-debug): whether the build is meant to
 # be examined under a debugger (gdb -- see
@@ -68,6 +68,19 @@ if [ "$LOGGING" = "1" ]; then
 	CXXFLAGS="$CXXFLAGS -DSPARC_LOGGING_ENABLED"
 fi
 
+# A handful of locals/parameters in cpp_common_code (e.g. some decoded
+# register-address fields in execute_FPop()) are computed but not read
+# on every code path, benign, not a sign of a real bug, but -Wall flags
+# them and alarms a first-time builder. Silenced here rather than in the
+# source.
+CXXFLAGS="$CXXFLAGS -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter"
+
+# FloatingPointFunctions.h's #pragma STDC FENV_ACCESS ON is standard
+# C99/C11, but GCC doesn't implement it, silently ignoring it rather than
+# acting on it. -Wall flags that as an unknown pragma; benign, not a sign
+# of a real bug, so silenced here rather than in the source.
+CXXFLAGS="$CXXFLAGS -Wno-unknown-pragmas"
+
 CPP_CODE_SOURCES="$CPP_CODE_DIR/BitManipulation.cpp \
 	$CPP_CODE_DIR/Decoder.cpp \
 	$CPP_CODE_DIR/MemCore.cpp \
@@ -77,10 +90,6 @@ CPP_CODE_SOURCES="$CPP_CODE_DIR/BitManipulation.cpp \
 	$CPP_CODE_DIR/DebugHooks.cpp \
 	$CPP_CODE_DIR/DebugRegistry.cpp"
 
-g++ $CXXFLAGS "$SCRIPT_DIR/main.cpp" "$SCRIPT_DIR/SparcStateMachine.cpp" $CPP_CODE_SOURCES \
-	-lquadmath -o "$SCRIPT_DIR/sparc_cpp_sim"
-echo "Built $SCRIPT_DIR/sparc_cpp_sim"
-
-g++ $CXXFLAGS "$SCRIPT_DIR/check_test.cpp" "$SCRIPT_DIR/SparcStateMachine.cpp" $CPP_CODE_SOURCES \
-	-lquadmath -o "$SCRIPT_DIR/check_test"
-echo "Built $SCRIPT_DIR/check_test"
+g++ $CXXFLAGS "$SCRIPT_DIR/sparc_sim.cpp" "$SCRIPT_DIR/SparcStateMachine.cpp" $CPP_CODE_SOURCES \
+	-lquadmath -o "$SCRIPT_DIR/sparc_sim_cpp"
+echo "Built $SCRIPT_DIR/sparc_sim_cpp"

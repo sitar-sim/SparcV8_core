@@ -15,10 +15,33 @@ Thumbs.db
 __pycache__/
 *.py[cod]
 
-# sparc_trace.log / sitar.log (CoreLogger/Sitar output -- see
-# log_viewer/README.md), wherever they land, including the repo root when
-# a model's binary is run from here as its example commands show
+# CoreLogger/Sitar output (see log_viewer/README.md): <hex file's own
+# basename>.log for the architectural trace, sitar.log for Sitar's own
+# lower-level log, wherever they land, including the repo root when a
+# model's binary is run from here as its example commands show
 *.log
+
+# Committed exceptions, the test_simple_ADD reference traces (see
+# validation/README.md). Tracked at the exact path each model actually
+# writes to when built and run from its own folder
+# (`test_simple_ADD.log`, named after the hex file, see
+# model/cpp_model/sparc_sim.cpp's traceFileName()), so building and
+# running there updates the tracked file directly, nothing to manually
+# copy or keep in sync.
+!/model/cpp_model/test/test_simple_ADD.log
+!/model/sitar_model/executable/test_simple_ADD.log
+
+# validation/test_simple_ADD/ and log_viewer/ don't keep their own copies,
+# they symlink to the two tracked files above (see validation/README.md
+# and log_viewer/README.md), but the symlinks themselves still need
+# their own exceptions, same *.log name, same rule.
+!/validation/test_simple_ADD/test_simple_ADD.cpp_model.log
+!/validation/test_simple_ADD/test_simple_ADD.sitar_model.log
+!/log_viewer/test_simple_ADD.log
+
+# mkdocs build resolves log_viewer/'s symlink into a real file at this
+# path, same reasoning as the log_viewer/ exception above.
+!/docs/generated_site/log_viewer/test_simple_ADD.log
 
 # MkDocs (docs/.venv/); docs/generated_site/ IS committed, not ignored
 .venv/

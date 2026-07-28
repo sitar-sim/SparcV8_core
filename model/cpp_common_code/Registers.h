@@ -278,7 +278,7 @@ class Registers
 		//Note: bits corresponding to unimplemented windows read as 0
 		//and writes to these bits is ignored.
 		uint32_t n; 		//all ones
-		n=(~ ((~0)<<NWINDOWS) );   	//clear low nwindow bits
+		n=(~ ((~0u)<<NWINDOWS) );   	//clear low nwindow bits
 		val=val&n;
 		WIM=val;
 	};

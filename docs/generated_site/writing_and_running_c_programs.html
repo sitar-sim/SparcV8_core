@@ -657,6 +657,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -723,14 +779,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -751,14 +807,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1083,15 +1139,15 @@ console to write to. <code>malloc</code> has no OS to request pages from. C prog
 for this model must be <strong>freestanding</strong>: no <code class="language-c highlight"><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span></code>, no
 libc at all, just the C language itself plus whatever you implement by
 hand against the flat memory space <code>MemCore</code> provides.</p>
-<p>This is the same reason <code>model/cpp_model/main.cpp</code>'s driver doesn't try to
-model a console. There's genuinely nothing on the other end of one yet.</p>
+<p>This is the same reason <code>model/cpp_model/sparc_sim.cpp</code>'s driver doesn't
+try to model a console. There's genuinely nothing on the other end of
+one yet.</p>
 <hr />
 <h2 id="toolchain">Toolchain<a class="headerlink" href="#toolchain" title="Permanent link">&para;</a></h2>
 <p>A minimal, freestanding C compiler (GCC 4.4.3) is bundled alongside the
-existing <code>sparc-elf</code> assembler, linker, <code>readelf</code>, and <code>objdump</code> (see
-<a href="installation.html">Installation</a>). It exists for one narrow purpose:
-building this project's own <code>validation/C/</code> tests, with no setup beyond
-installing the bundled toolchain.</p>
+existing <code>sparc-elf</code> assembler, linker, <code>readelf</code>, and <code>objdump</code>. See
+<a href="cross_compiler.html">Cross Compiler</a> for what's bundled and why, and for
+building your own, more modern cross-toolchain instead.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>compiler/compile_c.sh<span class="w"> </span>your_program.c
 </span></code></pre></div>
 <p>This produces <code>your_program.hex</code>, the same kind of memory image
@@ -1102,23 +1158,10 @@ compiler actually generated, unlike a hand-written <code>.s</code> file, this is
 something you wrote directly), followed by the full symbol table,
 function and global-variable addresses included. See
 <a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>.</p>
-<p>See <code>compiler/README.md</code> for exactly what's bundled and why. If you want
-to write more serious C programs of your own, rather than just work with
-this project's own test suite, build a proper, modern, actively-supported
-cross-compiler instead, with <a href="http://buildroot.uclibc.org/download.html">Buildroot</a>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># download and extract Buildroot, then:</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>make<span class="w"> </span>qemu_sparc_ss10_defconfig<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>make<span class="w"> </span>menuconfig
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1"># under &quot;Toolchain&quot;, enable &quot;Build cross gdb for the host&quot; if you want a</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1"># cross gdb, for debugging a *target* SPARC binary running under, say,</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># QEMU. Unrelated to this repo&#39;s own gdb support (see &quot;Examining Core</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="c1"># State at Runtime Using GDB&quot;), which uses the *host&#39;s* own gdb directly</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="c1"># on the host-native simulator process. No cross gdb needed for that.</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>make<span class="w">      </span><span class="c1"># downloads and builds everything, takes a while</span>
+<p>Run it directly against the model the same way as an assembly test, see
+<a href="writing_and_running_assembly_programs.html#building-and-running-it">Writing and Running Assembly Programs</a>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>your_program.hex
 </span></code></pre></div>
-<p>The resulting tools (<code>sparc-linux-gcc</code>, <code>sparc-linux-as</code>, ...) end up in
-<code>&lt;buildroot&gt;/output/host/usr/bin</code>. Add that to your <code>PATH</code>. See
-<code>compiler/README.md</code> for the full note, including a link to the original
-writeup this is based on.</p>
 <hr />
 <h2 id="structuring-a-test-program">Structuring a test program<a class="headerlink" href="#structuring-a-test-program" title="Permanent link">&para;</a></h2>
 <p>Write an ordinary, freestanding C <code>main()</code>. Every test in
@@ -1179,7 +1222,7 @@ check that <code>%o0</code> is <code>1</code>:</p>
 <p>The alternative, writing a raw computed value to a global and checking it
 directly via a <code>.vprj</code> <code>MEM</code> line (the address found in
 <code>your_program.objdump</code>'s symbol table, or <code>readelf -s your_program.elf</code>
-directly), still works. It's the same <a href="writing_and_running_assembly_programs.html#the-vprj-expected-results-file"><code>REG</code>/<code>MEM</code>
+directly), still works. It's the same <a href="validation_suite.html#the-vprj-expected-results-format"><code>REG</code>/<code>MEM</code>
 format</a>
 <code>validation/asm/</code> uses, but means the golden value is embedded in two
 places (the <code>.vprj</code> and, if the test computes its own pass/fail, the
@@ -1191,10 +1234,9 @@ algorithms.</p>
 <hr />
 <h2 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h2>
 <p>Same two-phase pipeline as <code>validation/asm/</code>, see
-<a href="writing_and_running_assembly_programs.html#running-it">Writing and Running Assembly Programs</a>
-and <code>validation/README.md</code>. <code>build_hex.py</code> picks <code>compiler/assemble.sh</code> or
-<code>compiler/compile_c.sh</code> automatically, based on whether a test's <code>SOURCES</code>
-line names a <code>.s</code> or a <code>.c</code> file.</p>
+<a href="validation_suite.html#running-the-suite">Validation Suite</a>. <code>build_hex.py</code>
+picks <code>compiler/assemble.sh</code> or <code>compiler/compile_c.sh</code> automatically,
+based on whether a test's <code>SOURCES</code> line names a <code>.s</code> or a <code>.c</code> file.</p>
 
 
 

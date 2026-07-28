@@ -1,6 +1,6 @@
 #sparc.gdb
 #
-#Convenience commands for examining a running sparc_cpp_sim/sitar_check_test
+#Convenience commands for examining a running sparc_sim_cpp/sparc_sim_sitar
 #under gdb (built with --debug -- see build.sh/build.py). See
 #docs/source/examining_core_state_with_gdb.md for why gdb-based debugging
 #exists at all in this repository; this file is purely a convenience
@@ -13,7 +13,7 @@
 #Load with, from gdb:
 #    source debug/sparc.gdb
 #or non-interactively:
-#    gdb -x debug/sparc.gdb ./sparc_cpp_sim
+#    gdb -x debug/sparc.gdb ./sparc_sim_cpp
 
 python
 

@@ -462,7 +462,7 @@ procedure SparcThread
 										//see DebugHooks.h/CoreLogger.h's file comments for why
 										//this exact point.
 										$
-										log<<endl<<core.logger.log_generic(current_time.cycle(), "EXECUTED", "");
+										log<<endl<<core.logger.log_execute(current_time.cycle(), opcode);
 										debug_hook_after_execute(core, opcode);
 										$;
 

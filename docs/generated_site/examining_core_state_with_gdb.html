@@ -16,7 +16,7 @@
         <link rel="prev" href="logging.html">
       
       
-        <link rel="next" href="model_components.html">
+        <link rel="next" href="validation_suite.html">
       
       
         
@@ -740,6 +740,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -806,14 +862,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -834,14 +890,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1236,7 +1292,7 @@
 
 <h1 id="examining-core-state-at-runtime-using-gdb">Examining Core State at Runtime Using GDB<a class="headerlink" href="#examining-core-state-at-runtime-using-gdb" title="Permanent link">&para;</a></h1>
 <p>Both models are, underneath everything else, plain host C++ programs
-(<code>sparc_cpp_sim</code>/<code>check_test</code>, <code>sitar_check_test</code>). That means the host's
+(<code>sparc_sim_cpp</code>, <code>sparc_sim_sitar</code>). That means the host's
 own <code>gdb</code> can attach to them directly. No cross-debugger and no special
 protocol are needed. It can step through simulated SPARC execution one
 instruction at a time, break on a specific PC/register/memory condition,
@@ -1345,7 +1401,7 @@ at the end of this section) and load the convenience commands from
 (this walkthrough only uses a few, see "Command reference" below for
 every one):</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gdb<span class="w"> </span>model/cpp_model/sparc_cpp_sim
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gdb<span class="w"> </span>model/cpp_model/sparc_sim_cpp
 </span></code></pre></div>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(gdb) source debug/sparc.gdb
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(gdb) sparc-break pc=0x203c
@@ -1405,12 +1461,11 @@ it:
 </span><span id="__span-11-5"><a id="__codelineno-11-5" name="__codelineno-11-5" href="#__codelineno-11-5"></a>o0 = 0x1 (1)
 </span></code></pre></div></p>
 <p><strong>Sitar model</strong>: everything above works identically against
-<code>model/sitar_model/executable/sitar_check_test</code> (built with
-<code>model/sitar_model/build.py --debug</code>), same commands, same addresses.
-Both models drive the same <code>SparcCore</code>, and the debug hooks live in the
-shared <code>cpp_common_code/</code>, not in either driver. The only difference is
-the CLI takes an extra expected-results argument:
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gdb<span class="w"> </span>model/sitar_model/executable/sitar_check_test
+<code>model/sitar_model/executable/sparc_sim_sitar</code> (built with
+<code>model/sitar_model/build.py --debug</code>), same commands, same addresses,
+same CLI. Both models drive the same <code>SparcCore</code>, and the debug hooks
+live in the shared <code>cpp_common_code/</code>, not in either driver.
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>gdb<span class="w"> </span>model/sitar_model/executable/sparc_sim_sitar
 </span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>debug/sparc.gdb
 </span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>sparc-break<span class="w"> </span><span class="nv">pc</span><span class="o">=</span>0x203c
 </span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>run<span class="w"> </span>docs/source/examples/array_sum/array_sum.hex<span class="w"> </span>docs/source/examples/array_sum/array_sum.expected

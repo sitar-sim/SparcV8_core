@@ -1,0 +1,8 @@
+SOURCES = test_simple_ADD.s
+
+
+
+RESULTS =
+o0=0x0000000C
+l0=0x00000005
+l1=0x00000007

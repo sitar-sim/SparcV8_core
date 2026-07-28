@@ -419,6 +419,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Organization
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -655,6 +666,62 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -721,14 +788,14 @@
   
   
     <li class="md-nav__item">
-      <a href="model_components.html" class="md-nav__link">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Model Components
+    SPARC V8 Architecture
   
 
     
@@ -749,14 +816,14 @@
   
   
     <li class="md-nav__item">
-      <a href="validation_suite.html" class="md-nav__link">
+      <a href="model_components.html" class="md-nav__link">
         
   
   
   <span class="md-ellipsis">
     
   
-    Validation Suite
+    Model Components
   
 
     
@@ -1046,6 +1113,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#organization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Organization
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1108,7 +1186,8 @@ These models are meant to be used as:</p>
     <a href="logging.html">Logging</a>.</p>
 </li>
 <li>
-<p><strong>Intuitive GDB-based runtime inspection of the processor state</strong><br />
+<p><strong>Intuitive <a href="https://en.wikipedia.org/wiki/GNU_Debugger">GDB</a>-based
+    runtime inspection of the processor state</strong><br />
     Independent of logging. See <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using
     GDB</a>.</p>
 </li>
@@ -1144,12 +1223,14 @@ background and history.</p>
 file. A procedure call can get a fresh set of registers without spilling
 to memory, simply by advancing a circular window into a larger physical
 register file.</p>
-<p>The authoritative specification for SPARC V8 is <em>The SPARC Architecture
-Manual, Version 8</em>, included in this repository at
-<a href="sparcv8_Architecture_reference_Manual.pdf"><code>docs/source/sparcv8_Architecture_reference_Manual.pdf</code></a>.
-This project's model follows it closely, with section references cited
-throughout the source (<code>model/cpp_common_code/SparcCore.cpp</code> in
-particular).</p>
+<p>The authoritative specification for SPARC V8 is
+<a href="sparcv8_Architecture_reference_Manual.pdf"><em>The SPARC Architecture Manual, Version 8</em></a>,
+included in this repository. This project's model follows it closely,
+with section references cited throughout the source
+(<code>model/cpp_common_code/SparcCore.cpp</code> in particular).</p>
+<p>See <a href="sparcv8_architecture.html">SPARC V8 Architecture</a> for an index into
+the manual's chapters and appendices, with each entry linked directly to
+its page in the bundled PDF.</p>
 <hr />
 <h2 id="models">Models<a class="headerlink" href="#models" title="Permanent link">&para;</a></h2>
 <p>Both models described above are built on the same core implementation
@@ -1159,14 +1240,51 @@ memory-access instruction set, with no notion of cycles, timing, or
 pipelining of its own. The two models differ only in how they drive this
 common code.</p>
 <ul>
-<li><strong>The C++ only functional model</strong> lives in <code>model/cpp_model/</code>.</li>
-<li><strong>The Sitar cycle-based timing model</strong> lives in <code>model/sitar_model/</code>.</li>
+<li><strong>The C++ only functional model</strong><br />
+    Lives in <code>model/cpp_model/</code>. A plain host C++ fetch-decode-execute-trap
+    loop (<code>SparcStateMachine</code>) drives the core directly, with zero modeled
+    latency. Every instruction "completes" the moment it starts. There are
+    no timing knobs here at all. Its intended use is fast, ISA-level
+    correctness checking.</li>
+<li><strong>The Sitar cycle-based timing model</strong><br />
+    Lives in <code>model/sitar_model/</code>. The same core is instead driven through
+    <a href="https://sitar-sim.github.io/sitar/">Sitar</a>, with a configurable opcode
+    latency plus separate interconnect and memory latencies you supply. Its
+    intended use is performance modeling, either standalone (to see how a
+    given latency configuration affects a program's runtime) or as the
+    timed core component inside a larger Sitar-based SoC/many-core
+    simulation. See <a href="performance_modeling.html">Performance Modeling</a> for the
+    three latency knobs.</li>
 </ul>
 <p>Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.</p>
 <p>See <a href="model_components.html">Model Components</a> for how the core, the
 memory, and any other components fit together, including a stub example
 of connecting an external component such as a cache.</p>
+<hr />
+<h2 id="organization">Organization<a class="headerlink" href="#organization" title="Permanent link">&para;</a></h2>
+<p>In the <a href="https://github.com/sitar-sim/SparcV8_core">source repository</a>,
+top-level folders are organized as follows.</p>
+<ul>
+<li><strong><code>model/</code></strong><br />
+    The core itself (<code>cpp_common_code/</code>), and the two testbenches that
+    drive it (<code>cpp_model/</code>, <code>sitar_model/</code>). See <a href="model_components.html">Model Components</a>.</li>
+<li><strong><code>validation/</code></strong><br />
+    The functional validation suite, assembly and C tests. See
+    <a href="validation_suite.html">Validation Suite</a>.</li>
+<li><strong><code>compiler/</code></strong><br />
+    The bundled <code>sparc-elf</code> cross-toolchain and the scripts that drive it.
+    See <a href="cross_compiler.html">Cross Compiler</a>.</li>
+<li><strong><code>log_viewer/</code></strong><br />
+    The trace visualizer tool. See <a href="logging.html#the-log-viewer">The log viewer</a>.</li>
+<li><strong><code>debug/</code></strong><br />
+    GDB support files for runtime inspection of a running model. See
+    <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</li>
+<li><strong><code>docs/</code></strong><br />
+    This documentation site's source and generator.</li>
+</ul>
+<p>To get started, see <a href="installation.html">Installation</a> and
+<a href="getting_started.html">Getting Started</a>.</p>
 
 
 

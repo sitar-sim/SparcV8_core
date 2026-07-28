@@ -69,18 +69,20 @@ Rebuild with logging enabled and run a test:
 
 ```sh
 model/sitar_model/build.py --logging
-model/sitar_model/executable/sitar_check_test <hex> <expected>
+model/sitar_model/executable/sparc_sim_sitar <hex> <expected>
 ```
 
-This writes `sparc_trace.log` (see [Getting Started](getting_started.md)
+This writes `<hex>`'s own trace file (`<hex>` with its `.hex` replaced by
+`.log`, see [Getting Started](getting_started.md#observing-the-simulation-log)
 and [The log viewer](logging.md#the-log-viewer)) into the current
-directory. Its `time` column is exactly the per-instruction cycle count
-this page is about.
+directory. Its
+`time` column is exactly the per-instruction cycle count this page is
+about.
 Either open it in `log_viewer/viewer.html` and read `time` off
 consecutive `FETCH` rows directly, or grep it on the command line:
 
 ```sh
-awk -F'\t' '$4=="FETCH"{print $2, $3, $5}' sparc_trace.log
+awk -F'\t' '$4=="FETCH"{print $2, $3, $5}' <hex_basename>.log
 ```
 
 For example, overriding `ADD`'s latency to 4 cycles (`{ADD, 4}` in

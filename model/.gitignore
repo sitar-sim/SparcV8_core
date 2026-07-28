@@ -9,10 +9,9 @@
 *.out
 *.elf
 
-# cpp_model's build.sh output -- extensionless executables, not caught by
+# cpp_model's build.sh output -- extensionless executable, not caught by
 # any pattern above
-/cpp_model/check_test
-/cpp_model/sparc_cpp_sim
+/cpp_model/sparc_sim_cpp
 
 # sitar_model's build.py output: build/ (translated .sitar->.cpp/.h,
 # regenerated from the tracked .sitar sources every build -- already
@@ -20,7 +19,7 @@
 # discoverability) and its extensionless executable, not caught by any
 # pattern above
 /sitar_model/build/
-/sitar_model/executable/sitar_check_test
+/sitar_model/executable/sparc_sim_sitar
 /sitar_model/sitar_scons_config.txt
 
 # SCons
@@ -56,7 +55,8 @@ venv/
 *.exp
 *.lib
 
-# test_simple_ADD.s: a hand-written, tracked example assembly source (not a
+# test_simple_ADD.s: a symlink to the hand-written, tracked example
+# assembly source in ../../validation/test_simple_ADD/ (not a
 # compiler-generated .s intermediate), see cpp_model/README.md and
 # sitar_model/README.md
 !/cpp_model/test/test_simple_ADD.s
@@ -77,3 +77,10 @@ site/
 
 # Logs
 *.log
+
+# Except test_simple_ADD's two tracked reference traces (see the root
+# .gitignore and validation/README.md): the exact path each model writes
+# to when built and run from its own folder, so a normal run there keeps
+# them up to date directly.
+!/cpp_model/test/test_simple_ADD.log
+!/sitar_model/executable/test_simple_ADD.log
