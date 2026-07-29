@@ -145,21 +145,30 @@ underneath -- from the user's side, both mean "tell me when this changes."
   currently stopped at (`debug_hook_annulled`). Not decoded to a mnemonic
   here (annulled instructions are deliberately never decoded by the model
   itself) -- cross-check the pc against an objdump instead.
-- **`sparc-print-mem [addr=<addr-expr>] [count=<n>] [format=<hex|bin|dec|str>]`**
-  -- no `addr=` given, while stopped in `debug_hook_mem_access`: prints
-  that access's own kind/address/word0/word1/MAE directly, whatever was
-  just completed, even if no register was updated. With `addr=`, reads and
-  prints live memory content there instead, from anywhere -- `count` words
-  (default 1, or however many an `addr=` range covers). No `coreid=` here:
-  memory isn't owned per-core in this model (there is exactly one
-  `MemCore` regardless of core count).
+- **`sparc-print-mem-access`** -- while stopped in `debug_hook_mem_access`:
+  prints that access's own kind/address/word0/word1/MAE directly,
+  whatever memory reference just completed, even if no register was
+  updated. No `coreid=` here: this reads the current frame's own core,
+  there is nothing to select.
+- **`sparc-print-mem addr=<addr-expr>`** -- reads and prints live memory
+  content at `addr` (exact/`lo:hi`/`base/mask`), from anywhere, in hex --
+  however many words the range covers (one, for an exact address). No
+  `coreid=` here: memory isn't owned per-core in this model (there is
+  exactly one `MemCore` regardless of core count).
 
-Note the one asymmetry in `coreid=`: for the *break* commands it's a
-**filter** (a condition on the hook's own `core` parameter -- omit it and
-nothing is filtered, any core matches). For the *print*/*watch-reg*
-commands it's a **selector** into `DebugRegistry` (which live `SparcCore` to
-read from -- there's no "no selection" concept there, so it defaults to
-`0`).
+`coreid=` is offered on anything that relates to a specific `SparcCore`
+instance (every `sparc-break-*` command, since each hook still receives
+the initiating core even for a memory event; `sparc-print-regs`/
+`sparc-print-reg`/`sparc-print-traps`/`sparc-watch-reg`, which read a
+core's own register/PSR/trap state), and withheld from anything that
+relates to `MemCore` instead (`sparc-watch-mem`, `sparc-print-mem`),
+since memory isn't owned per-core in this model at all. Note it means two
+different things depending on which side it's on: for the *break*
+commands it's a **filter** (a condition on the hook's own `core`
+parameter -- omit it and nothing is filtered, any core matches); for the
+*print*/`watch-reg` commands it's a **selector** into `DebugRegistry`
+(which live `SparcCore` to read from -- there's no "no selection" concept
+there, so it defaults to `0`).
 
 ## Design notes (for anyone extending this file)
 

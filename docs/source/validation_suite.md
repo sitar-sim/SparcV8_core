@@ -3,8 +3,8 @@
 Validating a processor model can mean different things: functional
 (does each instruction do the right thing), timing or microarchitectural
 (does it take the right number of cycles, in the right order), or both.
-`validation/` is this project's **functional** suite. There are no
-timing tests here. Both models drive the exact same `SparcCore` (see
+This project's suite, in `validation/`, is purely **functional**. There
+are no timing tests here. Both models drive the exact same `SparcCore` (see
 [Models](index.md#models)), so this one suite validates both, and
 catches a regression in either.
 
@@ -82,9 +82,9 @@ o2=0xFFFFFFFB
 - `asi = ...` lines (an AJIT-format leftover) are recognized and ignored.
   `MemCore` is a single flat address space with no ASI distinction.
 
-`run_tests.py` parses this and normalizes it into the plain
-`REG <name> <hex value> [mask]` / `MEM <addr> <hex value> [mask]` format,
-writing it to a `.expected` file alongside the test before running it.
+Before running a test, `run_tests.py` parses this and normalizes it into
+the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
+[mask]` format, writing it to a `.expected` file alongside the test.
 
 ---
 
@@ -109,12 +109,12 @@ validation/run_tests.py validation
 <passed>/<total> tests passed
 ```
 
-`.hex` files are committed to git, so phase 2 alone is enough to run the
-existing suite. Phase 1 is only needed after adding or editing a `.s`/`.c`
-source, and also (re)generates that test's `.objdump`.
+Since `.hex` files are committed to git, phase 2 alone is enough to run
+the existing suite. Phase 1 is only needed after adding or editing a
+`.s`/`.c` source, and also (re)generates that test's `.objdump`.
 
-`run_tests.py` takes a folder, not just the `validation` root, so you can
-point it at any subset:
+You can point `run_tests.py` at any subset too, not just the
+`validation` root:
 
 ```sh
 validation/run_tests.py validation/asm/floating_point
@@ -161,10 +161,10 @@ Two sub-suites, side by side under `validation/`, both using the same
     exercising a sequence of C-level operations together (loops, arrays,
     structs, global variables) the way a real program would, rather than
     one instruction in isolation. `compiler/compile_c.sh` builds a test's
-    `.c` the same way. Every test
-    here follows the same shape: compute something, compare it against a
-    golden value computed once on the host machine and hardcoded right
-    there in the source, and report pass (`1`) or fail (`0`) in `%o0`.
+    `.c` the same way. Every test here follows the same shape: compute
+    something, compare it against a golden value computed once on the
+    host machine and hardcoded right there in the source, and report
+    pass (`1`) or fail (`0`) in `%o0`.
     Its `.vprj` then only ever has to check `o0=1`, instead of
     re-embedding the golden value a second time. See
     [Writing and Running C Programs](writing_and_running_c_programs.md#structuring-a-test-program)
@@ -184,7 +184,7 @@ Two sub-suites, side by side under `validation/`, both using the same
     | `checksum` | Byte-array checksum |
     | `dot_product` | Integer vector dot product |
 
-`test_simple_ADD/` sits alongside them, one more `.vprj` test, but its
+Alongside them sits `test_simple_ADD/`, one more `.vprj` test, but its
 main job is as the small worked example used throughout the docs
 (`model/cpp_model/test/`, `model/sitar_model/executable/`, and
 `log_viewer/` all symlink to the files here rather than keeping their
@@ -204,7 +204,7 @@ own copies), see `validation/README.md`.
    pass-fail convention every test shares.
 3. Build and run it directly first, to find the actual final register
    values, see
-   [Building and running it](writing_and_running_assembly_programs.md#building-and-running-it)
+   [Assembling to generate a memory image](writing_and_running_assembly_programs.md#assembling-to-generate-a-memory-image-hex)
    (`compiler/assemble.sh <name>.s`, then `sparc_sim_cpp <name>.hex`
    with no expected-results argument, prints the final state).
 4. Write `<name>.vprj`, naming `<name>.s` as its `SOURCES` and listing

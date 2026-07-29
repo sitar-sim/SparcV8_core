@@ -574,57 +574,52 @@ deliberately never decoded by the model itself)."""
 		print("pc = 0x%x   npc = 0x%x   instruction word = 0x%08x" % (pc, npc, instr))
 
 
-def _format_values(vals, fmt):
-	if fmt == 'hex':
-		return " ".join("0x%08x" % v for v in vals)
-	if fmt == 'dec':
-		return " ".join(str(v) for v in vals)
-	if fmt == 'bin':
-		return " ".join(format(v, '032b') for v in vals)
-	if fmt == 'str':
-		b = bytearray()
-		for v in vals:
-			b += v.to_bytes(4, 'big')
-		return "".join(chr(c) if 32 <= c < 127 else '.' for c in b)
-	raise gdb.GdbError("unrecognized format: %s (hex/bin/dec/str)" % fmt)
+class SparcPrintMemAccess(gdb.Command):
+	"""sparc-print-mem-access
+While stopped in debug_hook_mem_access, prints that access's own
+kind/address/word0/word1/MAE directly -- whatever memory reference just
+completed, even if no register was updated. No coreid= here: this reads
+the current frame's own core, there is nothing to select."""
+	def __init__(self):
+		super(SparcPrintMemAccess, self).__init__("sparc-print-mem-access", gdb.COMMAND_DATA)
+
+	def invoke(self, arg, from_tty):
+		frame = gdb.selected_frame()
+		if frame.name() != "debug_hook_mem_access":
+			raise gdb.GdbError("not stopped in debug_hook_mem_access -- use sparc-break-mem first")
+		#str(kind) on this gdb.Value prints the enum's scoped name (e.g.
+		#"DebugMemAccessKind::STORE"); strip that down to just STORE,
+		#matching the plain kind= filter values sparc-break-mem takes.
+		kind = str(frame.read_var("kind")).split("::")[-1]
+		address = int(frame.read_var("address")) & 0xFFFFFFFF
+		word0 = int(frame.read_var("word0")) & 0xFFFFFFFF
+		word1 = int(frame.read_var("word1")) & 0xFFFFFFFF
+		mae = int(frame.read_var("core")['MAE'])
+		print("kind=%s address=0x%x word0=0x%x word1=0x%x MAE=%d" % (kind, address, word0, word1, mae))
 
 
 class SparcPrintMem(gdb.Command):
-	"""sparc-print-mem [addr=<addr-expr>] [count=<n>] [format=<hex|bin|dec|str>]
-No addr= given, while stopped in debug_hook_mem_access: prints that
-access's own kind/address/word0/word1/MAE directly -- whatever was just
-completed, even if no register was updated. With addr= (exact/lo:hi/
-base-mask), reads and prints live memory content there instead, from
-anywhere -- count words (default 1, or however many an addr= range
-covers), in the given format (default hex). There is no coreid= here:
-memory isn't owned per-core in this model (exactly one MemCore exists
-regardless of core count)."""
+	"""sparc-print-mem addr=<addr-expr>
+Reads and prints live memory content at addr (exact/lo:hi/base-mask, see
+"Address/PC syntax" -- the number of words printed is however many the
+range covers, one word for an exact address), from anywhere, in hex. No
+coreid= here: memory isn't owned per-core in this model (exactly one
+MemCore exists regardless of core count)."""
 	def __init__(self):
 		super(SparcPrintMem, self).__init__("sparc-print-mem", gdb.COMMAND_DATA)
 
 	def invoke(self, arg, from_tty):
 		opts = parse_kv(arg)
 		if 'addr' not in opts:
-			frame = gdb.selected_frame()
-			if frame.name() != "debug_hook_mem_access":
-				raise gdb.GdbError("no addr= given, and not stopped in debug_hook_mem_access "
-				                    "-- specify addr=, or use sparc-break-mem first")
-			kind = frame.read_var("kind")
-			address = int(frame.read_var("address")) & 0xFFFFFFFF
-			word0 = int(frame.read_var("word0")) & 0xFFFFFFFF
-			word1 = int(frame.read_var("word1")) & 0xFFFFFFFF
-			mae = int(frame.read_var("core")['MAE'])
-			print("kind=%s address=0x%x word0=0x%x word1=0x%x MAE=%d" % (kind, address, word0, word1, mae))
-			return
+			raise gdb.GdbError("usage: sparc-print-mem addr=<addr-expr>")
 		lo, size = addr_range(opts['addr'])
-		fmt = opts.get('format', 'hex')
-		n = int(opts['count'], 0) if 'count' in opts else max(1, (size + 3) // 4)
+		n = max(1, (size + 3) // 4)
 		vals = []
 		for i in range(n):
 			a = (lo & ~0x3) + i * 4
 			wp = int(gdb.parse_and_eval("(unsigned long)((MemCore*)%d)->wordPtr(0x%x)" % (mem_ptr(), a)))
 			vals.append(int(gdb.parse_and_eval("*(unsigned int*)%d" % wp)) & 0xFFFFFFFF)
-		print(_format_values(vals, fmt))
+		print(" ".join("0x%08x" % v for v in vals))
 
 
 #=====================================================================
@@ -645,6 +640,7 @@ SparcPrintRegs()
 SparcPrintReg()
 SparcPrintTraps()
 SparcPrintAnnulled()
+SparcPrintMemAccess()
 SparcPrintMem()
 
 print("sparc.gdb loaded. sparc-list / sparc-delete <id> to manage breakpoints "

@@ -99,7 +99,7 @@ sparc_sim_cpp <hex_file> [expected_results_file] [max_cycles]
     The memory image to run.
 - **An expected-results file** (optional)  
     A file listing the expected final register values, see
-    [Writing an expected-results file](writing_and_running_assembly_programs.md#writing-an-expected-results-file)
+    [Format for the expected-results file](writing_and_running_assembly_programs.md#format-for-the-expected-results-file)
     for its format. If given, once the program halts, the final
     processor state is checked against it and the executable prints a
     PASS/FAIL verdict per check plus an OVERALL result, instead of the

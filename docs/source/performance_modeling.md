@@ -3,10 +3,10 @@
 The Sitar model (`model/sitar_model/`) is a **simple, non-pipelined
 cycle-level timing model**. There is no pipelining and no out-of-order
 execution, just a fixed delay per opcode plus separately configurable
-memory-access latencies. This page covers where to change those numbers, and how to
-confirm a change actually took effect. See [Logging](logging.md) for how
-logging itself is architected (this page just uses it) and how to narrow
-a trace down at runtime.
+memory-access latencies. This page covers where to change those
+numbers, and how to confirm a change actually took effect. See
+[Logging](logging.md) for how logging itself is architected (this page
+just uses it) and how to narrow a trace down at runtime.
 
 ---
 
@@ -28,7 +28,7 @@ instruction, functionally identical to the plain `cpp_model`.
 
 ## Opcode latency
 
-`OpcodeLatencies.h` is a compile-time table:
+This is a compile-time table, `OpcodeLatencies.h`:
 
 ```cpp
 #define DEFAULT_PER_OPCODE_DELAY 1
@@ -38,17 +38,18 @@ static const std::unordered_map<Opcode, uint32_t> OPCODE_LATENCY_OVERRIDES = {
 };
 ```
 
-`DEFAULT_PER_OPCODE_DELAY` applies to every opcode not listed in
-`OPCODE_LATENCY_OVERRIDES`. List only the exceptions there, e.g. to
+Every opcode not listed in `OPCODE_LATENCY_OVERRIDES` gets
+`DEFAULT_PER_OPCODE_DELAY`. List only the exceptions there, e.g. to
 approximate a multi-cycle multiplier/divider. Edit and rebuild
 (`model/sitar_model/build.py`) to change it. This is deliberately not a
 runtime-loaded config file.
 
 ## Memory-side latency
 
-`MemoryInterface.delay` and `MainMemory.delay` both default to `0` and are
-otherwise only ever assigned from outside, in `Core.sitar`'s `init` block,
-alongside the `interface = &memInterface` wiring:
+The other two knobs, `MemoryInterface.delay` and `MainMemory.delay`,
+both default to `0` and are otherwise only ever assigned from outside,
+in `Core.sitar`'s `init` block, alongside the `interface =
+&memInterface` wiring:
 
 ```sitar
 init
@@ -75,11 +76,10 @@ model/sitar_model/executable/sparc_sim_sitar <hex> <expected>
 This writes `<hex>`'s own trace file (`<hex>` with its `.hex` replaced by
 `.log`, see [Getting Started](getting_started.md#observing-the-simulation-log)
 and [The log viewer](logging.md#the-log-viewer)) into the current
-directory. Its
-`time` column is exactly the per-instruction cycle count this page is
-about.
-Either open it in `log_viewer/viewer.html` and read `time` off
-consecutive `FETCH` rows directly, or grep it on the command line:
+directory. Its `time` column is exactly the per-instruction cycle count
+this page is about. Either open it in `log_viewer/viewer.html` and read
+`time` off consecutive `FETCH` rows directly, or grep it on the command
+line:
 
 ```sh
 awk -F'\t' '$4=="FETCH"{print $2, $3, $5}' <hex_basename>.log
