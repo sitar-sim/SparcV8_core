@@ -1412,7 +1412,7 @@ on every store and looking at where each one goes. <code>run</code> again first,
 restarting the program from the very beginning (the <code>pc=0x203c</code>
 breakpoint would otherwise have already skipped past the stores we want
 to see):
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(gdb) sparc-break-mem kind=store
+<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>(gdb) sparc-break-mem kind=STORE
 </span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>(gdb) run
 </span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>(gdb) sparc-print-mem-access
 </span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>kind=STORE address=0xfffffc8 word0=0x0 word1=0x1 MAE=0
@@ -1426,11 +1426,6 @@ to see):
 </span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a>(gdb) sparc-print-mem-access
 </span><span id="__span-10-13"><a id="__codelineno-10-13" name="__codelineno-10-13" href="#__codelineno-10-13"></a>kind=STORE address=0xfffffe0 word0=0x0 word1=0x5 MAE=0
 </span></code></pre></div></p>
-<p>Note the case: <code>kind=</code> is lower case when you type it as a filter
-(<code>ifetch</code>/<code>load</code>/<code>store</code>/<code>atomic</code>/<code>flush</code>), but printed back in upper
-case, since that's the underlying <code>DebugMemAccessKind</code> enum's own name
-(<code>IFETCH</code>/<code>LOAD</code>/<code>STORE</code>/<code>ATOMIC</code>/<code>FLUSH</code>). Every <code>kind=</code> in this page
-follows that same rule: lower case going in, upper case coming out.</p>
 <p>The first several hits are the array literal <code>{1,2,3,4,5}</code> itself being
 written into <code>values[]</code> (<code>fp-36</code> through <code>fp-20</code>), <code>0xfffffc8</code> above is
 actually earlier still, <code>crt0.s</code>'s own setup, before <code>main</code> even starts.

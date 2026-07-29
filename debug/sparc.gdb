@@ -337,18 +337,17 @@ mae added."""
 		register_bp("break-mae", bp, "break")
 
 
-MEM_KINDS = {"ifetch": "IFETCH", "load": "LOAD", "store": "STORE",
-             "atomic": "ATOMIC", "flush": "FLUSH"}
+MEM_KINDS = {"IFETCH", "LOAD", "STORE", "ATOMIC", "FLUSH"}
 
 
 class SparcBreakMem(gdb.Command):
-	"""sparc-break-mem [kind=<ifetch|load|store|atomic|flush>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]
+	"""sparc-break-mem [kind=<IFETCH|LOAD|STORE|ATOMIC|FLUSH>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]
 Break at debug_hook_mem_access, filtered by any combination of kind,
 address, data (word0 -- meaningful for load/store/atomic), and/or a
 faulting access (mae). All arguments optional and combinable, e.g.:
-  sparc-break-mem kind=load addr=0x2000:0x2100
-  sparc-break-mem kind=load mae
-  sparc-break-mem kind=ifetch addr=0x2054"""
+  sparc-break-mem kind=LOAD addr=0x2000:0x2100
+  sparc-break-mem kind=LOAD mae
+  sparc-break-mem kind=IFETCH addr=0x2054"""
 	def __init__(self):
 		super(SparcBreakMem, self).__init__("sparc-break-mem", gdb.COMMAND_BREAKPOINTS)
 
@@ -356,10 +355,10 @@ faulting access (mae). All arguments optional and combinable, e.g.:
 		opts = parse_kv(arg)
 		conds = []
 		if 'kind' in opts:
-			k = opts['kind'].lower()
+			k = opts['kind'].upper()
 			if k not in MEM_KINDS:
-				raise gdb.GdbError("unrecognized kind: %s (ifetch/load/store/atomic/flush)" % opts['kind'])
-			conds.append("kind == DebugMemAccessKind::%s" % MEM_KINDS[k])
+				raise gdb.GdbError("unrecognized kind: %s (IFETCH/LOAD/STORE/ATOMIC/FLUSH)" % opts['kind'])
+			conds.append("kind == DebugMemAccessKind::%s" % k)
 		if 'addr' in opts:
 			conds.append(addr_condition("address", opts['addr']))
 		if 'data' in opts:
