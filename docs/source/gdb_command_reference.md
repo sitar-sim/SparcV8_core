@@ -19,9 +19,7 @@ below, organized into three groups.
 
 ## Address/PC syntax
 
-**Address/PC arguments** (`pc=`, `addr=`) take a single value, one of
-three forms (not two separate options, `0x2000/0xfffff000` is one
-`addr=` value with a literal `/` in it):
+Every `pc=`/`addr=` argument takes a single value, one of three forms:
 
 | Form | Meaning |
 |---|---|
@@ -29,60 +27,107 @@ three forms (not two separate options, `0x2000/0xfffff000` is one
 | `0x2000:0x2100` | half-open range: `addr >= 0x2000 && addr < 0x2100` |
 | `0x2000/0xfffff000` | masked match: `(addr & mask) == (base & mask)` |
 
-Every numeric value anywhere in these commands, addresses included,
-accepts hex (`0x...`), binary (`0b...`), or plain decimal, the same
-`int(x, 0)` base auto-detection Python and C both use. `pc=0x203c`,
-`pc=0b10000000000111100`, and `pc=8252` all name the same address.
+In plain terms, specifying an address or a range of addresses works one
+of three ways:
 
-The third form describes the same *kind* of thing as the second, a
-contiguous range, just as a base address plus a bitmask instead of
-explicit bounds. `0x2000/0xfffff000` means "every address whose top 20
-bits match `0x2000`'s", which is the 4096-byte-aligned block
-`0x2000:0x3000`, the same range the `lo:hi` form above would write
-directly. The mask must be of the trailing-zero form `0xfff...000`
-(the zero bits are what's allowed to vary), so this only ever describes
-a power-of-2-sized, power-of-2-aligned range, never an arbitrary one.
+- **A single address**: `pc=0x2054` matches only that address.
+- **A range, `lo:hi`**: `addr=0x2000:0x2100` matches any address from
+  `0x2000` up to (not including) `0x2100`.
+- **A base and mask, `base/mask`**: `addr=0x2000/0xfffff000` matches any
+  address whose top 20 bits match `0x2000`'s, i.e. the aligned block
+  `0x2000:0x3000`. This is one single value (the `/` is part of it, not
+  a second option). The mask must be trailing zeros only (`0xfff...000`),
+  so it can only describe a power-of-2-sized, power-of-2-aligned block,
+  use `lo:hi` instead for anything else. Reach for this form specifically
+  when you need `sparc-watch-mem` to watch more than one word at once, a
+  real hardware watchpoint can only watch a power-of-2-aligned region, a
+  plain `lo:hi` range can't become one.
 
-Given that `lo:hi` can already express any range, `base/mask` exists for
-one specific reason: it's the only form `sparc-watch-mem` can turn into
-a single real hardware watchpoint, since a debug register only ever
-watches a power-of-2-aligned region, not an arbitrary `lo:hi` span. Use
-`lo:hi` for breakpoint filters (a software comparison, any range is
-fine), and `base/mask` specifically when you need `sparc-watch-mem` to
-watch more than one word at once. For a range that genuinely isn't
-contiguous or power-of-2-aligned, use several breakpoints/watchpoints
-instead.
+Numbers can be written in whichever base is convenient, these all name
+the same address:
+
+- **Hex**: `pc=0x203c`
+- **Binary**: `pc=0b10000000000111100`
+- **Decimal**: `pc=8252`
 
 ## Register-name syntax
 
-**Register-name arguments** accept windowed mnemonics (`g0`-`g7`,
-`o0`-`o7`, `l0`-`l7`, `i0`-`i7`), flat SPARC r-numbering (`r0`-`r31`,
-where `r1`==`g1`, `r9`==`o1`, the same numbering `Registers::R_r()`
-itself uses), or the specials `pc`, `npc`, `y`, `psr`, `wim`, `tbr`.
+For convenience, register names can be specified in multiple ways, in
+line with SPARC assembly syntax itself:
 
-## `coreid=`
+| Name | Same as |
+|---|---|
+| `g0`-`g7` | `r0`-`r7` |
+| `o0`-`o7` | `r8`-`r15` |
+| `l0`-`l7` | `r16`-`r23` |
+| `i0`-`i7` | `r24`-`r31` |
+| `pc` | *(none)* |
+| `npc` | *(none)* |
+| `y` | *(none)* |
+| `psr` | *(none)* |
+| `wim` | *(none)* |
+| `tbr` | *(none)* |
 
-`coreid=` is offered on anything that relates to a specific `SparcCore`
-instance, and withheld from anything that relates to `MemCore` instead,
-since memory isn't owned per-core in this model at all (there is exactly
-one `MemCore` regardless of core count):
+## Common options
 
-- **SparcCore-related, `coreid=` supported**: every breakpoint command
-  (`sparc-break`, `sparc-break-nth`, `sparc-break-trap`,
-  `sparc-break-mae`, `sparc-break-mem`, `sparc-break-annulled`, since
-  each hook still receives the initiating core even for a memory event),
-  plus `sparc-print-regs`, `sparc-print-reg`, `sparc-print-traps`, and
-  `sparc-watch-reg`, which read a core's own register/PSR/trap state.
-- **MemCore-related, no `coreid=`**: `sparc-watch-mem`,
-  `sparc-print-mem`.
+### `coreid=`
 
-It means two different things depending on which side it's on. For the
-*breakpoint* commands, `coreid=` is a **filter** on the hook's own
-`core.coreID`, omit it and any core matches. For the *probe/print* and
-`sparc-watch-reg` commands, `coreid=` is a **selector** into the runtime
-registry that finds a live `SparcCore` to read from (see
-[Debug Support Internals](debug_support_internals.md)), there's no "no
-selection" concept there, so it defaults to `0`.
+Selects a specific core, for a model built with more than one. Defaults
+to core `0` when not given.
+
+Only relevant to commands that relate to a specific core's own state:
+setting a breakpoint, or reading or watching its registers. Commands
+that relate to memory instead, such as `sparc-print-mem addr=...`, don't
+take it. This model has one shared memory, not one per core, so there is
+nothing to select.
+
+On a breakpoint, omitting `coreid=` means any core can trigger it. On the
+register/probe commands, there's no "any core" option, one specific core
+must always be read from, so it defaults to `0` rather than leaving the
+question open.
+
+### `kind=`
+
+Used by `sparc-break-mem` to filter which kind of memory reference to
+stop on. Always upper case, both when typed and when printed back (e.g.
+by `sparc-print-mem-access`):
+
+| Kind | Memory reference |
+|---|---|
+| `IFETCH` | fetching an instruction |
+| `LOAD` | a plain load |
+| `STORE` | a plain store |
+| `ATOMIC` | an atomic load-store (`swap`, `ldstub`, ...) |
+| `FLUSH` | an instruction-cache flush |
+
+### `type=`
+
+Used by `sparc-break-trap` to filter which trap cause to stop on. Omit
+it to stop on any cause:
+
+| Cause |
+|---|
+| `reset_trap` |
+| `data_store_error` |
+| `instruction_access_error` |
+| `r_register_access_error` |
+| `instruction_access_exception` |
+| `privileged_instruction` |
+| `illegal_instruction` |
+| `fp_disabled` |
+| `cp_disabled` |
+| `unimplemented_FLUSH` |
+| `window_overflow` |
+| `window_underflow` |
+| `mem_address_not_aligned` |
+| `fp_exception` |
+| `cp_exception` |
+| `data_access_error` |
+| `data_access_exception` |
+| `tag_overflow` |
+| `division_by_zero` |
+| `trap_instruction` |
+| `external_interrupt` |
 
 ---
 
@@ -92,22 +137,10 @@ selection" concept there, so it defaults to `0`.
 |---|---|---|
 | `sparc-break` | `pc=<addr-expr> [coreid=<n>]` | `debug_hook_after_execute` (an instruction has fully executed, PC/nPC not yet advanced) when PC matches |
 | `sparc-break-nth` | `pc=<addr-expr> n=<k> [coreid=<n>]` | same, but only the k-th match actually stops (gdb's own `ignore` under the hood) |
-| `sparc-break-trap` | `[type=<name>] [coreid=<n>]` | `debug_hook_trap_raised`, optionally filtered to one cause (see below) |
-| `sparc-break-mae` | `[coreid=<n>]` | `debug_hook_mem_access` with `core.MAE` set, any kind, any address |
-| `sparc-break-mem` | `[kind=<k>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]` (`<k>` is `ifetch`, `load`, `store`, `atomic`, or `flush`) | `debug_hook_mem_access`, filtered by any combination of kind/address/data (`word0`)/fault |
+| `sparc-break-trap` | `[type=<name>] [coreid=<n>]` | `debug_hook_trap_raised`, optionally filtered to one cause (see "Common options" above) |
+| `sparc-break-mae` | `[coreid=<n>]` | `debug_hook_mem_access` with `MAE` set (the access faulted), any kind, any address |
+| `sparc-break-mem` | `[kind=<k>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]` (`<k>` is one of the kinds in "Common options" above) | `debug_hook_mem_access`, filtered by any combination of kind/address/data (`word0`)/fault |
 | `sparc-break-annulled` | `[pc=<addr-expr>] [coreid=<n>]` | `debug_hook_annulled` (a delay-slot instruction skipped by an untaken annulling branch), firing before PC/nPC update for the skip, so they're still the annulled instruction's own address and what it advances to |
-
-For `sparc-break-trap`, `type=` is one of the same cause names
-`core.printTrap()` itself reports:
-
-`reset_trap` &middot; `data_store_error` &middot; `instruction_access_error` &middot;
-`r_register_access_error` &middot; `instruction_access_exception` &middot;
-`privileged_instruction` &middot; `illegal_instruction` &middot; `fp_disabled` &middot;
-`cp_disabled` &middot; `unimplemented_FLUSH` &middot; `window_overflow` &middot;
-`window_underflow` &middot; `mem_address_not_aligned` &middot; `fp_exception` &middot;
-`cp_exception` &middot; `data_access_error` &middot; `data_access_exception` &middot;
-`tag_overflow` &middot; `division_by_zero` &middot; `trap_instruction` &middot;
-`external_interrupt`. Omit `type=` for any cause.
 
 For a rare event, `sparc-break-mae` is the simple, no-thought shortcut.
 For anything more specific (a particular kind/address that also faults),
@@ -119,10 +152,10 @@ Examples:
 (gdb) sparc-break-nth pc=0x203c n=10
 (gdb) sparc-break-trap type=illegal_instruction
 (gdb) sparc-break-mae
-(gdb) sparc-break-mem kind=load addr=0x2000:0x2100
-(gdb) sparc-break-mem kind=load mae
-(gdb) sparc-break-mem kind=ifetch addr=0x2054
-(gdb) sparc-break-mem kind=store data=0xdeadbeef
+(gdb) sparc-break-mem kind=LOAD addr=0x2000:0x2100
+(gdb) sparc-break-mem kind=LOAD mae
+(gdb) sparc-break-mem kind=IFETCH addr=0x2054
+(gdb) sparc-break-mem kind=STORE data=0xdeadbeef
 (gdb) sparc-break-annulled pc=0x2038
 ```
 
@@ -142,7 +175,7 @@ This is deliberate: `sparc-watch-reg` is not a real watchpoint. A real
 one fires the instant the underlying storage changes, which for a
 register can be mid-instruction (e.g. window shuffling), before the
 value is architecturally committed. This instead checks `<reg>` once
-per instruction, at `debug_hook_after_execute`, the stable, retired
+per instruction, after it has fully completed, the stable, retired
 value, comparing it against its value at the previous check:
 
 | Arguments given | Fires |
@@ -165,16 +198,12 @@ Examples:
 
 | Command | Syntax | Shows |
 |---|---|---|
-| `sparc-print-regs` | `[coreid=<n>]` | full register/PSR dump (`CoreLogger::print_state()`), works from any frame, not just inside a hook |
+| `sparc-print-regs` | `[coreid=<n>]` | full register/PSR dump, works from any frame, not just inside a hook |
 | `sparc-print-reg` | `<reg> [coreid=<n>]` | one register's value, either naming scheme |
-| `sparc-print-traps` | `[coreid=<n>]` | trap cause (`core.printTrap()`), TBR, PC, and the ET/PS/S PSR bits |
+| `sparc-print-traps` | `[coreid=<n>]` | trap cause, TBR, PC, and the ET/PS/S PSR bits |
 | `sparc-print-annulled` | *(none)* | pc/npc/raw instruction word of the annul currently stopped at (`debug_hook_annulled`), not decoded to a mnemonic (annulled instructions are deliberately never decoded by the model itself). Cross-check the pc against an objdump instead |
 | `sparc-print-mem-access` | *(none)* | while stopped in `debug_hook_mem_access`: that access's own `kind`, address, word0, word1, MAE, whatever memory reference just completed, even if no register was updated |
 | `sparc-print-mem` | `addr=<addr-expr>` | live memory content at `addr`, from anywhere, in hex, however many words the range covers (one, for an exact address) |
-
-`kind` above is printed upper case (`LOAD`/`STORE`/`ATOMIC`/`IFETCH`/
-`FLUSH`), the `DebugMemAccessKind` enum's own name, even though it's
-typed lower case when used as a `sparc-break-mem` filter.
 
 Examples:
 ```

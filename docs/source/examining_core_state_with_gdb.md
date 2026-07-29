@@ -146,7 +146,7 @@ restarting the program from the very beginning (the `pc=0x203c`
 breakpoint would otherwise have already skipped past the stores we want
 to see):
 ```
-(gdb) sparc-break-mem kind=store
+(gdb) sparc-break-mem kind=STORE
 (gdb) run
 (gdb) sparc-print-mem-access
 kind=STORE address=0xfffffc8 word0=0x0 word1=0x1 MAE=0
@@ -160,12 +160,6 @@ kind=STORE address=0xfffffd0 word0=0x2 word1=0x1 MAE=0
 (gdb) sparc-print-mem-access
 kind=STORE address=0xfffffe0 word0=0x0 word1=0x5 MAE=0
 ```
-
-Note the case: `kind=` is lower case when you type it as a filter
-(`ifetch`/`load`/`store`/`atomic`/`flush`), but printed back in upper
-case, since that's the underlying `DebugMemAccessKind` enum's own name
-(`IFETCH`/`LOAD`/`STORE`/`ATOMIC`/`FLUSH`). Every `kind=` in this page
-follows that same rule: lower case going in, upper case coming out.
 
 The first several hits are the array literal `{1,2,3,4,5}` itself being
 written into `values[]` (`fp-36` through `fp-20`), `0xfffffc8` above is

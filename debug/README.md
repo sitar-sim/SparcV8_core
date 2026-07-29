@@ -93,12 +93,12 @@ Every command that takes a register name accepts:
   whenever `core.MAE` is set, any kind, any address. The simple, no-thought
   shortcut for a rare event; for anything more specific, use
   `sparc-break-mem` with `mae` added.
-- **`sparc-break-mem [kind=<ifetch|load|store|atomic|flush>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]`**
+- **`sparc-break-mem [kind=<IFETCH|LOAD|STORE|ATOMIC|FLUSH>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]`**
   -- break at `debug_hook_mem_access`, filtered by any combination:
   ```
-  sparc-break-mem kind=load addr=0x2000:0x2100
-  sparc-break-mem kind=load mae
-  sparc-break-mem kind=ifetch addr=0x2054
+  sparc-break-mem kind=LOAD addr=0x2000:0x2100
+  sparc-break-mem kind=LOAD mae
+  sparc-break-mem kind=IFETCH addr=0x2054
   ```
 - **`sparc-break-annulled [pc=<addr-expr>] [coreid=<n>]`** -- break at
   `debug_hook_annulled`. Fires before PC/nPC are updated for the skip, so
