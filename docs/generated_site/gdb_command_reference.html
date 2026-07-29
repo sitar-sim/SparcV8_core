@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="cross_compiler.html">
+        <link rel="prev" href="examining_core_state_with_gdb.html">
       
       
-        <link rel="next" href="examining_core_state_with_gdb.html">
+        <link rel="next" href="debug_support_internals.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Logging - Sitar model of a SPARC V8 core</title>
+        <title>GDB Command Reference - Sitar model of a SPARC V8 core</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#logging" class="md-skip">
+        <a href="#gdb-command-reference" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Logging
+              GDB Command Reference
             
           </span>
         </div>
@@ -629,37 +629,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="logging.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
         
   
   
@@ -675,70 +648,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-current-scheme" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The current scheme
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#compile-time-onoff" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Compile-time on/off
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#selective-onoff-at-runtime" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Selective on/off at runtime
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#the-log-viewer" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The log viewer
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -776,10 +685,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="gdb_command_reference.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="gdb_command_reference.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -795,6 +731,114 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#addresspc-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Address/PC syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#register-name-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register-name syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#coreid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coreid=
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1176,10 +1220,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-current-scheme" class="md-nav__link">
+  <a href="#addresspc-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The current scheme
+        Address/PC syntax
       
     </span>
   </a>
@@ -1187,10 +1231,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#compile-time-onoff" class="md-nav__link">
+  <a href="#register-name-syntax" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Compile-time on/off
+        Register-name syntax
       
     </span>
   </a>
@@ -1198,10 +1242,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#selective-onoff-at-runtime" class="md-nav__link">
+  <a href="#coreid" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Selective on/off at runtime
+        coreid=
       
     </span>
   </a>
@@ -1209,10 +1253,54 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#the-log-viewer" class="md-nav__link">
+  <a href="#breakpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The log viewer
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
       
     </span>
   </a>
@@ -1239,164 +1327,367 @@
   
 
 
-<h1 id="logging">Logging<a class="headerlink" href="#logging" title="Permanent link">&para;</a></h1>
-<p>Logging plays an important role in working with this model. It's how you
-watch a program execute instruction by instruction (see
-<a href="getting_started.html">Getting Started</a>), confirm a timing change actually
-took effect (see <a href="performance_modeling.html">Performance Modeling</a>), or
-work out why a test is failing without single-stepping a debugger. This
-page covers how logging is actually put together across both models, how
-to narrow it down to just the part of a run you care about, and how to
-explore the resulting trace in the bundled log viewer.</p>
-<hr />
-<h2 id="the-current-scheme">The current scheme<a class="headerlink" href="#the-current-scheme" title="Permanent link">&para;</a></h2>
-<p><code>SparcCore</code> owns a <code>CoreLogger</code> (<code>SparcCore::logger</code>). There is one per
-core instance, not per driver. Both <code>cpp_model</code> and <code>sitar_model</code> drive
-the same <code>SparcCore</code>, so both produce the <em>identical</em> trace format from
-it, one tab-separated row per architectural event (fetch, trap, memory
-access) with the entire current-window state. This is viewable the same
-way in the log viewer, regardless of which model produced it. See
-"The log viewer" below and <code>model/cpp_common_code/CoreLogger.h</code>.</p>
-<p>A driver uses <code>CoreLogger</code> one of two ways.</p>
+<h1 id="gdb-command-reference">GDB Command Reference<a class="headerlink" href="#gdb-command-reference" title="Permanent link">&para;</a></h1>
+<p>The exhaustive reference for every <code>sparc-*</code> command
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
+adds: syntax, behavior, and examples. For a beginner-facing introduction
+and a walkthrough instead, see
+<a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</p>
+<p>Loading <code>debug/sparc.gdb</code> (<code>source debug/sparc.gdb</code>) adds every command
+below, organized into three groups.</p>
 <ul>
-<li><strong><code>do_print=true</code></strong> (<code>cpp_model/sparc_sim.cpp</code>)<br />
-<code>CoreLogger</code> writes each row directly to a given <code>ostream</code> itself.</li>
-<li><strong><code>do_print=false</code></strong> (<code>sitar_model</code>)<br />
-    Each <code>log_*()</code> call just returns the formatted row. The caller
-    (<code>SparcThread.sitar</code>) forwards it into Sitar's own <code>log&lt;&lt;</code> mechanism
-    instead of writing it directly.</li>
+<li><strong>Breakpoints</strong> stop execution at one of the four <code>debug_hook_*()</code>
+  points (see <a href="debug_support_internals.html">Debug Support Internals</a>).</li>
+<li><strong>Watchpoints</strong> stop when a value changes.</li>
+<li><strong>Probe/print</strong> commands read state without stopping anything, usable
+  once you're already stopped somewhere.</li>
 </ul>
-<p>That second path is where Sitar's own per-module logging comes in. Every
-Sitar module or procedure owns a <code>sitar::logger</code>, unrelated to
-<code>CoreLogger</code>. This is Sitar's own class, see
-<a href="https://sitar-sim.github.io/sitar/3_language_and_examples/logging.html">Sitar's Logging documentation</a>
-for the full mechanism. It can be pointed at:</p>
-<ul>
-<li><strong>A common stream</strong><br />
-    Sitar's own default. <code>setHierarchicalOstream(TOP, stream)</code> (see
-    <code>sparc_sim.cpp</code>) points every module or procedure's logger at
-    the same <code>ostream</code>, so everything ends up interleaved together in one
-    place.</li>
-<li><strong>A per-module stream</strong><br />
-    Points just one procedure's <code>.log</code> at its own dedicated <code>ostream</code>.
-    This is what <code>sparc_sim.cpp</code> does for <code>sparcThread</code>
-    specifically. <code>sparcThread.log.setOstream(&amp;sparcTraceFile)</code>, plus
-    <code>useDefaultPrefix=false</code> and <code>setPrefix("")</code> to drop Sitar's own
-    <code>(time)hierarchicalId:</code> prefix, gives <code>sparcThread</code>'s own trace: pure
-    <code>CoreLogger</code> rows, nothing else, a clean file completely separate
-    from <code>mainMemory</code> and the <code>MemoryInterface</code> instances' own messages
-    (<code>sitar.log</code>). See <code>model/sitar_model/README.md</code>.</li>
-</ul>
-<p>Both models name that trace file after the hex file's own basename, with
-the trailing <code>.hex</code> replaced by <code>.log</code> (<code>test_simple_ADD.hex</code> produces
-<code>test_simple_ADD.log</code>, written into the current directory). Running a
-different test right after doesn't clobber the previous one's trace, the
-way a single fixed filename would.</p>
 <hr />
-<h2 id="compile-time-onoff">Compile-time on/off<a class="headerlink" href="#compile-time-onoff" title="Permanent link">&para;</a></h2>
-<p>Two macros are tied to the same <code>--logging</code> flag. <code>model/cpp_model/build.sh</code>
-and <code>model/sitar_model/build.py</code> both expose it. <code>build.py --logging</code>
-passes <code>--cflags=-DSPARC_LOGGING_ENABLED</code> through to <code>sitar compile</code>
-alongside Sitar's own <code>--logging</code>, so one flag controls both.</p>
-<ul>
-<li><strong><code>SPARC_LOGGING_ENABLED</code></strong><br />
-    Gates <code>CoreLogger</code>. Without it (the default), every <code>log_*()</code> method
-    compiles down to a trivial <code>return "";</code> stub. None of the
-    state-collection or formatting code exists in the binary at all, not
-    just skipped at runtime. See <code>CoreLogger.h</code>'s file comment.</li>
-<li><strong><code>SITAR_ENABLE_LOGGING</code></strong><br />
-    Gates Sitar's own <code>sitar::logger</code> class the same way (see
-    <code>sitar_logger.h</code> in the separate <code>sitar</code> repo).</li>
-</ul>
-<p>This is why logging is a rebuild, not a runtime flag. Formatting the
-entire current-window state (~50 fields) on every single instruction is
-real, non-negligible cost, and a <code>--no-logging</code> build pays literally none
-of it.</p>
-<hr />
-<h2 id="selective-onoff-at-runtime">Selective on/off at runtime<a class="headerlink" href="#selective-onoff-at-runtime" title="Permanent link">&para;</a></h2>
-<p>Even within a <code>--logging</code> build, you don't have to log everything.
-Sitar's <code>sitar::logger</code> has runtime <code>turnON()</code>/<code>turnOFF()</code>/<code>isON()</code>
-methods, checked on every <code>log&lt;&lt;</code> call. They're cheap to toggle as often
-as you like (see Sitar's own Logging documentation, linked above, for the
-full mechanism).</p>
-<p>A commented-out example of this lives in <code>Core.sitar</code>: a fourth branch in the
-top-level parallel block, alongside <code>sparcThread</code>, <code>mainMemory</code>, and the
-halt-detection monitor, that turns <code>sparcThread.log</code> on and off each
-cycle based on both simulated time and PC. Copy it out and adjust the two
-conditions to your own needs:</p>
-<div class="language-sitar highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="p">||</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="k">do</span>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>        <span class="k">wait</span> <span class="k">until</span> (<span class="k">this_phase</span>==<span class="mi">0</span>)<span class="p">;</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>        <span class="g">$</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="g">        bool inTimeWindow = current_time.cycle() &gt;= 1000 &amp;&amp; current_time.cycle() &lt; 2000;</span>
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="g">        bool inPCRange    = sparcThread.core.reg.R_PC() &gt;= 0x2000 &amp;&amp; sparcThread.core.reg.R_PC() &lt; 0x2100;</span>
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="g">        if (inTimeWindow &amp;&amp; inPCRange)</span>
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="g">            sparcThread.log.turnON();</span>
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a><span class="g">        else</span>
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a><span class="g">            sparcThread.log.turnOFF();</span>
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a><span class="g">        $</span><span class="p">;</span>
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>        <span class="k">wait</span>(<span class="mi">1</span>,<span class="mi">0</span>)<span class="p">;</span>
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">while</span> (<span class="mi">1</span>) <span class="k">end</span> <span class="k">do</span><span class="p">;</span>
-</span></code></pre></div>
-<div class="admonition note">
-<p class="admonition-title">Don't drop the <code>wait(1,0)</code></p>
-<p>It matters more than it looks. Without it, this loop never lets
-simulated time actually advance. <code>wait until (cond)</code> returns
-immediately once <code>cond</code> is already true, which it still is on the
-very next iteration, with nothing else in the loop to change that.
-So it spins at the same simulated instant forever, and hits Sitar's
-iteration-limit safety net almost immediately. One cycle is plenty,
-this only needs to re-check once per cycle.</p>
-</div>
-<p>Since this toggles <code>sparcThread.log</code> itself, it narrows the trace file
-down directly. Rows outside the window or range are simply never
-written, not filtered out afterward, turning a long run's trace into
-something small and targeted enough to load into the log viewer right
-away.</p>
-<p>The condition above still has to be decided in advance and built into
-<code>Core.sitar</code>. For a condition that depends on the program's own data at
-runtime, a register or memory location reaching a specific value, see
-<a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
+<h2 id="addresspc-syntax">Address/PC syntax<a class="headerlink" href="#addresspc-syntax" title="Permanent link">&para;</a></h2>
+<p><strong>Address/PC arguments</strong> (<code>pc=</code>, <code>addr=</code>) take a single value, one of
+three forms (not two separate options, <code>0x2000/0xfffff000</code> is one
+<code>addr=</code> value with a literal <code>/</code> in it):</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2054</code></td>
+<td>exact match: <code>addr == 0x2054</code></td>
+</tr>
+<tr>
+<td><code>0x2000:0x2100</code></td>
+<td>half-open range: <code>addr &gt;= 0x2000 &amp;&amp; addr &lt; 0x2100</code></td>
+</tr>
+<tr>
+<td><code>0x2000/0xfffff000</code></td>
+<td>masked match: <code>(addr &amp; mask) == (base &amp; mask)</code></td>
+</tr>
+</tbody>
+</table>
+<p>Every numeric value anywhere in these commands, addresses included,
+accepts hex (<code>0x...</code>), binary (<code>0b...</code>), or plain decimal, the same
+<code>int(x, 0)</code> base auto-detection Python and C both use. <code>pc=0x203c</code>,
+<code>pc=0b10000000000111100</code>, and <code>pc=8252</code> all name the same address.</p>
+<p>The third form describes the same <em>kind</em> of thing as the second, a
+contiguous range, just as a base address plus a bitmask instead of
+explicit bounds. <code>0x2000/0xfffff000</code> means "every address whose top 20
+bits match <code>0x2000</code>'s", which is the 4096-byte-aligned block
+<code>0x2000:0x3000</code>, the same range the <code>lo:hi</code> form above would write
+directly. The mask must be of the trailing-zero form <code>0xfff...000</code>
+(the zero bits are what's allowed to vary), so this only ever describes
+a power-of-2-sized, power-of-2-aligned range, never an arbitrary one.</p>
+<p>Given that <code>lo:hi</code> can already express any range, <code>base/mask</code> exists for
+one specific reason: it's the only form <code>sparc-watch-mem</code> can turn into
+a single real hardware watchpoint, since a debug register only ever
+watches a power-of-2-aligned region, not an arbitrary <code>lo:hi</code> span. Use
+<code>lo:hi</code> for breakpoint filters (a software comparison, any range is
+fine), and <code>base/mask</code> specifically when you need <code>sparc-watch-mem</code> to
+watch more than one word at once. For a range that genuinely isn't
+contiguous or power-of-2-aligned, use several breakpoints/watchpoints
 instead.</p>
-<hr />
-<h2 id="the-log-viewer">The log viewer<a class="headerlink" href="#the-log-viewer" title="Permanent link">&para;</a></h2>
-<p>A single, self-contained HTML file, <code>log_viewer/viewer.html</code>, explores a
-trace. It needs no build step and no server, and works entirely offline.
-Open it directly in any browser.</p>
-<p>It has three independently resizable panels.</p>
+<h2 id="register-name-syntax">Register-name syntax<a class="headerlink" href="#register-name-syntax" title="Permanent link">&para;</a></h2>
+<p><strong>Register-name arguments</strong> accept windowed mnemonics (<code>g0</code>-<code>g7</code>,
+<code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>), flat SPARC r-numbering (<code>r0</code>-<code>r31</code>,
+where <code>r1</code>==<code>g1</code>, <code>r9</code>==<code>o1</code>, the same numbering <code>Registers::R_r()</code>
+itself uses), or the specials <code>pc</code>, <code>npc</code>, <code>y</code>, <code>psr</code>, <code>wim</code>, <code>tbr</code>.</p>
+<h2 id="coreid"><code>coreid=</code><a class="headerlink" href="#coreid" title="Permanent link">&para;</a></h2>
+<p><code>coreid=</code> is offered on anything that relates to a specific <code>SparcCore</code>
+instance, and withheld from anything that relates to <code>MemCore</code> instead,
+since memory isn't owned per-core in this model at all (there is exactly
+one <code>MemCore</code> regardless of core count):</p>
 <ul>
-<li><strong>Disassembly</strong><br />
-    The <code>.objdump</code> of the program under test, so you can see the actual
-    instructions alongside their addresses.</li>
-<li><strong>Trace</strong><br />
-    One row per architectural event (<code>FETCH</code>, <code>EXECUTED</code>, <code>TRAP_RAISED</code>,
-    <code>MEM_READ</code>, and so on), color coded by event type.</li>
-<li><strong>State</strong><br />
-    The full processor state at whichever row is currently selected:
-    control fields (PC, nPC, WIM, Y, TBR), PSR flags, and all four
-    register groups (globals, outputs, locals, inputs).</li>
+<li><strong>SparcCore-related, <code>coreid=</code> supported</strong>: every breakpoint command
+  (<code>sparc-break</code>, <code>sparc-break-nth</code>, <code>sparc-break-trap</code>,
+  <code>sparc-break-mae</code>, <code>sparc-break-mem</code>, <code>sparc-break-annulled</code>, since
+  each hook still receives the initiating core even for a memory event),
+  plus <code>sparc-print-regs</code>, <code>sparc-print-reg</code>, <code>sparc-print-traps</code>, and
+  <code>sparc-watch-reg</code>, which read a core's own register/PSR/trap state.</li>
+<li><strong>MemCore-related, no <code>coreid=</code></strong>: <code>sparc-watch-mem</code>,
+  <code>sparc-print-mem</code>.</li>
 </ul>
-<p>Click a row in Trace to select it and see its state there. Click a line
-in Disassembly to jump to the first Trace row at that address. Use the
-Up/Down arrow keys to step through the trace row by row, regardless of
-any search. The search box (<code>field=value</code>, for example <code>PC=0x1c</code> or
-<code>l4=0x3434</code>) filters to matching rows, <code>prev</code>/<code>next</code> step through them.</p>
-<p><strong><a href="log_viewer/viewer.html?trace=test_simple_ADD.log">Try the log viewer here</a></strong>,
-preloaded with a small sample trace (from the bundled <code>test_simple_ADD</code>
-example) so you can explore it right away, no build required.</p>
-<p align="center">
-  <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
-    <img src="images/trace_viewer.png" alt="Screenshot of the trace viewer" title="Screenshot of the trace viewer" width="700">
-  </a>
-</p>
-
-<p>To view a trace of your own, open <code>log_viewer/viewer.html</code> from your own
-clone instead, and use its <code>Load trace</code>/<code>Load objdump</code> buttons (top
-right) to pick a trace file you produced yourself (see "Compile-time
-on/off" above) and its matching <code>.objdump</code>. See
-<code>log_viewer/README.md</code> for the full reference, including how to serve it
-locally so a fresh trace auto-loads from a URL, the same way the embedded
-copy above does.</p>
+<p>It means two different things depending on which side it's on. For the
+<em>breakpoint</em> commands, <code>coreid=</code> is a <strong>filter</strong> on the hook's own
+<code>core.coreID</code>, omit it and any core matches. For the <em>probe/print</em> and
+<code>sparc-watch-reg</code> commands, <code>coreid=</code> is a <strong>selector</strong> into the runtime
+registry that finds a live <code>SparcCore</code> to read from (see
+<a href="debug_support_internals.html">Debug Support Internals</a>), there's no "no
+selection" concept there, so it defaults to <code>0</code>.</p>
+<hr />
+<h2 id="breakpoints">Breakpoints<a class="headerlink" href="#breakpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Stops at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-break</code></td>
+<td><code>pc=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_after_execute</code> (an instruction has fully executed, PC/nPC not yet advanced) when PC matches</td>
+</tr>
+<tr>
+<td><code>sparc-break-nth</code></td>
+<td><code>pc=&lt;addr-expr&gt; n=&lt;k&gt; [coreid=&lt;n&gt;]</code></td>
+<td>same, but only the k-th match actually stops (gdb's own <code>ignore</code> under the hood)</td>
+</tr>
+<tr>
+<td><code>sparc-break-trap</code></td>
+<td><code>[type=&lt;name&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_trap_raised</code>, optionally filtered to one cause (see below)</td>
+</tr>
+<tr>
+<td><code>sparc-break-mae</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_mem_access</code> with <code>core.MAE</code> set, any kind, any address</td>
+</tr>
+<tr>
+<td><code>sparc-break-mem</code></td>
+<td><code>[kind=&lt;k&gt;] [addr=&lt;addr-expr&gt;] [data=&lt;hex&gt;] [mae] [coreid=&lt;n&gt;]</code> (<code>&lt;k&gt;</code> is <code>ifetch</code>, <code>load</code>, <code>store</code>, <code>atomic</code>, or <code>flush</code>)</td>
+<td><code>debug_hook_mem_access</code>, filtered by any combination of kind/address/data (<code>word0</code>)/fault</td>
+</tr>
+<tr>
+<td><code>sparc-break-annulled</code></td>
+<td><code>[pc=&lt;addr-expr&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_annulled</code> (a delay-slot instruction skipped by an untaken annulling branch), firing before PC/nPC update for the skip, so they're still the annulled instruction's own address and what it advances to</td>
+</tr>
+</tbody>
+</table>
+<p>For <code>sparc-break-trap</code>, <code>type=</code> is one of the same cause names
+<code>core.printTrap()</code> itself reports:</p>
+<p><code>reset_trap</code> &middot; <code>data_store_error</code> &middot; <code>instruction_access_error</code> &middot;
+<code>r_register_access_error</code> &middot; <code>instruction_access_exception</code> &middot;
+<code>privileged_instruction</code> &middot; <code>illegal_instruction</code> &middot; <code>fp_disabled</code> &middot;
+<code>cp_disabled</code> &middot; <code>unimplemented_FLUSH</code> &middot; <code>window_overflow</code> &middot;
+<code>window_underflow</code> &middot; <code>mem_address_not_aligned</code> &middot; <code>fp_exception</code> &middot;
+<code>cp_exception</code> &middot; <code>data_access_error</code> &middot; <code>data_access_exception</code> &middot;
+<code>tag_overflow</code> &middot; <code>division_by_zero</code> &middot; <code>trap_instruction</code> &middot;
+<code>external_interrupt</code>. Omit <code>type=</code> for any cause.</p>
+<p>For a rare event, <code>sparc-break-mae</code> is the simple, no-thought shortcut.
+For anything more specific (a particular kind/address that also faults),
+use <code>sparc-break-mem</code> with <code>mae</code> added.</p>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>(gdb) sparc-break-nth pc=0x203c n=10
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>(gdb) sparc-break-trap type=illegal_instruction
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>(gdb) sparc-break-mae
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>(gdb) sparc-break-mem kind=load addr=0x2000:0x2100
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>(gdb) sparc-break-mem kind=load mae
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>(gdb) sparc-break-mem kind=ifetch addr=0x2054
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>(gdb) sparc-break-mem kind=store data=0xdeadbeef
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>(gdb) sparc-break-annulled pc=0x2038
+</span></code></pre></div></p>
+<hr />
+<h2 id="watchpoints">Watchpoints<a class="headerlink" href="#watchpoints" title="Permanent link">&para;</a></h2>
+<p>Both are called "watchpoints" despite very different mechanisms
+underneath. From the user's side, both mean "tell me when this changes."</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-watch-mem</code></td>
+<td><code>addr=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td>true hardware watchpoint, firing the instant the value changes, wherever or whenever that happens (mid-instruction included). Large ranges may silently fall back to a slow software watchpoint if the host has no hardware debug register wide enough</td>
+</tr>
+<tr>
+<td><code>sparc-watch-reg</code></td>
+<td><code>&lt;reg&gt; [value=&lt;hex&gt;] [mask=&lt;hex&gt;] [persist] [coreid=&lt;n&gt;]</code></td>
+<td><strong>not</strong> a hardware watchpoint, see below</td>
+</tr>
+</tbody>
+</table>
+<p>This is deliberate: <code>sparc-watch-reg</code> is not a real watchpoint. A real
+one fires the instant the underlying storage changes, which for a
+register can be mid-instruction (e.g. window shuffling), before the
+value is architecturally committed. This instead checks <code>&lt;reg&gt;</code> once
+per instruction, at <code>debug_hook_after_execute</code>, the stable, retired
+value, comparing it against its value at the previous check:</p>
+<table>
+<thead>
+<tr>
+<th>Arguments given</th>
+<th>Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>(none)</em></td>
+<td>on any change from the previous check</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code></td>
+<td>once, on the transition <em>into</em> a matching value (edge-triggered)</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code> + <code>persist</code></td>
+<td>on <em>every</em> instruction the value/mask condition holds, not just the transition into it, a corner case, but a real one</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(gdb) sparc-watch-reg cwp
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>(gdb) sparc-watch-reg o1 value=0x10000000 mask=0xf0000000
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>(gdb) sparc-watch-reg o1 value=0x1 persist
+</span></code></pre></div></p>
+<hr />
+<h2 id="probe-print">Probe / print<a class="headerlink" href="#probe-print" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-print-regs</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>full register/PSR dump (<code>CoreLogger::print_state()</code>), works from any frame, not just inside a hook</td>
+</tr>
+<tr>
+<td><code>sparc-print-reg</code></td>
+<td><code>&lt;reg&gt; [coreid=&lt;n&gt;]</code></td>
+<td>one register's value, either naming scheme</td>
+</tr>
+<tr>
+<td><code>sparc-print-traps</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>trap cause (<code>core.printTrap()</code>), TBR, PC, and the ET/PS/S PSR bits</td>
+</tr>
+<tr>
+<td><code>sparc-print-annulled</code></td>
+<td><em>(none)</em></td>
+<td>pc/npc/raw instruction word of the annul currently stopped at (<code>debug_hook_annulled</code>), not decoded to a mnemonic (annulled instructions are deliberately never decoded by the model itself). Cross-check the pc against an objdump instead</td>
+</tr>
+<tr>
+<td><code>sparc-print-mem-access</code></td>
+<td><em>(none)</em></td>
+<td>while stopped in <code>debug_hook_mem_access</code>: that access's own <code>kind</code>, address, word0, word1, MAE, whatever memory reference just completed, even if no register was updated</td>
+</tr>
+<tr>
+<td><code>sparc-print-mem</code></td>
+<td><code>addr=&lt;addr-expr&gt;</code></td>
+<td>live memory content at <code>addr</code>, from anywhere, in hex, however many words the range covers (one, for an exact address)</td>
+</tr>
+</tbody>
+</table>
+<p><code>kind</code> above is printed upper case (<code>LOAD</code>/<code>STORE</code>/<code>ATOMIC</code>/<code>IFETCH</code>/
+<code>FLUSH</code>), the <code>DebugMemAccessKind</code> enum's own name, even though it's
+typed lower case when used as a <code>sparc-break-mem</code> filter.</p>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>(gdb) sparc-print-regs
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(gdb) sparc-print-reg o1
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>(gdb) sparc-print-reg r9
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>(gdb) sparc-print-traps
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>(gdb) sparc-print-annulled
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>(gdb) sparc-print-mem-access
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>kind=LOAD address=0xfffffe0 word0=0x1 word1=0x0 MAE=0
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>(gdb) sparc-print-mem addr=0xfffffe0
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>(gdb) sparc-print-mem addr=0x2000:0x2020
+</span></code></pre></div></p>
+<hr />
+<h2 id="managing-breakpointswatchpoints">Managing breakpoints/watchpoints<a class="headerlink" href="#managing-breakpointswatchpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-list</code></td>
+<td><em>(none)</em></td>
+<td>list every sparc-* breakpoint/watchpoint set so far, with the friendly label each was created with</td>
+</tr>
+<tr>
+<td><code>sparc-delete</code></td>
+<td><code>&lt;id&gt;</code></td>
+<td>remove one, by the id <code>sparc-list</code> shows</td>
+</tr>
+</tbody>
+</table>
+<p>Every command above prints a line when it creates a breakpoint/watchpoint,
+e.g. <code>[sparc #2] break pc=0x203c (gdb breakpoint #1)</code>. gdb's own <code>info
+breakpoints</code> shows the same entries, but only their raw translated
+condition string, which for these is rarely readable at a glance:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(gdb) sparc-list
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>id   gdb#   kind   hits   description
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>1    1      break  2      break pc=0x203c
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>2    2      watch  0      watch-mem addr=0xfffffe0
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(gdb) sparc-delete 1
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Deleted sparc #1 (break pc=0x203c)
+</span></code></pre></div></p>
+<hr />
+<h2 id="gdb-itself-briefly">GDB itself, briefly<a class="headerlink" href="#gdb-itself-briefly" title="Permanent link">&para;</a></h2>
+<p>A few native commands worth knowing, independent of anything above:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>break LOCATION if COND</code></td>
+<td>conditional breakpoint in one line</td>
+</tr>
+<tr>
+<td><code>watch EXPR</code></td>
+<td>hardware watchpoint, breaks the instant <code>EXPR</code>'s value changes</td>
+</tr>
+<tr>
+<td><code>ignore N COUNT</code></td>
+<td>skip the next <code>COUNT</code> hits of breakpoint <code>N</code> silently, stopping on hit <code>COUNT+1</code>. <code>ignore N 9</code> means "stop on the 10th occurrence" (this is exactly what <code>sparc-break-nth</code> does internally)</td>
+</tr>
+<tr>
+<td><code>call EXPR</code></td>
+<td>invoke a real function/method in the debuggee, print its result</td>
+</tr>
+<tr>
+<td><code>continue</code> / <code>c</code></td>
+<td>resume until the next breakpoint/watchpoint</td>
+</tr>
+<tr>
+<td><code>next</code> / <code>step</code></td>
+<td>step one <em>host</em> C++ line (steps through driver code, not one simulated SPARC instruction, use a <code>sparc-break</code>+<code>continue</code> loop for that instead)</td>
+</tr>
+<tr>
+<td><code>bt</code></td>
+<td>backtrace</td>
+</tr>
+<tr>
+<td><code>delete N</code></td>
+<td>remove breakpoint/watchpoint <code>N</code></td>
+</tr>
+<tr>
+<td><code>quit</code></td>
+<td>exit</td>
+</tr>
+</tbody>
+</table>
+<p>Every <code>sparc-*</code> command above is built entirely out of these. They're
+intuitive names standing in for the underlying condition syntax and
+symbol names, not a replacement for knowing them. See
+<a href="debug_support_internals.html">Debug Support Internals</a> for the
+implementation.</p>
 
 
 

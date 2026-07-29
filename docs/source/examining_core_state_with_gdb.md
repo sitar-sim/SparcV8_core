@@ -8,6 +8,14 @@ instruction at a time, break on a specific PC/register/memory condition,
 and inspect the entire architectural state, all without touching the
 model's own source.
 
+This page is a beginner-facing introduction and walkthrough. See
+[GDB Command Reference](gdb_command_reference.md) for the exhaustive,
+descriptive list of every `sparc-*` breakpoint/watchpoint/probe command,
+and [Debug Support Internals](debug_support_internals.md) for how this
+support is actually built.
+
+---
+
 ## Why use gdb instead of logging
 
 [Logging](logging.md) is the right tool when you want to *watch a
@@ -29,42 +37,40 @@ data) means adding that check into the model's source and recompiling
 instead. A gdb conditional breakpoint is the same check, attached at the
 debugger prompt, changeable between runs with no recompile.
 
+---
+
 ## Installing gdb
 
 ```sh
 sudo apt install gdb
 ```
 
+---
+
 ## Building with `--debug`
 
-By default, neither model is built with debug symbols. There's no reason
-to pay for `-g` in an ordinary build. Rebuild with `--debug`:
+By default, neither model is built with debug symbols. Rebuild with
+`--debug`:
 
 ```sh
 model/cpp_model/build.sh --debug
 model/sitar_model/build.py --debug
 ```
 
-This adds `-g` and compiles in a handful of named, otherwise-empty
-`debug_hook_*()` functions (see `model/cpp_common_code/DebugHooks.h`)
-that exist purely so gdb has a stable place to break on by name, at
-exactly the points an instruction can finish (executed, trapped, or
-annulled) or a memory reference completes. This is covered in the
-walkthrough below. It deliberately *stays* at `-O3`: gdb's `call`/`print`
-of a live function is generally unreliable against optimized code, but
-the handful of functions this actually relies on for that
-(`Registers::R_r()`, `CoreLogger::print_state()`, `SparcCore::printTrap()`,
-`MemCore::wordPtr()`) are individually pinned to `-O0` in their own
-definitions, so the rest of the simulator stays fast. `--logging`
-combines with `--debug` freely (all four combinations are valid), but
-for a gdb session you normally don't want it. Avoiding logging's
-per-instruction cost is the whole point.
+This adds debug symbols and a handful of stable, named hook points gdb
+can break on by name, at exactly the points an instruction can finish
+(executed, trapped, or annulled) or a memory reference completes, see
+[Debug Support Internals](debug_support_internals.md) for where these
+are and why. `--logging` combines with `--debug` freely (all four
+combinations are valid), but for a gdb session you normally don't want
+it. Avoiding logging's per-instruction cost is the whole point.
 
-If you need to debug something *outside* those hook points, an arbitrary
-breakpoint or single-step deep inside `SparcCore` itself, where `-O3`'s
-inlining and register allocation make local variables unreliable to
-inspect, use `--debug-o0` instead, which rebuilds the whole binary at
-`-O0`. It's slower. Only worth it for that kind of deep dive.
+For an arbitrary breakpoint or single-step deep inside `SparcCore`
+itself, beyond those hook points, use `--debug-o0` instead, see
+[Debug Support Internals](debug_support_internals.md#build-modes-debug-vs-debug-o0)
+for when and why.
+
+---
 
 ## A first walkthrough
 
@@ -82,8 +88,8 @@ It sums `{1,2,3,4,5}` in a loop and reports pass/fail in `%o0`. Build the
 cpp model with `--debug` (the sitar model works identically, see the note
 at the end of this section) and load the convenience commands from
 [`debug/sparc.gdb`](https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb)
-(this walkthrough only uses a few, see "Command reference" below for
-every one):
+(this walkthrough only uses a few, see
+[GDB Command Reference](gdb_command_reference.md) for every one):
 
 ```sh
 model/cpp_model/build.sh --debug
@@ -124,37 +130,71 @@ the same condition matching the next occurrence:
 Breakpoint 1, debug_hook_after_execute (core=..., op=LD) at ...
 ```
 
+Delete it before moving on, an active `pc=0x203c` breakpoint would keep
+firing on every loop iteration for the rest of this walkthrough
+otherwise, getting in the way of everything below:
+```
+(gdb) sparc-delete 1
+```
+
 To watch the running sum itself change, you first need its address.
 `array_sum.c` never spells it out, `sum` is a local, stack-resident
 variable (see "Finding addresses" below for why that's the one thing an
 objdump can't give you directly). Discover it live instead, by breaking
-on every store and looking at where each one goes:
+on every store and looking at where each one goes. `run` again first,
+restarting the program from the very beginning (the `pc=0x203c`
+breakpoint would otherwise have already skipped past the stores we want
+to see):
 ```
 (gdb) sparc-break-mem kind=store
-(gdb) continue
-(gdb) sparc-print-mem
+(gdb) run
+(gdb) sparc-print-mem-access
 kind=STORE address=0xfffffc8 word0=0x0 word1=0x1 MAE=0
 (gdb) continue
-(gdb) sparc-print-mem
+(gdb) sparc-print-mem-access
+kind=STORE address=0xfffffd0 word0=0x2 word1=0x1 MAE=0
+(gdb) continue
+(gdb) continue
+(gdb) continue
+(gdb) continue
+(gdb) sparc-print-mem-access
 kind=STORE address=0xfffffe0 word0=0x0 word1=0x5 MAE=0
 ```
-The first few hits are the array literal `{1,2,3,4,5}` itself being
-written, once each, to increasing addresses. `0xfffffc8` above is
+
+Note the case: `kind=` is lower case when you type it as a filter
+(`ifetch`/`load`/`store`/`atomic`/`flush`), but printed back in upper
+case, since that's the underlying `DebugMemAccessKind` enum's own name
+(`IFETCH`/`LOAD`/`STORE`/`ATOMIC`/`FLUSH`). Every `kind=` in this page
+follows that same rule: lower case going in, upper case coming out.
+
+The first several hits are the array literal `{1,2,3,4,5}` itself being
+written into `values[]` (`fp-36` through `fp-20`), `0xfffffc8` above is
 actually earlier still, `crt0.s`'s own setup, before `main` even starts.
-Keep `continue`-ing and one address starts repeating every loop
-iteration instead of appearing once: that's `sum`. Set the watchpoint on
-it:
+A few addresses repeat once each along the way too, that's just two
+adjacent 4-byte array elements sharing one 8-byte-aligned doubleword,
+the granularity this hook reports at, not a loop yet. Keep
+`continue`-ing (six times total gets you to `0xfffffe0` above) and past
+the array initialization, one address starts repeating on *every* loop
+iteration instead: that's `sum`. Delete the now-done store breakpoint
+first, it would otherwise keep firing on every store from here on,
+including the ones the watchpoint below is about to catch, then set the
+watchpoint on it:
 ```
+(gdb) sparc-delete 2
 (gdb) sparc-watch-mem addr=0xfffffe0
 (gdb) continue
-Hardware watchpoint 2: *(unsigned int*)...
+Hardware watchpoint 3: *(unsigned int*)...
 
-Old value = 1
-New value = 3
+Old value = 0
+New value = 1
 ```
 
-To catch the final pass/fail write into `%o0` directly:
+That's the first loop iteration adding `values[0]` (`1`) to `sum`
+(starting at `0`). Delete this watchpoint too before the next step, for
+the same reason, then catch the final pass/fail write into `%o0`
+directly:
 ```
+(gdb) sparc-delete 3
 (gdb) sparc-watch-reg o0
 (gdb) continue
 Breakpoint N, debug_hook_after_execute (core=..., op=OR) at ...
@@ -174,161 +214,7 @@ gdb model/sitar_model/executable/sparc_sim_sitar
 (gdb) run docs/source/examples/array_sum/array_sum.hex docs/source/examples/array_sum/array_sum.expected
 ```
 
-## Command reference
-
-`debug/sparc.gdb` (loaded with `source debug/sparc.gdb`) adds every
-command below, organized into three groups.
-
-- **Breakpoints** stop execution at one of the four `debug_hook_*()`
-  points (see `model/cpp_common_code/DebugHooks.h`).
-- **Watchpoints** stop when a value changes.
-- **Probe/print** commands read state without stopping anything, usable
-  once you're already stopped somewhere.
-
-Two syntax conventions apply throughout.
-
-**Address/PC arguments** (`pc=`, `addr=`) accept one of three forms:
-
-| Form | Meaning |
-|---|---|
-| `0x2054` | exact match |
-| `0x2000:0x2100` | half-open range: `addr >= lo && addr < hi` |
-| `0x2000/0xfffff000` | masked match: `(addr & mask) == (base & mask)` |
-
-The `base/mask` form is restricted to masks of the form `0xfff...000`
-(trailing zero bits): a contiguous, power-of-2-aligned range, same as the
-`lo:hi` form, just expressed differently, and the only form
-`sparc-watch-mem` can turn into a single watched region. For anything
-that genuinely isn't contiguous, use several breakpoints/watchpoints.
-
-**Register-name arguments** accept windowed mnemonics (`g0`-`g7`,
-`o0`-`o7`, `l0`-`l7`, `i0`-`i7`), flat SPARC r-numbering (`r0`-`r31`,
-where `r1`==`g1`, `r9`==`o1`, the same numbering `Registers::R_r()`
-itself uses), or the specials `pc`, `npc`, `y`, `psr`, `wim`, `tbr`.
-
-One asymmetry to know about. For the *breakpoint* commands, `coreid=` is
-a **filter** on the hook's own `core.coreID`. Omit it and any core
-matches. For the *probe/print* and `sparc-watch-reg` commands, `coreid=`
-is a **selector** into the runtime registry that finds a live `SparcCore`
-to read from (see `model/cpp_common_code/DebugRegistry.h`). There's no
-"no selection" concept there, so it defaults to `0`.
-`sparc-watch-mem`/`sparc-print-mem` take no `coreid=` at all: memory
-isn't owned per-core in this model (there is exactly one `MemCore`
-regardless of core count).
-
-### Breakpoints
-
-| Command | Syntax | Stops at |
-|---|---|---|
-| `sparc-break` | `pc=<addr-expr> [coreid=<n>]` | `debug_hook_after_execute` (an instruction has fully executed, PC/nPC not yet advanced) when PC matches |
-| `sparc-break-nth` | `pc=<addr-expr> n=<k> [coreid=<n>]` | same, but only the k-th match actually stops (gdb's own `ignore` under the hood) |
-| `sparc-break-trap` | `[type=<name>] [coreid=<n>]` | `debug_hook_trap_raised`, optionally filtered to one cause (see below) |
-| `sparc-break-mae` | `[coreid=<n>]` | `debug_hook_mem_access` with `core.MAE` set, any kind, any address |
-| `sparc-break-mem` | `[kind=<k>] [addr=<addr-expr>] [data=<hex>] [mae] [coreid=<n>]` (`<k>` is `ifetch`, `load`, `store`, `atomic`, or `flush`) | `debug_hook_mem_access`, filtered by any combination of kind/address/data (`word0`)/fault |
-| `sparc-break-annulled` | `[pc=<addr-expr>] [coreid=<n>]` | `debug_hook_annulled` (a delay-slot instruction skipped by an untaken annulling branch), firing before PC/nPC update for the skip, so they're still the annulled instruction's own address and what it advances to |
-
-`sparc-break-trap`'s `type=` is one of the same cause names
-`core.printTrap()` itself reports:
-
-`reset_trap` &middot; `data_store_error` &middot; `instruction_access_error` &middot;
-`r_register_access_error` &middot; `instruction_access_exception` &middot;
-`privileged_instruction` &middot; `illegal_instruction` &middot; `fp_disabled` &middot;
-`cp_disabled` &middot; `unimplemented_FLUSH` &middot; `window_overflow` &middot;
-`window_underflow` &middot; `mem_address_not_aligned` &middot; `fp_exception` &middot;
-`cp_exception` &middot; `data_access_error` &middot; `data_access_exception` &middot;
-`tag_overflow` &middot; `division_by_zero` &middot; `trap_instruction` &middot;
-`external_interrupt`. Omit `type=` for any cause.
-
-`sparc-break-mae` is the simple, no-thought shortcut for a rare event.
-For anything more specific (a particular kind/address that also faults),
-use `sparc-break-mem` with `mae` added.
-
-Examples:
-```
-(gdb) sparc-break pc=0x203c
-(gdb) sparc-break-nth pc=0x203c n=10
-(gdb) sparc-break-trap type=illegal_instruction
-(gdb) sparc-break-mae
-(gdb) sparc-break-mem kind=load addr=0x2000:0x2100
-(gdb) sparc-break-mem kind=load mae
-(gdb) sparc-break-mem kind=ifetch addr=0x2054
-(gdb) sparc-break-mem kind=store data=0xdeadbeef
-(gdb) sparc-break-annulled pc=0x2038
-```
-
-### Watchpoints
-
-Both are called "watchpoints" despite very different mechanisms
-underneath. From the user's side, both mean "tell me when this changes."
-
-| Command | Syntax | Mechanism |
-|---|---|---|
-| `sparc-watch-mem` | `addr=<addr-expr> [coreid=<n>]` | true hardware watchpoint, firing the instant the value changes, wherever or whenever that happens (mid-instruction included). Large ranges may silently fall back to a slow software watchpoint if the host has no hardware debug register wide enough |
-| `sparc-watch-reg` | `<reg> [value=<hex>] [mask=<hex>] [persist] [coreid=<n>]` | **not** a hardware watchpoint, see below |
-
-`sparc-watch-reg` is deliberately not a real watchpoint: a real one fires
-the instant the underlying storage changes, which for a register can be
-mid-instruction (e.g. window shuffling), before the value is
-architecturally committed. This instead checks `<reg>` once per
-instruction, at `debug_hook_after_execute`, the stable, retired value,
-comparing it against its value at the previous check:
-
-| Arguments given | Fires |
-|---|---|
-| *(none)* | on any change from the previous check |
-| `value=`/`mask=` | once, on the transition *into* a matching value (edge-triggered) |
-| `value=`/`mask=` + `persist` | on *every* instruction the value/mask condition holds, not just the transition into it, a corner case, but a real one |
-
-Examples:
-```
-(gdb) sparc-watch-mem addr=0xfffffe0
-(gdb) sparc-watch-reg cwp
-(gdb) sparc-watch-reg o1 value=0x10000000 mask=0xf0000000
-(gdb) sparc-watch-reg o1 value=0x1 persist
-```
-
-### Probe / print
-
-| Command | Syntax | Shows |
-|---|---|---|
-| `sparc-print-regs` | `[coreid=<n>]` | full register/PSR dump (`CoreLogger::print_state()`), works from any frame, not just inside a hook |
-| `sparc-print-reg` | `<reg> [coreid=<n>]` | one register's value, either naming scheme |
-| `sparc-print-traps` | `[coreid=<n>]` | trap cause (`core.printTrap()`), TBR, PC, and the ET/PS/S PSR bits |
-| `sparc-print-annulled` | *(none)* | pc/npc/raw instruction word of the annul currently stopped at (`debug_hook_annulled`), not decoded to a mnemonic (annulled instructions are deliberately never decoded by the model itself). Cross-check the pc against an objdump instead |
-| `sparc-print-mem` | `[addr=<addr-expr>] [count=<n>] [format=<f>]` (`<f>` is `hex`, `bin`, `dec`, or `str`) | no `addr=`, while stopped in `debug_hook_mem_access`: that access's own kind/address/word0/word1/MAE. With `addr=`: live memory content there instead, from anywhere, `count` words (default 1, or however many an `addr=` range covers) |
-
-Examples:
-```
-(gdb) sparc-print-regs
-(gdb) sparc-print-reg o1
-(gdb) sparc-print-reg r9
-(gdb) sparc-print-traps
-(gdb) sparc-print-annulled
-(gdb) sparc-print-mem
-kind=LOAD address=0xfffffe0 word0=0x1 word1=0x0 MAE=0
-(gdb) sparc-print-mem addr=0xfffffe0
-(gdb) sparc-print-mem addr=0x2000:0x2020 format=dec
-```
-
-### Managing breakpoints/watchpoints
-
-| Command | Syntax | Does |
-|---|---|---|
-| `sparc-list` | *(none)* | list every sparc-\* breakpoint/watchpoint set so far, with the friendly label each was created with |
-| `sparc-delete` | `<id>` | remove one, by the id `sparc-list` shows |
-
-Every command above prints a line when it creates a breakpoint/watchpoint,
-e.g. `[sparc #2] break pc=0x203c (gdb breakpoint #1)`. gdb's own `info
-breakpoints` shows the same entries, but only their raw translated
-condition string, which for these is rarely readable at a glance:
-```
-(gdb) sparc-list
-id   gdb#   kind   hits   description
-1    1      break  2      break pc=0x203c
-2    2      watch  0      watch-mem addr=0xfffffe0
-(gdb) sparc-delete 1
-Deleted sparc #1 (break pc=0x203c)
-```
+---
 
 ## Finding addresses
 
@@ -354,28 +240,3 @@ binary, a separate, heavier thing this repository doesn't do). Reading
 the disassembly's `%fp`-relative offsets directly, as the walkthrough's
 `0xfffffe0` address for `sum` did, is the way around this. Once you have
 one such address from a live run, it stays valid for that test.
-
-## GDB itself, briefly
-
-A few native commands worth knowing, independent of anything above:
-
-| Command | Does |
-|---|---|
-| `break LOCATION if COND` | conditional breakpoint in one line |
-| `watch EXPR` | hardware watchpoint, breaks the instant `EXPR`'s value changes |
-| `ignore N COUNT` | skip the next `COUNT` hits of breakpoint `N` silently, stopping on hit `COUNT+1`. `ignore N 9` means "stop on the 10th occurrence" (this is exactly what `sparc-break-nth` does internally) |
-| `call EXPR` | invoke a real function/method in the debuggee, print its result |
-| `continue` / `c` | resume until the next breakpoint/watchpoint |
-| `next` / `step` | step one *host* C++ line (steps through driver code, not one simulated SPARC instruction, use a `sparc-break`+`continue` loop for that instead) |
-| `bt` | backtrace |
-| `delete N` | remove breakpoint/watchpoint `N` |
-| `quit` | exit |
-
-Every `sparc-*` command above is built entirely out of these. They're
-intuitive names standing in for the underlying condition syntax and
-symbol names, not a replacement for knowing them. See
-[`debug/sparc.gdb`](https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb)
-for the implementation, and its own
-[README](https://github.com/sitar-sim/SparcV8_core/blob/main/debug/README.md)
-for the design notes behind it (why each function is pinned to `-O0`, how
-`DebugRegistry` makes state reachable from any frame, and so on).

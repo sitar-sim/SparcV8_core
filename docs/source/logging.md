@@ -90,7 +90,7 @@ methods, checked on every `log<<` call. They're cheap to toggle as often
 as you like (see Sitar's own Logging documentation, linked above, for the
 full mechanism).
 
-`Core.sitar` has a commented-out example of this: a fourth branch in the
+A commented-out example of this lives in `Core.sitar`: a fourth branch in the
 top-level parallel block, alongside `sparcThread`, `mainMemory`, and the
 halt-detection monitor, that turns `sparcThread.log` on and off each
 cycle based on both simulated time and PC. Copy it out and adjust the two
@@ -112,13 +112,14 @@ conditions to your own needs:
 	while (1) end do;
 ```
 
-The `wait(1,0)` at the end matters more than it looks. Without it, this
-loop never lets simulated time actually advance. `wait until (cond)`
-returns immediately once `cond` is already true, which it still is on
-the very next iteration, with nothing else in the loop to change that.
-So it spins at the same simulated instant forever, and hits Sitar's
-iteration-limit safety net almost immediately. One cycle is plenty. This
-only needs to re-check once per cycle.
+!!! note "Don't drop the `wait(1,0)`"
+    It matters more than it looks. Without it, this loop never lets
+    simulated time actually advance. `wait until (cond)` returns
+    immediately once `cond` is already true, which it still is on the
+    very next iteration, with nothing else in the loop to change that.
+    So it spins at the same simulated instant forever, and hits Sitar's
+    iteration-limit safety net almost immediately. One cycle is plenty,
+    this only needs to re-check once per cycle.
 
 Since this toggles `sparcThread.log` itself, it narrows the trace file
 down directly. Rows outside the window or range are simply never
@@ -136,9 +137,9 @@ instead.
 
 ## The log viewer
 
-`log_viewer/viewer.html` is a single, self-contained HTML file for
-exploring a trace. It needs no build step and no server, and works
-entirely offline. Open it directly in any browser.
+A single, self-contained HTML file, `log_viewer/viewer.html`, explores a
+trace. It needs no build step and no server, and works entirely offline.
+Open it directly in any browser.
 
 It has three independently resizable panels.
 
@@ -162,6 +163,12 @@ any search. The search box (`field=value`, for example `PC=0x1c` or
 **[Try the log viewer here](log_viewer/viewer.html?trace=test_simple_ADD.log)**,
 preloaded with a small sample trace (from the bundled `test_simple_ADD`
 example) so you can explore it right away, no build required.
+
+<p align="center">
+  <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
+    <img src="images/trace_viewer.png" alt="Screenshot of the trace viewer" title="Screenshot of the trace viewer" width="700">
+  </a>
+</p>
 
 To view a trace of your own, open `log_viewer/viewer.html` from your own
 clone instead, and use its `Load trace`/`Load objdump` buttons (top

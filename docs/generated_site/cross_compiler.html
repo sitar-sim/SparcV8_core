@@ -16,7 +16,7 @@
         <link rel="prev" href="validation_suite.html">
       
       
-        <link rel="next" href="sparcv8_architecture.html">
+        <link rel="next" href="logging.html">
       
       
         
@@ -517,62 +517,6 @@
   
   
     <li class="md-nav__item">
-      <a href="logging.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Examining Core State with GDB
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="validation_suite.html" class="md-nav__link">
         
   
@@ -717,7 +661,7 @@
   <span class="md-ellipsis">
     
   
-    The Model
+    Logging and Monitoring
   
 
     
@@ -730,6 +674,177 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -850,10 +965,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
         
           
-          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
             
   
   
@@ -871,8 +986,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_4">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1059,19 +1174,27 @@
 
 
 <h1 id="cross-compiler">Cross Compiler<a class="headerlink" href="#cross-compiler" title="Permanent link">&para;</a></h1>
-<p>A prebuilt, 32-bit x86 (i386) <code>sparc-elf</code> cross-toolchain is bundled as a
-release with this repository: an assembler (<code>sparc-elf-as</code>), a linker
-(<code>sparc-elf-ld</code>), a minimal freestanding C compiler (<code>sparc-elf-gcc</code>,
-GCC 4.4.3), <code>objdump</code>, and <code>readelf</code>. See
-<a href="installation.html">Installation</a> step 6 to install it.
-<code>compiler/assemble.sh</code> and <code>compiler/compile_c.sh</code> drive it to build
-this project's own test programs, see
-<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
-and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
+<p>Assembling or compiling a test program for this model needs a
+cross-toolchain: tools that run on your host but produce SPARC V8
+binaries. Rather than requiring you to build one yourself just to try
+the bundled example, a prebuilt release ships with this repository.</p>
+<p>A prebuilt, 32-bit x86 (i386) <code>sparc-elf</code> toolchain, bundled as a
+release:</p>
+<ul>
+<li><strong><code>sparc-elf-as</code></strong>, the assembler.</li>
+<li><strong><code>sparc-elf-ld</code></strong>, the linker.</li>
+<li><strong><code>sparc-elf-gcc</code></strong> (GCC 4.4.3), a minimal freestanding C compiler.</li>
+<li><strong><code>objdump</code></strong>, <strong><code>readelf</code></strong>.</li>
+</ul>
+<p>See <a href="installation.html">Installation</a> step 5 to install it.</p>
 <p>It exists for one narrow purpose: building this project's own
 <code>validation/asm/</code> and <code>validation/C/</code> tests, with no setup beyond
-installing the bundled release. See <code>compiler/README.md</code> for exactly
-what's bundled and why.</p>
+installing the bundled release. Two scripts, <code>compiler/assemble.sh</code> and
+<code>compiler/compile_c.sh</code>, drive it to build this project's own test
+programs, see
+<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.
+See <code>compiler/README.md</code> for exactly what's bundled and why.</p>
 <hr />
 <h2 id="building-your-own-instead">Building your own, instead<a class="headerlink" href="#building-your-own-instead" title="Permanent link">&para;</a></h2>
 <p>If you want to write more serious programs of your own, rather than
