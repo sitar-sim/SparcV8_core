@@ -3,8 +3,8 @@
 This page assumes you've completed [Installation](installation.md). It
 walks through the whole toolchain hands-on: a simple test program,
 building both models, running the simulator against it, observing the
-resulting trace in the log viewer, and running the full validation
-suite.
+resulting trace in the log viewer, running the full validation suite,
+and debugging with gdb.
 
 ## SPARC V8
 
@@ -32,6 +32,11 @@ image is already present too, at `test/test_simple_ADD.hex`, along with
 its disassembly at `test/test_simple_ADD.objdump` (both paths relative
 to `model/cpp_model/`). We'll point the simulator straight at the `.hex`
 file.
+
+Later, to modify this test or write your own, you'll need to compile it
+into a memory image (`.hex`) yourself. See
+[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+or [Writing and Running C Programs](writing_and_running_c_programs.md).
 
 ---
 
@@ -70,8 +75,7 @@ Both build scripts take the same options:
 
 ## Running the simulator
 
-To run the cpp model along with a specific memory file (hex), 
-from the repo root:
+To run the C++ model against a memory image, from the repo root:
 
 ```sh
 cd model/cpp_model
@@ -88,49 +92,83 @@ cd model/sitar_model/executable
 The simulation executable expects the following arguments:
 
 ```
-sparc_sim_cpp <hex_file> [expected_file] [max_cycles]
+sparc_sim_cpp <hex_file> [expected_results_file] [max_cycles]
 ```
 
 - **A hex file** (required)  
     The memory image to run.
 - **An expected-results file** (optional)  
-    A file with a specific format containing the expected results (register values) 
-    at the end of simulation.  If given, after completion of the simulation, the final processor state  
-    is compared against this file and the executable returns a `PASS`/`FAIL` verdict instead of 
-    printing the detailed state.
-
+    A file listing the expected final register values, see
+    [Writing an expected-results file](writing_and_running_assembly_programs.md#writing-an-expected-results-file)
+    for its format. If given, once the program halts, the final
+    processor state is checked against it and the executable prints a
+    PASS/FAIL verdict per check plus an OVERALL result, instead of the
+    detailed state.
 - **A cycle limit** (optional)  
     Caps how long the simulator runs before giving up, in case the
-    program never halts (a bug, or a genuine infinite loop). It defaults to 1000000. 
-    Pass a smaller number to fail fast on a quick test, or a
+    program never halts (a bug, or a genuine infinite loop). Defaults to
+    1000000. Pass a smaller number to fail fast on a quick test, or a
     larger one for a program that legitimately needs more cycles than
     that to finish.
 
-For example:
+For example, checking the same run against its expected-results file,
+back in `model/cpp_model`:
 
 ```sh
 ./sparc_sim_cpp test/test_simple_ADD.hex test/test_simple_ADD.expected 1000
+```
+
+```
+PASS: o0 = 0xc
+PASS: l0 = 0x5
+PASS: l1 = 0x7
+OVERALL: PASS (3 checks)
 ```
 
 ---
 
 ## Observing the simulation log
 
-When built with `--logging`, a simulation run also produces a `.log` file
-into the current directory, containing a detailed simulation trace showing the 
-processor state at the end of each instruction cycle.
+When built with `--logging`, a simulation run also produces a `.log`
+file in the current directory, containing a detailed simulation trace
+showing the processor state at the end of each instruction cycle.
 
+The generated log file has the same name as the `.hex` file, but with a
+`.log` extension. Although it's a plain text file in tab-separated value
+(tsv) format, and can be viewed in any editor, this project provides a
+graphical trace visualizer to step through the execution and watch the
+processor state evolve.
 
-The log file is a tab-separated text file and can be viewed with a normal editor. 
-A visual (html) log viewer is provided to view the trace and processor state in a more intuitive manner.
-Try it here: **[log viewer, preloaded with this same
-example](log_viewer/viewer.html?trace=test_simple_ADD.log)**.
+### Try the trace viewer here
 
-To view any log file, yuo can also open `log_viewer/viewer.html` in a browser, 
-and then click **Load trace** and pick the log file and **Load objdump** to pick the matching disassembly file.
+**[log viewer, preloaded with the trace for the test_simple_ADD example](log_viewer/viewer.html?trace=test_simple_ADD.log)**.
 
-Step through the trace row by row (arrow keys) and watch the processor
-evolve:
+<p align="center">
+  <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
+    <img src="images/trace_viewer.png" alt="Screenshot of the trace viewer" title="Screenshot of the trace viewer" width="700">
+  </a>
+</p>
+
+The viewer allows the user to simultaneously view:
+
+- the simulation event trace (`.log`)
+- the assembly code being run (`.objdump`)
+- and the processor state at the end of each traced event, showing the register values.
+
+#### Using the viewer
+
+- Clicking on a line in the trace automatically highlights the
+  corresponding line in the disassembly and shows the processor state
+  for that event. The `up` and `down` arrow keys can be used to step
+  forwards and backwards through the execution trace.
+- Register values that change at each step are highlighted.
+- A search bar at the top lets you search for a specific PC or register
+  value in the event trace and jump to it. The `Next` and `Prev` buttons
+  step through multiple matches.
+
+Each row in the generated log records a sequence number, time, PC, event
+type, an event-specific detail, and the full processor state. The event
+types are:
 
 - **`RESET` then `TRAP_ENTER`**  
     At the very start of every run. The model always boots by taking an
@@ -151,24 +189,51 @@ evolve:
     `PROCESSOR STATE: ERROR` and `Simulation halted after N cycles.`
     output means, and it's expected, not a bug.
 
+To view a different log file, open `log_viewer/viewer.html` directly in
+a browser, then click **Load trace** to pick the log file and
+**Load objdump** to pick its matching disassembly file.
+
+!!! note "Viewing memory state"
+    The generated log and viewer don't currently track memory state,
+    even though the trace may contain load/store event details.
+
+    For examining or probing memory state during execution, see
+    [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
+
 ---
 
 ## Running a validation suite
 
-Using the same expected-results format, without logging (faster and
-quieter), the same executables can be run against a large number of test
-program/expected-result pairs at once, as a validation suite. A large
-validation suite, several hundred assembly tests plus a handful of C
-ones, is available in `validation/`.
+This project includes a large, well-curated suite of tests for
+functional validation of the models. Each test is a small program
+(assembly or C) paired with a description of its expected result. The
+tests, and the scripts to run them, are included in `validation/`.
 
-From the repo root, rebuild without `--logging`:
+The suite contains:
+
+- **Assembly tests**  
+    The `asm/` folder contains several hundred assembly tests, organized
+    into instruction-type clusters, each targeting one instruction (or a
+    small family of closely related ones).
+- **C tests**  
+    The `C/` folder contains self-checking C programs, each computing
+    some integer or floating-point operation and comparing the result
+    against a known value.
+- **A test runner**  
+    `validation/run_tests.py` runs them all and reports a pass/fail
+    summary.
+
+It's worth running whenever you change the model itself, to check
+nothing broke. Rebuild both models without `--logging` first. Some
+tests run long, and logging isn't needed here:
 
 ```sh
 model/cpp_model/build.sh
 model/sitar_model/build.py
 ```
 
-Then run it, by passing a folder containing the tests as an argument. Example:
+Then run `validation/run_tests.py`, pointing it at a folder of tests.
+Example, a small subset first:
 
 ```sh
 validation/run_tests.py validation/asm/misc/
@@ -181,19 +246,60 @@ validation/run_tests.py validation/asm/misc/
 <passed>/<total> tests passed
 ```
 
-`validation/run_tests.py` has the following options:
+Point it at `validation` itself to run the entire suite instead of one
+folder:
 
 ```sh
-validation/run_tests.py <folder> [--sitar] [-v]
+validation/run_tests.py validation
 ```
 
-- **`folder`**  
-    Navigate this subfolder recursively and run all tests inside it.
-- **`--sitar`**  
-    Run the identical suite against the Sitar-timed model instead of the
-    plain C++ one (the default).
-- **`-v`**  
-    Show every check's result, not just failures.
+The script runs the tests on the C++ model by default. To run it on the
+Sitar model instead, pass the `--sitar` option. Add `-v` to show every
+check's result, not just failures:
+
+```sh
+validation/run_tests.py validation --sitar -v
+```
+
+See [Validation Suite](validation_suite.md) for what's in a test and how to add a new test to the suite.
+
+---
+
+## Debugging
+
+Logging suits a small test program well, but a long-running one can
+produce a log file too large to comfortably read through. Even with
+logging selectively turned on and off, the exact condition or bug you're
+chasing can be hard to pin down or trace this way. This is where a
+debugger becomes useful: it lets you surgically track a specific change,
+or inspect state at a specific point or condition at runtime, without
+printing large volumes of log output.
+
+GNU's `gdb`, the standard debugger, is enough for this. Both models are,
+underneath everything else, plain host C++ programs, so `gdb` attaches
+to them directly, no cross-debugger or special protocol needed. Using it
+well does still need some familiarity with the model's own source, to
+know which variables hold the simulated architectural state.
+
+Build with `--debug` first:
+
+```sh
+model/cpp_model/build.sh --debug
+model/sitar_model/build.py --debug
+```
+
+To make this convenient, `debug/sparc.gdb` provides a large set of
+shortcut commands. For example, setting a breakpoint at a specific PC, a
+watchpoint on a memory location, or printing one register:
+
+```
+(gdb) sparc-break pc=0x203c
+(gdb) sparc-watch-mem addr=0xfffffe0
+(gdb) sparc-print-reg o0
+```
+
+See [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md)
+for the full command reference and a complete walkthrough.
 
 ---
 

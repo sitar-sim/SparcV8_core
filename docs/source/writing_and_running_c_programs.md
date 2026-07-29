@@ -136,6 +136,6 @@ algorithms.
 ## Running the tests
 
 Same two-phase pipeline as `validation/asm/`, see
-[Validation Suite](validation_suite.md#running-the-suite). `build_hex.py`
+[Validation Suite](validation_suite.md#the-validation-script). `build_hex.py`
 picks `compiler/assemble.sh` or `compiler/compile_c.sh` automatically,
 based on whether a test's `SOURCES` line names a `.s` or a `.c` file.
