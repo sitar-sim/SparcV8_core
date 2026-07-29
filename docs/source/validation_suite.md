@@ -1,49 +1,64 @@
 # Validation Suite
 
-`validation/` holds this project's functional validation suite: a large
-number of tests that check the core's instruction-level behavior against
-the SPARC V8 manual. There are no timing tests here. Both models drive
-the exact same `SparcCore` (see [Models](index.md#models)), so this one
-suite validates both, and catches a regression in either.
+Validating a processor model can mean different things: functional
+(does each instruction do the right thing), timing or microarchitectural
+(does it take the right number of cycles, in the right order), or both.
+`validation/` is this project's **functional** suite. There are no
+timing tests here. Both models drive the exact same `SparcCore` (see
+[Models](index.md#models)), so this one suite validates both, and
+catches a regression in either.
 
-This page covers how the suite itself is put together, how to run it,
-and where a new test goes. For how to actually *write* a new test, see
-[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+It checks the core's instruction-level behavior against the SPARC V8
+manual, in two ways:
+
+- **`validation/asm/`**, hand-written assembly, each test targeting one
+  instruction (or a small family of closely related ones) in isolation.
+- **`validation/C/`**, compiled from freestanding C, each test a small
+  self-validating program (a sort, an FFT, a checksum) exercising many
+  instructions together the way a real program would.
+
+It consists of two things: the tests themselves (see "What's in a test"
+below), and a script, `validation/run_tests.py`, that runs them all and
+prints a pass/fail summary (see "The validation script" below).
+
+This page covers how a test is put together, how to run the suite, and
+how to add a new one. For actually *writing* a test program (the trap
+table, the pass-fail convention, structuring a self-validating C test),
+see [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
 and [Writing and Running C Programs](writing_and_running_c_programs.md).
 
 ---
 
-## How it's organized
+## What's in a test
 
-Every test is a pair of files: `<name>.s` or `<name>.c` (the program)
-and `<name>.vprj` (its expected final state). There are two sub-suites,
-side by side under `validation/`.
+Every test is a matched set of files sharing one name, for example
+`ADD.s`, `ADD.hex`, `ADD.objdump`, `ADD.vprj`, and `ADD.expected`
+(`validation/asm/integer_alu/Arithmetic/Add/`). Only two of these are
+written by hand:
 
-- **`asm/`**  
-    Hand-written assembly tests, one small instruction sequence per
-    test, checking opcodes one at a time: integer ALU ops, control
-    transfer (branches, traps, call, jump, `rett`), loads and stores
-    (including atomic and coprocessor variants), and floating point.
-    Organized into category subfolders: `integer_alu/`,
-    `floating_point/`, `control_transfer/`, `data_transfer/`, `misc/`.
-- **`C/`**  
-    Self-validating bare-metal C mini-benchmarks, each exercising a
-    sequence of C-level operations together (loops, arrays, structs,
-    global variables) rather than one instruction at a time. See
-    "Self-validating C tests" below.
+- **`<name>.s` or `<name>.c`**, the source program.
+- **`<name>.vprj`**, its expected final state, in the human-friendly
+  format described below.
 
-Both sub-suites use the same `.vprj` format and the same two-phase
-build/run pipeline, described below.
+The rest are derived automatically, not hand-written (though `.hex` and
+`.objdump` are still committed as build artifacts, see "The validation
+script" below for why):
 
-`test_simple_ADD/` sits alongside them, one more `.vprj` test, but its
-main job is as the small worked example used throughout the docs
-(`model/cpp_model/test/`, `model/sitar_model/executable/`, and
-`log_viewer/` all symlink to the files here rather than keeping their
-own copies), see `validation/README.md`.
+- **`<name>.hex`**, the memory image compiled from the source, loadable
+  directly by either model.
+- **`<name>.objdump`**, its disassembly plus full symbol table, useful
+  for finding an address to give gdb, see
+  [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses).
+- **`<name>.expected`**, the `.vprj`'s checks rewritten into the plain
+  format the checker executables themselves take as a direct
+  command-line argument, see
+  [Getting Started](getting_started.md#running-the-simulator).
 
----
+In short, `.vprj` is what you write, once, by hand. `.expected` is what
+`run_tests.py` generates from it, fresh, every time the test runs. It's
+never edited directly, and doesn't need to be committed to git.
 
-## The `.vprj` expected-results format
+### The `.vprj` expected-results format
 
 ```
 SOURCES = ADD.s
@@ -68,42 +83,12 @@ o2=0xFFFFFFFB
   `MemCore` is a single flat address space with no ASI distinction.
 
 `run_tests.py` parses this and normalizes it into the plain
-`REG <name> <hex value> [mask]` / `MEM <addr> <hex value> [mask]` format
-the checker executables themselves take as a direct command-line
-argument (see [Getting Started](getting_started.md#running-the-simulator)),
+`REG <name> <hex value> [mask]` / `MEM <addr> <hex value> [mask]` format,
 writing it to a `.expected` file alongside the test before running it.
 
 ---
 
-## Self-validating C tests
-
-Every test in `validation/C/` follows the same shape: compute something,
-compare it against a golden value computed once on the host machine and
-hardcoded right there in the source, and report pass (`1`) or fail (`0`)
-in `%o0`. Its `.vprj` then only ever has to check `o0=1`, instead of
-re-embedding the golden value a second time. See
-[Writing and Running C Programs](writing_and_running_c_programs.md#structuring-a-test-program)
-for the full convention, and `array_sum/array_sum.c` for a worked
-example.
-
-The benchmarks:
-
-| Test | What it computes |
-|---|---|
-| `array_sum` | Sum of a small int array |
-| `matrix_mul` | 3x3 integer matrix multiply |
-| `fft` | 4-point integer radix-2 FFT |
-| `root_finding` | Integer square root via Newton-Raphson |
-| `integer_sort` | Bubble sort |
-| `gcd` | Euclidean algorithm |
-| `fibonacci` | Iterative Fibonacci |
-| `prime_sieve` | Sieve of Eratosthenes |
-| `checksum` | Byte-array checksum |
-| `dot_product` | Integer vector dot product |
-
----
-
-## Running the suite
+## The validation script
 
 A two-phase pipeline, so the existing suite can be run without a
 cross-compiler installed at all.
@@ -126,9 +111,7 @@ validation/run_tests.py validation
 
 `.hex` files are committed to git, so phase 2 alone is enough to run the
 existing suite. Phase 1 is only needed after adding or editing a `.s`/`.c`
-source, and also (re)generates that test's `.objdump`, useful for
-finding addresses, see
-[Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md#finding-addresses).
+source, and also (re)generates that test's `.objdump`.
 
 `run_tests.py` takes a folder, not just the `validation` root, so you can
 point it at any subset:
@@ -158,15 +141,103 @@ validation/run_tests.py validation/asm/control_transfer --max-cycles 50000
 
 ---
 
-## Where a new test goes
+## The test collection
 
-For `validation/asm/`, follow the existing category structure
-(`integer_alu/`, `floating_point/`, `control_transfer/`, `data_transfer/`,
-`misc/`), putting a new, focused group of tests in its own subfolder
-inside the appropriate category. For `validation/C/`, add a new sibling
-folder next to the ones above. Either way, `run_tests.py` and
-`build_hex.py` both recurse automatically, no registration step needed
-anywhere.
+Two sub-suites, side by side under `validation/`, both using the same
+`.vprj` format and the same two-phase pipeline above.
+
+- **`asm/`**  
+    Hand-written assembly tests, each targeting one instruction (or a
+    small family of closely related ones, such as every branch
+    condition) in isolation: integer ALU ops, control transfer
+    (branches, traps, call, jump, `rett`), loads and stores (including
+    atomic and coprocessor variants), and floating point. Organized into
+    category subfolders: `integer_alu/`, `floating_point/`,
+    `control_transfer/`, `data_transfer/`, `misc/`. `compiler/assemble.sh`
+    builds a test's `.s` into `.hex`/`.objdump`, called automatically by
+    `build_hex.py` above.
+- **`C/`**  
+    Self-validating bare-metal C mini-benchmarks, each compiled program
+    exercising a sequence of C-level operations together (loops, arrays,
+    structs, global variables) the way a real program would, rather than
+    one instruction in isolation. `compiler/compile_c.sh` builds a test's
+    `.c` the same way. Every test
+    here follows the same shape: compute something, compare it against a
+    golden value computed once on the host machine and hardcoded right
+    there in the source, and report pass (`1`) or fail (`0`) in `%o0`.
+    Its `.vprj` then only ever has to check `o0=1`, instead of
+    re-embedding the golden value a second time. See
+    [Writing and Running C Programs](writing_and_running_c_programs.md#structuring-a-test-program)
+    for the full convention, and `array_sum/array_sum.c` for a worked
+    example.
+
+    | Test | What it computes |
+    |---|---|
+    | `array_sum` | Sum of a small int array |
+    | `matrix_mul` | 3x3 integer matrix multiply |
+    | `fft` | 4-point integer radix-2 FFT |
+    | `root_finding` | Integer square root via Newton-Raphson |
+    | `integer_sort` | Bubble sort |
+    | `gcd` | Euclidean algorithm |
+    | `fibonacci` | Iterative Fibonacci |
+    | `prime_sieve` | Sieve of Eratosthenes |
+    | `checksum` | Byte-array checksum |
+    | `dot_product` | Integer vector dot product |
+
+`test_simple_ADD/` sits alongside them, one more `.vprj` test, but its
+main job is as the small worked example used throughout the docs
+(`model/cpp_model/test/`, `model/sitar_model/executable/`, and
+`log_viewer/` all symlink to the files here rather than keeping their
+own copies), see `validation/README.md`.
+
+---
+
+## Adding an asm test
+
+1. Pick an existing category folder under `validation/asm/`
+   (`integer_alu/`, `floating_point/`, `control_transfer/`,
+   `data_transfer/`, `misc/`), or add a new subfolder for a new, focused
+   group of tests.
+2. Write `<name>.s`. See
+   [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+   for the full format: the required setup, the trap table, and the
+   pass-fail convention every test shares.
+3. Build and run it directly first, to find the actual final register
+   values, see
+   [Building and running it](writing_and_running_assembly_programs.md#building-and-running-it)
+   (`compiler/assemble.sh <name>.s`, then `sparc_sim_cpp <name>.hex`
+   with no expected-results argument, prints the final state).
+4. Write `<name>.vprj`, naming `<name>.s` as its `SOURCES` and listing
+   the register (and, if needed, memory) values from step 3 that you
+   want checked, see the format above.
+5. Run `validation/build_hex.py <folder>` to (re)generate `<name>.hex`
+   and `<name>.objdump` through the suite's own tooling (`build_hex.py`
+   finds a folder's `.vprj` files and reads `SOURCES` to know what to
+   build, so this step needs the `.vprj` to already exist, from step 4).
+6. Run `validation/run_tests.py <folder>` to check it passes.
+
+No registration step anywhere else, `run_tests.py` and `build_hex.py`
+both recurse automatically.
+
+---
+
+## Adding a C test
+
+1. Add a new folder under `validation/C/`, one per test.
+2. Write `<name>.c`, freestanding (no libc, see
+   [Writing and Running C Programs](writing_and_running_c_programs.md)),
+   following the same self-validating shape as the existing benchmarks:
+   compute something, compare it against a golden value computed on the
+   host, and report pass (`1`) or fail (`0`) in `%o0`.
+3. Write `<name>.vprj`, naming `<name>.c` as its `SOURCES`. Since the
+   test already computed its own pass/fail, its `RESULTS` is almost
+   always just `o0=1`.
+4. Run `validation/build_hex.py <folder>` to generate `<name>.hex` and
+   `<name>.objdump` from it (picking `compiler/compile_c.sh`
+   automatically, based on the `.c` extension). As with an asm test,
+   this needs the `.vprj` to already exist, since `build_hex.py` reads
+   its `SOURCES` line to know what to build.
+5. Run `validation/run_tests.py <folder>` to check it passes.
 
 ---
 

@@ -4,7 +4,7 @@ A prebuilt, 32-bit x86 (i386) `sparc-elf` cross-toolchain is bundled as a
 release with this repository: an assembler (`sparc-elf-as`), a linker
 (`sparc-elf-ld`), a minimal freestanding C compiler (`sparc-elf-gcc`,
 GCC 4.4.3), `objdump`, and `readelf`. See
-[Installation](installation.md) step 6 to install it.
+[Installation](installation.md) step 5 to install it.
 `compiler/assemble.sh` and `compiler/compile_c.sh` drive it to build
 this project's own test programs, see
 [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
