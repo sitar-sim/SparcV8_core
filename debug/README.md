@@ -177,12 +177,13 @@ there, so it defaults to `0`).
   constructed the `SparcCore`/`MemCore` or which frame it's lexically
   reachable from -- `SparcCore`/`MemCore` register themselves there, once,
   in their own constructors.
-- A handful of functions (`Registers::R_r()`, `CoreLogger::print_state()`,
-  `SparcCore::printTrap()`, `MemCore::wordPtr()`,
-  `DebugRegistry::findCoreByID()`/`firstMemCore()`) are individually pinned
-  to `-O0` via `__attribute__((optimize("O0")))`, so a `--debug` build can
-  stay at `-O3` overall: gdb's `call`/`print` of a live function is
-  generally unreliable against optimized code, but only these few are ever
+- A handful of functions (`Registers::R_r()` and the six special-register
+  accessors `R_PC()`/`R_nPC()`/`R_Y()`/`R_PSR()`/`R_WIM()`/`R_TBR()`,
+  `CoreLogger::print_state()`, `SparcCore::printTrap()`,
+  `MemCore::wordPtr()`, `DebugRegistry::findCoreByID()`/`firstMemCore()`)
+  are individually pinned to `-O0` via `__attribute__((optimize("O0")))`,
+  so a `--debug` build can stay at `-O3` overall. gdb's `call`/`print` of
+  a live function is generally unreliable against optimized code, but only these few are ever
   actually called this way.
 - Reading a `std::string` returned by value (`print_state()`, `printTrap()`)
   needs care, twice over: gdb's own pretty-printer quotes and
