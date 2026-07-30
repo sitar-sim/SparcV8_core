@@ -171,8 +171,13 @@ class Registers
 
 
 
-	//1. PSR and its bit fields	
+	//1. PSR and its bit fields
 	//Read methods
+	//R_PSR() is pinned to -O0 for the same reason R_r() above is: it's one
+	//of the register accessors debug/sparc.gdb calls directly (via
+	//sparc-print-reg/sparc-watch-reg psr) in a --debug build that otherwise
+	//stays at -O3.
+	__attribute__((optimize("O0")))
 	inline uint32_t R_PSR()  {return PSR;}; static const int size_PSR=32;
 	inline uint32_t R_impl() {return readBits(PSR, 31,28); };  static const int size_impl=4;
 	inline uint32_t R_ver()  {return readBits(PSR, 27,24); };  static const int size_ver=4;
@@ -209,6 +214,9 @@ class Registers
 
 	//2. TBR and its fields
 	//Read methods
+	//Pinned to -O0, same reason as R_PSR() above (sparc-print-reg/
+	//sparc-watch-reg tbr).
+	__attribute__((optimize("O0")))
 	inline uint32_t R_TBR()  {return TBR;}; static const int size_TBR=32;
 	inline uint32_t R_TBA()  {return readBits(TBR, 31,12); };  static const int size_TBA=20;
 	inline uint32_t R_tt()   {return readBits(TBR, 11,4 ); };  static const int size_tt=8;  
@@ -268,9 +276,15 @@ class Registers
 
 	//4. Read write methods for other Registers
 	//Read methods
+	//All four pinned to -O0, same reason as R_PSR() above (sparc-print-reg/
+	//sparc-watch-reg wim/y/pc/npc).
+	__attribute__((optimize("O0")))
 	inline uint32_t R_WIM() {return WIM;}; static const int size_WIM=32;
+	__attribute__((optimize("O0")))
 	inline uint32_t R_Y()   {return Y;}; static const int size_Y=32;
+	__attribute__((optimize("O0")))
 	inline uint32_t R_PC()  {return PC;}; static const int size_PC=32;
+	__attribute__((optimize("O0")))
 	inline uint32_t R_nPC() {return nPC;}; static const int size_nPC=32;
 	//Write methods
 	inline void W_WIM(uint32_t val)	 

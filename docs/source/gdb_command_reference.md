@@ -47,7 +47,7 @@ Numbers can be written in whichever base is convenient, these all name
 the same address:
 
 - **Hex**: `pc=0x203c`
-- **Binary**: `pc=0b10000000000111100`
+- **Binary**: `pc=0b10000000111100`
 - **Decimal**: `pc=8252`
 
 ## Register-name syntax
@@ -146,6 +146,16 @@ For a rare event, `sparc-break-mae` is the simple, no-thought shortcut.
 For anything more specific (a particular kind/address that also faults),
 use `sparc-break-mem` with `mae` added.
 
+Omitting `type=` on `sparc-break-trap` stops at whatever cause is raised
+first, and that is always the reset trap. This model always asserts a
+reset trap at the very start of every run, before any of the program's
+own instructions execute, so a bare `sparc-break-trap` reliably catches
+that one first rather than whatever cause you actually meant to look
+for. Continue once to move past it and reach the next cause the program
+itself raises. There is no way yet to break on any cause except one in
+particular, filtering that one reset trap out. That kind of negated
+condition may be added in the future.
+
 Examples:
 ```
 (gdb) sparc-break pc=0x203c
@@ -181,8 +191,17 @@ value, comparing it against its value at the previous check:
 | Arguments given | Fires |
 |---|---|
 | *(none)* | on any change from the previous check |
-| `value=`/`mask=` | once, on the transition *into* a matching value (edge-triggered) |
+| `value=`/`mask=` | on each transition *into* a matching value (edge-triggered), not on every instruction that merely holds it |
 | `value=`/`mask=` + `persist` | on *every* instruction the value/mask condition holds, not just the transition into it, a corner case, but a real one |
+
+Edge-triggered here means "once per transition," not "once for the
+whole run." If the value leaves the match and later re-enters it, that
+counts as a new transition and fires again. A windowed register (`o0`,
+`l3`, and so on) can also appear to re-enter the same value across a
+`save`/`restore` even though nothing in the program explicitly wrote it
+again, since the physical storage a windowed name refers to rotates with
+the register window. Seeing a second stop at what looks like the same
+value is expected, not a bug.
 
 Examples:
 ```

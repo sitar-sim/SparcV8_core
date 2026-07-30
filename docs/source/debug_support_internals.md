@@ -12,23 +12,23 @@ everything at `-O0`, and how any command can reach a live `SparcCore`/
 
 ## The four hook points
 
-`model/cpp_common_code/DebugHooks.h` declares four named, otherwise-empty
-functions, called from the same points in the instruction loop that
-`CoreLogger` logs from:
+Four named, otherwise-empty functions declared in
+`model/cpp_common_code/DebugHooks.h` are called from the same points in
+the instruction loop that `CoreLogger` logs from:
 
-- `debug_hook_after_execute(core, op)` — an instruction has fully
+- `debug_hook_after_execute(core, op)`: an instruction has fully
   executed (registers/memory/PSR all updated), but before PC/nPC advance
   to the next instruction. Also fires for an instruction that raised a
   trap partway through, matching `CoreLogger`'s own `EXECUTED` event.
-- `debug_hook_trap_raised(core)` — a trap has just been detected, before
+- `debug_hook_trap_raised(core)`: a trap has just been detected, before
   `SparcCore::selectTrap()` clears the trap-cause flags or computes
   `TBR`'s `tt` field, so those flags (not `TBR`) are what's actually
   inspectable here.
-- `debug_hook_mem_access(core, kind, address, word0, word1)` — a memory
+- `debug_hook_mem_access(core, kind, address, word0, word1)`: a memory
   reference of the given `DebugMemAccessKind` (`IFETCH`/`LOAD`/`STORE`/
   `ATOMIC`/`FLUSH`) has just completed. A sub-event within
   `debug_hook_after_execute`'s instruction, not an alternative to it.
-- `debug_hook_annulled(core)` — a delay-slot instruction was skipped by
+- `debug_hook_annulled(core)`: a delay-slot instruction was skipped by
   an untaken annulling branch, never fetched-for-real or decoded, so
   there is no `Opcode` to pass. Fires before PC/nPC update for the skip.
 
@@ -67,7 +67,8 @@ of functions the `sparc-*` commands actually rely on calling this way are
 individually pinned to `-O0` in their own definitions, via
 `__attribute__((optimize("O0")))`:
 
-- `Registers::R_r()`
+- `Registers::R_r()`, plus the six special-register accessors
+  `R_PC()`/`R_nPC()`/`R_Y()`/`R_PSR()`/`R_WIM()`/`R_TBR()`
 - `CoreLogger::print_state()`
 - `SparcCore::printTrap()`
 - `MemCore::wordPtr()`
@@ -75,7 +76,12 @@ individually pinned to `-O0` in their own definitions, via
 
 So the rest of the simulator stays fast, and only these few pay the
 `-O0` cost, exactly the functions `sparc-print-regs`, `sparc-print-reg`,
-`sparc-print-traps`, and `sparc-print-mem` call into.
+`sparc-print-traps`, `sparc-watch-reg`, and `sparc-print-mem` call into.
+Every one of the seven register accessors needs its own pin. They're
+equally trivial one-line getters, but the optimizer only keeps a
+standalone, callable copy of the ones it has a reason to, and nothing
+else in the simulator happens to call some of them directly. Without the
+attribute, gdb's inferior call to a fully inlined one fails outright.
 
 If you need to debug something *outside* the four hook points, an
 arbitrary breakpoint or single-step deep inside `SparcCore` itself,
@@ -88,15 +94,16 @@ deep dive, not everyday use.
 
 ## `DebugRegistry`
 
-`model/cpp_common_code/DebugRegistry.h` is what makes every `sparc-*`
-command reachable from *any* stopped frame, in either model, without
-caring who constructed the `SparcCore`/`MemCore` or which frame it's
-lexically reachable from. `SparcCore` and `MemCore` register themselves
-there, once, in their own constructors. This is why `coreid=` on the
-probe/print commands is a **selector** (an index into this registry) —
-there's no "currently in scope" frame to fall back on, unlike the
-breakpoint commands, which read `core` directly out of the hook they're
-attached to and use `coreid=` only as a **filter** on top of that.
+Every `sparc-*` command is reachable from *any* stopped frame, in either
+model, without caring who constructed the `SparcCore`/`MemCore` or which
+frame it's lexically reachable from. `model/cpp_common_code/DebugRegistry.h`
+is what makes that possible: `SparcCore` and `MemCore` register
+themselves there, once, in their own constructors. This is why
+`coreid=` on the probe/print commands is a **selector** (an index into
+this registry). There's no "currently in scope" frame to fall back on,
+unlike the breakpoint commands, which read `core` directly out of the
+hook they're attached to and use `coreid=` only as a **filter** on top
+of that.
 
 ---
 

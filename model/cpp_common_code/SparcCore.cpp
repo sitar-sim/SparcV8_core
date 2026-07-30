@@ -2149,7 +2149,7 @@ std::string SparcCore::printTrap()
 	using namespace std;
 	string trap_name;
 	if(trap==0) 	trap_name="NONE";
-	else if(reset_trap == 1) 			trap_name="reset trap";
+	else if(reset_trap == 1) 			trap_name="reset_trap";
 	else if (data_store_error == 1)		      	trap_name="data_store_error"; 
 	else if (instruction_access_error == 1)		trap_name="instruction_access_error"; 
 	else if (r_register_access_error == 1)		trap_name="r_register_access_error"; 
@@ -2190,7 +2190,7 @@ std::string SparcCore::trapTypeName(uint32_t tt)
 	//0, so tt==0 uniquely identifies the reset trap (TBR's power-on
 	//value, before selectTrap() has run for the first time).
 	if (tt == 0)
-		return "reset trap";
+		return "reset_trap";
 	if (tt & 0x80)
 		return "trap_instruction(" + ToString(tt & 0x7F) + ")";
 	if ((tt & 0xF0) == 0x10)
