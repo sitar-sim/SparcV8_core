@@ -171,39 +171,4 @@ Design changes made:
   Sitar-driven model: 223/223 passing** (confirmed via a from-scratch
   clean rebuild of both models, not just incrementally).
 
-## Next steps
 
-1. **Opcode-wise test-coverage analysis.** Full validation passes
-   (223/223) are done for both models -- still open: systematically
-   compare the SPARC V8 instruction set against `validation/asm/`
-   to find opcodes with no test at all (not just currently-failing ones).
-
-2. **Documentation.** Write it up properly (architecture, how the C++
-   core / Sitar model / standalone driver relate, how to build and run
-   tests, how to add a new test). To be reviewed and iterated on
-   together over a few passes rather than written once and left.
-
-3. **Repo hygiene pass.** Systematically go through the repo and add:
-   an install script, a top-level `README.md` rewrite (currently a
-   two-line stub), `AUTHORS` (crediting the AJIT project sources
-   explicitly, alongside this project's own authors), `LICENCE.md`.
-
-4. **Remaining two testbench configurations for the full Sitar model**
-   (configuration 1, tightly coupled via `MainMemory` with 0-delay
-   handshake, is now the current/default -- see Milestone 2 above):
-   1. **Loosely coupled via ports**: a variant wrapping `MemCore` behind
-      real module ports/nets instead of the parallel-block handshake,
-      adding >=1 cycle of communication latency each way (as opposed to
-      `MemoryInterface.delay`, which approximates latency without an
-      actual port connection).
-   2. **Core with split I/D caches**: core + separate instruction and
-      data caches, each a `MainMemory`-like persistent procedure,
-      connected via `MemoryInterface` the same way `MainMemory` is
-      today, which in turn talk to an external memory over ports/nets.
-      A model along these lines already exists in an older/v1 version of
-      Sitar -- reuse/adapt the cache models from there rather than
-      writing new ones from scratch.
-
-5. File the `SparcThread.sitar` trap-dispatch bug fix (see Milestone 2)
-   nowhere else -- it's a bug in *this* repo's code, not AJIT's, so no
-   `docs/compliance/` entry is needed; noted here for the record only.
