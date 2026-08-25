@@ -10,9 +10,12 @@ tests, or building on this model for a larger system.
 ```
 SparcV8_core/
   model/
-    cpp_common_code/   SparcCore, the core, timing-agnostic. Shared by both drivers.
-    cpp_model/          0-delay C++ driver, no Sitar dependency.
-    sitar_model/         Sitar-timed driver.
+    cpp_common_code/          SparcCore, the core, timing-agnostic. Shared by both drivers.
+    sitar_component_models/    The reusable Sitar procedures every configuration is built from.
+    system_models/              One folder per configuration (e.g. core_only/), each with its
+                                  own cpp_model/ (0-delay driver) and sitar_model/ (Sitar-timed
+                                  driver) subfolders.
+    build_scripts/               Shared build logic every configuration's own build.sh invokes.
   validation/
     asm/                Instruction-level assembly test suite.
     C/                  Self-validating bare-metal C mini-benchmark suite.
@@ -28,10 +31,11 @@ SparcV8_core/
   log_viewer/              Offline browser tool for viewing an instruction/state trace.
 ```
 
-Each of `model/cpp_common_code/`, `model/cpp_model/`, and
-`model/sitar_model/` has its own `README.md` with a per-file breakdown.
-Start there for source-level detail. See also
-[Model Components](model_components.md) for the higher-level picture.
+Each of `model/cpp_common_code/`, `model/sitar_component_models/`, and
+every `model/system_models/<config>/{cpp_model,sitar_model}/` has its own
+`README.md` with a per-file breakdown. Start there for source-level
+detail. See also [Model Components](model_components.md) for the
+higher-level picture.
 
 ---
 
@@ -58,9 +62,10 @@ counts exist. See [Performance Modeling](performance_modeling.md).
 `FloatingPointFunctions.h` needs `libquadmath` for quad-precision support.
 `sitar compile --cflags` only reaches the compile step (`CCFLAGS`), never
 the link step, so linking an extra library needs `sitar compile`'s
-separate `-l`/`--libs` option instead. `model/sitar_model/build.py` builds
-with `-l quadmath`. If you're writing your own build script against this
-model instead of using `build.py`, do the same.
+separate `-l`/`--libs` option instead.
+`model/build_scripts/build_sitar_model.py` builds with `-l quadmath`. If
+you're writing your own build script against this model instead of using
+it, do the same.
 
 ## Test-suite conventions
 

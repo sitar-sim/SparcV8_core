@@ -9,18 +9,18 @@
 *.out
 *.elf
 
-# cpp_model's build.sh output -- extensionless executable, not caught by
-# any pattern above
-/cpp_model/sparc_sim_cpp
-
-# sitar_model's build.py output: build/ (translated .sitar->.cpp/.h,
-# regenerated from the tracked .sitar sources every build -- already
-# caught by the generic `build/` pattern below, listed here just for
-# discoverability) and its extensionless executable, not caught by any
-# pattern above
-/sitar_model/build/
-/sitar_model/executable/sparc_sim_sitar
-/sitar_model/sitar_scons_config.txt
+# Every configuration's build output and scratch --
+# system_models/<config>/{cpp_model,sitar_model}/{executable,build}/ --
+# extensionless executables (derived names, e.g. sparc_sim_cpp_core_only)
+# not caught by any pattern above, and build/ (for sitar_model,
+# translated .sitar->.cpp/.h, regenerated from the tracked .sitar sources
+# every build -- already caught by the generic `build/` pattern below,
+# listed here just for discoverability).
+/system_models/*/cpp_model/executable/
+/system_models/*/cpp_model/build/
+/system_models/*/sitar_model/executable/
+/system_models/*/sitar_model/build/
+sitar_scons_config.txt
 
 # SCons
 .sconsign.dblite
@@ -55,13 +55,6 @@ venv/
 *.exp
 *.lib
 
-# test_simple_ADD.s: a symlink to the hand-written, tracked example
-# assembly source in ../../validation/test_simple_ADD/ (not a
-# compiler-generated .s intermediate), see cpp_model/README.md and
-# sitar_model/README.md
-!/cpp_model/test/test_simple_ADD.s
-!/sitar_model/executable/test_simple_ADD.s
-
 # Editor/OS
 .DS_Store
 Thumbs.db
@@ -80,7 +73,7 @@ site/
 
 # Except test_simple_ADD's two tracked reference traces (see the root
 # .gitignore and validation/README.md): the exact path each model writes
-# to when built and run from its own folder, so a normal run there keeps
-# them up to date directly.
-!/cpp_model/test/test_simple_ADD.log
-!/sitar_model/executable/test_simple_ADD.log
+# to when built and run with --logging from its own folder, so a normal
+# run there keeps them up to date directly.
+!/system_models/core_only/cpp_model/test_simple_ADD.log
+!/system_models/core_only/sitar_model/test_simple_ADD.log

@@ -68,8 +68,8 @@ Rebuild the models with `--logging`, then run them on this test. From
 the repo root:
 
 ```sh
-model/cpp_model/build.sh --logging
-model/cpp_model/sparc_sim_cpp temp_asm/test_simple_SUB.hex
+model/system_models/core_only/cpp_model/build.sh --logging
+model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging temp_asm/test_simple_SUB.hex
 ```
 
 This prints the final register state once the program halts, see
@@ -91,7 +91,7 @@ possible.
 The simulator executables take the following arguments:
 
 ```
-sparc_sim_cpp <hex_file> [expected_results_file] [max_cycles]
+sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles]
 ```
 
 - **A hex file** (required): the memory image to run.
@@ -116,7 +116,8 @@ REG o0 0xfffffffe
 Then run it:
 
 ```sh
-model/cpp_model/sparc_sim_cpp temp_asm/test_simple_SUB.hex temp_asm/test_simple_SUB.expected
+model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging \
+    temp_asm/test_simple_SUB.hex temp_asm/test_simple_SUB.expected
 ```
 
 ---

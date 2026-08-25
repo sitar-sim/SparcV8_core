@@ -1,10 +1,14 @@
 # cpp_common_code/
 
-Timing-agnostic C++ model of the SPARC V8 instruction set: pure state plus
-`execute_*()` behavior, with no notion of cycles, phases, or memory latency.
-Shared, unmodified, by both drivers in `../cpp_model/` and `../sitar_model/`
--- this is the one place SPARC ISA semantics live; neither driver
-re-implements or overrides them.
+Timing-agnostic C++ model of the SPARC V8 core: pure state and behavior,
+with no notion of cycles, phases, or memory latency. This is the one
+place SPARC ISA semantics live -- `SparcCore` is reused unmodified by
+every `sitar_model` configuration's own timed driver
+(`../sitar_component_models/SparcThread.sitar`), and `SparcStateMachine`,
+the reusable 0-delay fetch-decode-execute FSM, is reused unmodified by
+every `cpp_model` configuration under `../system_models/*/cpp_model/`,
+whatever each configuration connects downstream (memory directly, or
+later an MMU or a cache).
 
 ## What's what
 
@@ -24,13 +28,26 @@ re-implements or overrides them.
 - **`Decoder.h` / `.cpp`** -- `Decoder::decode(Registers*)`: reads the
   instruction word already loaded into `reg` and returns the matching
   `Opcode`, or an unimplemented/illegal marker.
+- **`MemoryAccessProvider.h`** -- the abstract interface `SparcCore` and
+  `SparcStateMachine` actually depend on for memory access (a word read,
+  a masked doubleword write, an atomic read-modify-write). Whatever a
+  cpp_model configuration connects downstream implements this; neither
+  `SparcCore` nor `SparcStateMachine` know or care what that is. See
+  `Plan_SoC_Integration_Roadmap.md`'s "lego-block interface contract".
 - **`MemCore.h` / `.cpp`** -- flat, word-addressable functional memory (256MB,
-  byte addresses). `initializeMemory(hex_dump_file)` loads a hex-dump memory
-  image (see `compiler/hexdump_to_memimage.py`); `readWord`/`writeWord` and
-  masked doubleword helpers (`writeMaskedDoubleWord`,
-  `atomicReadModifyWrite`) back STORE and atomic load-store instructions.
-  Used directly by `cpp_model` (0-delay); `sitar_model`'s `MainMemory`
-  procedure owns one too, wrapped with modeled latency.
+  byte addresses), implementing `MemoryAccessProvider` directly.
+  `initializeMemory(hex_dump_file)` loads a hex-dump memory image (see
+  `compiler/hexdump_to_memimage.py`). Used directly by the `core_only`
+  configuration (0-delay); `sitar_model`'s `MainMemory` procedure owns one
+  too, wrapped with modeled latency.
+- **`SparcStateMachine.h` / `.cpp`** -- the reusable 0-delay
+  fetch-decode-execute FSM every `cpp_model` configuration drives
+  `SparcCore` through: `SparcStateMachine(core, mem)`, then
+  `run(maxCycles)`. `mem` is a `MemoryAccessProvider&`, not a concrete
+  `MemCore&`, which is what makes this file itself configuration-invariant
+  -- only what a given configuration's own entry point (e.g.
+  `../system_models/core_only/cpp_model/src/sparc_sim.cpp`) constructs and
+  passes in as `mem` changes per configuration.
 - **`BitManipulation.h` / `.cpp`** -- bitfield read/write helpers
   (`readBits`, `writeBits`, sign-extension, ...) used throughout the decoder
   and core.
@@ -49,27 +66,34 @@ re-implements or overrides them.
 ## How to use it
 
 This directory builds no executable of its own -- it's a library, compiled
-directly into each driver's binary (see `../cpp_model/build.sh` and
-`../sitar_model/build.py`). To use it from a new driver:
+directly into each configuration's binary (see
+`../build_scripts/build_cpp_model.sh` and
+`../build_scripts/build_sitar_model.py`). For the 0-delay `cpp_model`
+side, most configurations should just reuse `SparcStateMachine` as-is
+rather than driving `SparcCore` directly:
 
 ```cpp
 #include "SparcCore.h"
 #include "MemCore.h"
+#include "SparcStateMachine.h"
 
 MemCore mem;
 mem.initializeMemory("program.hex");   // see compiler/hexdump_to_memimage.py
 
 SparcCore core;
-core.memCore = &mem;                   // used by SparcCore::instructionFetch()
+core.memCore = &mem;                   // MemCore implements MemoryAccessProvider directly
 
-// your driver now calls core's methods (decode, executeInstruction, trap
-// checks, ...) in the fetch-decode-execute order it wants, at whatever
-// timing it wants -- SparcCore itself has no opinion on either.
+SparcStateMachine runner(core, mem);
+runner.run(maxCycles);
 ```
 
-For a complete, minimal example of that driving loop, read
-`../cpp_model/SparcStateMachine.cpp` (0-delay, plain C++) or
-`../sitar_model/src/sitar_code/SparcThread.sitar` (Sitar-timed).
+A configuration that needs something other than direct `MemCore` access
+(an MMU, a cache) implements `MemoryAccessProvider` itself and passes
+that in as `mem` instead -- `SparcCore` and `SparcStateMachine` need no
+changes either way. For a timed driver, see
+`../sitar_component_models/SparcThread.sitar` instead, which drives the
+same `SparcCore` through Sitar rather than through
+`SparcStateMachine`.
 
 Link flags: `-lquadmath` is required (`FloatingPointFunctions.h` uses
 `__float128` for quad-precision ops).

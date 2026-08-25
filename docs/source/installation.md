@@ -36,27 +36,29 @@ all.
 From the repo root:
 
 ```sh
-cd model/cpp_model
+cd model/system_models/core_only/cpp_model
 ./build.sh --logging
 ```
 
-This builds an executable, `sparc_sim_cpp`.
+This builds an executable, `sparc_sim_cpp_core_only_logging`, inside
+`executable/`.
 
 Let's try it. The executable expects the name of a test program compiled
 to a memory image (a `.hex` file). A minimal example program,
-`test/test_simple_ADD.s`, is present in the same directory in the repo
+`validation/test_simple_ADD/test_simple_ADD.s`, is bundled in the repo
 for a quick test of the model, along with its already-assembled memory
 image. It adds two numbers and puts the result in a register, then
 halts. View it first:
 
 ```sh
-cat test/test_simple_ADD.s
+cat ../../../../validation/test_simple_ADD/test_simple_ADD.s
 ```
 
 Then run it:
 
 ```sh
-./sparc_sim_cpp test/test_simple_ADD.hex
+./executable/sparc_sim_cpp_core_only_logging \
+    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
 The run generates an output:
@@ -114,15 +116,16 @@ sitar -h
 From the repo root:
 
 ```sh
-cd model/sitar_model
-./build.py --logging
+cd model/system_models/core_only/sitar_model
+./build.sh --logging
 ```
 
-This builds an executable, `sparc_sim_sitar`, inside `executable/`.
+This builds an executable, `sparc_sim_sitar_core_only_logging`, inside
+`executable/`.
 
 ```sh
-cd executable/
-./sparc_sim_sitar test_simple_ADD.hex
+./executable/sparc_sim_sitar_core_only_logging \
+    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
 The run generates an output, the same shape as step 2 above:

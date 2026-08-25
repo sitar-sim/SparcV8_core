@@ -77,7 +77,7 @@ so there is no Appendix I.
 Appendix C is the one this project's core implementation
 (`model/cpp_common_code/SparcCore.cpp`) cites most, its section numbers
 appear directly in source comments throughout that file and
-`model/cpp_model/SparcStateMachine.cpp`.
+`model/cpp_common_code/SparcStateMachine.cpp`.
 
 | Section | Title | What it's about | Page |
 |---|---|---|---|

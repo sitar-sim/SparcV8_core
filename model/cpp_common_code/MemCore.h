@@ -16,9 +16,10 @@
 #include<vector>
 #include<iostream>
 #include"BitManipulation.h"
+#include"MemoryAccessProvider.h"
 
 
-class MemCore
+class MemCore : public MemoryAccessProvider
 {
 	public:
 		static const unsigned int memSize = 0x10000000;  //Memory size in bytes = 256MB
@@ -52,7 +53,7 @@ class MemCore
 			return &core[address];
 		};
 
-		inline uint32_t readWord(uint32_t address)
+		inline uint32_t readWord(uint32_t address) override
 		{
 			address=address>>2;
 			if(address<nwords) 
@@ -133,7 +134,7 @@ class MemCore
 			return result;
 		};
 
-		inline void writeMaskedDoubleWord(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask)
+		inline void writeMaskedDoubleWord(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask) override
 		//STORE: read-modify-write the doubleword at address, updating only the bytes selected by byte_mask
 		{
 			uint32_t existing0 = readWord(address);
@@ -142,7 +143,7 @@ class MemCore
 			writeWord(address+4, mergeMaskedBytes(existing1, word1, readBits(byte_mask,7,4)));
 		};
 
-		inline void atomicReadModifyWrite(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t& readWord0, uint32_t& readWord1)
+		inline void atomicReadModifyWrite(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t& readWord0, uint32_t& readWord1) override
 		//Atomic Load-Store (LDSTUB/SWAP): read the existing doubleword into readWord0/readWord1
 		//(the value returned to the processor), then write back a copy with only the bytes
 		//selected by byte_mask overwritten by word0/word1.

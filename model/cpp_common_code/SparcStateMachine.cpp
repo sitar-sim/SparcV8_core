@@ -3,7 +3,7 @@
 #include "SparcStateMachine.h"
 #include <cassert>
 
-SparcStateMachine::SparcStateMachine(SparcCore& core_, MemCore& mem_)
+SparcStateMachine::SparcStateMachine(SparcCore& core_, MemoryAccessProvider& mem_)
 	: core(core_), mem(mem_)
 {
 	halted         = false;

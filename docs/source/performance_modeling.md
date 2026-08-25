@@ -1,6 +1,8 @@
 # Performance Modeling
 
-The Sitar model (`model/sitar_model/`) is a **simple, non-pipelined
+The Sitar model (`model/sitar_component_models/`, composed per
+configuration under `model/system_models/*/sitar_model/`) is a **simple,
+non-pipelined
 cycle-level timing model**. There is no pipelining and no out-of-order
 execution, just a fixed delay per opcode plus separately configurable
 memory-access latencies. This page covers where to change those
@@ -14,7 +16,7 @@ just uses it) and how to narrow a trace down at runtime.
 
 | Knob | Where | Charged | Default |
 |---|---|---|---|
-| Opcode latency | `model/sitar_model/src/cpp_code/OpcodeLatencies.h` | Every instruction, memory or not | 1 cycle |
+| Opcode latency | `model/sitar_component_models/cpp_code/OpcodeLatencies.h` | Every instruction, memory or not | 1 cycle |
 | `MemoryInterface.delay` | `Core.sitar`'s `init` block | Requester side, per channel, after the response is available | 0 |
 | `MainMemory.delay` | `Core.sitar`'s `init` block | The memory's own service time, shared by all requesters | 0 |
 
@@ -40,9 +42,9 @@ static const std::unordered_map<Opcode, uint32_t> OPCODE_LATENCY_OVERRIDES = {
 
 Every opcode not listed in `OPCODE_LATENCY_OVERRIDES` gets
 `DEFAULT_PER_OPCODE_DELAY`. List only the exceptions there, e.g. to
-approximate a multi-cycle multiplier/divider. Edit and rebuild
-(`model/sitar_model/build.py`) to change it. This is deliberately not a
-runtime-loaded config file.
+approximate a multi-cycle multiplier/divider. Edit and rebuild (each
+configuration's own `sitar_model/build.sh`) to change it. This is
+deliberately not a runtime-loaded config file.
 
 ## Memory-side latency
 
@@ -66,11 +68,13 @@ $
 
 ## Confirming a change took effect
 
-Rebuild with logging enabled and run a test:
+Rebuild with logging enabled and run a test (commands below are for the
+`core_only` configuration; substitute another configuration's own path
+and executable name as needed):
 
 ```sh
-model/sitar_model/build.py --logging
-model/sitar_model/executable/sparc_sim_sitar <hex> <expected>
+model/system_models/core_only/sitar_model/build.sh --logging
+model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_logging <hex> <expected>
 ```
 
 This writes `<hex>`'s own trace file (`<hex>` with its `.hex` replaced by
@@ -96,7 +100,8 @@ rebuilding restores the uniform 1-cycle spacing.
 For `MemoryInterface.delay`/`MainMemory.delay`, look in the *other* file
 `--logging` produces, `sitar.log` (Sitar's own per-request/response
 messages, not part of the architectural trace, see
-`model/sitar_model/README.md`) for `"servicing"`/`"response ready"`
+`model/system_models/core_only/sitar_model/README.md`) for
+`"servicing"`/`"response ready"`
 (`MainMemory`) and `"Started memory reference"`/`"Finished memory
 reference"` (`MemoryInterface`), each timestamped `[t=<cycle>]`.
 

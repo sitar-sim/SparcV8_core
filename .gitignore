@@ -25,11 +25,11 @@ __pycache__/
 # validation/README.md). Tracked at the exact path each model actually
 # writes to when built and run from its own folder
 # (`test_simple_ADD.log`, named after the hex file, see
-# model/cpp_model/sparc_sim.cpp's traceFileName()), so building and
-# running there updates the tracked file directly, nothing to manually
-# copy or keep in sync.
-!/model/cpp_model/test/test_simple_ADD.log
-!/model/sitar_model/executable/test_simple_ADD.log
+# each configuration's own src/sparc_sim.cpp's traceFileName()), so
+# building and running there updates the tracked file directly, nothing
+# to manually copy or keep in sync.
+!/model/system_models/core_only/cpp_model/test_simple_ADD.log
+!/model/system_models/core_only/sitar_model/test_simple_ADD.log
 
 # validation/test_simple_ADD/ and log_viewer/ don't keep their own copies,
 # they symlink to the two tracked files above (see validation/README.md

@@ -36,13 +36,19 @@ instruction set -- modeled at two levels:
 1. **`model/cpp_common_code/`** -- `SparcCore`, a pure C++ functional model
    of the core: correct instruction semantics per the manual, with no
    notion of cycles, timing, or pipelining at all. Driven directly by
-   **`model/cpp_model/`**'s `SparcStateMachine`, a plain fetch-decode-execute
+   the same folder's `SparcStateMachine`, a plain fetch-decode-execute
    loop with zero modeled latency -- useful for fast functional testing.
-2. **`model/sitar_model/`** -- the same `SparcCore`, driven instead through
-   Sitar, with a simple (non-pipelined) cycle-level timing model: a fixed,
-   configurable per-opcode delay, plus separately configurable
-   interconnect and memory-service latencies for loads/stores/instruction
-   fetch. See `model/sitar_model/README.md` for the three latency knobs.
+   Each configuration's own `cpp_model` build lives under
+   `model/system_models/<config>/cpp_model/`, e.g.
+   `model/system_models/core_only/cpp_model/`.
+2. **`model/sitar_component_models/`** -- the same `SparcCore`, driven
+   instead through Sitar, with a simple (non-pipelined) cycle-level
+   timing model: a fixed, configurable per-opcode delay, plus separately
+   configurable interconnect and memory-service latencies for
+   loads/stores/instruction fetch. Each configuration's own `sitar_model`
+   build lives under `model/system_models/<config>/sitar_model/`; see
+   `model/system_models/core_only/sitar_model/README.md` for the three
+   latency knobs.
 
 **This repository models the core only** -- there is no MMU, cache, or
 peripheral/device model here; those (and a full SoC-level model built
@@ -65,7 +71,10 @@ https://sitar-sim.github.io/SparcV8_core/
 ## Repository layout
 
 - `model/` -- the two models described above (`cpp_common_code/`,
-  `cpp_model/`, `sitar_model/`), each with its own `README.md`.
+  `sitar_component_models/`), and `system_models/` (one folder per
+  configuration, e.g. `system_models/core_only/`, each with its own
+  `cpp_model/`/`sitar_model/` subfolders and `README.md`). See
+  `model/README.md`.
 - `validation/` -- the instruction-level test suite (`asm/`, hand-written
   assembly; `C/`, bare-metal C) and the scripts that build and run it.
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker/objdump,
@@ -73,8 +82,8 @@ https://sitar-sim.github.io/SparcV8_core/
   test programs, and the scripts that drive it.
 - `log_viewer/` -- a self-contained, offline browser tool for viewing the
   instruction/state trace either model can produce (`--logging` builds --
-  see `model/cpp_model/README.md`/`model/sitar_model/README.md`); see its
-  own `README.md`.
+  see `model/system_models/core_only/cpp_model/README.md`/
+  `.../sitar_model/README.md`); see its own `README.md`.
 - `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
   `generated_site/` (prebuilt, committed output -- open `index.html`
   directly), `mkdocs.yml`, the vendored `sitar_pygments_lexer/`, and

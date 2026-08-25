@@ -20,7 +20,7 @@ repository.
 
 Let's consider a simple assembly-level program: put two numbers in
 registers, and add them. It's already present at
-`model/cpp_model/test/test_simple_ADD.s`:
+`validation/test_simple_ADD/test_simple_ADD.s`:
 
 ```sparc
 --8<-- "validation/test_simple_ADD/test_simple_ADD.s"
@@ -28,10 +28,10 @@ registers, and add them. It's already present at
 
 The first step after writing a program like this is to convert it into
 machine code and load it into the simulated processor's memory. A memory
-image is already present too, at `test/test_simple_ADD.hex`, along with
-its disassembly at `test/test_simple_ADD.objdump` (both paths relative
-to `model/cpp_model/`). We'll point the simulator straight at the `.hex`
-file.
+image is already present too, at
+`validation/test_simple_ADD/test_simple_ADD.hex`, along with its
+disassembly at `validation/test_simple_ADD/test_simple_ADD.objdump`.
+We'll point the simulator straight at the `.hex` file.
 
 Later, to modify this test or write your own, you'll need to compile it
 into a memory image (`.hex`) yourself. See
@@ -45,22 +45,21 @@ or [Writing and Running C Programs](writing_and_running_c_programs.md).
 From the repo root, build the plain C++ model:
 
 ```sh
-cd model/cpp_model
-./build.sh --logging
+cd model/system_models/core_only/cpp_model
+./build.sh
 ```
 
 And the Sitar-timed model, the same way. From the repo root:
 
 ```sh
-cd model/sitar_model
-./build.py --logging
+cd model/system_models/core_only/sitar_model
+./build.sh
 ```
 
-We're building with `--logging` here (off by default), so this run also
-produces an instruction trace. In comparison to the C++ model, the Sitar
-model drives the exact same core through
-[Sitar](https://sitar-sim.github.io/sitar/) instead of the plain
-functional loop, adding real per-opcode, interconnect, and memory timing.
+In comparison to the C++ model, the Sitar model drives the exact same
+core through [Sitar](https://sitar-sim.github.io/sitar/) instead of the
+plain functional loop, adding real per-opcode, interconnect, and memory
+timing.
 
 Both build scripts take the same options:
 
@@ -78,21 +77,21 @@ Both build scripts take the same options:
 To run the C++ model against a memory image, from the repo root:
 
 ```sh
-cd model/cpp_model
-./sparc_sim_cpp test/test_simple_ADD.hex
+cd model/system_models/core_only/cpp_model
+./executable/sparc_sim_cpp_core_only ../../../../validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
 Similarly, for the Sitar-timed model, from the repo root:
 
 ```sh
-cd model/sitar_model/executable
-./sparc_sim_sitar test_simple_ADD.hex
+cd model/system_models/core_only/sitar_model
+./executable/sparc_sim_sitar_core_only ../../../../validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
 The simulation executable expects the following arguments:
 
 ```
-sparc_sim_cpp <hex_file> [expected_results_file] [max_cycles]
+sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles]
 ```
 
 - **A hex file** (required)  
@@ -112,11 +111,18 @@ sparc_sim_cpp <hex_file> [expected_results_file] [max_cycles]
     that to finish.
 
 For example, checking the same run against its expected-results file,
-back in `model/cpp_model`:
+back in `model/system_models/core_only/cpp_model`:
 
 ```sh
-./sparc_sim_cpp test/test_simple_ADD.hex test/test_simple_ADD.expected 1000
+./executable/sparc_sim_cpp_core_only \
+    ../../../../validation/test_simple_ADD/test_simple_ADD.hex \
+    ../../../../validation/test_simple_ADD/test_simple_ADD.expected \
+    1000
 ```
+
+(Or, more simply, `./run_simple_test.sh` -- a fixed, minimal wrapper
+around the same hex-file-plus-expected-results check, bundled in this
+folder.)
 
 ```
 PASS: o0 = 0xc
@@ -129,9 +135,20 @@ OVERALL: PASS (3 checks)
 
 ## Observing the simulation log
 
-When built with `--logging`, a simulation run also produces a `.log`
-file in the current directory, containing a detailed simulation trace
-showing the processor state at the end of each instruction cycle.
+Rebuild with `--logging` (still in `model/system_models/core_only/cpp_model`):
+
+```sh
+./build.sh --logging
+./executable/sparc_sim_cpp_core_only_logging \
+    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
+```
+
+A `--logging` build gets its own executable name (with a `_logging`
+suffix), so it coexists in `executable/` alongside the plain default
+build from the section above, rather than replacing it. Running it
+produces a `.log` file in the current directory, containing a detailed
+simulation trace showing the processor state at the end of each
+instruction cycle.
 
 The generated log file has the same name as the `.hex` file, but with a
 `.log` extension. Although it's a plain text file in tab-separated value
@@ -185,7 +202,7 @@ types are:
     (that's what the `wr %g0, %psr` at the top did), so it has no
     handler to jump to. The processor forces itself into `error_mode`
     instead. This is this project's halt convention, used by every test
-    program in the repository. It's what `sparc_sim_cpp`'s
+    program in the repository. It's what the executable's
     `PROCESSOR STATE: ERROR` and `Simulation halted after N cycles.`
     output means, and it's expected, not a bug.
 
@@ -224,12 +241,14 @@ The suite contains:
     summary.
 
 It's worth running whenever you change the model itself, to check
-nothing broke. Rebuild both models without `--logging` first. Some
-tests run long, and logging isn't needed here:
+nothing broke. `validation/run_tests.py` drives each model's plain
+default build (no `--logging`, no `--debug`) -- the one already built in
+"Building the SPARC models" above, some tests run long, and logging
+isn't needed here. Rebuild it if you've made changes since:
 
 ```sh
-model/cpp_model/build.sh
-model/sitar_model/build.py
+model/system_models/core_only/cpp_model/build.sh
+model/system_models/core_only/sitar_model/build.sh
 ```
 
 Then run `validation/run_tests.py`, pointing it at a folder of tests.
@@ -284,8 +303,8 @@ know which variables hold the simulated architectural state.
 Build with `--debug` first:
 
 ```sh
-model/cpp_model/build.sh --debug
-model/sitar_model/build.py --debug
+model/system_models/core_only/cpp_model/build.sh --debug
+model/system_models/core_only/sitar_model/build.sh --debug
 ```
 
 To make this convenient, `debug/sparc.gdb` provides a large set of

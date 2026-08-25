@@ -2,7 +2,7 @@
 
 `sparc.gdb` -- convenience commands for examining a running
 `sparc_sim_cpp`/`sparc_sim_sitar` (built with `--debug`, see
-`model/cpp_model/build.sh`/`model/sitar_model/build.py`) under host gdb.
+`model/system_models/core_only/cpp_model/build.sh`/`.../sitar_model/build.sh`) under host gdb.
 
 ## Why this file exists
 

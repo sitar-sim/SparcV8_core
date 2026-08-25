@@ -7,7 +7,7 @@ root. This page summarizes the larger, still-open directions.
 
 ## Remaining Sitar testbench configurations
 
-The current Sitar model (`model/sitar_model/`) tightly couples
+The current Sitar model (`model/sitar_component_models/`) tightly couples
 `SparcThread` to `MainMemory` via a shared struct and a same-phase
 handshake (see [Model Components](model_components.md)). Two further
 configurations are planned:

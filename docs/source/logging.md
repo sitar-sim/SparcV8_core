@@ -23,7 +23,7 @@ way in the log viewer, regardless of which model produced it. See
 
 A driver uses `CoreLogger` one of two ways.
 
-- **`do_print=true`** (`cpp_model/sparc_sim.cpp`)  
+- **`do_print=true`** (`cpp_model/src/sparc_sim.cpp`)  
     `CoreLogger` writes each row directly to a given `ostream` itself.
 - **`do_print=false`** (`sitar_model`)  
     Each `log_*()` call just returns the formatted row. The caller
@@ -49,7 +49,7 @@ for the full mechanism. It can be pointed at:
     `(time)hierarchicalId:` prefix, gives `sparcThread`'s own trace: pure
     `CoreLogger` rows, nothing else, a clean file completely separate
     from `mainMemory` and the `MemoryInterface` instances' own messages
-    (`sitar.log`). See `model/sitar_model/README.md`.
+    (`sitar.log`). See `model/system_models/core_only/sitar_model/README.md`.
 
 Both models name that trace file after the hex file's own basename, with
 the trailing `.hex` replaced by `.log` (`test_simple_ADD.hex` produces
@@ -61,10 +61,11 @@ way a single fixed filename would.
 
 ## Compile-time on/off
 
-Two macros are tied to the same `--logging` flag. `model/cpp_model/build.sh`
-and `model/sitar_model/build.py` both expose it. `build.py --logging`
-passes `--cflags=-DSPARC_LOGGING_ENABLED` through to `sitar compile`
-alongside Sitar's own `--logging`, so one flag controls both.
+Two macros are tied to the same `--logging` flag. Every configuration's
+`cpp_model/build.sh` and `sitar_model/build.sh` both expose it (the
+latter forwarding to the shared `build_scripts/build_sitar_model.py`).
+`--logging` passes `--cflags=-DSPARC_LOGGING_ENABLED` through to `sitar
+compile` alongside Sitar's own `--logging`, so one flag controls both.
 
 - **`SPARC_LOGGING_ENABLED`**  
     Gates `CoreLogger`. Without it (the default), every `log_*()` method

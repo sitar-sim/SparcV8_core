@@ -5,10 +5,15 @@
 //Provides zero-latency, functional-only execution: for each instruction it
 //calls SparcCore's methods (see the note above the commented-out
 //SparcCore::run() in SparcCore.cpp) in the same order any driver of SparcCore
-//would, but performs memory accesses directly against a MemCore with no
-//modeled latency. This makes it suitable for functional (no-timing) testing
-//of small assembly/machine-code programs, with no dependencies beyond plain
-//C++ and this repository's cpp_common_code/ library.
+//would, but performs memory accesses directly against whatever
+//MemoryAccessProvider it's given, with no modeled latency of its own. This
+//is the fixed, config-invariant FSM: what implements MemoryAccessProvider
+//(MemCore directly, or later an MMU or a cache) is a per-configuration
+//choice made by whoever constructs this class, not something this file
+//knows or cares about (see Plan_SoC_Integration_Roadmap.md's "lego-block
+//interface contract"). This makes it suitable for functional (no-timing)
+//testing of small assembly/machine-code programs, with no dependencies
+//beyond plain C++ and this repository's cpp_common_code/ library.
 //
 //Trap handling matches Appendix C of the SPARC V8 manual exactly: every trap
 //is dispatched via SparcCore::executeTraps() (Ref Section C.5, C.8) with no
@@ -30,14 +35,14 @@
 #define SPARC_STATE_MACHINE_H
 
 #include "SparcCore.h"
-#include "MemCore.h"
+#include "MemoryAccessProvider.h"
 #include "Opcodes.h"
 #include "DebugHooks.h"
 
 class SparcStateMachine
 {
 	public:
-		SparcStateMachine(SparcCore& core, MemCore& mem);
+		SparcStateMachine(SparcCore& core, MemoryAccessProvider& mem);
 
 		//Run until the core halts (enters error_mode) or maxCycles is
 		//exceeded. Returns the same value as `halted` below.
@@ -48,7 +53,7 @@ class SparcStateMachine
 
 	private:
 		SparcCore& core;
-		MemCore&   mem;
+		MemoryAccessProvider& mem;
 
 		void runOneCycle();
 

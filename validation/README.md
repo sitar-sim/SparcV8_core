@@ -9,10 +9,11 @@ tests here, functional correctness only.
 - `C/` -- bare-metal C tests. See `C/README.md`.
 - `test_simple_ADD/` -- one more `.vprj` test, but its main job is as
   the small example program used throughout the docs and both models'
-  own bundled walkthroughs (`model/cpp_model/test/`,
-  `model/sitar_model/executable/`), which symlink to it rather than
-  keeping their own duplicate `.s`/`.hex`/`.expected`/`.objdump`. Its two
-  reference traces (`test_simple_ADD.cpp_model.log`,
+  own `run_simple_test.sh` scripts
+  (`model/system_models/core_only/cpp_model/`,
+  `model/system_models/core_only/sitar_model/`), which read it from here
+  directly rather than keeping their own duplicate `.s`/`.hex`/`.objdump`.
+  Its two reference traces (`test_simple_ADD.cpp_model.log`,
   `test_simple_ADD.sitar_model.log`) run the other way: each is a
   symlink back to `test_simple_ADD.log` in the model folder that
   actually produces it (a trace file is always named after the hex file
@@ -36,9 +37,10 @@ Roughly in the order you'd use them:
    source into a `.hex` memory image. Needs the toolchain. Only needed if
    you've added or edited a test; `.hex` files are committed to git, so
    this step isn't needed just to run the existing suite.
-3. `../model/cpp_model/build.sh` or `../model/sitar_model/build.py` --
-   build the checker binary to run tests against (not a script in this
-   directory, listed here since it's the next step).
+3. `../model/system_models/core_only/cpp_model/build.sh` or
+   `../model/system_models/core_only/sitar_model/build.sh` -- build the
+   checker binary to run tests against (not a script in this directory,
+   listed here since it's the next step).
 4. `run_tests.py <root_folder> [--sitar] [--max-cycles N] [-v]` -- runs
    each test's `.hex` against the checker and reports PASS/FAIL. Doesn't
    need the toolchain.

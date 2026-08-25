@@ -100,20 +100,22 @@ pipelining of its own. The two models differ only in how they drive this
 common code.
 
 - **The C++ only functional model**  
-    Lives in `model/cpp_model/`. A plain host C++ fetch-decode-execute-trap
-    loop (`SparcStateMachine`) drives the core directly, with zero modeled
-    latency. Every instruction "completes" the moment it starts. There are
-    no timing knobs here at all. Its intended use is fast, ISA-level
-    correctness checking.
+    Lives in each configuration's own `cpp_model/` subfolder, e.g.
+    `model/system_models/core_only/cpp_model/`. A plain host C++
+    fetch-decode-execute-trap loop (`SparcStateMachine`) drives the core
+    directly, with zero modeled latency. Every instruction "completes"
+    the moment it starts. There are no timing knobs here at all. Its
+    intended use is fast, ISA-level correctness checking.
 - **The Sitar cycle-based timing model**  
-    Lives in `model/sitar_model/`. The same core is instead driven through
-    [Sitar](https://sitar-sim.github.io/sitar/), with a configurable opcode
-    latency plus separate interconnect and memory latencies you supply. Its
-    intended use is performance modeling, either standalone (to see how a
-    given latency configuration affects a program's runtime) or as the
-    timed core component inside a larger Sitar-based SoC/many-core
-    simulation. See [Performance Modeling](performance_modeling.md) for the
-    three latency knobs.
+    Lives in each configuration's own `sitar_model/` subfolder, e.g.
+    `model/system_models/core_only/sitar_model/`. The same core is
+    instead driven through [Sitar](https://sitar-sim.github.io/sitar/),
+    with a configurable opcode latency plus separate interconnect and
+    memory latencies you supply. Its intended use is performance
+    modeling, either standalone (to see how a given latency configuration
+    affects a program's runtime) or as the timed core component inside a
+    larger Sitar-based SoC/many-core simulation. See [Performance
+    Modeling](performance_modeling.md) for the three latency knobs.
 
 Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.
@@ -130,8 +132,11 @@ In the [source repository](https://github.com/sitar-sim/SparcV8_core),
 top-level folders are organized as follows.
 
 - **`model/`**  
-    The core itself (`cpp_common_code/`), and the two testbenches that
-    drive it (`cpp_model/`, `sitar_model/`). See [Model Components](model_components.md).
+    The core itself (`cpp_common_code/`), the reusable Sitar procedures
+    (`sitar_component_models/`), and one folder per configuration
+    (`system_models/`, e.g. `system_models/core_only/`), each with the
+    two testbenches that drive it (`cpp_model/`, `sitar_model/`). See
+    [Model Components](model_components.md).
 - **`validation/`**  
     The functional validation suite, assembly and C tests. See
     [Validation Suite](validation_suite.md).

@@ -127,7 +127,7 @@ It recurses to find `.vprj` files, so nesting is free.
 
 | Option | Does |
 |---|---|
-| `--sitar` | Run against the Sitar-timed model (`model/sitar_model/executable/sparc_sim_sitar`) instead of the plain C++ model (`model/cpp_model/sparc_sim_cpp`, the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
+| `--sitar` | Run against the Sitar-timed model (`model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only`) instead of the plain C++ model (`model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only`, the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
 | `--max-cycles N` | Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
 | `-v` | Show every check's result, not just failures. |
 
@@ -185,10 +185,10 @@ Two sub-suites, side by side under `validation/`, both using the same
     | `dot_product` | Integer vector dot product |
 
 Alongside them sits `test_simple_ADD/`, one more `.vprj` test, but its
-main job is as the small worked example used throughout the docs
-(`model/cpp_model/test/`, `model/sitar_model/executable/`, and
-`log_viewer/` all symlink to the files here rather than keeping their
-own copies), see `validation/README.md`.
+main job is as the small worked example used throughout the docs (every
+configuration's `run_simple_test.sh` reads the files here directly, and
+`log_viewer/` symlinks to the reference trace produced here, rather than
+keeping their own copies), see `validation/README.md`.
 
 ---
 

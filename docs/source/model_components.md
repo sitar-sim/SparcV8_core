@@ -5,10 +5,16 @@ subdirectory's own `README.md` for full detail. This page is the map.
 
 ```
 model/
-  cpp_common_code/   SparcCore, the core itself. Timing-agnostic.
-  cpp_model/          SparcStateMachine, 0-delay driver, no Sitar.
-  sitar_model/        Top/Core/SparcThread/MemoryInterface/MainMemory,
-                       Sitar-timed driver, cycle-level (non-pipelined).
+  cpp_common_code/          SparcCore and SparcStateMachine. Timing-agnostic.
+  sitar_component_models/    MemoryInterface/MainMemory/SparcThread, the
+                               reusable Sitar procedures every configuration
+                               is built from.
+  system_models/
+    core_only/
+      cpp_model/               SparcStateMachine driving MemCore directly,
+                                 0-delay, no Sitar.
+      sitar_model/              Top/Core wiring the shared Sitar procedures
+                                  together, cycle-level (non-pipelined).
 ```
 
 ---
@@ -28,8 +34,9 @@ shared unmodified by both models below, so a bug fix or new instruction
 benefits both.
 
 Also here: `Decoder` (instruction word -> `Opcode`), `MemCore` (flat,
-byte-addressed functional memory, used directly by `cpp_model` and wrapped
-with timing by `sitar_model`'s `MainMemory`), `FloatingPointFunctions.h`
+byte-addressed functional memory, used directly by the `core_only`
+configuration's `cpp_model` and wrapped with timing by `MainMemory.sitar`
+in `sitar_component_models/`), `FloatingPointFunctions.h`
 (IEEE-754 single/double/quad-precision arithmetic, quad via
 `libquadmath`), and `CoreLogger` (`SparcCore::logger`, which formats and,
 depending on how a driver configures it, emits this core's state as a
@@ -40,16 +47,17 @@ trace format, viewable in the [log viewer](logging.md#the-log-viewer).
 
 ## `cpp_model/`: the 0-delay functional driver
 
-`SparcStateMachine` drives `SparcCore` through an ordinary
+`SparcStateMachine` (`cpp_common_code/`, reused unchanged by every
+configuration's `cpp_model`) drives `SparcCore` through an ordinary
 fetch-decode-execute-trap loop, with **zero modeled latency**. Every
 instruction "completes" in the same iteration it starts, and that
 iteration, one complete instruction execution, is counted and reported
-as 1 "cycle" by `sparc_sim_cpp` (see `--max-cycles`/its halt message).
-This is purely an iteration count, with no notion of how long a real
-instruction or memory access would actually take, unlike the Sitar model
-below where a cycle is an actual elapsed clock cycle. No Sitar dependency
-at all. This is the fast, simple reference to check ISA-level correctness
-against. It's what `validation/run_tests.py` uses by default.
+as 1 "cycle" by the built executable (see `--max-cycles`/its halt
+message). This is purely an iteration count, with no notion of how long a
+real instruction or memory access would actually take, unlike the Sitar
+model below where a cycle is an actual elapsed clock cycle. No Sitar
+dependency at all. This is the fast, simple reference to check ISA-level
+correctness against. It's what `validation/run_tests.py` uses by default.
 
 ---
 
@@ -76,18 +84,22 @@ behavior
 end behavior
 ```
 
-This is `Core.sitar`'s top-level behavior: `sparcThread` (the state
-machine, which owns `SparcCore` plus five memory-interface threads for
-ifetch/read/write/atomic/flush) and `mainMemory` (a persistent procedure
-owning the actual `MemCore` storage) run as two branches of one **parallel
-block**, communicating through a shared request/response struct, alongside
-a third branch that watches for `sparcThread` halting (its own procedure
-never returns, it loops forever across `RESET`/`EXECUTE`/`ERROR` by
-design) and stops the simulation once it does. `sparcThread` and
-`mainMemory` are procedures on branches of the same parallel block, not
-modules connected by ports/nets. Because of that, their handshake can
-complete within a single phase, meaning zero added cycles, before either
-side's own configured latency is even applied.
+This is `core_only/sitar_model/src/Core.sitar`'s top-level behavior:
+`sparcThread` (the state machine, which owns `SparcCore` plus five
+memory-interface threads for ifetch/read/write/atomic/flush) and
+`mainMemory` (a persistent procedure owning the actual `MemCore` storage)
+run as two branches of one **parallel block**, communicating through a
+shared request/response struct, alongside a third branch that watches for
+`sparcThread` halting (its own procedure never returns, it loops forever
+across `RESET`/`EXECUTE`/`ERROR` by design) and stops the simulation once
+it does. `sparcThread` and `mainMemory` are procedures on branches of the
+same parallel block, not modules connected by ports/nets. Because of
+that, their handshake can complete within a single phase, meaning zero
+added cycles, before either side's own configured latency is even
+applied. `sparcThread` and `mainMemory` themselves are reusable
+components, from `sitar_component_models/`; `Top.sitar`/`Core.sitar`
+(this composition) are the part that's specific to the `core_only`
+configuration and would look different in another configuration.
 
 Three independent, additive latency knobs, all ordinary `int >= 0` values
 with no special-casing at zero (see
@@ -114,7 +126,8 @@ how to observe the effect):
     Until then, the shape of the pattern is already visible in how
     `MemoryInterface` and `MainMemory` connect today. They share a
     `MemAccessInterface` struct plus a request/response valid-bit
-    handshake (see `model/sitar_model/src/cpp_code/MemAccessInterface.h`'s
+    handshake (see
+    `model/sitar_component_models/cpp_code/MemAccessInterface.h`'s
     header comment for the exact protocol). An interposed cache would be
     another `MainMemory`-like persistent procedure, itself acting as a
     requester to a further `MemoryInterface`/`MainMemory` pair behind it.

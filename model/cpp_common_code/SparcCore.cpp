@@ -4,7 +4,7 @@
 #include"BitManipulation.h"
 #include"ConvertToString.h"
 #include"FloatingPointFunctions.h"
-#include"MemCore.h"
+#include"MemoryAccessProvider.h"
 #include"DebugRegistry.h"
 #include<iostream>
 #include<stdint.h>

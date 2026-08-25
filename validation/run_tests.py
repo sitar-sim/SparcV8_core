@@ -14,12 +14,15 @@ Point this at any subfolder to run only a subset of the suite, e.g.:
     validation/run_tests.py validation/asm/floating_point
     validation/run_tests.py validation/asm/integer_alu/Arithmetic
 
-By default this drives model/cpp_model/sparc_sim_cpp (the plain C++ core +
-SparcStateMachine, no Sitar). Pass --sitar to instead drive
-model/sitar_model/executable/sparc_sim_sitar (the actual Sitar
-Top/Core/SparcThread model) -- same CLI, same expected-results format, same
-PASS/FAIL/OVERALL output, so the exact same suite runs against either model
-unchanged; see model/sitar_model/build.py to build it.
+By default this drives
+model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only
+(the plain C++ core + SparcStateMachine, no Sitar). Pass --sitar to instead
+drive
+model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only
+(the actual Sitar Top/Core/SparcThread model) -- same CLI, same
+expected-results format, same PASS/FAIL/OVERALL output, so the exact same
+suite runs against either model unchanged; see
+model/system_models/core_only/sitar_model/build.sh to build it.
 
 Does NOT require the sparc-elf toolchain -- only the checker binary needs to
 be built, and each test's .hex file (committed to git) needs to already
@@ -33,8 +36,10 @@ import sys
 
 import vprj
 
-CHECK_TEST_CPP   = os.path.join(vprj.REPO_ROOT, 'model', 'cpp_model', 'sparc_sim_cpp')
-CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'sitar_model', 'executable', 'sparc_sim_sitar')
+CHECK_TEST_CPP   = os.path.join(vprj.REPO_ROOT, 'model', 'system_models', 'core_only', 'cpp_model',
+                                 'executable', 'sparc_sim_cpp_core_only')
+CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'system_models', 'core_only', 'sitar_model',
+                                 'executable', 'sparc_sim_sitar_core_only')
 
 
 def run_one_test(vprj_path, max_cycles, env, check_test):
@@ -65,12 +70,13 @@ def main():
     ap.add_argument('--max-cycles', type=int, default=10000, help="cycle limit per test (default: 10000)")
     ap.add_argument('-v', '--verbose', action='store_true', help="show per-check output for every test, not just failures")
     ap.add_argument('--sitar', action='store_true',
-                     help="drive model/sitar_model/executable/sparc_sim_sitar (the actual Sitar model) "
-                          "instead of model/cpp_model/sparc_sim_cpp (the default)")
+                     help="drive model/system_models/core_only/sitar_model's executable (the actual "
+                          "Sitar model) instead of model/system_models/core_only/cpp_model's (the default)")
     args = ap.parse_args()
 
     check_test = CHECK_TEST_SITAR if args.sitar else CHECK_TEST_CPP
-    build_hint = "model/sitar_model/build.py" if args.sitar else "model/cpp_model/build.sh"
+    build_hint = ("model/system_models/core_only/sitar_model/build.sh" if args.sitar
+                  else "model/system_models/core_only/cpp_model/build.sh")
     if not os.path.isfile(check_test):
         print("error: %s not found -- run %s first" % (check_test, build_hint))
         sys.exit(1)

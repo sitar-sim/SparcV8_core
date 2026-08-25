@@ -2,8 +2,8 @@
 
 A lightweight, self-contained, single-file browser tool for viewing SPARC
 V8 instruction/state traces produced by `CoreLogger`
-(`model/cpp_common_code/CoreLogger.h`) -- used by both `model/cpp_model`
-and `model/sitar_model`, since both drive the same `SparcCore` and
+(`model/cpp_common_code/CoreLogger.h`) -- used by every configuration's
+`cpp_model` and `sitar_model`, since both drive the same `SparcCore` and
 therefore emit the same trace format.
 
 ## What's here
@@ -34,44 +34,46 @@ adds are simply ignored, not required.
 
 1. Build the cpp model with logging enabled, and run a test program:
    ```sh
-   model/cpp_model/build.sh --logging
-   model/cpp_model/sparc_sim_cpp model/cpp_model/test/test_simple_ADD.hex
+   model/system_models/core_only/cpp_model/build.sh --logging
+   model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging \
+       validation/test_simple_ADD/test_simple_ADD.hex
    ```
    This writes `test_simple_ADD.log` into the current directory (a
    trace file is always named after the hex file it ran).
 2. Open `log_viewer/viewer.html` in a browser (double-click it, or
    `open log_viewer/viewer.html` / `xdg-open log_viewer/viewer.html`).
 3. Click **Load trace** and pick `test_simple_ADD.log`; click **Load
-   objdump** and pick `model/cpp_model/test/test_simple_ADD.objdump`
-   (the matching disassembly, symlinked alongside the test, see
-   `../validation/README.md`).
+   objdump** and pick `validation/test_simple_ADD/test_simple_ADD.objdump`
+   (the matching disassembly, see `../validation/README.md`).
 
 ### Example: viewing the bundled `test_simple_ADD` example
 
 From the repository root:
 
 ```sh
-model/cpp_model/build.sh --logging
-model/cpp_model/sparc_sim_cpp model/cpp_model/test/test_simple_ADD.hex
+model/system_models/core_only/cpp_model/build.sh --logging
+model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging \
+    validation/test_simple_ADD/test_simple_ADD.hex
 open log_viewer/viewer.html   # or: xdg-open log_viewer/viewer.html
 ```
 
 Then in the viewer: **Load trace** -> `test_simple_ADD.log` (written into
 the repository root, since that's where the command above was run from),
-**Load objdump** -> `model/cpp_model/test/test_simple_ADD.objdump`.
+**Load objdump** -> `validation/test_simple_ADD/test_simple_ADD.objdump`.
 
 ### The same, via the sitar model
 
 ```sh
-model/sitar_model/build.py --logging
-model/sitar_model/executable/sparc_sim_sitar \
-    model/sitar_model/executable/test_simple_ADD.hex \
-    model/sitar_model/executable/test_simple_ADD.expected
+model/system_models/core_only/sitar_model/build.sh --logging
+model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_logging \
+    validation/test_simple_ADD/test_simple_ADD.hex \
+    validation/test_simple_ADD/test_simple_ADD.expected
 ```
 
 Writes `test_simple_ADD.log` (`sparcThread`'s trace, directly loadable,
 same as above) and `sitar.log` (everything else Sitar logs -- see
-`model/sitar_model/README.md`) into the current directory.
+`model/system_models/core_only/sitar_model/README.md`) into the current
+directory.
 
 ### Optional: serve it for auto-loading
 

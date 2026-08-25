@@ -20,9 +20,9 @@ be **freestanding**: no `#include <stdio.h>`, no libc at all, just the C
 language itself plus whatever you implement by hand against the flat
 memory space `MemCore` provides.
 
-This is the same reason `model/cpp_model/sparc_sim.cpp`'s driver doesn't
-try to model a console. There's genuinely nothing on the other end of
-one yet.
+This is the same reason `core_only/cpp_model/src/sparc_sim.cpp`'s driver
+doesn't try to model a console. There's genuinely nothing on the other
+end of one yet.
 
 ---
 
@@ -126,7 +126,7 @@ Run it directly against the model the same way as an assembly test, see
 [Running a test program](writing_and_running_assembly_programs.md#running-a-test-program):
 
 ```sh
-model/cpp_model/sparc_sim_cpp your_program.hex
+model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only your_program.hex
 ```
 
 ---

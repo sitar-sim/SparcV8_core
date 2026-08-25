@@ -53,8 +53,8 @@ By default, neither model is built with debug symbols. Rebuild with
 `--debug`:
 
 ```sh
-model/cpp_model/build.sh --debug
-model/sitar_model/build.py --debug
+model/system_models/core_only/cpp_model/build.sh --debug
+model/system_models/core_only/sitar_model/build.sh --debug
 ```
 
 This adds debug symbols and a handful of stable, named hook points gdb
@@ -92,8 +92,8 @@ at the end of this section) and load the convenience commands from
 [GDB Command Reference](gdb_command_reference.md) for every one):
 
 ```sh
-model/cpp_model/build.sh --debug
-gdb model/cpp_model/sparc_sim_cpp
+model/system_models/core_only/cpp_model/build.sh --debug
+gdb model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_debug
 ```
 
 ```
@@ -197,12 +197,14 @@ o0 = 0x1 (1)
 ```
 
 **Sitar model**: everything above works identically against
-`model/sitar_model/executable/sparc_sim_sitar` (built with
-`model/sitar_model/build.py --debug`), same commands, same addresses,
-same CLI. Both models drive the same `SparcCore`, and the debug hooks
-live in the shared `cpp_common_code/`, not in either driver.
+`model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_debug`
+(built with
+`model/system_models/core_only/sitar_model/build.sh --debug`), same
+commands, same addresses, same CLI. Both models drive the same
+`SparcCore`, and the debug hooks live in the shared `cpp_common_code/`,
+not in either driver.
 ```sh
-gdb model/sitar_model/executable/sparc_sim_sitar
+gdb model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_debug
 (gdb) source debug/sparc.gdb
 (gdb) sparc-break pc=0x203c
 (gdb) run docs/source/examples/array_sum/array_sum.hex docs/source/examples/array_sum/array_sum.expected
