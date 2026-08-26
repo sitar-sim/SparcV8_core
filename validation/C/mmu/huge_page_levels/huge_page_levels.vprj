@@ -1,0 +1,6 @@
+SOURCES = huge_page_levels.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000007

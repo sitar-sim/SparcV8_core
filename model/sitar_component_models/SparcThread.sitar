@@ -263,10 +263,10 @@ procedure SparcThread
 							//and store the fetched instruction in core.reg.instruction.
 							//Set bit MAE if there was a memory access exception
 							if(core.reg.R_S() ==0)
-								ifetchThread.addr_space=8; //user-mode
+								ifetchThread.request.asi=8; //user-mode
 							else
-								ifetchThread.addr_space=9; //supervisor-mode
-							ifetchThread.address = core.reg.R_PC();
+								ifetchThread.request.asi=9; //supervisor-mode
+							ifetchThread.request.address = core.reg.R_PC();
 							$;
 
 							//wait until instruction fetch finishes
@@ -276,10 +276,10 @@ procedure SparcThread
 
 							//examine the fetched instruction
 							$
-							core.MAE = ifetchThread.MAE;
-							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchThread.instruction, 0);
+							core.MAE = ifetchThread.response.mae;
+							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchThread.response.readWord0, 0);
 							//check for instruction access exception
-							if(  (ifetchThread.MAE == 1) && (core.annul == 0) )
+							if(  (ifetchThread.response.mae == 1) && (core.annul == 0) )
 							{
 								core.trap=1;
 								core.instruction_access_exception=1;
@@ -289,7 +289,7 @@ procedure SparcThread
 							if(core.state==SparcCore::EXECUTE and core.trap==0) then
 								//decode and execute the current instruction
 								$
-								instruction=ifetchThread.instruction;
+								instruction=ifetchThread.response.readWord0;
 								core.reg.W_instruction(instruction);
 								opcode=core.decoder.decode(&core.reg);
 
@@ -358,16 +358,16 @@ procedure SparcThread
 												if(core.trap==0) then
 													//perform Read using memReadThread.
 													$
-													memReadThread.address=core.address;
-													memReadThread.addr_space=core.addr_space;
+													memReadThread.request.address=core.address;
+													memReadThread.request.asi=core.addr_space;
 													$;
 
 													run memReadThread;
 
 													$
-													core.MAE=memReadThread.MAE;
-													core.readWord0=memReadThread.readWord0;
-													core.readWord1=memReadThread.readWord1;
+													core.MAE=memReadThread.response.mae;
+													core.readWord0=memReadThread.response.readWord0;
+													core.readWord1=memReadThread.response.readWord1;
 													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_mem_read(current_time.cycle(), core.address, core.readWord0, core.readWord1, isDoubleLoadInstruction(opcode), core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::LOAD, core.address, core.readWord0, core.readWord1);
@@ -388,17 +388,17 @@ procedure SparcThread
 													if(core.trap==0) then
 														//Write to memory using write thread
 														$
-														memWriteThread.address	 	=core.address;
-														memWriteThread.addr_space	=core.addr_space;
-														memWriteThread.writeWord0       =core.writeWord0;
-														memWriteThread.writeWord1       =core.writeWord1;
-														memWriteThread.byte_mask 	=core.byte_mask;
+														memWriteThread.request.address	=core.address;
+														memWriteThread.request.asi	=core.addr_space;
+														memWriteThread.request.word0    =core.writeWord0;
+														memWriteThread.request.word1    =core.writeWord1;
+														memWriteThread.request.byteMask =core.byte_mask;
 														$;
 
 														run memWriteThread;
 
 														$
-														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteThread.MAE);
+														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteThread.response.mae);
 														debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 														$;
 
@@ -414,19 +414,19 @@ procedure SparcThread
 												if(core.trap==0) then
 													//perform Read using atomicLoadStoreThread
 													$
-													atomicLoadStoreThread.address=core.address;
-													atomicLoadStoreThread.addr_space=core.addr_space;
-													atomicLoadStoreThread.writeWord0 = core.writeWord0;
-													atomicLoadStoreThread.writeWord1 = core.writeWord1;
-													atomicLoadStoreThread.byte_mask  = core.byte_mask;
+													atomicLoadStoreThread.request.address=core.address;
+													atomicLoadStoreThread.request.asi=core.addr_space;
+													atomicLoadStoreThread.request.word0 = core.writeWord0;
+													atomicLoadStoreThread.request.word1 = core.writeWord1;
+													atomicLoadStoreThread.request.byteMask  = core.byte_mask;
 													$;
 
 													run atomicLoadStoreThread;
 
 													$
-													core.MAE=atomicLoadStoreThread.MAE;
-													core.readWord0=atomicLoadStoreThread.readWord0;
-													core.readWord1=atomicLoadStoreThread.readWord1;
+													core.MAE=atomicLoadStoreThread.response.mae;
+													core.readWord0=atomicLoadStoreThread.response.readWord0;
+													core.readWord1=atomicLoadStoreThread.response.readWord1;
 													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_atomic(current_time.cycle(), core.address, core.readWord0, core.writeWord0, core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, core.readWord0, core.writeWord0);
@@ -445,8 +445,8 @@ procedure SparcThread
 												//ported, flushThread's port-based branch is where the
 												//request gets forwarded to it.
 												$
-												flushThread.address=core.address;
-												flushThread.addr_space=core.addr_space;
+												flushThread.request.address=core.address;
+												flushThread.request.asi=core.addr_space;
 												$;
 
 												run flushThread;
@@ -501,7 +501,7 @@ procedure SparcThread
 		ss<<"\n ----------------------------------------------------------";
 		ss<<"\n Processor "<<hierarchicalId()<<" halted";
 		ss<<" -- last instruction executed :"<<printOpcode(opcode);
-		ss<<" at address      : 0x"<<std::hex<<ifetchThread.address<<std::dec;
+		ss<<" at address      : 0x"<<std::hex<<ifetchThread.request.address<<std::dec;
 		ss<<"\n trap status = "<<core.trap;
 		ss<<"\n-----------------------------";
 		ss<<"\n\n Memory accesses:";

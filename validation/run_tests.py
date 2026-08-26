@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-run_tests.py <root_folder> [--max-cycles N] [-v] [--sitar]
+run_tests.py <root_folder> [--max-cycles N] [-v] [--sitar] [--config NAME]
 
 Phase 2 of the test pipeline. Recursively finds .vprj files under
 <root_folder>, and for each one:
@@ -24,6 +24,13 @@ expected-results format, same PASS/FAIL/OVERALL output, so the exact same
 suite runs against either model unchanged; see
 model/system_models/core_only/sitar_model/build.sh to build it.
 
+Pass --config NAME (default: core_only) to instead drive another
+system_models configuration's cpp_model executable, e.g. --config core_mmu
+runs against model/system_models/core_mmu/cpp_model/executable/
+sparc_sim_cpp_core_mmu. Every configuration's cpp_model shares the same CLI
+and expected-results format, so this is just a path swap. --sitar and
+--config are independent axes, though only core_only has a sitar_model today.
+
 Does NOT require the sparc-elf toolchain -- only the checker binary needs to
 be built, and each test's .hex file (committed to git) needs to already
 exist. If you've changed a .s source (or added a new test) and its .hex is
@@ -36,8 +43,12 @@ import sys
 
 import vprj
 
-CHECK_TEST_CPP   = os.path.join(vprj.REPO_ROOT, 'model', 'system_models', 'core_only', 'cpp_model',
-                                 'executable', 'sparc_sim_cpp_core_only')
+
+def check_test_cpp(config):
+    return os.path.join(vprj.REPO_ROOT, 'model', 'system_models', config, 'cpp_model',
+                         'executable', 'sparc_sim_cpp_%s' % config)
+
+
 CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'system_models', 'core_only', 'sitar_model',
                                  'executable', 'sparc_sim_sitar_core_only')
 
@@ -72,11 +83,14 @@ def main():
     ap.add_argument('--sitar', action='store_true',
                      help="drive model/system_models/core_only/sitar_model's executable (the actual "
                           "Sitar model) instead of model/system_models/core_only/cpp_model's (the default)")
+    ap.add_argument('--config', default='core_only',
+                     help="which system_models configuration's cpp_model executable to drive "
+                          "(default: core_only). Ignored if --sitar is given.")
     args = ap.parse_args()
 
-    check_test = CHECK_TEST_SITAR if args.sitar else CHECK_TEST_CPP
+    check_test = CHECK_TEST_SITAR if args.sitar else check_test_cpp(args.config)
     build_hint = ("model/system_models/core_only/sitar_model/build.sh" if args.sitar
-                  else "model/system_models/core_only/cpp_model/build.sh")
+                  else "model/system_models/%s/cpp_model/build.sh" % args.config)
     if not os.path.isfile(check_test):
         print("error: %s not found -- run %s first" % (check_test, build_hint))
         sys.exit(1)

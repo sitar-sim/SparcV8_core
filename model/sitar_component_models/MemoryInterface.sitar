@@ -11,11 +11,69 @@
 // for the next access (no loop of its own -- contrast with MainMemory,
 // which is persistent).
 //
-// Holds no memory storage and no direct pointer to it. Instead it talks
-// to whatever persistent procedure is connected on the other end (today,
-// MainMemory; later, a cache) through one MemAccessInterface object --
-// see MemAccessInterface.h for the full request/response handshake this
-// implements (this procedure is the requester's half of it).
+// `request`/`response` (VirtualMemoryRequest/VirtualMemoryResponse, Ref
+// MemoryInterfaces.h) are this procedure's own public state: SparcThread
+// sets request.address/asi/word0/word1/byteMask directly before calling
+// `run`, and reads response.readWord0/readWord1/mae afterwards -- the
+// same struct types and field names used everywhere else memory
+// requests/responses are described (cpp_model's MemCore/MainMemory/Mmu,
+// and this file's own downstream connection below), not a parallel,
+// independently-named shadow copy of them.
+//
+// Talks to whatever persistent procedure is connected on the other end
+// (today, MainMemory; later, a cache) through `downstreamRequest`/
+// `downstreamResponse` -- pointers directly into that downstream
+// procedure's OWN local request/response fields (e.g. MainMemory.request/
+// MainMemory.response), not a separate object owned by this procedure,
+// this file's downstream neighbor, or the parent module. The parent
+// module (see Core.sitar) only wires these pointers together at init
+// (e.g. `ifetchThread.downstreamRequest = &mainMemory.request;`); it
+// does not own or hold a copy of the state itself. This is the general
+// chaining pattern for a run of persistent procedures A -> B -> C
+// (arrows = request flow): each procedure but the first owns its own
+// local request/response (the object its upstream neighbor reads/
+// writes), and each procedure but the last holds downstream pointers
+// into the *next* procedure's own local request/response -- so a chain
+// of any length is just a chain of identically-shaped links, with no
+// extra shared objects introduced at the parent level. Analogous to how
+// AJIT's own sysMemBusRequest() hands a request to whatever services the
+// bus. Because both sides are procedures running as branches of the same
+// parallel block -- not modules connected by nets -- this handshake can
+// complete within a single phase, i.e. with 0 added cycles, exactly like
+// PipelinedProcessor's inter-stage handshake in the sitar repo's
+// examples. If more than one requester ever needs to reach this same
+// memory (e.g. before ifetch and load/store are split onto separate
+// caches), point their downstreamRequest/downstreamResponse pointers at
+// that same downstream procedure's local request/response -- only one is
+// ever in flight at a time under SparcThread's current, strictly
+// sequential FSM.
+//
+// NOTE on `valid`: `request`/`response` and `*downstreamRequest`/
+// `*downstreamResponse` are two DIFFERENT handshakes, upstream-facing and
+// downstream-facing respectively, and each one's `valid` bit is owned by
+// a single side of that handshake -- downstreamRequest->valid is set by
+// this procedure and cleared by this procedure once the response is
+// consumed; downstreamResponse->valid is set by whatever services it
+// (MainMemory) and cleared by this procedure. request.valid/
+// response.valid are the same shape one level up: they would be set by
+// whoever calls this procedure and cleared by this procedure (request),
+// and set by this procedure and cleared by the caller (response) -- Ref
+// below, only relevant once a persistent, chained procedure connects
+// upstream of this one via those fields rather than SparcThread's direct
+// field-set-then-`run` calling convention.
+//
+// Because of this, the payload fields (address/asi/word0/word1/byteMask/
+// readWord0/readWord1/mae) are copied individually between `request`/
+// `response` and `*downstreamRequest`/`*downstreamResponse` below --
+// never via a whole-struct assignment -- so that each `valid` bit is only
+// ever touched by the code that actually owns it under the handshake it
+// belongs to. Under today's calling convention (SparcThread sets fields
+// directly and calls `run` synchronously, blocking until it returns) the
+// local request.valid/response.valid are simply never touched by this
+// procedure and stay at their init value -- correct today, and already
+// in the right shape for a future persistent, chained procedure (e.g. a
+// cache) that DOES need those fields to carry real upstream handshake
+// state, with no rework needed here when that happens.
 //
 // NOTE:
 //	all accesses are double word accesses.
@@ -71,31 +129,37 @@ procedure MemoryInterface
 
 
 	//--------------------------------------------------------
-	//Input and output variables for each memory access
+	//This procedure's own public request/response state -- Ref this
+	//file's own header comment. SparcThread.sitar sets the request
+	//fields directly (request.address, request.asi, request.word0,
+	//request.word1, request.byteMask) before calling `run`, and reads
+	//the response fields (response.readWord0, response.readWord1,
+	//response.mae) afterwards.
 	//--------------------------------------------------------
+	include
+	$
+	#include"MemoryInterfaces.h"
+	$
+
 	decl
 	$
-	uint32_t address;     //address to be accessed
-	uint32_t addr_space;  //currently ignored. Will be used when virtual memory is implemented
-
-	uint32_t readWord0;
-	uint32_t readWord1;
-	uint32_t writeWord0;
-	uint32_t writeWord1;
-	uint32_t instruction;
-	uint32_t byte_mask;
-	bool 	 MAE;
+	VirtualMemoryRequest  request;
+	VirtualMemoryResponse response;
 	$
 	init
 	$
-	address    =0;
-	addr_space =0;
-	readWord0  =0;
-	readWord1  =0;
-	writeWord0 =0;
-	writeWord1 =0;
-	byte_mask  =0;
-	MAE        =0;
+	request.valid      = false;
+	request.accessType = MemAccessType::NO_ACCESS;
+	request.address    = 0;
+	request.asi        = 0;
+	request.word0      = 0;
+	request.word1      = 0;
+	request.byteMask   = 0;
+
+	response.valid     = false;
+	response.readWord0 = 0;
+	response.readWord1 = 0;
+	response.mae       = false;
 	$
 	//--------------------------------------------------------
 
@@ -123,21 +187,20 @@ procedure MemoryInterface
 
 	//--------------------------------------------------------
 	//Connection to whatever is servicing this interface (MainMemory, or
-	//later a cache) -- see MemAccessInterface.h for the protocol.
+	//later a cache) -- pointers directly into that downstream
+	//procedure's own local request/response fields, wired up by the
+	//parent module at init (Ref this file's header comment).
 	//--------------------------------------------------------
-
-	include
-	$
-	#include"MemAccessInterface.h"
-	$
 
 	decl
 	$
-	MemAccessInterface* interface;   //set by parent module's init
+	VirtualMemoryRequest*  downstreamRequest;
+	VirtualMemoryResponse* downstreamResponse;
 	$
 	init
 	$
-	interface = NULL;
+	downstreamRequest  = NULL;
+	downstreamResponse = NULL;
 	$
 	//--------------------------------------------------------
 
@@ -151,41 +214,51 @@ behavior
 	//correctly before making any request
 	$
 	assert(memoryAccessType!=MemAccessType::NO_ACCESS);
-	assert(interface);
+	assert(downstreamRequest);
+	assert(downstreamResponse);
 	$;
 
 	//wait until whatever is servicing this interface is free, then issue
-	//the request (see MemAccessInterface.h step 1)
-	wait until (this_phase==0 and not($interface->request_valid$));
+	//the request
+	wait until (this_phase==0 and not($downstreamRequest->valid$));
 
 	$
 	startTime = current_time.cycle();
 	log<<endl<<"[t="<<current_time<<"] Started memory reference of type "<<accessTypeToString(memoryAccessType)
-	   <<" for address 0x"<<std::hex<<address<<std::dec;
+	   <<" for address 0x"<<std::hex<<request.address<<std::dec;
 
-	interface->access_type = memoryAccessType;
-	interface->address     = address;
-	interface->addr_space  = addr_space;
-	interface->writeWord0  = writeWord0;
-	interface->writeWord1  = writeWord1;
-	interface->byte_mask   = byte_mask;
-	interface->request_valid = true;
+	//Individual field writes onto the *shared* downstream object -- not
+	//an aggregate copy of `request` (Ref this file's header comment on
+	//`valid`). downstreamRequest->valid is set last and explicitly: it
+	//is this procedure's own handshake flag on the downstream side, not
+	//a payload field being relayed from `request`.
+	downstreamRequest->accessType = memoryAccessType;
+	downstreamRequest->address    = request.address;
+	downstreamRequest->asi        = request.asi;
+	downstreamRequest->word0      = request.word0;
+	downstreamRequest->word1      = request.word1;
+	downstreamRequest->byteMask   = request.byteMask;
+	downstreamRequest->valid      = true;
 	$;
 
 	//wait for the response (the access_type check is a cheap consistency
-	//check -- see MemAccessInterface.h step 3)
-	wait until (this_phase==0 and $interface->response_valid and interface->access_type==memoryAccessType$);
+	//check)
+	wait until (this_phase==0 and $downstreamResponse->valid and downstreamRequest->accessType==memoryAccessType$);
 
 	$
-	readWord0   = interface->readWord0;
-	readWord1   = interface->readWord1;
-	instruction = interface->instruction;
-	MAE         = interface->MAE;
+	//Individual field reads off the *shared* downstream object -- again
+	//not an aggregate copy. response.valid is deliberately left
+	//untouched here: it belongs to a different handshake (Ref header
+	//comment), not to downstreamResponse->valid.
+	response.readWord0 = downstreamResponse->readWord0;
+	response.readWord1 = downstreamResponse->readWord1;
+	response.mae        = downstreamResponse->mae;
 
-	//close the transaction: frees the responder to service the next
-	//request, and frees this (or another) interface to issue one
-	interface->request_valid  = false;
-	interface->response_valid = false;
+	//close the transaction: explicit, individual field writes on the
+	//*shared* objects -- frees the responder to service the next request,
+	//and frees this (or another) interface to issue one.
+	downstreamRequest->valid  = false;
+	downstreamResponse->valid = false;
 	$;
 
 	//model the configured access latency (default 0 -- see `delay` above)
@@ -199,8 +272,8 @@ behavior
 	totalLatency += double(current_time.cycle() - startTime);
 
 	log<<endl<<"[t="<<current_time<<"] Finished memory reference of type "<<accessTypeToString(memoryAccessType)
-	   <<" for address 0x"<<std::hex<<address<<std::dec;
-	if(memoryAccessType==MemAccessType::IFETCH) log<<"  Fetched instruction word 0x"<<std::hex<<instruction<<std::dec;
+	   <<" for address 0x"<<std::hex<<request.address<<std::dec;
+	if(memoryAccessType==MemAccessType::IFETCH) log<<"  Fetched instruction word 0x"<<std::hex<<response.readWord0<<std::dec;
 	$;
 
 

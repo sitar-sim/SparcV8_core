@@ -28,22 +28,35 @@ later an MMU or a cache).
 - **`Decoder.h` / `.cpp`** -- `Decoder::decode(Registers*)`: reads the
   instruction word already loaded into `reg` and returns the matching
   `Opcode`, or an unimplemented/illegal marker.
-- **`MemoryAccessProvider.h`** -- the abstract interface `SparcCore` and
-  `SparcStateMachine` actually depend on for memory access (a word read,
-  a masked doubleword write, an atomic read-modify-write). Whatever a
-  cpp_model configuration connects downstream implements this; neither
-  `SparcCore` nor `SparcStateMachine` know or care what that is. See
-  `Plan_SoC_Integration_Roadmap.md`'s "lego-block interface contract".
+- **`MemoryInterfaces.h`** -- two abstract interfaces: `VirtualMemoryInterface`
+  (formerly `MemoryAccessProvider`), what `SparcCore` and
+  `SparcStateMachine` actually depend on for memory access (32-bit
+  address, ASI, a word read, a masked doubleword write, an atomic
+  read-modify-write) -- whatever a cpp_model configuration connects
+  downstream implements this; neither `SparcCore` nor `SparcStateMachine`
+  know or care what that is. See `Plan_SoC_Integration_Roadmap.md`'s
+  "lego-block interface contract". `PhysicalMemoryInterface` is what sits
+  below an MMU instead (64-bit/36-bit-meaningful address, no ASI,
+  doubleword-shaped transactions mimicking AJIT's own bus -- see that
+  file's own comment for the citation).
 - **`MemCore.h` / `.cpp`** -- flat, word-addressable functional memory (256MB,
-  byte addresses), implementing `MemoryAccessProvider` directly.
+  byte addresses), implementing `VirtualMemoryInterface` directly.
   `initializeMemory(hex_dump_file)` loads a hex-dump memory image (see
   `compiler/hexdump_to_memimage.py`). Used directly by the `core_only`
   configuration (0-delay); `sitar_model`'s `MainMemory` procedure owns one
   too, wrapped with modeled latency.
+- **`MainMemory.h` / `.cpp`** -- the physical-memory endpoint for a
+  cpp_model configuration with an MMU (`core_mmu` today): implements
+  `PhysicalMemoryInterface`, wraps a `MemCore` for the actual backing
+  storage. Not used by `core_only`, which has no MMU and talks to
+  `MemCore` directly, same as before this class existed.
+- **`MainMemoryStats.h` / `.cpp`** -- functional counters for `MainMemory`
+  (reads/writes/atomics, full vs. partial doubleword accesses), in the
+  same spirit as `mmu/MmuStats.h`.
 - **`SparcStateMachine.h` / `.cpp`** -- the reusable 0-delay
   fetch-decode-execute FSM every `cpp_model` configuration drives
   `SparcCore` through: `SparcStateMachine(core, mem)`, then
-  `run(maxCycles)`. `mem` is a `MemoryAccessProvider&`, not a concrete
+  `run(maxCycles)`. `mem` is a `VirtualMemoryInterface&`, not a concrete
   `MemCore&`, which is what makes this file itself configuration-invariant
   -- only what a given configuration's own entry point (e.g.
   `../system_models/core_only/cpp_model/src/sparc_sim.cpp`) constructs and
@@ -81,14 +94,14 @@ MemCore mem;
 mem.initializeMemory("program.hex");   // see compiler/hexdump_to_memimage.py
 
 SparcCore core;
-core.memCore = &mem;                   // MemCore implements MemoryAccessProvider directly
+core.memCore = &mem;                   // MemCore implements VirtualMemoryInterface directly
 
 SparcStateMachine runner(core, mem);
 runner.run(maxCycles);
 ```
 
 A configuration that needs something other than direct `MemCore` access
-(an MMU, a cache) implements `MemoryAccessProvider` itself and passes
+(an MMU, a cache) implements `VirtualMemoryInterface` itself and passes
 that in as `mem` instead -- `SparcCore` and `SparcStateMachine` need no
 changes either way. For a timed driver, see
 `../sitar_component_models/SparcThread.sitar` instead, which drives the

@@ -205,8 +205,9 @@ keeping their own copies), see `validation/README.md`.
 3. Build and run it directly first, to find the actual final register
    values, see
    [Assembling to generate a memory image](writing_and_running_assembly_programs.md#assembling-to-generate-a-memory-image-hex)
-   (`compiler/assemble.sh <name>.s`, then `sparc_sim_cpp <name>.hex`
-   with no expected-results argument, prints the final state).
+   (`compiler/assemble.sh <name>.s`, then
+   `model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only
+   <name>.hex` with no expected-results argument, prints the final state).
 4. Write `<name>.vprj`, naming `<name>.s` as its `SOURCES` and listing
    the register (and, if needed, memory) values from step 3 that you
    want checked, see the format above.

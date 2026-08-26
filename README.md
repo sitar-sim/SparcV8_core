@@ -50,18 +50,8 @@ instruction set -- modeled at two levels:
    `model/system_models/core_only/sitar_model/README.md` for the three
    latency knobs.
 
-**This repository models the core only** -- there is no MMU, cache, or
-peripheral/device model here; those (and a full SoC-level model built
-around this core) are planned for a separate repository/version. This
-repository's own documentation does, however, include one illustrative
-example of connecting an external component (a cache) to the core, to
-demonstrate the pattern for anyone wanting to build a larger model around
-it -- see "Connecting other components" in the documentation (a stub for
-now; the worked example is planned).
-
 Both models are validated against the same instruction-level test suite
-(`validation/`, `validation/run_tests.py`, currently 240/240 passing on
-both) -- see `validation/README.md`.
+(`validation/`, `validation/run_tests.py`) -- see `validation/README.md`.
 
 ## Documentation
 

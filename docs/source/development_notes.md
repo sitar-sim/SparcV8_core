@@ -79,7 +79,7 @@ you're reading existing tests rather than writing new ones:
 - `docs/compliance/` exists specifically so that a documented, understood
   divergence from an external reference (AJIT, in this project's case)
   doesn't get silently "fixed" by editing the test to match a reference
-  that's actually wrong. See `docs/compliance/README.md` for three worked
+  that's actually wrong. See `docs/compliance/README.md` for worked
   examples of this reasoning. The same pattern is worth following for any
   future external reference comparison.
 

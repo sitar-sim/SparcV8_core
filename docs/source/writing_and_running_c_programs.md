@@ -12,15 +12,15 @@ covers writing one, building and running it, and checking its result.
 
 ## No standard library, by design
 
-This model has **no MMU, no cache, no peripheral/device model, and no
-operating system** (see [Models](index.md#models)). There is nothing for
-a C standard library to call into. `printf` has no console to write to.
+This model has **no operating system**. There is nothing for a C
+standard library to call into. `printf` has no console to write to.
 `malloc` has no OS to request pages from. C programs for this model must
 be **freestanding**: no `#include <stdio.h>`, no libc at all, just the C
 language itself plus whatever you implement by hand against the flat
 memory space `MemCore` provides.
 
-This is the same reason `core_only/cpp_model/src/sparc_sim.cpp`'s driver
+This is the same reason
+`model/system_models/core_only/cpp_model/src/sparc_sim.cpp`'s driver
 doesn't try to model a console. There's genuinely nothing on the other
 end of one yet.
 

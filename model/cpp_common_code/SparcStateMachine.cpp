@@ -3,7 +3,7 @@
 #include "SparcStateMachine.h"
 #include <cassert>
 
-SparcStateMachine::SparcStateMachine(SparcCore& core_, MemoryAccessProvider& mem_)
+SparcStateMachine::SparcStateMachine(SparcCore& core_, VirtualMemoryInterface& mem_)
 	: core(core_), mem(mem_)
 {
 	halted         = false;
@@ -180,9 +180,12 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		if (!core.trap)
 		{
 			uint32_t alignedAddr = core.address & (~0x7u);
-			uint32_t word0       = mem.readWord(alignedAddr);
-			uint32_t word1       = mem.readWord(alignedAddr + 4);
-			core.MAE             = false; //flat memory model: accesses never fault
+			VirtualMemoryRequest request{true, MemAccessType::LOAD, alignedAddr, core.addr_space, 0, 0, 0};
+			VirtualMemoryResponse response{false, 0, 0, false};
+			mem.access(request, response);
+			uint32_t word0 = response.readWord0;
+			uint32_t word1 = response.readWord1;
+			core.MAE       = response.mae;
 			core.execute_PostLoad(op, word0, word1);
 			//core.address (not alignedAddr): the instruction's own,
 			//byte-precise target address -- matches SparcThread.sitar's
@@ -197,8 +200,17 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		if (!core.trap)
 		{
 			uint32_t alignedAddr = core.address & (~0x7u);
-			mem.writeMaskedDoubleWord(alignedAddr, core.writeWord0, core.writeWord1, core.byte_mask);
-			core.logger.log_mem_write(cyclesExecuted, core.address, core.writeWord0, core.writeWord1, core.byte_mask, false);
+			VirtualMemoryRequest request{true, MemAccessType::STORE, alignedAddr, core.addr_space, core.writeWord0, core.writeWord1, core.byte_mask};
+			VirtualMemoryResponse response{false, 0, 0, false};
+			mem.access(request, response);
+			bool mae = response.mae;
+			core.MAE = mae;
+			if (mae)
+			{
+				core.trap = true;
+				core.data_access_exception = true;
+			}
+			core.logger.log_mem_write(cyclesExecuted, core.address, core.writeWord0, core.writeWord1, core.byte_mask, mae);
 			debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 		}
 	}
@@ -208,9 +220,12 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		if (!core.trap)
 		{
 			uint32_t alignedAddr = core.address & (~0x7u);
-			uint32_t word0, word1;
-			mem.atomicReadModifyWrite(alignedAddr, core.writeWord0, core.writeWord1, core.byte_mask, word0, word1);
-			core.MAE = false; //flat memory model: accesses never fault
+			VirtualMemoryRequest request{true, MemAccessType::ATOMIC_LS, alignedAddr, core.addr_space, core.writeWord0, core.writeWord1, core.byte_mask};
+			VirtualMemoryResponse response{false, 0, 0, false};
+			mem.access(request, response);
+			uint32_t word0 = response.readWord0;
+			uint32_t word1 = response.readWord1;
+			core.MAE = response.mae;
 			core.execute_PostAtomicLoadStore(op, word0, word1);
 			core.logger.log_atomic(cyclesExecuted, core.address, word0, core.writeWord0, core.MAE);
 			debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, word0, core.writeWord0);

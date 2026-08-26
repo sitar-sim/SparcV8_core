@@ -36,6 +36,9 @@
 # --logging and --debug are independent -- any combination is valid.
 
 set -e
+shopt -s nullglob  # so the cpp_common_code/*/ subfolder globs below expand
+                    # to nothing, not a literal unmatched pattern, if no
+                    # block subfolder exists yet
 
 if [ -z "$1" ]; then
 	echo "Usage: $0 <config_folder> [--logging|--no-logging] [--debug|--debug-o0|--no-debug]"
@@ -69,14 +72,24 @@ CONFIG_NAME="$(basename "$(dirname "$CONFIG_DIR")")"
 
 mkdir -p "$EXECUTABLE_DIR"
 
+# One -I per cpp_common_code subfolder (mmu/, and later cache/, devices/),
+# in addition to cpp_common_code/ itself, so e.g. "#include "Mmu.h""
+# resolves the same way regardless of which folder is including it.
+# Auto-discovered, not hardcoded by name, so a new block's subfolder needs
+# no change here.
+COMMON_CODE_INCLUDES="-I$CPP_COMMON_CODE_DIR"
+for d in "$CPP_COMMON_CODE_DIR"/*/; do
+	COMMON_CODE_INCLUDES="$COMMON_CODE_INCLUDES -I${d%/}"
+done
+
 if [ "$DEBUG" = "1" ]; then
 	if [ "$DEBUG_O0" = "1" ]; then
-		CXXFLAGS="-std=c++11 -Wall -O0 -g -DSPARC_DEBUG_HOOKS_ENABLED -I$CPP_COMMON_CODE_DIR"
+		CXXFLAGS="-std=c++11 -Wall -O0 -g -DSPARC_DEBUG_HOOKS_ENABLED $COMMON_CODE_INCLUDES"
 	else
-		CXXFLAGS="-std=c++11 -Wall -O3 -g -DSPARC_DEBUG_HOOKS_ENABLED -I$CPP_COMMON_CODE_DIR"
+		CXXFLAGS="-std=c++11 -Wall -O3 -g -DSPARC_DEBUG_HOOKS_ENABLED $COMMON_CODE_INCLUDES"
 	fi
 else
-	CXXFLAGS="-std=c++11 -Wall -O2 -I$CPP_COMMON_CODE_DIR"
+	CXXFLAGS="-std=c++11 -Wall -O2 $COMMON_CODE_INCLUDES"
 fi
 if [ "$LOGGING" = "1" ]; then
 	CXXFLAGS="$CXXFLAGS -DSPARC_LOGGING_ENABLED"
@@ -89,6 +102,9 @@ fi
 CXXFLAGS="$CXXFLAGS -Wno-unused-variable -Wno-unused-but-set-variable -Wno-unused-parameter -Wno-unknown-pragmas"
 
 CPP_COMMON_CODE_SOURCES="$CPP_COMMON_CODE_DIR"/*.cpp
+for d in "$CPP_COMMON_CODE_DIR"/*/; do
+	CPP_COMMON_CODE_SOURCES="$CPP_COMMON_CODE_SOURCES ${d%/}"/*.cpp
+done
 CONFIG_SOURCES="$SRC_DIR"/*.cpp
 
 EXECUTABLE_NAME="sparc_sim_cpp_${CONFIG_NAME}"

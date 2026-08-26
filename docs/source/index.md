@@ -15,9 +15,9 @@ Two models of the core are provided.
     built using the [Sitar](https://sitar-sim.github.io/sitar/) parallel simulation
     framework.
 
-Both models provide only the processor core (no MMU/cache/devices). The
-full executable testbenches provided here connect the cores to a simple
-array-like byte addressable memory that allows a user to run programs.
+The full executable testbenches provided here connect the cores to a
+simple array-like byte addressable memory that allows a user to run
+programs.
 These models are meant to be used as:
 
 - Educational simulation models, to run programs on the core and observe their execution.  

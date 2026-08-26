@@ -1,0 +1,6 @@
+SOURCES = access_fault_matrix.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x000003ff

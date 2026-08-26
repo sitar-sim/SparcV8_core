@@ -5,7 +5,54 @@ milestones are reached rather than treating it as a historical log --
 keep the "Current status" section accurate to the present state of the
 repo, and move completed "Next steps" items into it.
 
-## Current status (as of 2026-07-19)
+## Current status (as of 2026-08-26)
+
+**Milestone 3 -- SoC integration (MMU, devices, L1 caches): MMU block
+implemented and validated (cpp_model only); devices and caches still at
+the planning stage.**
+
+- Planning docs: `Plan_SoC_Integration_Roadmap.md`,
+  `Plan_MMU_integration.md`, `Plan_Devices_integration.md`,
+  `Plan_Caches_integration.md`, `AI_Collaboration_Notes.md`. Tracks a
+  phased effort to port Ajit's (`ajit-toolchain`, branch `marshal`) MMU,
+  L1 VIVT cache, and peripheral (timer/interrupt controller/serial) C
+  models into this repo with matching address mappings, plus a Sitar
+  timing model for each. See `Plan_SoC_Integration_Roadmap.md`.
+- `model/` restructured in preparation, no functional change at the
+  time: `cpp_model/`/`sitar_model/` replaced by `cpp_common_code/`
+  (shared by every configuration), `sitar_component_models/` (the
+  reusable Sitar procedures), and `system_models/<config>/` (one folder
+  per testbench configuration). Shared, generic build scripts
+  (`model/build_scripts/`) replace the old per-model
+  `build.sh`/`build.py`, deriving executable names from each
+  configuration folder's own path.
+- **MMU implemented and validated**: `model/cpp_common_code/mmu/`
+  (register map, full 3-level page-table walk, TLB, fault/permission
+  logic, selective flush, all five probe types), wired into the
+  `core_mmu` configuration (cpp_model only -- Sitar's `core_mmu` not yet
+  built). See `Plan_MMU_integration.md` and `mmu/README.md`.
+- **Memory interface redesigned to support this**: `MemoryInterfaces.h`
+  now defines `VirtualMemoryInterface` (32-bit, ASI-aware -- what
+  `SparcStateMachine`/`SparcThread` talk to) and `PhysicalMemoryInterface`
+  (64-bit, no ASI -- what the MMU talks to downstream, mimicking AJIT's
+  own bus), each backed by a single shared request/response struct
+  reused identically by the cpp and Sitar drivers (no separate,
+  independently-named copy on either side). `MainMemory` implements
+  `PhysicalMemoryInterface` and wraps `MemCore`; used by `core_mmu` only
+  -- `core_only` still talks to `MemCore` directly via
+  `VirtualMemoryInterface`.
+- **Validation**: `validation/C/mmu/` (12 tests) covers translation (all
+  four walk-termination levels), register read/write, the full
+  access-permission fault matrix, all five probe types, the atomic
+  load-store compliance deviation, selective flush, R/M-bit write-back,
+  FSR OW-bit/fault-class priority, context switching, and the
+  MMU-disabled bypass path. Full regression (`validation/asm`,
+  `validation/C`, and, for `core_mmu`, `validation/C/mmu`) passes across
+  `core_only` (cpp_model and sitar_model) and `core_mmu` (cpp_model).
+  Two real bugs found and resolved along the way -- see
+  `mmu/README.md`'s "Test coverage" section.
+
+## Milestone 1-2 history (as of 2026-07-19)
 
 **Milestone 1 -- standalone C++ core model: essentially done.**
 

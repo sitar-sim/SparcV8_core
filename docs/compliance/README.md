@@ -12,11 +12,12 @@ from AJIT's own hardware/reference model, we're keeping them here (rather
 than deleting or silently "fixing" them) specifically so this can be shared
 with and reviewed by the AJIT project's authors.
 
-Three independent issues are documented here so far:
+Four independent issues are documented here so far:
 
 1. [FSR accrued-inexact (`aexc.nxa`) tracking](#issue-1-fsr-accrued-inexact-aexcnxa-tracking) -- 10 floating-point tests.
 2. [PSR `impl`/`ver` fields writable by `WRPSR`](#issue-2-psr-implver-fields-writable-by-wrpsr) -- 2 `RDPSR`/`WRPSR` tests.
 3. [Quad-precision (`FADDQ` etc.) is implemented here, unimplemented in AJIT](#issue-3-quad-precision-faddq-etc-is-implemented-here-unimplemented-in-ajit) -- 14 tests.
+4. [Atomic load-store (LDSTUB/SWAP) permission-fault checking](#issue-4-atomic-load-store-ldstubswap-permission-fault-checking) -- design-level deviation in the MMU, not yet backed by a side-by-side test pair (see the issue for why).
 
 Unlike `validation/`, this folder's `.hex` files are *not* committed (see
 `docs/compliance/.gitignore`) -- these are reference/evidence tests, not the
@@ -404,3 +405,138 @@ clear *why* these particular 14 AJIT tests can't be adopted into this
 project's `validation/` suite unmodified, and so the `fitoq`/`fsubq`
 `SOURCES` mismatches noted above are visible somewhere in case they're
 useful to fix upstream.
+
+## Issue 4: Atomic load-store (LDSTUB/SWAP) permission-fault checking
+
+Unlike the three issues above, this one isn't evidenced by a side-by-side
+`.vprj` pair yet -- it was found while porting the MMU block
+(`model/cpp_common_code/mmu/`), before this project's own MMU-specific
+validation tests existed to demonstrate it directly. It's recorded here
+now, in the same spirit as the others, because it's a genuine, understood
+functional divergence from AJIT's own MMU (`mmu/src/Mmu.c`, branch
+`marshal`), not because we have a failing/passing test pair to point at
+yet. We'll add one (`docs/compliance/instruction_tests/mmu/...` or
+similar) once the MMU validation suite exists and can exercise the
+specific page-permission setup this needs.
+
+### What AJIT's MMU actually does
+
+Checked directly against AJIT's source: an atomic load-store dispatches
+through `ThreadInterface.c`'s `lockAndReadData64()`, which calls into
+`cpuDcacheAccess()` / `Mmu()` for the read half, permission-checked as a
+**load** (AT = "Load from ... Data Space"). Only afterwards does a
+separate, unlocked `writeData()` call perform the write half,
+permission-checked as a **store** (AT = "Store to ... Data Space"). These
+are two independent calls into the MMU, each with its own permission
+check, not one atomic operation as far as the MMU's fault logic is
+concerned.
+
+The consequence: on a page whose ACC value permits load access but not
+store access, AJIT's atomic load-store lets the read complete -- the
+value is fetched and, per `lockAndReadData64()`'s name, the memory
+location is locked against other threads -- and only the second, write
+half of the operation faults. The read has already happened (and the
+lock has already been taken) before the fault is raised.
+
+### What the manual says
+
+Appendix H's Access Type (AT) field (p.257) has exactly 8 values, and no
+distinct value for "atomic load-store":
+
+```
+AT                        Access Type
+ 0     Load from User Data Space
+ 1     Load from Supervisor Data Space
+ 2     Load/Execute from User Instruction Space
+ 3     Load/Execute from Supervisor Instruction Space
+ 4     Store to User Data Space
+ 5     Store to Supervisor Data Space
+ 6     Store to User Instruction Space
+ 7     Store to Supervisor Instruction Space
+```
+
+So the manual leaves an implementation to decide how an atomic
+load-store's *single* memory reference maps onto this load/store-only
+AT space -- but Chapter 6.2 ("Total Store Ordering") is explicit that,
+functionally, it is a single reference with two facets, not two separate
+ones:
+
+> An atomic load-store (SWAP or LDSTUB) behaves like both a load and a
+> store. It is placed in the Store Buffer like a store, and it blocks the
+> processor like a load. ... When memory services an atomic load-store,
+> it does so atomically: no other operation may intervene between the
+> load and store parts of the load-store.
+
+And Chapter 7.2 ("Trap Models"), describing the default trap model every
+implementation must support, states that all traps must be precise, with
+exactly four named exceptions -- one of which specifically names atomic
+load-store:
+
+> (3) An exception caused after the primary access of a multiple-access
+> load/store instruction (load/store double, atomic load/store, and
+> SWAP) may be interrupting if it is due to a "non-resumable
+> machine-check" exception. Thus, a trap due to the second memory access
+> can occur after the processor or memory state has been modified by the
+> first access.
+
+The carve-out is narrow and explicit: it covers only non-resumable
+machine-check exceptions (a hardware error class this model doesn't
+implement at all), not ordinary MMU protection/privilege faults. Reading
+the two passages together: the manual treats an atomic load-store as one
+memory reference that "behaves like both a load and a store," happens
+"atomically" with nothing allowed to intervene between its two halves,
+and whose default trap model requires an ordinary fault on it to be
+precise. AJIT's split-transaction behavior -- a real, unlocked read that
+completes and becomes externally visible before the store half's
+permission is even checked -- doesn't satisfy that for an ordinary
+protection or privilege fault, which isn't one of the four listed
+exceptions.
+
+### What this model does instead
+
+`Mmu::translate()` (`model/cpp_common_code/mmu/Mmu.cpp`) checks an atomic
+load-store as a single, precise operation: it computes the fault type
+for the access's primary AT (store, since LDSTUB/SWAP unconditionally
+write memory) and, only if that check passes, additionally checks the
+opposite-direction AT (load) against the same PTE before allowing the
+access to proceed. If *either* direction would fault, the whole operation
+faults before any memory access happens at all -- no read is performed,
+no value becomes visible, and the target byte/word is left completely
+unmodified. See `Mmu::translate()`'s and `Mmu.h`'s own comments for the
+implementation.
+
+### Worked (hypothetical) example
+
+Set up a page whose PTE has `ACC = 2` (Read/Execute for both user and
+supervisor, per Appendix H.3's ACC table -- no write access at all. Ref
+Appendix H.5's ACC/AT permission matrix: AT 4 and 5, both stores, fault
+under ACC 2; AT 0/1, both loads, do not). Execute `LDSTUB` against an
+address on that page from user or supervisor data space:
+
+- **AJIT's behavior**: the read half (AT 0 or 1, a load) passes
+  permission-checking against `ACC = 2` and completes -- the byte's
+  existing value is fetched and the location is locked. Only the write
+  half (AT 4 or 5, a store) then fails against `ACC = 2`, and the fault
+  is raised at that point. The read has already happened.
+- **This model's behavior**: `translate()` checks the store direction
+  first (AT 4/5), which already fails against `ACC = 2` -- so the fault
+  is raised immediately, before any read is attempted. Nothing is read,
+  nothing is locked, memory is untouched.
+
+Both models ultimately raise a `data_access_exception` for this access --
+the divergence is entirely in whether the read half is allowed to
+complete and have a side effect (the memory read, and the lock) before
+the fault is recognized.
+
+### What we'd like from AJIT's authors
+
+Confirmation of whether the two-call, independently-permission-checked
+structure of `lockAndReadData64()`/`writeData()` was a deliberate
+implementation choice (in which case we'd like to understand how it's
+reconciled with Chapter 7.2's precise-trap requirement for ordinary MMU
+faults on this instruction class), or simply a natural consequence of the
+MMU's calling convention not having a "check both directions before
+either memory access" primitive available to the two call sites. Either
+way, we believe our own dual-permission-check behavior is the one
+required by the manual for this case, and are implementing it that way
+rather than mimicking AJIT's split-transaction behavior functionally.

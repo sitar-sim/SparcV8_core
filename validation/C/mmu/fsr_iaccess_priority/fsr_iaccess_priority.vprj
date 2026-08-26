@@ -1,0 +1,5 @@
+SOURCES = fsr_iaccess_priority.c
+
+
+RESULTS =
+o0=0x0000008A 0x000000FF

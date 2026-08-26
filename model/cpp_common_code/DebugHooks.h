@@ -44,9 +44,9 @@
 class SparcCore; //forward declaration only, same reasoning as CoreLogger.h
 
 //Which kind of memory reference debug_hook_mem_access just saw. Its own
-//small enum (not the sitar_model-only MemAccessType in
-//src/cpp_code/MemAccessInterface.h) since this header is shared by both
-//models and must not depend on either one's own internals.
+//small enum (not MemAccessType from MemoryInterfaces.h) since debug hooks
+//are a cpp_model-only mechanism and this header should not pull in the
+//virtual/physical memory interface machinery just to name an access kind.
 enum class DebugMemAccessKind { IFETCH, LOAD, STORE, ATOMIC, FLUSH };
 
 #ifdef SPARC_DEBUG_HOOKS_ENABLED

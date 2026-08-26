@@ -16,7 +16,7 @@
 
 
 #include"CoreLogger.h"			//formats/emits this core's state as an architectural-event trace
-#include"MemoryAccessProvider.h"	//abstract memory-access interface (see that file's comment)
+#include"MemoryInterfaces.h"	//abstract memory-access interface (see that file's comment)
 
 #include<iostream>
 #include<fstream>
@@ -57,7 +57,7 @@ class SparcCore
 
 
 		//Memory Interface related
-		MemoryAccessProvider* memCore;	//pointer to whatever this configuration connects downstream, to be initialized by user
+		VirtualMemoryInterface* memCore;	//pointer to whatever this configuration connects downstream, to be initialized by user
 
 		bool instructionFetch();
 			//Fetch instruction pointed by PC

@@ -16,10 +16,10 @@
 #include<vector>
 #include<iostream>
 #include"BitManipulation.h"
-#include"MemoryAccessProvider.h"
+#include"MemoryInterfaces.h"
 
 
-class MemCore : public MemoryAccessProvider
+class MemCore : public VirtualMemoryInterface
 {
 	public:
 		static const unsigned int memSize = 0x10000000;  //Memory size in bytes = 256MB
@@ -53,15 +53,68 @@ class MemCore : public MemoryAccessProvider
 			return &core[address];
 		};
 
-		inline uint32_t readWord(uint32_t address) override
+		//Plain word read, unrelated to the VirtualMemoryInterface interface
+		//below (an overload, not an override -- C++ picks whichever
+		//matches a given call site's argument list). Kept exactly as it
+		//was before the MMU block: used internally by
+		//writeMaskedDoubleWord()/atomicReadModifyWrite() below, and
+		//externally wherever code already holds a concrete MemCore and
+		//just wants a word, with no ASI/fault reasoning to do (e.g. the
+		//MEM checks in each configuration's own sparc_sim.cpp, and
+		//MainMemory.sitar).
+		inline uint32_t readWord(uint32_t address)
 		{
 			address=address>>2;
-			if(address<nwords) 
-				return core[address]; 
-			else 
+			if(address<nwords)
+				return core[address];
+			else
 			{
 				std::cerr<<"\n MemCore.h: Trying to access an address (0x"<<std::hex<<address<<std::dec<<") larger than memory size";
 				return 0;
+			}
+		};
+
+		//VirtualMemoryInterface interface: a flat array never faults
+		//(mae always false), and asi doesn't affect a memory with no
+		//notion of address spaces or translation. LOAD reads both words
+		//of the doubleword at request.address (already aligned by the
+		//caller -- Ref SparcStateMachine.cpp), matching STORE/ATOMIC_LS's
+		//own doubleword shape; IFETCH only ever needs one word, left in
+		//readWord0 (readWord1 unused, Ref MemoryInterfaces.h).
+		inline void access(const VirtualMemoryRequest& request, VirtualMemoryResponse& response) override
+		{
+			response.valid     = true;
+			response.mae       = false;
+			response.readWord0 = 0;
+			response.readWord1 = 0;
+
+			switch (request.accessType)
+			{
+				case MemAccessType::IFETCH:
+					response.readWord0 = readWord(request.address);
+					break;
+				case MemAccessType::LOAD:
+					response.readWord0 = readWord(request.address);
+					response.readWord1 = readWord(request.address + 4);
+					break;
+				case MemAccessType::STORE:
+				{
+					uint32_t existing0 = readWord(request.address);
+					uint32_t existing1 = readWord(request.address + 4);
+					writeWord(request.address,     mergeMaskedBytes(existing0, request.word0, readBits(request.byteMask, 3, 0)));
+					writeWord(request.address + 4, mergeMaskedBytes(existing1, request.word1, readBits(request.byteMask, 7, 4)));
+					break;
+				}
+				case MemAccessType::ATOMIC_LS:
+					response.readWord0 = readWord(request.address);
+					response.readWord1 = readWord(request.address + 4);
+					writeWord(request.address,     mergeMaskedBytes(response.readWord0, request.word0, readBits(request.byteMask, 3, 0)));
+					writeWord(request.address + 4, mergeMaskedBytes(response.readWord1, request.word1, readBits(request.byteMask, 7, 4)));
+					break;
+				case MemAccessType::FLUSH:
+				case MemAccessType::NO_ACCESS:
+				default:
+					break;
 			}
 		};
 
@@ -134,27 +187,10 @@ class MemCore : public MemoryAccessProvider
 			return result;
 		};
 
-		inline void writeMaskedDoubleWord(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask) override
-		//STORE: read-modify-write the doubleword at address, updating only the bytes selected by byte_mask
-		{
-			uint32_t existing0 = readWord(address);
-			uint32_t existing1 = readWord(address+4);
-			writeWord(address,   mergeMaskedBytes(existing0, word0, readBits(byte_mask,3,0)));
-			writeWord(address+4, mergeMaskedBytes(existing1, word1, readBits(byte_mask,7,4)));
-		};
-
-		inline void atomicReadModifyWrite(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t& readWord0, uint32_t& readWord1) override
-		//Atomic Load-Store (LDSTUB/SWAP): read the existing doubleword into readWord0/readWord1
-		//(the value returned to the processor), then write back a copy with only the bytes
-		//selected by byte_mask overwritten by word0/word1.
-		{
-			readWord0 = readWord(address);
-			readWord1 = readWord(address+4);
-			writeWord(address,   mergeMaskedBytes(readWord0, word0, readBits(byte_mask,3,0)));
-			writeWord(address+4, mergeMaskedBytes(readWord1, word1, readBits(byte_mask,7,4)));
-		};
-
-
+		//STORE/ATOMIC_LS logic itself now lives inline in access() above
+		//(the VirtualMemoryInterface entry point) -- mergeMaskedBytes()
+		//stays a public static helper since MainMemory.cpp also uses it
+		//directly for the analogous physical-side doubleword merge.
 
 };
 

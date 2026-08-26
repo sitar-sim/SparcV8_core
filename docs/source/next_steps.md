@@ -25,12 +25,15 @@ configurations are planned:
 
 ## MMU, caches, and peripherals
 
-This repository models the core only (see
-[Models](index.md#models)). A
-full SoC-level model built around this core is planned as a separate
-repository or version, rather than growing this one beyond a core model.
-That model would add an MMU, caches as persistent components (not just
-the illustrative example above), and peripherals or devices.
+The plan is to grow this repository into a fuller SoC-level model built
+around the core (see `Plan_SoC_Integration_Roadmap.md`), rather than a
+separate repository or version. The MMU (Ref Appendix H) is implemented
+and validated, in a `core_mmu` configuration alongside the existing
+`core_only` one -- see `Plan_MMU_integration.md` and
+`model/cpp_common_code/mmu/README.md`. L1 caches (as persistent
+components, not just the illustrative example above) and peripherals
+(timer, interrupt controller, serial) are still planned, not yet built
+-- see `Plan_Devices_integration.md` and `Plan_Caches_integration.md`.
 
 ## Opcode-wise test coverage
 

@@ -1,0 +1,5 @@
+SOURCES = basic_translation.c
+
+
+RESULTS =
+o0=0x00000001

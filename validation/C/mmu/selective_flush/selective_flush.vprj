@@ -1,0 +1,6 @@
+SOURCES = selective_flush.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000003f

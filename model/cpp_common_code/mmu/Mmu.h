@@ -1,0 +1,255 @@
+//Mmu.h
+//
+//The SPARC Reference MMU (Ref Appendix H in the SPARC V8 manual). Ported
+//from Ajit's mmu/src/Mmu.c (branch marshal), rewritten as a C++ class --
+//see Plan_MMU_integration.md's "Implementation plan" for the rationale
+//and the full deviation/simplification list this file's comments refer
+//back to. The page-table walk, fault matrix, PTE/PPN encoding, and
+//FSR/FAR/OW/R/M semantics are ported faithfully; the pthread/mutex/pipe
+//scaffolding Ajit's version needed for real concurrent hardware threads
+//and an untimed event-less simulator is dropped entirely (this driver is
+//strictly sequential -- see the roadmap's execution-model discussion).
+//
+//Implements VirtualMemoryInterface, so it plugs in wherever
+//SparcStateMachine expects one, and drives whatever sits downstream
+//(MainMemory today) through PhysicalMemoryInterface instead -- a 36-bit
+//physical address (Ref Appendix H), zero-padded into 64 bits, with
+//every downstream transaction doubleword-shaped, mimicking AJIT's own
+//AJIT Core Bus -- see MemoryInterfaces.h's file comment for the full
+//citation and the half-select adaptation this class implements at that
+//boundary (readWord()/writePageTableEntryToMemory() etc.).
+//
+//Known simplifications relative to Ajit, beyond dropping the threading
+//machinery:
+//  - No deferred instruction-fetch-fault commit (Ajit's MMU_WRITE_FSR
+//    path): this driver has no pipeline, so no fetch is ever speculative
+//    or squashed -- see MemoryInterfaces.h's file comment.
+//  - Atomic load-store (LDSTUB/SWAP) is checked as a single, precise
+//    operation requiring both load and store permission before any
+//    memory access happens -- see translate()'s own comment below, and
+//    docs/compliance/ for the full write-up of why this deliberately
+//    deviates from Ajit's own split-transaction (locked read, then
+//    separate unlocked write) behavior.
+//  - MMU probe (full 5-type support, not just Ajit's entire-only): the
+//    page/segment/region/context probes (types 0-3) implement Table H-4
+//    directly, including its per-entry-type return values at the probed
+//    level (PTE and invalid entries returned as-is for every type; a PTD
+//    also returned as-is for segment/region/context, but not for a page
+//    probe, which has no level-4 table for a level-3 PTD to point to).
+
+#ifndef MMU_H
+#define MMU_H
+
+#include "MemoryInterfaces.h"
+#include "Tlb.h"
+#include "MmuStats.h"
+#include "../MultiThreadingConfig.h"
+#include <cstdint>
+#include <string>
+
+class CoreLogger;
+
+class Mmu : public VirtualMemoryInterface
+{
+	public:
+		//downstream: whatever this MMU forwards translated or
+		//pass-through accesses to, over PhysicalMemoryInterface
+		//(MainMemory today). threadId: which hardware thread within this
+		//MMU's core this instance represents -- registers are kept
+		//thread-indexed internally (MAX_THREADS, matching Ajit's
+		//MMU_MAX_NUMBER_OF_THREADS) even though only thread_id 0 is used
+		//until SMT support lands, so that extension needs no interface
+		//change later.
+		explicit Mmu(PhysicalMemoryInterface& downstream, int threadId = 0);
+
+		//Dispatches on request.accessType to handleReadAccess()/
+		//handleWriteAccess()/handleAtomicAccess() below -- those three
+		//hold the actual logic (ASI-based register/flush/probe/pass-
+		//through dispatch, then CASE 6's translate()), carried over
+		//unchanged from when they were this class's own three separately-
+		//named VirtualMemoryInterface methods.
+		void access(const VirtualMemoryRequest& request, VirtualMemoryResponse& response) override;
+
+		//Model-configuration: is an MMU present at all for this core.
+		//Independent of "enabled" (the Control Register's own E bit,
+		//read/written like any other register through this same
+		//interface) -- see Plan_SoC_Integration_Roadmap.md's
+		//architecture point 2.
+		bool mmuIsPresent;
+
+		//True (the default): each hardware thread keeps its own
+		//independent MMU register state (Control/CTP/Context/FSR/FAR),
+		//so two threads sharing this MMU can genuinely run different
+		//contexts. False: every register write is broadcast to every
+		//thread slot instead, forcing all threads to mirror one shared
+		//context.
+		//
+		//Corresponds to Ajit's own "multi_context" flag (Mmu.c),
+		//verified directly against Ajit's source: same polarity, same
+		//broadcast-on-write behavior. In Ajit this is a per-core,
+		//runtime setting -- parsed from a hardware-description string at
+		//simulator startup ("mcmunit"/"scmunit" tokens, Ancillary.c),
+		//the same mechanism that decides whether a core has an MMU or an
+		//FPU at all -- not a compile-time constant, which is why it
+		//isn't in MultiThreadingConfig.h alongside NUM_THREADS_PER_CORE.
+		//This port has no equivalent config-string parser yet, so it's
+		//just a public field, defaulted to true and left for whatever
+		//constructs the Mmu to override.
+		bool independentMmuContextPerThread;
+
+		//Model-configuration: should this run actually use the TLB
+		//(Ref MmuConfig.h's MMU_TLB_PRESENT, the compile-time axis for
+		//whether TLB hardware exists at all)? Defaults to MMU_TLB_PRESENT.
+		//False (regardless of MMU_TLB_PRESENT): the TLB is never looked
+		//at, updated, or flushed -- every access re-walks the page
+		//tables, and MmuStats' TLB hit/miss counters stay at zero, since
+		//there is nothing to hit or miss. True requires MMU_TLB_PRESENT
+		//to also be true -- Mmu asserts this the first time it would
+		//touch the TLB, rather than at construction, since this field
+		//can be changed after construction.
+		bool tlbEnabled;
+
+		MmuStats stats;
+
+		//Optional: if set, key MMU events are logged via
+		//logger->log_generic(*simulatedTime, event, detail), sharing the
+		//one per-core trace file with core events. Not required for the
+		//MMU to function.
+		void setLogger(CoreLogger* logger, const unsigned long* simulatedTime);
+
+	private:
+		PhysicalMemoryInterface& downstream_;
+		int threadId_;
+		Tlb tlb_;
+
+		//Sizing lives in MultiThreadingConfig.h, shared with the core
+		//and (eventually) the cache -- MAX_THREADS is just a short local
+		//alias so the rest of this file stays readable.
+		static const int MAX_THREADS = NUM_THREADS_PER_CORE;
+
+		uint32_t controlRegister_[MAX_THREADS];
+		uint32_t contextTablePointerRegister_[MAX_THREADS];
+		uint32_t contextRegister_[MAX_THREADS];
+		uint32_t faultStatusRegister_[MAX_THREADS];
+		uint32_t faultAddressRegister_[MAX_THREADS];
+
+		//Ajit's NOFAULT/IACCESS_FAULT/DACCESS_FAULT, needed for the FSR
+		//overwrite (OW) priority rules (Ref Appendix H.5): a data-access
+		//fault is never overwritten by an instruction-access fault.
+		enum FaultClass { NO_FAULT = 0, IACCESS_FAULT = 1, DACCESS_FAULT = 2 };
+		uint8_t faultClass_[MAX_THREADS];
+
+		CoreLogger* logger_;
+		const unsigned long* simulatedTime_;
+		void log(const std::string& event, const std::string& detail);
+
+		bool mmuEnabled() const;
+		bool alwaysCacheable() const;
+
+		//Ref Appendix H.3's NF (No Fault) control-register field: once a
+		//fault has already been recorded (recordFault()), this decides
+		//whether the CPU trap that would normally follow gets suppressed.
+		bool noFaultSuppressesTrap(uint32_t asi) const;
+
+		//Every tlb_ touch point (translate(), probe(), flush(),
+		//writeRegister()'s CTP-write side effect) calls this instead of
+		//reading tlbEnabled directly, so the MMU_TLB_PRESENT invariant is
+		//checked in exactly one place.
+		bool tlbActive() const;
+
+		//The shared translate-and-permission-check step behind CASE 6 of
+		//the dispatch (an ordinary instruction/data access, as opposed to
+		//an MMU-register/flush/probe/pass-through one). Handles the
+		//MMU-absent-or-disabled pass-through case internally too (Ajit
+		//has this check in two places -- its CASE 2 dispatch shortcut and
+		//again inside translateToPhysicalAddress(); this unifies them,
+		//since they're functionally equivalent). Returns false, with
+		//mae-worthy fault state recorded, on a page fault.
+		//
+		//isAtomic changes the permission check itself, not just which AT
+		//value is used: an atomic load-store (LDSTUB/SWAP) is checked as
+		//a single, precise operation requiring *both* load and store
+		//permission against the page's ACC value, faulting before any
+		//memory access at all if either would fail. This deviates from
+		//Ajit's own implementation (a locked plain read, permission-
+		//checked as a load, followed by a separate unlocked plain write,
+		//permission-checked as a store -- so a read-permitted,
+		//write-forbidden page lets the read complete and become visible
+		//before the write half faults). See docs/compliance/ for the
+		//write-up of why: the manual's own default trap model (Ref
+		//Chapter 7) requires ordinary MMU faults on a "multiple-access"
+		//instruction (its own term for LDSTUB/SWAP/LDD) to be precise,
+		//unlike the one exception it does carve out (non-resumable
+		//machine-check faults) -- Ajit's split-transaction behavior isn't
+		//precise for this case.
+		bool translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isWrite, bool isAtomic,
+		                uint64_t& physicalAddr, bool& cacheable, uint8_t& acc);
+
+		//The three per-accessType handlers access() dispatches to.
+		//isInstructionFetch/readSecondWord: handleReadAccess() covers both
+		//IFETCH (one word, isInstructionFetch=true) and LOAD (two words --
+		//Ref MemoryInterfaces.h's readWord0/readWord1 -- isInstructionFetch=
+		//false) through one function, since every ASI-based special case
+		//(register/probe/pass-through/cache) behaves identically for both;
+		//only CASE 6's ordinary translated access reads a second word, and
+		//only for LOAD. A LOAD's second word reuses the same translate()
+		//call's physical address +4 rather than translating it separately
+		//-- safe because the caller (SparcStateMachine.cpp) always aligns
+		//to an 8-byte boundary first, and a doubleword access 8-byte-
+		//aligned can never cross a 4KB page boundary.
+		void handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
+		                       uint32_t& readWord0, uint32_t& readWord1, bool& mae);
+		void handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae);
+		void handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
+		                         uint32_t& readWord0, uint32_t& readWord1, bool& mae);
+
+		bool walkPageTables(uint32_t va, uint32_t context, uint32_t& pte, uint8_t& level, uint64_t& phyAddrOfPte);
+		bool probe(uint32_t va, uint32_t& resultPte);
+		void flush(uint32_t va);
+
+		uint32_t readRegister(uint32_t addr);
+		void writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask);
+
+		uint32_t readPageTableEntryFromMemory(uint64_t physAddr);
+		void writePageTableEntryToMemory(uint64_t physAddr, uint32_t value);
+
+		//The half-select adaptation between this class's own 32-bit-word
+		//shaped public interface and PhysicalMemoryInterface's
+		//64-bit-doubleword-shaped one -- Ref MemoryInterfaces.h's file
+		//comment for the AJIT ACB citation this mimics. physAddr need
+		//only be word-aligned (4 bytes); the doubleword-aligned base and
+		//which half physAddr falls in are both derived here. Shared by
+		//readWord()'s CASE 6 and readPageTableEntryFromMemory(), which
+		//are otherwise identical operations once translated to a
+		//physical address.
+		uint32_t readPhysicalWord(uint64_t physAddr, bool& mae);
+
+		//word0/word1/byte_mask: same doubleword-at-once shape
+		//writeMaskedDoubleWord() already receives at the virtual
+		//interface (word0 at the doubleword-aligned base, word1 at
+		//base+4, byte_mask's low nibble selecting word0's bytes, high
+		//nibble word1's) -- physAddr must already be doubleword-aligned
+		//(same precondition as the virtual interface's own address).
+		//Packs directly into PhysicalMemoryInterface's (data, byteMask)
+		//shape, no half-select needed since both sides are already
+		//doubleword-shaped. Shared by writeMaskedDoubleWord()'s CASE 6
+		//and writePageTableEntryToMemory() (which constructs a
+		//single-half write by zeroing the other word and masking it out).
+		void writePhysicalMaskedDoubleWord(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask, bool& mae);
+
+		//Same doubleword packing as writePhysicalMaskedDoubleWord(), for
+		//atomicReadModifyWrite()'s two call sites (bypass and CASE 6) --
+		//returns the pre-write doubleword contents, unpacked the same way.
+		void atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask,
+		                                    uint32_t& readWord0, uint32_t& readWord1, bool& mae);
+
+		static uint64_t getPhyAddrFromPTD(uint32_t ptd, uint32_t index);
+		static uint64_t constructPhysicalAddr(uint32_t pte, uint8_t level, uint32_t va);
+		static uint8_t computeAccessType(uint32_t asi, bool isWrite);
+		static uint8_t computeFaultType(uint8_t at, uint32_t pte);
+
+		void recordFault(uint8_t at, uint8_t faultType, uint8_t level, uint32_t va, bool isInstructionFetch);
+		void updateFsrFar(uint32_t fsrVal, uint32_t farVal, uint8_t faultClass);
+};
+
+#endif

@@ -1,0 +1,6 @@
+SOURCES = fsr_ow_bit.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000000f

@@ -8,15 +8,18 @@
 // MainMemory instance.
 //
 // sparcThread and mainMemory run as two branches of one parallel block
-// (not two modules connected by ports/nets), so their handshake over the
-// shared MemAccessInterface object below can complete within a single
-// phase -- see MainMemory.sitar and MemoryInterface.sitar's file-level
-// comments. All 5 of SparcThread's memory-interface threads share the
-// one MemAccessInterface instance and therefore the one MainMemory --
-// safe because SparcThread's FSM only ever has one memory access in
-// flight at a time (see TODO.md for the split-I/D-cache testbench this
-// is expected to still support later, by pointing individual interface
-// threads at separate MainMemory-like procedures instead).
+// (not two modules connected by ports/nets), so their handshake can
+// complete within a single phase -- see MainMemory.sitar and
+// MemoryInterface.sitar's file-level comments on the chaining pattern.
+// mainMemory owns its own request/response state; this module's only
+// job is to wire each of sparcThread's 5 memory-interface threads'
+// downstream pointers directly at mainMemory's own fields below -- Core
+// itself owns no separate copy of that state. All 5 threads point at the
+// one mainMemory -- safe because SparcThread's FSM only ever has one
+// memory access in flight at a time (see TODO.md for the split-I/D-cache
+// testbench this is expected to still support later, by pointing
+// individual interface threads at separate MainMemory-like procedures
+// instead).
 //================================================================
 
 module Core
@@ -24,7 +27,6 @@ module Core
 	include
 	$
 	#include "SparcCore.h"
-	#include "MemAccessInterface.h"
 	$
 
 	//Sparc Thread (contains the state machine and memory interface threads)
@@ -33,19 +35,18 @@ module Core
 	//The memory this core's 5 memory-interface threads all share.
 	procedure mainMemory : MainMemory
 
-	//Shared request/response state connecting all 5 of sparcThread's
-	//memory-interface threads to mainMemory (see MemAccessInterface.h).
-	decl $MemAccessInterface memInterface;$
-
 	init
 	$
-	sparcThread.ifetchThread.interface          = &memInterface;
-	sparcThread.memReadThread.interface         = &memInterface;
-	sparcThread.memWriteThread.interface        = &memInterface;
-	sparcThread.atomicLoadStoreThread.interface = &memInterface;
-	sparcThread.flushThread.interface           = &memInterface;
-
-	mainMemory.interface = &memInterface;
+	sparcThread.ifetchThread.downstreamRequest           = &mainMemory.request;
+	sparcThread.ifetchThread.downstreamResponse          = &mainMemory.response;
+	sparcThread.memReadThread.downstreamRequest          = &mainMemory.request;
+	sparcThread.memReadThread.downstreamResponse         = &mainMemory.response;
+	sparcThread.memWriteThread.downstreamRequest         = &mainMemory.request;
+	sparcThread.memWriteThread.downstreamResponse        = &mainMemory.response;
+	sparcThread.atomicLoadStoreThread.downstreamRequest  = &mainMemory.request;
+	sparcThread.atomicLoadStoreThread.downstreamResponse = &mainMemory.response;
+	sparcThread.flushThread.downstreamRequest            = &mainMemory.request;
+	sparcThread.flushThread.downstreamResponse           = &mainMemory.response;
 	$
 
 

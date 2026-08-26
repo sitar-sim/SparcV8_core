@@ -117,17 +117,16 @@ how to observe the effect):
 ## Connecting other components
 
 !!! note "Stub"
-    This section is a placeholder. This project models the core only (see
-    [Models](index.md#models)). A
-    worked example of connecting an external component to it, a cache
-    sitting between `SparcThread`'s memory-interface threads and
-    `MainMemory`, is planned for this page. It will demonstrate the
-    general pattern for building a larger Sitar model around this core.
-    Until then, the shape of the pattern is already visible in how
-    `MemoryInterface` and `MainMemory` connect today. They share a
-    `MemAccessInterface` struct plus a request/response valid-bit
-    handshake (see
-    `model/sitar_component_models/cpp_code/MemAccessInterface.h`'s
-    header comment for the exact protocol). An interposed cache would be
-    another `MainMemory`-like persistent procedure, itself acting as a
-    requester to a further `MemoryInterface`/`MainMemory` pair behind it.
+    This section is a placeholder. A worked example of connecting an
+    external component to the core, a cache sitting between
+    `SparcThread`'s memory-interface threads and `MainMemory`, is
+    planned for this page. It will demonstrate the general pattern for
+    building a larger Sitar model around this core. Until then, the
+    shape of the pattern is already visible in how `MemoryInterface` and
+    `MainMemory` connect today. They share a request/response struct
+    pair (`VirtualMemoryRequest`/`VirtualMemoryResponse`, see
+    `model/cpp_common_code/MemoryInterfaces.h`) plus a valid-bit
+    handshake -- see that file's header comment for the exact protocol.
+    An interposed cache would be another `MainMemory`-like persistent
+    procedure, itself acting as a requester to a further
+    `MemoryInterface`/`MainMemory` pair behind it.

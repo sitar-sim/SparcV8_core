@@ -4,7 +4,7 @@
 #include"BitManipulation.h"
 #include"ConvertToString.h"
 #include"FloatingPointFunctions.h"
-#include"MemoryAccessProvider.h"
+#include"MemoryInterfaces.h"
 #include"DebugRegistry.h"
 #include<iostream>
 #include<stdint.h>
@@ -286,8 +286,11 @@ bool SparcCore::instructionFetch()
 
 	addr = reg.R_PC();
 	assert(memCore!=NULL);
-	instruction= memCore->readWord(addr);
-	MAE=0;
+	VirtualMemoryRequest request{true, MemAccessType::IFETCH, addr, addr_space, 0, 0, 0};
+	VirtualMemoryResponse response{false, 0, 0, false};
+	memCore->access(request, response);
+	instruction = response.readWord0;
+	MAE = response.mae ? 1 : 0;
 
 	//check for instruction access exception
 	if(  (MAE == 1) && (annul == 0) ) 

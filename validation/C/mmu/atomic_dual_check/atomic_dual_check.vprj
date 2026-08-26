@@ -1,0 +1,6 @@
+SOURCES = atomic_dual_check.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000007

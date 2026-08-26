@@ -50,17 +50,18 @@ deliberately not a runtime-loaded config file.
 
 The other two knobs, `MemoryInterface.delay` and `MainMemory.delay`,
 both default to `0` and are otherwise only ever assigned from outside,
-in `Core.sitar`'s `init` block, alongside the `interface =
-&memInterface` wiring:
+in `Core.sitar`'s `init` block, alongside the `downstreamRequest`/
+`downstreamResponse` wiring that connects each of `sparcThread`'s
+memory-interface threads to `mainMemory`:
 
 ```sitar
 init
 $
-sparcThread.ifetchThread.interface = &memInterface;
-sparcThread.ifetchThread.delay     = 2;   // add a line like this
+sparcThread.ifetchThread.downstreamRequest  = &mainMemory.request;
+sparcThread.ifetchThread.downstreamResponse = &mainMemory.response;
+sparcThread.ifetchThread.delay              = 2;   // add a line like this
 ...
-mainMemory.interface = &memInterface;
-mainMemory.delay     = 3;                 // and/or this
+mainMemory.delay = 3;                              // and/or this
 $
 ```
 

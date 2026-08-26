@@ -63,7 +63,7 @@ so there is no Appendix I.
 | E | [Example Integer Multiplication and Division Routines](sparcv8_Architecture_reference_Manual.pdf#page=201) | Worked software routines for multiply/divide/remainder, for implementations that don't have them in hardware. | 205-226 |
 | F | [Opcodes and Condition Codes](sparcv8_Architecture_reference_Manual.pdf#page=223) | Tables of every opcode's bit encoding and every condition code's meaning. Handy as a quick lookup alongside Appendix B. | 227-232 |
 | G | [SPARC ABI Software Considerations](sparcv8_Architecture_reference_Manual.pdf#page=228) | The calling convention and binary-compatibility rules SPARC application binaries follow. | 233-240 |
-| H | [SPARC Reference MMU Architecture](sparcv8_Architecture_reference_Manual.pdf#page=236) | A suggested (not mandatory) MMU design. Neither model in this repository implements an MMU, see [Model Components](model_components.md). | 241-268 |
+| H | [SPARC Reference MMU Architecture](sparcv8_Architecture_reference_Manual.pdf#page=236) | A suggested (not mandatory) MMU design. See [Model Components](model_components.md). | 241-268 |
 | J | [Programming with the Memory Model](sparcv8_Architecture_reference_Manual.pdf#page=262) | An intuitive, example-driven companion to Chapter 6's memory model. | 269-280 |
 | K | [Formal Specification of the Memory Model](sparcv8_Architecture_reference_Manual.pdf#page=273) | The same memory model again, stated formally and precisely. | 281-288 |
 | L | [Implementation Characteristics](sparcv8_Architecture_reference_Manual.pdf#page=281) | How specific historical SPARC chips actually implemented the architecture, including which instructions they left unimplemented in hardware. | 289-296 |
