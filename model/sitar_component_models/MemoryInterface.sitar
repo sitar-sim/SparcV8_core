@@ -4,12 +4,13 @@
 // Author: Neha Karanjkar
 //
 // A minimal, blocking memory-access interface, called synchronously
-// (via `run`) by SparcThread's ifetch/load/store/atomic/flush threads --
+// (via `run`) by SparcThread's ifetch/load/store/atomic/flush procedures --
 // see SparcThread.sitar for why these are procedure calls and not
 // module/port connections. Each `run` performs exactly one access and
 // returns; the procedure instance itself is not destroyed and is reused
-// for the next access (no loop of its own -- contrast with MainMemory,
-// which is persistent).
+// for the next access (no loop of its own -- contrast with whatever's
+// downstream, MainMemoryVA or MainMemory depending on config, which is
+// persistent).
 //
 // `request`/`response` (VirtualMemoryRequest/VirtualMemoryResponse, Ref
 // MemoryInterfaces.h) are this procedure's own public state: SparcThread
@@ -21,13 +22,14 @@
 // independently-named shadow copy of them.
 //
 // Talks to whatever persistent procedure is connected on the other end
-// (today, MainMemory; later, a cache) through `downstreamRequest`/
-// `downstreamResponse` -- pointers directly into that downstream
-// procedure's OWN local request/response fields (e.g. MainMemory.request/
-// MainMemory.response), not a separate object owned by this procedure,
-// this file's downstream neighbor, or the parent module. The parent
-// module (see Core.sitar) only wires these pointers together at init
-// (e.g. `ifetchThread.downstreamRequest = &mainMemory.request;`); it
+// (MainMemoryVA for core_only, MainMemory for core_mmu; later, a cache)
+// through `downstreamRequest`/`downstreamResponse` -- pointers directly
+// into that downstream procedure's OWN local request/response fields
+// (e.g. mainMemory.request/mainMemory.response), not a separate object owned
+// by this procedure, this file's downstream neighbor, or the parent
+// module. The parent module (see Core.sitar) only wires these pointers
+// together at init
+// (e.g. `ifetchProcedure.downstreamRequest = &mainMemory.request;`); it
 // does not own or hold a copy of the state itself. This is the general
 // chaining pattern for a run of persistent procedures A -> B -> C
 // (arrows = request flow): each procedure but the first owns its own
@@ -54,7 +56,7 @@
 // a single side of that handshake -- downstreamRequest->valid is set by
 // this procedure and cleared by this procedure once the response is
 // consumed; downstreamResponse->valid is set by whatever services it
-// (MainMemory) and cleared by this procedure. request.valid/
+// (MainMemoryVA or MainMemory) and cleared by this procedure. request.valid/
 // response.valid are the same shape one level up: they would be set by
 // whoever calls this procedure and cleared by this procedure (request),
 // and set by this procedure and cleared by the caller (response) -- Ref
@@ -95,7 +97,7 @@ procedure MemoryInterface
 	uint32_t coreID;
 
 	//which kind of access this instance performs -- fixed for the
-	//lifetime of the instance (e.g. SparcThread's memReadThread is
+	//lifetime of the instance (e.g. SparcThread's memReadProcedure is
 	//always LOAD), set once by the parent module's init.
 	MemAccessType memoryAccessType;
 
@@ -117,7 +119,7 @@ procedure MemoryInterface
 	//Cycles only (not phases): the number of *extra* cycles this
 	//procedure blocks its caller for, beyond the 0-delay procedure-call
 	//semantics it would otherwise have. Default 0. Lets a directly
-	//connected MainMemory (or, later, a cache) have an access latency
+	//connected MainMemoryVA/MainMemory (or, later, a cache) have an access latency
 	//approximated here without that latency needing to be modeled by the
 	//connected procedure itself. Independent of, and in addition to, the
 	//opcode-wise per-instruction delay applied in SparcThread (see
@@ -186,8 +188,8 @@ procedure MemoryInterface
 
 
 	//--------------------------------------------------------
-	//Connection to whatever is servicing this interface (MainMemory, or
-	//later a cache) -- pointers directly into that downstream
+	//Connection to whatever is servicing this interface (MainMemoryVA or
+	//MainMemory, or later a cache) -- pointers directly into that downstream
 	//procedure's own local request/response fields, wired up by the
 	//parent module at init (Ref this file's header comment).
 	//--------------------------------------------------------

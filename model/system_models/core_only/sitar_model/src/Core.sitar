@@ -4,22 +4,22 @@
 // Author: Neha Karanjkar
 //
 // Wrapper module for the SPARC V8 core: assembles SparcThread (the state
-// machine, plus its 5 memory-interface threads) together with a single
-// MainMemory instance.
+// machine, plus its 5 memory-interface procedures) together with a
+// single MainMemoryVA instance.
 //
 // sparcThread and mainMemory run as two branches of one parallel block
 // (not two modules connected by ports/nets), so their handshake can
-// complete within a single phase -- see MainMemory.sitar and
+// complete within a single phase -- see MainMemoryVA.sitar and
 // MemoryInterface.sitar's file-level comments on the chaining pattern.
 // mainMemory owns its own request/response state; this module's only
-// job is to wire each of sparcThread's 5 memory-interface threads'
+// job is to wire each of sparcThread's 5 memory-interface procedures'
 // downstream pointers directly at mainMemory's own fields below -- Core
-// itself owns no separate copy of that state. All 5 threads point at the
-// one mainMemory -- safe because SparcThread's FSM only ever has one
+// itself owns no separate copy of that state. All 5 procedures point at
+// the one mainMemory -- safe because SparcThread's FSM only ever has one
 // memory access in flight at a time (see TODO.md for the split-I/D-cache
 // testbench this is expected to still support later, by pointing
-// individual interface threads at separate MainMemory-like procedures
-// instead).
+// individual memory-interface procedures at separate MainMemoryVA-like
+// procedures instead).
 //================================================================
 
 module Core
@@ -29,24 +29,47 @@ module Core
 	#include "SparcCore.h"
 	$
 
-	//Sparc Thread (contains the state machine and memory interface threads)
+	//Sparc Thread (contains the state machine and memory interface procedures)
 	procedure sparcThread : SparcThread
 
-	//The memory this core's 5 memory-interface threads all share.
-	procedure mainMemory : MainMemory
+	//The memory this core's 5 memory-interface procedures all share.
+	procedure mainMemory : MainMemoryVA
 
 	init
 	$
-	sparcThread.ifetchThread.downstreamRequest           = &mainMemory.request;
-	sparcThread.ifetchThread.downstreamResponse          = &mainMemory.response;
-	sparcThread.memReadThread.downstreamRequest          = &mainMemory.request;
-	sparcThread.memReadThread.downstreamResponse         = &mainMemory.response;
-	sparcThread.memWriteThread.downstreamRequest         = &mainMemory.request;
-	sparcThread.memWriteThread.downstreamResponse        = &mainMemory.response;
-	sparcThread.atomicLoadStoreThread.downstreamRequest  = &mainMemory.request;
-	sparcThread.atomicLoadStoreThread.downstreamResponse = &mainMemory.response;
-	sparcThread.flushThread.downstreamRequest            = &mainMemory.request;
-	sparcThread.flushThread.downstreamResponse           = &mainMemory.response;
+	sparcThread.ifetchProcedure.downstreamRequest           = &mainMemory.request;
+	sparcThread.ifetchProcedure.downstreamResponse          = &mainMemory.response;
+	sparcThread.memReadProcedure.downstreamRequest          = &mainMemory.request;
+	sparcThread.memReadProcedure.downstreamResponse         = &mainMemory.response;
+	sparcThread.memWriteProcedure.downstreamRequest         = &mainMemory.request;
+	sparcThread.memWriteProcedure.downstreamResponse        = &mainMemory.response;
+	sparcThread.atomicLoadStoreProcedure.downstreamRequest  = &mainMemory.request;
+	sparcThread.atomicLoadStoreProcedure.downstreamResponse = &mainMemory.response;
+	sparcThread.flushProcedure.downstreamRequest            = &mainMemory.request;
+	sparcThread.flushProcedure.downstreamResponse           = &mainMemory.response;
+
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted (to 0) in its own owning procedure; the
+	// value set here runs afterward (Sitar's child-then-parent init
+	// order) and is the authoritative one for the simulation.
+	//---------------------------------------------------------
+	//Opcode-wise latency: compile-time, see OpcodeLatencies.h
+	//(DEFAULT_PER_OPCODE_DELAY / OPCODE_LATENCY_OVERRIDES) -- not
+	//settable here.
+	//
+	//Core-side interconnect latency (memory-interface delay: cycles
+	//beyond 0-delay procedure-call semantics, per access type):
+	sparcThread.ifetchProcedure.delay          = 0; //ifetch
+	sparcThread.memReadProcedure.delay         = 0; //load
+	sparcThread.memWriteProcedure.delay        = 0; //store
+	sparcThread.atomicLoadStoreProcedure.delay = 0; //atomic load-store
+	sparcThread.flushProcedure.delay           = 0; //flush
+	//
+	//Memory service latency:
+	mainMemory.delay = 0; //cycles mainMemory itself takes to service a request
+	//---------------------------------------------------------
 	$
 
 

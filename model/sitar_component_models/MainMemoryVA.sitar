@@ -1,12 +1,28 @@
 
 //================================================================
-// procedure MainMemory
+// procedure MainMemoryVA
 // Author: Neha Karanjkar
 //
-// A persistent memory model. Unlike MemoryInterface (a "function-style"
-// procedure, `run` fresh for every access and returning once that one
-// access completes), MainMemory is entered ONCE via `run` as a branch of
-// a parallel block alongside SparcThread -- see Core.sitar:
+// A persistent memory model -- wraps the plain C++ MemCore class (`mem`
+// below) with a VM-shaped (VirtualMemoryRequest/Response), directly-
+// addressed Sitar interface. Used with no MMU downstream of it, by
+// configurations with no MMU, e.g. core_only. (Named MainMemoryVA rather
+// than MemCore.sitar to avoid this procedure sharing a name with the
+// plain C++ class it embeds -- generated Sitar code lives in a class of
+// the procedure's own name, so a same-named embedded member does not
+// compile: an unqualified reference to it resolves to the enclosing
+// class itself, C++'s injected-class-name rule, and if the two also
+// happen to share a header-guard macro, as MemCore.h's did, the real
+// class's header silently never gets included at all.) A configuration
+// with an MMU present uses MainMemoryPA.sitar instead (PM-shaped, sits
+// below the MMU, wraps the C++ MainMemory class) -- see that file's own
+// header comment and Plan_MMU_integration.md's "Sitar timing model"
+// section for how the two relate.
+//
+// Unlike MemoryInterface (a "function-style" procedure, `run` fresh for
+// every access and returning once that one access completes), this
+// procedure is entered ONCE via `run` as a branch of a parallel block
+// alongside SparcThread -- see Core.sitar:
 // "[ run sparcThread; ... || run mainMemory; ]" -- and stays alive for
 // the rest of the simulation, servicing requests in an internal loop.
 //
@@ -20,22 +36,22 @@
 // pointers together at init; it does not own or hold a copy of the
 // request/response state itself.
 //
-// MainMemory is the last stage in today's chain: `request`/`response`
-// below are this procedure's own local storage (the object each of
-// SparcThread's 5 MemoryInterface instances writes into/reads via their
-// downstreamRequest/downstreamResponse pointers), and there is no
-// downstream pointer of MainMemory's own, since nothing sits below it.
-// This procedure is the responder's half of that one handshake: wait for
-// a request, service it, publish the response, wait for it to be
-// consumed. Because both sides are procedures running as branches of the
-// same parallel block -- not modules connected by nets -- this handshake
-// can complete within a single phase, i.e. with 0 added cycles, exactly
-// like PipelinedProcessor's inter-stage handshake in the sitar repo's
-// examples. If more than one requester ever needs to reach this same
-// memory (e.g. before ifetch and load/store are split onto separate
-// caches), point their downstreamRequest/downstreamResponse pointers at
-// this same local request/response -- only one is ever in flight at a
-// time under SparcThread's current, strictly sequential FSM.
+// This procedure is the last stage in today's core_only chain:
+// `request`/`response` below are this procedure's own local storage (the
+// object each of SparcThread's 5 memory-interface instances writes
+// into/reads via their downstreamRequest/downstreamResponse pointers),
+// and there is no downstream pointer of its own, since nothing sits
+// below it. This procedure is the responder's half of that one
+// handshake: wait for a request, service it, publish the response, wait
+// for it to be consumed. Because both sides are procedures running as
+// branches of the same parallel block -- not modules connected by nets --
+// this handshake can complete within a single phase, i.e. with 0 added
+// cycles, exactly like PipelinedProcessor's inter-stage handshake in the
+// sitar repo's examples. If more than one requester ever needs to reach
+// this same memory (e.g. before ifetch and load/store are split onto
+// separate caches), point their downstreamRequest/downstreamResponse
+// pointers at this same local request/response -- only one is ever in
+// flight at a time under SparcThread's current, strictly sequential FSM.
 //
 // Owns the actual storage (`mem`, a MemCore) directly -- this is where a
 // test's hex-dump memory image gets loaded, via mem.initializeMemory().
@@ -44,7 +60,7 @@
 // within the double word.
 //================================================================
 
-procedure MainMemory
+procedure MainMemoryVA
 
 	include
 	$
@@ -89,7 +105,7 @@ procedure MainMemory
 	//This is a distinct knob from MemoryInterface.delay (which models
 	//latency on the requester's side of the connection, e.g. an
 	//interconnect) -- the two are independent and additive, e.g. a LOAD
-	//with MainMemory.delay=3 and MemoryInterface.delay=2 takes 5 extra
+	//with MainMemoryVA.delay=3 and MemoryInterface.delay=2 takes 5 extra
 	//cycles total, not 3.
 	//--------------------------------------------------------
 	decl$uint32_t delay;$
@@ -105,7 +121,7 @@ procedure MainMemory
 		wait until (this_phase==0 and $request.valid$);
 
 		$
-		log<<endl<<"[t="<<current_time<<"] MainMemory: servicing "<<accessTypeToString(request.accessType)
+		log<<endl<<"[t="<<current_time<<"] MainMemoryVA: servicing "<<accessTypeToString(request.accessType)
 		   <<" request for address 0x"<<std::hex<<request.address<<std::dec;
 
 		response.readWord0 = 0;
@@ -194,9 +210,9 @@ procedure MainMemory
 		}
 		else if(request.accessType == MemAccessType::FLUSH)
 		{
-			//MemCore is a flat array with no instruction cache to
+			//This is a flat array with no instruction cache to
 			//invalidate, so there is nothing further to do here. Once a
-			//real cache stands in for MainMemory on the ifetch channel,
+			//real cache stands in for this procedure on the ifetch channel,
 			//this is where it would invalidate the relevant line.
 		}
 
@@ -211,7 +227,7 @@ procedure MainMemory
 
 		$
 		response.valid = true;
-		log<<endl<<"[t="<<current_time<<"] MainMemory: response ready for "<<accessTypeToString(request.accessType)
+		log<<endl<<"[t="<<current_time<<"] MainMemoryVA: response ready for "<<accessTypeToString(request.accessType)
 		   <<" request for address 0x"<<std::hex<<request.address<<std::dec;
 		$;
 

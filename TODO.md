@@ -5,11 +5,11 @@ milestones are reached rather than treating it as a historical log --
 keep the "Current status" section accurate to the present state of the
 repo, and move completed "Next steps" items into it.
 
-## Current status (as of 2026-08-26)
+## Current status (as of 2026-08-27)
 
 **Milestone 3 -- SoC integration (MMU, devices, L1 caches): MMU block
-implemented and validated (cpp_model only); devices and caches still at
-the planning stage.**
+implemented and validated for both drivers (cpp_model and sitar_model);
+devices and caches still at the planning stage.**
 
 - Planning docs: `Plan_SoC_Integration_Roadmap.md`,
   `Plan_MMU_integration.md`, `Plan_Devices_integration.md`,
@@ -29,8 +29,12 @@ the planning stage.**
 - **MMU implemented and validated**: `model/cpp_common_code/mmu/`
   (register map, full 3-level page-table walk, TLB, fault/permission
   logic, selective flush, all five probe types), wired into the
-  `core_mmu` configuration (cpp_model only -- Sitar's `core_mmu` not yet
-  built). See `Plan_MMU_integration.md` and `mmu/README.md`.
+  `core_mmu` configuration -- both the cpp_model and, now, a Sitar timing
+  model (`MmuUnit.sitar`, inserted as a real, independently-scheduled
+  procedure between `SparcThread` and physical memory, with 5 of its own
+  additive latency knobs, each audited against `Mmu.cpp`'s actual
+  conditional logic rather than just checked against pass/fail at the
+  zero default). See `Plan_MMU_integration.md` and `mmu/README.md`.
 - **Memory interface redesigned to support this**: `MemoryInterfaces.h`
   now defines `VirtualMemoryInterface` (32-bit, ASI-aware -- what
   `SparcStateMachine`/`SparcThread` talk to) and `PhysicalMemoryInterface`
@@ -47,10 +51,14 @@ the planning stage.**
   load-store compliance deviation, selective flush, R/M-bit write-back,
   FSR OW-bit/fault-class priority, context switching, and the
   MMU-disabled bypass path. Full regression (`validation/asm`,
-  `validation/C`, and, for `core_mmu`, `validation/C/mmu`) passes across
-  `core_only` (cpp_model and sitar_model) and `core_mmu` (cpp_model).
-  Two real bugs found and resolved along the way -- see
-  `mmu/README.md`'s "Test coverage" section.
+  `validation/C`, and, for `core_mmu`, `validation/C/mmu` -- 252 checks
+  total) passes across `core_only` (cpp_model and sitar_model) and
+  `core_mmu` (cpp_model and sitar_model, the latter with every latency
+  knob nonzero simultaneously). Several real bugs found and resolved
+  along the way -- see `mmu/README.md`'s "Test coverage" section for the
+  functional-porting ones, `Plan_MMU_integration.md`'s "Sitar timing
+  model" section for the timing-specific ones found while building and
+  auditing `MmuUnit.sitar`.
 
 ## Milestone 1-2 history (as of 2026-07-19)
 

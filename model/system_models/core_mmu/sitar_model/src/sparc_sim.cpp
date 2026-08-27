@@ -1,25 +1,19 @@
 //sparc_sim.cpp
 //Author: Neha Karanjkar
 //
-//Builds sparc_sim_sitar: the Sitar-driven counterpart to
-//model/cpp_model's sparc_sim_cpp -- same job (load a hex-dump memory
-//image, run to halt or a cycle limit, either just report the final state
-//or, if given an expected-results file, check it and print PASS/FAIL per
-//check and an OVERALL verdict), but drives the actual Sitar
-//Top/Core/SparcThread model instead of the standalone C++
-//SparcStateMachine. This is the `-m` custom main file for `sitar compile`
-//-- see build.py.
+//The core_mmu configuration's Sitar entry point: identical to
+//core_only's own sitar sparc_sim.cpp (same CLI, same expected-results
+//format, same PASS/FAIL/OVERALL output -- see that file's own header
+//comment for the full description), except SparcThread's 5 memory-
+//interface procedures now talk to an MmuUnit instead of a MainMemoryVA
+//directly, with a MainMemory (PM-shaped) below it -- Ref
+//Plan_MMU_integration.md's "Sitar timing model" section.
 //
-//Kept as a near-duplicate of sparc_sim_cpp's source (same CLI, same
-//expected-file format, same output format) rather than a shared library,
-//so that validation/run_tests.py can point at either binary
-//interchangeably (see its --sitar flag) with zero changes to the
-//test-comparison logic itself.
-//
-//expected_file is optional, exactly as in sparc_sim_cpp: pass "" (or
-//omit it, along with max_cycles) to skip validation and just run the
-//program, printing the final processor state instead of
-//PASS/FAIL/OVERALL.
+//MEM checks in the expected-results file still read straight from
+//MainMemory's own plain readWord() (not through the MMU), exactly like
+//core_mmu's cpp_model does -- they're checking physical memory state
+//directly, what a test setting up page tables and checking their
+//contents needs.
 //
 //Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles]
 
@@ -35,8 +29,6 @@
 
 #ifdef SITAR_ENABLE_LOGGING
 //Recursively points every submodule/procedure's log stream at `stream`.
-//Only needed when build.py is run with --logging (off by default, since
-//a normal run doesn't want per-cycle trace noise).
 static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
 {
 	m->log.setOstream(stream);
@@ -65,9 +57,6 @@ static std::string traceFileName(const std::string& hexFile)
 }
 
 //Maps a RESULTS-block register mnemonic to its value in the current window.
-//Returns false if the name isn't recognized. (Identical to cpp_model's
-//sparc_sim.cpp copy -- Registers.h is the same shared cpp_common_code
-//either way.)
 static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& value)
 {
 	if (name.size() >= 2 && (name[0] == 'g' || name[0] == 'o' || name[0] == 'l' || name[0] == 'i')
@@ -125,10 +114,6 @@ int main(int argc, char** argv)
 	TOP->setHierarchicalId("");
 
 #ifdef SITAR_ENABLE_LOGGING
-	//Sitar's own per-request/response log (mainMemory, ifetchProcedure and
-	//the other MemoryInterface instances) -- everything except
-	//sparcThread's own CoreLogger trace, which gets its own dedicated
-	//file below.
 	std::ofstream sitarLogFile("sitar.log");
 	if (sitarLogFile.is_open())
 	{
@@ -141,13 +126,6 @@ int main(int argc, char** argv)
 	}
 	setHierarchicalOstream(TOP, logger::default_logstream);
 
-	//sparcThread's own log carries nothing but SparcCore::logger's
-	//CoreLogger trace rows (see SparcThread.sitar) -- give it a
-	//dedicated file, with the "(time)hierarchicalId:" prefix every
-	//other module gets (see sitar_module.cpp's setLogPrefix()) turned
-	//off, so the result is directly loadable into log_viewer/ with no
-	//extraction/stripping needed first. Same filename convention as
-	//the cpp model's --logging build -- see model/cpp_model/sparc_sim.cpp.
 	std::string traceFile = traceFileName(hexFile);
 	std::ofstream sparcTraceFile(traceFile.c_str());
 	if (sparcTraceFile.is_open())
@@ -155,11 +133,6 @@ int main(int argc, char** argv)
 		TOP->core.sparcThread.log.setOstream(&sparcTraceFile);
 		TOP->core.sparcThread.log.useDefaultPrefix = false;
 		TOP->core.sparcThread.log.setPrefix("");
-
-		//CoreLogger only writes this itself when do_print is on (see
-		//CoreLogger.h) -- we're not using that here (each row still
-		//goes through sparcThread's own log<<, so it's forwarded like
-		//everything else Sitar logs), so write it ourselves, once.
 		sparcTraceFile << TOP->core.sparcThread.core.logger.header() << "\n";
 	}
 	else
@@ -184,9 +157,6 @@ int main(int argc, char** argv)
 	bool          halted        = TOP->core.sparcThread.HALT.VALUE;
 	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
 
-	//No expected-results file: just run the program and report the
-	//final state, the same idea as cpp_model's sparc_sim_cpp. Nothing
-	//here is a pass/fail check, so PASS/FAIL/OVERALL don't apply.
 	if (expectedFile.empty())
 	{
 		std::cout << "\n" << TOP->core.sparcThread.core.logger.print_state() << "\n";

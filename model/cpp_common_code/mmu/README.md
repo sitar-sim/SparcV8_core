@@ -15,7 +15,17 @@ deviation from AJIT (atomic load-store permission checking).
   expects one, and drives whatever's downstream (`MainMemory` today)
   through `PhysicalMemoryInterface` instead -- see that file's own
   comment for the AJIT-bus citation and `Mmu.cpp`'s half-select
-  adaptation between the two.
+  adaptation between the two. `translate()`/`probe()`/`walkPageTables()`
+  are real, callable functions the cpp_model keeps using unchanged, but
+  internally each is now built from a sequence of small, public,
+  no-downstream-access-of-their-own step-primitives (`beginWalk()`,
+  `recordWalkStep()`, `computeAndStageRMUpdate()`, ...) -- this is what
+  lets `../../sitar_component_models/MmuUnit.sitar` (the Sitar timing
+  model, Ref `Plan_MMU_integration.md`'s "Sitar timing model" section)
+  independently duplicate the exact same step sequence, substituting a
+  real, time-consuming `run phyMemReadProcedure;`/`phyMemWriteProcedure;`
+  for each physical-access step instead of a plain (instantaneous)
+  function call.
 - **`Tlb.h` / `.cpp`** -- the Page Descriptor Cache (PDC): a 4-level
   cache (one level per page-table depth) of already-resolved leaf PTEs,
   purpose-built for this port rather than a port of AJIT's own generic

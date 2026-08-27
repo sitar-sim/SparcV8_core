@@ -17,19 +17,18 @@ Point this at any subfolder to run only a subset of the suite, e.g.:
 By default this drives
 model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only
 (the plain C++ core + SparcStateMachine, no Sitar). Pass --sitar to instead
-drive
-model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only
-(the actual Sitar Top/Core/SparcThread model) -- same CLI, same
-expected-results format, same PASS/FAIL/OVERALL output, so the exact same
-suite runs against either model unchanged; see
-model/system_models/core_only/sitar_model/build.sh to build it.
+drive that configuration's own sitar_model executable (the actual Sitar
+Top/Core/SparcThread model) -- same CLI, same expected-results format,
+same PASS/FAIL/OVERALL output, so the exact same suite runs against
+either model unchanged.
 
 Pass --config NAME (default: core_only) to instead drive another
-system_models configuration's cpp_model executable, e.g. --config core_mmu
-runs against model/system_models/core_mmu/cpp_model/executable/
-sparc_sim_cpp_core_mmu. Every configuration's cpp_model shares the same CLI
-and expected-results format, so this is just a path swap. --sitar and
---config are independent axes, though only core_only has a sitar_model today.
+system_models configuration, e.g. --config core_mmu runs against
+model/system_models/core_mmu/cpp_model/executable/sparc_sim_cpp_core_mmu
+(or .../core_mmu/sitar_model/executable/sparc_sim_sitar_core_mmu with
+--sitar too). --sitar and --config are independent axes: every
+configuration's cpp_model and (if it has one) sitar_model share the same
+CLI and expected-results format, so this is just a path swap.
 
 Does NOT require the sparc-elf toolchain -- only the checker binary needs to
 be built, and each test's .hex file (committed to git) needs to already
@@ -49,8 +48,9 @@ def check_test_cpp(config):
                          'executable', 'sparc_sim_cpp_%s' % config)
 
 
-CHECK_TEST_SITAR = os.path.join(vprj.REPO_ROOT, 'model', 'system_models', 'core_only', 'sitar_model',
-                                 'executable', 'sparc_sim_sitar_core_only')
+def check_test_sitar(config):
+    return os.path.join(vprj.REPO_ROOT, 'model', 'system_models', config, 'sitar_model',
+                         'executable', 'sparc_sim_sitar_%s' % config)
 
 
 def run_one_test(vprj_path, max_cycles, env, check_test):
@@ -81,15 +81,14 @@ def main():
     ap.add_argument('--max-cycles', type=int, default=10000, help="cycle limit per test (default: 10000)")
     ap.add_argument('-v', '--verbose', action='store_true', help="show per-check output for every test, not just failures")
     ap.add_argument('--sitar', action='store_true',
-                     help="drive model/system_models/core_only/sitar_model's executable (the actual "
-                          "Sitar model) instead of model/system_models/core_only/cpp_model's (the default)")
+                     help="drive --config's sitar_model executable (the actual Sitar model) instead "
+                          "of its cpp_model's (the default)")
     ap.add_argument('--config', default='core_only',
-                     help="which system_models configuration's cpp_model executable to drive "
-                          "(default: core_only). Ignored if --sitar is given.")
+                     help="which system_models configuration to drive (default: core_only)")
     args = ap.parse_args()
 
-    check_test = CHECK_TEST_SITAR if args.sitar else check_test_cpp(args.config)
-    build_hint = ("model/system_models/core_only/sitar_model/build.sh" if args.sitar
+    check_test = check_test_sitar(args.config) if args.sitar else check_test_cpp(args.config)
+    build_hint = ("model/system_models/%s/sitar_model/build.sh" % args.config if args.sitar
                   else "model/system_models/%s/cpp_model/build.sh" % args.config)
     if not os.path.isfile(check_test):
         print("error: %s not found -- run %s first" % (check_test, build_hint))

@@ -20,11 +20,12 @@
 // IMPORTANT: this is the latency of *executing* the opcode itself
 // (decode/ALU/etc.), and is charged IN ADDITION TO whatever separate
 // memory-access latency a load/store/ifetch/atomic/flush instruction
-// incurs via MemoryInterface.delay and/or MainMemory.delay (see
-// MemoryInterface.sitar and MainMemory.sitar -- two independent knobs on
-// either side of that connection). All three are independent and
-// additive, e.g. a LD with an opcode latency of 1, a MemoryInterface
-// delay of 2, and a MainMemory delay of 3 takes 6 cycles total, not 3.
+// incurs via MemoryInterface.delay and/or MainMemoryVA.delay/MainMemory.delay
+// (see MemoryInterface.sitar and MainMemoryVA.sitar/MainMemory.sitar -- two
+// independent knobs on either side of that connection, depending on
+// config). All three are independent and additive, e.g. a LD with an
+// opcode latency of 1, a MemoryInterface delay of 2, and a
+// MainMemoryVA/MainMemory delay of 3 takes 6 cycles total, not 3.
 //================================================================
 
 #ifndef OPCODE_LATENCIES_H

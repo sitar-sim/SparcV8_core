@@ -1,0 +1,133 @@
+
+//================================================================
+// module Core
+// Author: Neha Karanjkar
+//
+// Wrapper module for the SPARC V8 core with an MMU present: assembles
+// SparcThread (the state machine, plus its 5 memory-interface
+// procedures), an MmuUnit, and a MainMemoryPA instance into the chain
+// SparcThread -> MmuUnit -> MainMemoryPA (Ref
+// Plan_MMU_integration.md's "Sitar timing model" section). Structurally
+// identical to core_only's own Core.sitar, just with MmuUnit inserted as
+// a new link in the middle -- SparcThread.sitar and MemoryInterface.sitar
+// needed zero changes for this (Ref the "lego block" interface contract,
+// Plan_SoC_Integration_Roadmap.md).
+//
+// sparcThread, mmu, and mainMemory all run as branches of one parallel
+// block (not modules connected by ports/nets), so each handshake along
+// the chain can complete within a single phase -- see MmuUnit.sitar,
+// MainMemoryPA.sitar, and MemoryInterface.sitar's own file-level comments.
+// Each procedure owns its own local request/response state; this
+// module's only job is wiring pointers together at init -- Core itself
+// owns no separate copy of any of it.
+//================================================================
+
+module Core
+
+	include
+	$
+	#include "SparcCore.h"
+	$
+
+	//Sparc Thread (contains the state machine and memory interface procedures)
+	procedure sparcThread : SparcThread
+
+	//The MMU all 5 of sparcThread's memory-interface procedures share.
+	procedure mmu : MmuUnit
+
+	//The physical memory below the MMU.
+	procedure mainMemory : MainMemoryPA
+
+	init
+	$
+	sparcThread.ifetchProcedure.downstreamRequest           = &mmu.request;
+	sparcThread.ifetchProcedure.downstreamResponse          = &mmu.response;
+	sparcThread.memReadProcedure.downstreamRequest          = &mmu.request;
+	sparcThread.memReadProcedure.downstreamResponse         = &mmu.response;
+	sparcThread.memWriteProcedure.downstreamRequest         = &mmu.request;
+	sparcThread.memWriteProcedure.downstreamResponse        = &mmu.response;
+	sparcThread.atomicLoadStoreProcedure.downstreamRequest  = &mmu.request;
+	sparcThread.atomicLoadStoreProcedure.downstreamResponse = &mmu.response;
+	sparcThread.flushProcedure.downstreamRequest            = &mmu.request;
+	sparcThread.flushProcedure.downstreamResponse           = &mmu.response;
+
+	mmu.phyMemReadProcedure.downstreamRequest   = &mainMemory.request;
+	mmu.phyMemReadProcedure.downstreamResponse  = &mainMemory.response;
+	mmu.phyMemWriteProcedure.downstreamRequest  = &mainMemory.request;
+	mmu.phyMemWriteProcedure.downstreamResponse = &mainMemory.response;
+
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted (to 0) in its own owning procedure; the
+	// value set here runs afterward (Sitar's child-then-parent init
+	// order) and is the authoritative one for the simulation.
+	//---------------------------------------------------------
+	//Opcode-wise latency: compile-time, see OpcodeLatencies.h
+	//(DEFAULT_PER_OPCODE_DELAY / OPCODE_LATENCY_OVERRIDES) -- not
+	//settable here.
+	//
+	//Core-side interconnect latency (memory-interface delay: cycles
+	//beyond 0-delay procedure-call semantics, per access type):
+	sparcThread.ifetchProcedure.delay          = 0; //ifetch
+	sparcThread.memReadProcedure.delay         = 0; //load
+	sparcThread.memWriteProcedure.delay        = 0; //store
+	sparcThread.atomicLoadStoreProcedure.delay = 0; //atomic load-store
+	sparcThread.flushProcedure.delay           = 0; //flush
+	//
+	//MMU-related (all charged only on the paths described -- Ref
+	//MmuUnit.sitar's own comment on each field):
+	mmu.tlbLookupDelay         = 0; //TLB tag-compare cost, charged whether hit or miss
+	mmu.pageTableWalkStepDelay = 0; //walker control overhead, once per page-table level visited
+	mmu.tlbFillDelay           = 0; //cost of inserting a resolved entry into the TLB, on a fresh miss only
+	mmu.registerAccessDelay    = 0; //MMU control/context/FSR/FAR register read or write (ASI 4)
+	mmu.flushDelay             = 0; //TLB invalidate (ASI 3 write) -- no memory access, write-through TLB
+	//
+	//MMU-to-memory interconnect latency:
+	mmu.phyMemReadProcedure.delay  = 0;
+	mmu.phyMemWriteProcedure.delay = 0;
+	//
+	//Physical memory service latency:
+	mainMemory.delay = 0;
+	//---------------------------------------------------------
+	$
+
+
+	behavior
+		[
+			// sparcThread's own procedure never returns -- it loops
+			// forever across RESET/EXECUTE/ERROR, by design (see the
+			// "Conventions" note in SparcThread.sitar) -- so this branch
+			// never completes either. That's fine: nothing here waits
+			// on it to.
+			run sparcThread;
+		||
+			// mmu is persistent -- this branch runs for the whole
+			// simulation, servicing requests until the monitor branch
+			// below calls `stop simulation`.
+			run mmu;
+		||
+			// mainMemory is persistent for the same reason.
+			run mainMemory;
+		||
+			// Watches for the core halting and stops the whole
+			// simulation once it does. Has to live out here, watching
+			// sparcThread.HALT.VALUE from outside, rather than as
+			// something sparcThread does itself when its own procedure
+			// returns -- see above, it never does.
+			wait until (sparcThread.HALT.VALUE);
+
+			// HALT.VALUE just became true in phase 0 of this same cycle
+			// (see SparcThread.sitar's ERROR branch); let phase 1 run
+			// its course too before tearing the simulation down, rather
+			// than stopping mid-cycle.
+			wait until (this_phase==1);
+
+			$
+			log<<endl<<"Core halted.";
+			log<<endl<<sparcThread.printInfo();
+			$;
+			stop simulation;
+		]
+	end behavior
+end module

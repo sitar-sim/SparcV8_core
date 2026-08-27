@@ -1,0 +1,146 @@
+
+//================================================================
+// procedure MainMemoryPA
+// Author: Neha Karanjkar
+//
+// A persistent memory model -- the Sitar-side counterpart of the plain
+// C++ MainMemory class it embeds (`mem` below), used as the terminal
+// node below an MMU (Ref Plan_MMU_integration.md's "Sitar timing model"
+// section). PM-shaped (PhysicalMemoryRequest/Response, Ref
+// MemoryInterfaces.h): a 64-bit physical address (36 bits meaningful)
+// and 64-bit doubleword data, no ASI. A configuration with no MMU (e.g.
+// core_only) uses MainMemoryVA.sitar instead (VM-shaped, wraps a plain
+// MemCore directly) -- see that file's own header comment.
+//
+// Unlike MainMemoryVA.sitar's hand-written dispatch (readWord()/
+// writeWord() calls assembled per accessType, inline in that file's own
+// behavior), this procedure does none of that itself: the C++
+// MainMemory class already implements the entire doubleword/half-select
+// PhysicalMemoryInterface contract correctly (it's the same class
+// core_mmu's cpp_model uses directly, Ref MainMemory.h), so this
+// procedure's only job is to call it and add timing -- one
+// `mem.access(request, response);` per request, exactly the same
+// "functional class wrapped by a timing shell" shape MainMemoryVA.sitar
+// itself uses for MemCore, just delegating the whole dispatch instead of
+// re-implementing it, since MainMemory's own access() method already
+// covers every PhysicalAccessType case.
+//
+// Named MainMemoryPA rather than "MainMemory" (matching the C++ class it
+// embeds verbatim, the way MainMemoryVA.sitar's own MemCore embedding
+// almost was) because that would be a real compile failure here too --
+// mechanically different from MemCore.sitar's header-guard collision,
+// but just as fatal: the Sitar translator generates this procedure's own
+// build/Output/MainMemory.h, and this file's own `#include"MainMemory.h"`
+// is a *quote* include, which searches the including file's own
+// directory first -- i.e. it would resolve to itself
+// (build/Output/MainMemory.h), not model/cpp_common_code/MainMemory.h,
+// and since its own header guard is already active by that point, the
+// self-include is silently skipped and the real class never gets
+// defined at all. Renaming the procedure sidesteps this outright, rather
+// than needing a workaround at the #include site.
+//
+// Same chaining pattern as MainMemoryVA.sitar/MemoryInterface.sitar:
+// entered ONCE via `run` as a branch of a parallel block (Core.sitar:
+// "[ run sparcThread; ... || run mmu; || run mainMemory; ]"), owns its
+// own local request/response (the object MmuUnit's phyMemReadProcedure/
+// phyMemWriteProcedure point their downstreamRequest/downstreamResponse
+// at), and has no downstream of its own.
+//================================================================
+
+procedure MainMemoryPA
+
+	include
+	$
+	#include"MainMemory.h"
+	#include"MemoryInterfaces.h"
+	$
+
+	decl
+	$
+	MainMemory mem;                //the actual memory storage + doubleword dispatch
+
+	//This procedure's own request/response -- the object whatever is
+	//immediately upstream (MmuUnit's phyMemReadProcedure/phyMemWriteProcedure,
+	//via their downstreamRequest/downstreamResponse pointers) reads/
+	//writes directly. Owned here, not by the parent module -- Ref
+	//MainMemoryVA.sitar's header comment for the general chaining rule.
+	PhysicalMemoryRequest  request;
+	PhysicalMemoryResponse response;
+	$
+	init
+	$
+	request.valid           = false;
+	request.accessType      = PhysicalAccessType::READ;
+	request.lock            = false;
+	request.physicalAddress = 0;
+	request.data            = 0;
+	request.byteMask        = 0;
+
+	response.valid    = false;
+	response.readData = 0;
+	response.mae      = false;
+	$
+
+	//--------------------------------------------------------
+	//Access latency: how many cycles it takes this memory itself to
+	//service a request, i.e. between accepting it and publishing the
+	//response. Default 0. Independent of, and additive with,
+	//PhysicalMemoryProcedure.delay on the requester side (MmuUnit's
+	//phyMemReadProcedure/phyMemWriteProcedure).
+	//--------------------------------------------------------
+	decl$uint32_t delay;$
+	init$delay = 0;$
+	//--------------------------------------------------------
+
+	//--------------------------------------------------------
+	//Behavior
+	//--------------------------------------------------------
+	behavior
+
+	do
+		wait until (this_phase==0 and $request.valid$);
+
+		$
+		log<<endl<<"[t="<<current_time<<"] MainMemoryPA: servicing "
+		   <<(request.accessType==PhysicalAccessType::READ ? "READ" : "WRITE")
+		   <<" request for address 0x"<<std::hex<<request.physicalAddress<<std::dec;
+
+		mem.access(request, response);
+
+		//MainMemory::access() sets response.valid=true itself as part of
+		//its own "compute and signal done in one call" contract (correct
+		//for the cpp_model, which calls it as one synchronous, untimed
+		//step) -- since `response` here is the exact same shared object
+		//PhysicalMemoryProcedure polls, that would make it visible
+		//immediately, before the wait(delay,0) below ever runs, defeating
+		//the delay entirely (confirmed: this was the actual bug behind
+		//nonzero mainMemory.delay corrupting execution -- PhysicalMemoryProcedure
+		//would see the response ready and clear both valid flags right
+		//away, while this procedure was still mid-wait, so a second
+		//concurrent request could come in believing this one was already
+		//serviced). Reset it here; the explicit `response.valid = true;`
+		//after the wait below is what actually publishes it.
+		response.valid = false;
+		$;
+
+		//model this memory's own service latency (default 0 -- see
+		//`delay` above) before the response becomes visible
+		if ($delay > 0$) then
+			wait(delay, 0);
+		end if;
+
+		$
+		response.valid = true;
+		log<<endl<<"[t="<<current_time<<"] MainMemoryPA: response ready for "
+		   <<(request.accessType==PhysicalAccessType::READ ? "READ" : "WRITE")
+		   <<" request for address 0x"<<std::hex<<request.physicalAddress<<std::dec;
+		$;
+
+		//wait for the requester to consume the response and close the
+		//transaction before servicing the next one
+		wait until (this_phase==0 and not($response.valid$));
+
+	while(1) end do;
+
+	end behavior
+end procedure

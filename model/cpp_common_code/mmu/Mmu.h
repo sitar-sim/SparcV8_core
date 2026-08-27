@@ -36,6 +36,24 @@
 //    level (PTE and invalid entries returned as-is for every type; a PTD
 //    also returned as-is for segment/region/context, but not for a page
 //    probe, which has no level-4 table for a level-3 PTD to point to).
+//
+//Step-by-step public methods (tlbLookup/beginWalk/recordWalkStep/
+//checkAndRecordFault/commitTranslation/computeAndStageRMUpdate/
+//commitRMTlbUpdate, plus probe/flush/readRegister/writeRegister below):
+//these exist so the Sitar timing model (Mmu.sitar, Ref
+//Plan_MMU_integration.md's "Sitar timing model" section) can drive a
+//translation one physical access at a time -- interleaving its own
+//`wait`s and `run phyMemReadProcedure;`/`run phyMemWriteProcedure;`
+//calls between them -- while the cpp_model calls the exact same methods
+//back to back with no waits at all. translate()/probe() below still
+//exist and are what the cpp_model actually calls; they're just
+//implemented in terms of these smaller pieces now (walkPageTables() no
+//longer exists as its own function -- both translate() and probe()'s
+//own walks are built directly from beginWalk()/recordWalkStep()), so
+//both drivers are built from one shared step sequence.
+//Public because Sitar-generated code is a method of a *different*
+//generated class and needs to call them from outside this class -- the
+//same reason SparcCore::execute_PreLoad/execute_PostLoad are public.
 
 #ifndef MMU_H
 #define MMU_H
@@ -117,6 +135,132 @@ class Mmu : public VirtualMemoryInterface
 		//MMU to function.
 		void setLogger(CoreLogger* logger, const unsigned long* simulatedTime);
 
+		//---------------------------------------------------------------
+		// Step-by-step translation primitives (Ref this file's header
+		// comment). Called in this order by translate() (unchanged,
+		// still cpp_model's only entry point) and independently
+		// duplicated in the same order by Mmu.sitar's own behavior:
+		//   1. tlbLookup()
+		//   2. if miss: beginWalk(), then a loop of
+		//      (fetch walkCurPhyAddr()) + recordWalkStep(fetchedPte)
+		//      until it returns false
+		//   3. checkAndRecordFault() -- stop here if it returns true
+		//   4. commitTranslation()
+		//   5. computeAndStageRMUpdate() -- if true, write back
+		//      stagedUpdatedPte() to walkResultPhyAddrOfPte(), then
+		//      commitRMTlbUpdate()
+		//---------------------------------------------------------------
+
+		//TLB lookup for (va, context), only if tlbActive(). On a hit,
+		//stores the found (pte, level, phyAddrOfPte) as the walk result
+		//(same fields a walk would populate) and returns true. Does
+		//nothing and returns false if the TLB isn't active (not even a
+		//stats-recorded "miss" -- Ref tlbEnabled's own comment) or on a
+		//genuine miss.
+		bool tlbLookup(uint32_t va, uint32_t context);
+
+		//The current context register's value (contextRegister_ is
+		//private, thread-indexed internally) -- every step primitive
+		//above takes context as an explicit parameter rather than
+		//reading the register itself, so Sitar's own dispatch (living
+		//outside this class) needs this to supply it.
+		uint32_t currentContext() const { return contextRegister_[threadId_ & 1]; }
+
+		//Ref the Control Register's E bit (Ref Appendix H.3) -- whether
+		//translation is actually active right now (independent of
+		//mmuIsPresent, Ref that field's own comment). translate() used
+		//to check this internally as its very first step (mmuIsPresent
+		//&& !mmuEnabled() -> bypass, VA==PA, before touching the TLB or
+		//walking at all); Sitar's own CASE-6 dispatch needs to replicate
+		//that same decision, so this needs to be public too.
+		bool mmuEnabled() const;
+		bool alwaysCacheable() const;
+
+		//Ref Appendix H.3's NF (No Fault) control-register field: once
+		//checkAndRecordFault() has recorded a fault, this decides
+		//whether the CPU trap that would normally follow (mae=true) gets
+		//suppressed instead -- callers (handleReadAccess/WriteAccess and
+		//Sitar's own dispatch alike) check this exactly where they'd
+		//otherwise set mae=true.
+		bool noFaultSuppressesTrap(uint32_t asi) const;
+
+		//Starts a page-table walk for (va, context): computes the L1/L2/
+		//L3 index bits and the level-0 (context-table) physical address,
+		//ready for the first fetch of walkCurPhyAddr().
+		void beginWalk(uint32_t va, uint32_t context);
+
+		//Classifies the entry just fetched from walkCurPhyAddr(). If
+		//it's a PTD and the walk hasn't reached stopAtLevel, advances to
+		//the next level (computes and stores the next physical address)
+		//and returns true ("fetch again"); otherwise records the final
+		//(pte, level, phyAddrOfPte) as the walk result and returns
+		//false. stopAtLevel is 3 (walk as far as a leaf allows) for an
+		//ordinary translation; probe()'s own page/segment/region/context
+		//types (Ref Table H-4) instead want to stop at one specific
+		//level even if a PTD sits there, so they pass their own target
+		//level instead of taking the default.
+		bool recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel = 3);
+
+		//The physical address the walk needs fetched next -- valid after
+		//beginWalk(), or after a recordWalkStep() call that returned
+		//true.
+		uint64_t walkCurPhyAddr() const { return walkCurPhyAddr_; }
+
+		//Ref Appendix H.5's fault matrix, applied to the walk-or-TLB-hit
+		//result. Records the fault (recordFault()/updateFsrFar()) and
+		//returns true if one occurred; returns false (nothing recorded)
+		//on a clean translation.
+		bool checkAndRecordFault(uint32_t asi, bool isWrite, bool isAtomic, bool isInstructionFetch, uint32_t va);
+
+		//Only called when checkAndRecordFault() returned false. Inserts
+		//into the TLB if this translation came from a fresh walk (not a
+		//hit), and returns the translated physical address/cacheable/acc
+		//via the same out-params translate() itself used to expose them.
+		void commitTranslation(uint32_t va, uint32_t context, uint64_t& physicalAddr, bool& cacheable, uint8_t& acc);
+
+		//Ref Appendix H.7: decides if R (always) or M (isWrite only)
+		//needs setting on the just-translated PTE. If so, stages the
+		//updated PTE value (stagedUpdatedPte()) and returns true --
+		//caller then writes it back to walkResultPhyAddrOfPte() and
+		//calls commitRMTlbUpdate(). Returns false (nothing staged, no
+		//write-back needed) if both bits were already set.
+		bool computeAndStageRMUpdate(bool isWrite);
+
+		//Updates the TLB's cached copy of the just-written-back PTE, if
+		//still present. Ref translate()'s own comment for why this MMU
+		//is write-through (a flush never needs a write-back).
+		void commitRMTlbUpdate(uint32_t va, uint32_t context);
+
+		//The physical address the just-completed walk (or TLB hit)
+		//found its result PTE at -- where a staged R/M update gets
+		//written back.
+		uint64_t walkResultPhyAddrOfPte() const { return walkResultPhyAddrOfPte_; }
+
+		//The PTE value and level the just-completed walk (or TLB hit)
+		//found -- probe()'s own non-entire types (page/segment/region/
+		//context) need these directly (Ref Table H-4's per-entry-type
+		//return rules), not just whether a translation succeeded.
+		uint32_t walkResultPte() const { return walkResultPte_; }
+		uint8_t  walkResultLevel() const { return walkResultLevel_; }
+
+		//The PTE value staged by computeAndStageRMUpdate(), valid only
+		//when it returned true.
+		uint32_t stagedUpdatedPte() const { return stagedUpdatedPte_; }
+
+		//---------------------------------------------------------------
+		// ASI-dispatched operations other than an ordinary translated
+		// access -- probe/flush (ASI 3), register read/write (ASI 4).
+		// Public for the same reason as the step primitives above: an
+		// entire probe or an ordinary register access is a single atomic
+		// (no downstream physical access) operation from Mmu.sitar's
+		// point of view too, so it's called directly rather than
+		// decomposed further.
+		//---------------------------------------------------------------
+		bool probe(uint32_t va, uint32_t& resultPte);
+		void flush(uint32_t va);
+		uint32_t readRegister(uint32_t addr);
+		void writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask);
+
 	private:
 		PhysicalMemoryInterface& downstream_;
 		int threadId_;
@@ -139,17 +283,29 @@ class Mmu : public VirtualMemoryInterface
 		enum FaultClass { NO_FAULT = 0, IACCESS_FAULT = 1, DACCESS_FAULT = 2 };
 		uint8_t faultClass_[MAX_THREADS];
 
+		//---------------------------------------------------------------
+		// Walk-in-progress and walk-result state. Promoted from what
+		// were function-local variables in walkPageTables()/translate()
+		// (Ref Plan_MMU_integration.md's "Sitar timing model" section):
+		// a walk now spans multiple physical-access boundaries (one
+		// beginWalk()/recordWalkStep() sequence per level visited), so
+		// this state has to survive between those calls rather than
+		// living on the stack of one opaque function.
+		//---------------------------------------------------------------
+		uint32_t walkL1Index_, walkL2Index_, walkL3Index_; //fixed for one walk, set by beginWalk()
+		uint8_t  walkCurLevel_;                            //level the next fetch (walkCurPhyAddr_) is at
+		uint64_t walkCurPhyAddr_;                          //address to fetch next
+
+		uint32_t walkResultPte_;         //final PTE (walk-terminated-here, or TLB hit)
+		uint8_t  walkResultLevel_;       //level that PTE was found/cached at
+		uint64_t walkResultPhyAddrOfPte_;//physical address that PTE itself lives at (R/M write-back target)
+		bool     translateWasTlbHit_;    //gates whether commitTranslation() needs to insert
+
+		uint32_t stagedUpdatedPte_;      //pending R/M-updated PTE value, set by computeAndStageRMUpdate()
+
 		CoreLogger* logger_;
 		const unsigned long* simulatedTime_;
 		void log(const std::string& event, const std::string& detail);
-
-		bool mmuEnabled() const;
-		bool alwaysCacheable() const;
-
-		//Ref Appendix H.3's NF (No Fault) control-register field: once a
-		//fault has already been recorded (recordFault()), this decides
-		//whether the CPU trap that would normally follow gets suppressed.
-		bool noFaultSuppressesTrap(uint32_t asi) const;
 
 		//Every tlb_ touch point (translate(), probe(), flush(),
 		//writeRegister()'s CTP-write side effect) calls this instead of
@@ -203,13 +359,6 @@ class Mmu : public VirtualMemoryInterface
 		void handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
 		                         uint32_t& readWord0, uint32_t& readWord1, bool& mae);
 
-		bool walkPageTables(uint32_t va, uint32_t context, uint32_t& pte, uint8_t& level, uint64_t& phyAddrOfPte);
-		bool probe(uint32_t va, uint32_t& resultPte);
-		void flush(uint32_t va);
-
-		uint32_t readRegister(uint32_t addr);
-		void writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask);
-
 		uint32_t readPageTableEntryFromMemory(uint64_t physAddr);
 		void writePageTableEntryToMemory(uint64_t physAddr, uint32_t value);
 
@@ -223,6 +372,18 @@ class Mmu : public VirtualMemoryInterface
 		//are otherwise identical operations once translated to a
 		//physical address.
 		uint32_t readPhysicalWord(uint64_t physAddr, bool& mae);
+
+		//One physical READ transaction returning both 32-bit halves of
+		//the doubleword at physAddr (internally doubleword-aligned, same
+		//as readPhysicalWord()). A LOAD's word0 (address) and word1
+		//(address+4) are always the same doubleword (Ref
+		//MemoryInterfaces.h: the caller always 8-byte-aligns first), so
+		//handleReadAccess()'s LOAD path uses this instead of calling
+		//readPhysicalWord() twice -- two calls to the same address were
+		//functionally harmless (idempotent instant read) but would
+		//double-charge every LOAD's fetch once this is a real timed
+		//transaction on the Sitar side.
+		void readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae);
 
 		//word0/word1/byte_mask: same doubleword-at-once shape
 		//writeMaskedDoubleWord() already receives at the virtual

@@ -120,13 +120,23 @@ def main():
             print("error: translating %s failed" % f)
             sys.exit(1)
 
+    # One -d per cpp_common_code subfolder (mmu/, and later cache/,
+    # devices/), in addition to cpp_common_code/ itself, so e.g.
+    # "#include "Mmu.h"" resolves the same way regardless of which folder
+    # is including it -- same mechanism and reasoning as
+    # build_cpp_model.sh's own COMMON_CODE_INCLUDES. Auto-discovered, not
+    # hardcoded by name, so a new block's subfolder needs no change here.
+    common_code_dirs = [CPP_COMMON_CODE_DIR] + sorted(
+        d for d in glob.glob(os.path.join(CPP_COMMON_CODE_DIR, '*')) if os.path.isdir(d))
+
     print("Compiling...")
     cmd = ['sitar', 'compile',
            '-o', executable,
            '-d', output_dir,
-           '-d', SITAR_COMPONENT_CODE_DIR,
-           '-d', CPP_COMMON_CODE_DIR,
-           '-m', main_file,
+           '-d', SITAR_COMPONENT_CODE_DIR]
+    for d in common_code_dirs:
+        cmd += ['-d', d]
+    cmd += ['-m', main_file,
            '-l', 'quadmath',
            '--logging' if args.logging else '--no-logging']
     cflags = []

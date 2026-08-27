@@ -1,0 +1,549 @@
+
+//================================================================
+// procedure MmuUnit
+// Author: Neha Karanjkar
+//
+// The Sitar timing model for the MMU (Ref Plan_MMU_integration.md's
+// "Sitar timing model" section for the full design this implements).
+// Named MmuUnit rather than "Mmu" to avoid this procedure sharing a
+// name with the plain C++ class it embeds -- Ref MainMemoryVA.sitar's
+// and MainMemoryPA.sitar's header comments for the two different
+// mechanical ways this same class of collision can break a build
+// (an embedded member whose type name matches the enclosing generated
+// class, or a same-named #include silently resolving to itself); "Mmu"
+// would hit the header-guard/self-include form of it (Mmu.h's own guard
+// is literally MMU_H), so this procedure is named to sidestep the whole
+// class of risk instead.
+//
+// Inserted into the chain between SparcThread and memory: SparcThread's
+// 5 memory-interface procedures now point downstream at this procedure
+// (VM-typed) instead of directly at a memory procedure; this procedure
+// in turn drives two PhysicalMemoryProcedure instances,
+// phyMemReadProcedure and phyMemWriteProcedure, pointed downstream at
+// MainMemoryPA.sitar (PM-typed) -- Ref Core.sitar's own init block for how
+// these get wired. Persistent, for the same reason MainMemoryVA.sitar
+// is (a procedure MemoryInterface talks to over the pointer+valid
+// handshake must be independently, continuously scheduled).
+//
+// The core design point (Ref Plan_MMU_integration.md): every genuinely
+// multi-cycle piece of a translation -- a page-table walk, an R/M-bit
+// write-back, the final data access -- is realized here as a real
+// `run phyMemReadProcedure;`/`run phyMemWriteProcedure;` call, not a
+// plain C++ function call, so the latency composes through genuine
+// simulated time (and for free with MainMemoryPA.sitar's own configured
+// delay) exactly the way SparcThread.sitar's own memory instructions
+// already do one level up. Mmu.cpp's translate()/probe() stay real,
+// callable functions the cpp_model keeps using unchanged; this
+// procedure independently duplicates the exact same step sequence they
+// are now built from (Ref Mmu.h's own comment on that public section),
+// substituting a real `run` for each physical-primitive call. The
+// embedded Mmu instance's own downstream_ reference (unusedDownstream
+// below) is never actually exercised on this path at all.
+//
+// NOTE: Sitar's `if` statement has no `elsif` (Ref its grammar) -- every
+// multi-way ASI dispatch below is written as nested if/else/end if
+// instead of a flat elsif chain.
+//================================================================
+
+procedure MmuUnit
+
+	include
+	$
+	#include"Mmu.h"
+	#include"Addresses.h"
+	#include"MemoryInterfaces.h"
+	#include"AsiValues.h"
+	#include"BitManipulation.h"
+	$
+
+	decl
+	$
+	//Mmu's constructor requires a PhysicalMemoryInterface& to bind its
+	//own downstream_ to, but nothing on this Sitar path ever calls
+	//Mmu::access() or any private helper that would use it (Ref this
+	//file's header comment) -- this throwaway adapter exists purely to
+	//satisfy that constructor requirement and should never actually be
+	//invoked.
+	struct UnusedDownstream : public PhysicalMemoryInterface
+	{
+		void access(const PhysicalMemoryRequest&, PhysicalMemoryResponse&) override
+		{
+			assert(false && "Mmu's own downstream_ should never be called from the Sitar timing model");
+		}
+	} unusedDownstream;
+
+	Mmu mmu{unusedDownstream};
+
+	//This procedure's own request/response -- the object whatever is
+	//immediately upstream (each of SparcThread's 5 memory-interface
+	//procedures, via their downstreamRequest/downstreamResponse
+	//pointers) reads/writes directly. Owned here, not by the parent
+	//module -- Ref MainMemoryVA.sitar's header comment for the general
+	//chaining rule.
+	VirtualMemoryRequest  request;
+	VirtualMemoryResponse response;
+
+	//Scratch state, procedure-instance-level rather than function-local:
+	//it survives across `run phyMemReadProcedure;`/
+	//`run phyMemWriteProcedure;` boundaries within one request. State
+	//intrinsic to the translation algorithm itself lives as an Mmu-class
+	//private member instead (walkResultPte_ etc, Ref Mmu.h) -- this is
+	//purely about sequencing this procedure's own dispatch.
+	bool     isSecondWord;        //LOAD (two words) vs IFETCH (one)
+	bool     tlbHit;
+	bool     continueWalk;
+	bool     faulted;
+	bool     needsRMWriteback;
+	bool     needsFinalDataAccess;
+	bool     translationOk;
+	uint64_t translatedPhysAddr;
+	bool     translatedCacheable;  //not yet consumed downstream (no cache block yet) -- computed for parity with translate()
+	uint8_t  translatedAcc;        //ditto
+
+	uint8_t  probeType;
+	uint8_t  probeTargetLevel;
+	uint32_t probeResultPte;
+	$
+	init
+	$
+	request.valid      = false;
+	request.accessType = MemAccessType::NO_ACCESS;
+	request.address    = 0;
+	request.asi        = 0;
+	request.word0      = 0;
+	request.word1      = 0;
+	request.byteMask   = 0;
+
+	response.valid     = false;
+	response.readWord0 = 0;
+	response.readWord1 = 0;
+	response.mae       = false;
+	$
+
+	//--------------------------------------------------------
+	//Physical-side connections -- two instances of the reusable
+	//PhysicalMemoryProcedure (Ref that file's own header
+	//comment), one per transaction shape. accessType is fixed at init;
+	//downstreamRequest/downstreamResponse are wired by Core.sitar's own
+	//init block, at MainMemory's local request/response, exactly the
+	//same pattern SparcThread.sitar's own 5 memory-interface instances
+	//already use one level up.
+	//--------------------------------------------------------
+	procedure phyMemReadProcedure  : PhysicalMemoryProcedure
+	procedure phyMemWriteProcedure : PhysicalMemoryProcedure
+
+	init
+	$
+	phyMemReadProcedure.accessType  = PhysicalAccessType::READ;
+	phyMemWriteProcedure.accessType = PhysicalAccessType::WRITE;
+	$
+
+	//--------------------------------------------------------
+	//Latency knobs -- Ref Plan_MMU_integration.md's "Sitar timing model"
+	//section for what real hardware cost each stands in for. Plain
+	//runtime fields, default 0, matching MemoryInterface.delay's own
+	//convention -- never compile-time constants. Set from Core.sitar's
+	//consolidated knob block, not here (Ref that file's own comment).
+	//--------------------------------------------------------
+	decl
+	$
+	uint32_t tlbLookupDelay;         //TLB tag-compare, charged whether hit or miss
+	uint32_t pageTableWalkStepDelay; //walker control overhead, once per level visited
+	uint32_t tlbFillDelay;           //inserting a resolved entry, on a fresh miss only
+	uint32_t registerAccessDelay;    //MMU control/context/FSR/FAR register read or write (ASI 4)
+	uint32_t flushDelay;             //TLB invalidate (ASI 3 write) -- no memory access, write-through TLB
+	$
+	init
+	$
+	tlbLookupDelay = 0;
+	pageTableWalkStepDelay = 0;
+	tlbFillDelay = 0;
+	registerAccessDelay = 0;
+	flushDelay = 0;
+	$
+
+	//--------------------------------------------------------
+	//Behavior
+	//--------------------------------------------------------
+	behavior
+
+	do
+		wait until (this_phase==0 and $request.valid$);
+
+		$
+		log<<endl<<"[t="<<current_time<<"] MmuUnit: servicing "<<accessTypeToString(request.accessType)
+		   <<" request for address 0x"<<std::hex<<request.address<<std::dec;
+		response.readWord0 = 0;
+		response.readWord1 = 0;
+		response.mae       = false;
+		needsFinalDataAccess = false;
+		translationOk        = false;
+		$;
+
+		//=================================================================
+		// IFETCH / LOAD -- Ref Mmu.cpp's handleReadAccess()
+		//=================================================================
+		if (request.accessType==MemAccessType::IFETCH or request.accessType==MemAccessType::LOAD) then
+
+			$ isSecondWord = (request.accessType==MemAccessType::LOAD); $;
+
+			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
+				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+			else
+			if ($asiIsCacheTagOrData((uint8_t)request.asi) or asiIsIcacheFlush((uint8_t)request.asi) or asiIsDcacheFlush((uint8_t)request.asi)$) then
+				nothing; //no cache present yet -- no-op, matches Mmu.cpp
+			else
+			if ($request.asi==ASI_MMU_FLUSH_PROBE$) then
+				//Probe: duplicates the exact same beginWalk()/
+				//recordWalkStep() sequence probe() itself now uses
+				//internally, substituting a real run phyMemReadProcedure;
+				//for each fetch.
+				$ probeResultPte = 0; probeType = (uint8_t) readBits(request.address, 11, 8); $;
+
+				if ($probeType == 4$) then
+					//Only the entire-probe type ever actually consults
+					//the TLB (Ref Mmu.cpp's probe() -- the page/segment/
+					//region/context types below always walk fresh, no
+					//tlb_.lookup() call at all), so tlbLookupDelay is
+					//charged here only, matching CASE 6's own placement.
+					wait(tlbLookupDelay, 0);
+					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
+					if (not $tlbHit$) then
+						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
+						do
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							run phyMemReadProcedure;
+							wait(pageTableWalkStepDelay, 0);
+							$
+							uint64_t d = phyMemReadProcedure.response.readData;
+							uint32_t fetchedPte = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+							continueWalk = mmu.recordWalkStep(fetchedPte);
+							$;
+						while (continueWalk) end do;
+					end if;
+					$
+					if (readBits(mmu.walkResultPte(), PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTE)
+						probeResultPte = mmu.walkResultPte();
+					$;
+				else
+				if ($probeType <= 3$) then
+					$ probeTargetLevel = (uint8_t)(3 - probeType); $;
+					$ mmu.beginWalk(request.address, mmu.currentContext()); $;
+					do
+						$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+						run phyMemReadProcedure;
+						wait(pageTableWalkStepDelay, 0);
+						$
+						uint64_t d = phyMemReadProcedure.response.readData;
+						uint32_t fetchedPte = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+						continueWalk = mmu.recordWalkStep(fetchedPte, probeTargetLevel);
+						$;
+					while (continueWalk) end do;
+					$
+					if (mmu.walkResultLevel() == probeTargetLevel)
+					{
+						uint32_t et = readBits(mmu.walkResultPte(), PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT);
+						bool ptdAtPageProbe = (et == PteBits::ET_PTD and probeType == 0);
+						if (et != PteBits::ET_RESERVED and not ptdAtPageProbe)
+							probeResultPte = mmu.walkResultPte();
+					}
+					$;
+				end if; //probeType > 3 (reserved): probeResultPte stays 0
+				end if;
+
+				$ response.readWord0 = probeResultPte; $;
+			else
+			if ($request.asi==ASI_MMU_REGISTER$) then
+				$ response.readWord0 = mmu.readRegister(request.address); $;
+				wait(registerAccessDelay, 0);
+			else
+			if ($asiIsMmuAccess((uint8_t)request.asi)$) then
+				nothing; //diagnostic ASIs (5/6/7): unimplemented, no-op (Ref Mmu.cpp)
+			else
+				//CASE 6: ordinary translated access
+				if ($!mmu.mmuEnabled()$) then
+					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				else
+					wait(tlbLookupDelay, 0);
+					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
+					if (not $tlbHit$) then
+						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
+						do
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							run phyMemReadProcedure;
+							wait(pageTableWalkStepDelay, 0);
+							$
+							uint64_t d = phyMemReadProcedure.response.readData;
+							uint32_t fetchedPte = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+							continueWalk = mmu.recordWalkStep(fetchedPte);
+							$;
+						while (continueWalk) end do;
+					end if;
+
+					$ faulted = mmu.checkAndRecordFault(request.asi, false, false, request.accessType==MemAccessType::IFETCH, request.address); $;
+
+					if (faulted) then
+						$ needsFinalDataAccess = true; translationOk = false; $;
+					else
+						$
+						mmu.commitTranslation(request.address, mmu.currentContext(), translatedPhysAddr, translatedCacheable, translatedAcc);
+						needsRMWriteback = mmu.computeAndStageRMUpdate(false);
+						$;
+						if (not tlbHit) then
+							wait(tlbFillDelay, 0);
+						end if;
+						if (needsRMWriteback) then
+							$
+							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;
+							phyMemWriteProcedure.request.physicalAddress = dwAddr;
+							phyMemWriteProcedure.request.data     = lowHalf ? (uint64_t)mmu.stagedUpdatedPte() : ((uint64_t)mmu.stagedUpdatedPte() << 32);
+							phyMemWriteProcedure.request.byteMask = lowHalf ? (uint8_t)0x0F : (uint8_t)0xF0;
+							phyMemWriteProcedure.request.lock     = false;
+							$;
+							run phyMemWriteProcedure;
+							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+						end if;
+						$ needsFinalDataAccess = true; translationOk = true; $;
+					end if;
+				end if;
+			end if;
+			end if;
+			end if;
+			end if;
+			end if;
+
+			if (needsFinalDataAccess) then
+				if (translationOk) then
+					//translatedPhysAddr need only be word-aligned here
+					//(an IFETCH, or bypass carrying an IFETCH's address,
+					//is never doubleword-aligned in general) -- round
+					//down before the request, matching
+					//Mmu.cpp's readPhysicalWord()/readPhysicalDoubleword()
+					//doing exactly this internally.
+					$
+					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+					phyMemReadProcedure.request.lock            = false;
+					phyMemReadProcedure.request.data            = 0;
+					phyMemReadProcedure.request.byteMask        = 0;
+					$;
+					run phyMemReadProcedure;
+					$
+					uint64_t d = phyMemReadProcedure.response.readData;
+					if (isSecondWord) { response.readWord0 = (uint32_t)(d & 0xFFFFFFFFu); response.readWord1 = (uint32_t)(d >> 32); }
+					else response.readWord0 = ((translatedPhysAddr & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+					response.mae = phyMemReadProcedure.response.mae;
+					$;
+				else
+					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
+				end if;
+			end if;
+
+		end if;
+
+		//=================================================================
+		// STORE -- Ref Mmu.cpp's handleWriteAccess()
+		//=================================================================
+		if (request.accessType==MemAccessType::STORE) then
+
+			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
+				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+			else
+			if ($asiIsCacheTagOrData((uint8_t)request.asi) or asiIsIcacheFlush((uint8_t)request.asi) or asiIsDcacheFlush((uint8_t)request.asi)$) then
+				nothing;
+			else
+			if ($request.asi==ASI_MMU_FLUSH_PROBE$) then
+				//Flush needs no run calls at all -- write-through TLB
+				//(Ref Mmu.h's own comment on commitRMTlbUpdate()): a
+				//flush only ever drops cached copies, never writes
+				//memory.
+				$ mmu.flush(request.address); $;
+				wait(flushDelay, 0);
+			else
+			if ($request.asi==ASI_MMU_REGISTER$) then
+				$ mmu.writeRegister(request.address, request.word0, request.word1, request.byteMask); $;
+				wait(registerAccessDelay, 0);
+			else
+			if ($asiIsMmuAccess((uint8_t)request.asi)$) then
+				nothing; //diagnostic ASIs: no-op
+			else
+				//CASE 6
+				if ($!mmu.mmuEnabled()$) then
+					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				else
+					wait(tlbLookupDelay, 0);
+					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
+					if (not $tlbHit$) then
+						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
+						do
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							run phyMemReadProcedure;
+							wait(pageTableWalkStepDelay, 0);
+							$
+							uint64_t d = phyMemReadProcedure.response.readData;
+							uint32_t fetchedPte = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+							continueWalk = mmu.recordWalkStep(fetchedPte);
+							$;
+						while (continueWalk) end do;
+					end if;
+
+					$ faulted = mmu.checkAndRecordFault(request.asi, true, false, false, request.address); $;
+
+					if (faulted) then
+						$ needsFinalDataAccess = true; translationOk = false; $;
+					else
+						$
+						mmu.commitTranslation(request.address, mmu.currentContext(), translatedPhysAddr, translatedCacheable, translatedAcc);
+						needsRMWriteback = mmu.computeAndStageRMUpdate(true);
+						$;
+						if (not tlbHit) then
+							wait(tlbFillDelay, 0);
+						end if;
+						if (needsRMWriteback) then
+							$
+							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;
+							phyMemWriteProcedure.request.physicalAddress = dwAddr;
+							phyMemWriteProcedure.request.data     = lowHalf ? (uint64_t)mmu.stagedUpdatedPte() : ((uint64_t)mmu.stagedUpdatedPte() << 32);
+							phyMemWriteProcedure.request.byteMask = lowHalf ? (uint8_t)0x0F : (uint8_t)0xF0;
+							phyMemWriteProcedure.request.lock     = false;
+							$;
+							run phyMemWriteProcedure;
+							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+						end if;
+						$ needsFinalDataAccess = true; translationOk = true; $;
+					end if;
+				end if;
+			end if;
+			end if;
+			end if;
+			end if;
+			end if;
+
+			if (needsFinalDataAccess) then
+				if (translationOk) then
+					//byteMask is computed (SparcCore::execute_PreStore)
+					//relative to the *aligned* doubleword base, not
+					//translatedPhysAddr itself in general -- round down
+					//to match, same reasoning as the IFETCH/LOAD path
+					//above.
+					$
+					phyMemWriteProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+					phyMemWriteProcedure.request.data     = (((uint64_t)request.word1) << 32) | (uint64_t)request.word0;
+					phyMemWriteProcedure.request.byteMask = (uint8_t)request.byteMask;
+					phyMemWriteProcedure.request.lock     = false;
+					$;
+					run phyMemWriteProcedure;
+					$ response.mae = phyMemWriteProcedure.response.mae; $;
+				else
+					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
+				end if;
+			end if;
+
+		end if;
+
+		//=================================================================
+		// ATOMIC_LS -- Ref Mmu.cpp's handleAtomicAccess(): no register/
+		// flush/probe/cache dispatch attempted here at all, unlike LOAD/
+		// STORE.
+		//=================================================================
+		if (request.accessType==MemAccessType::ATOMIC_LS) then
+
+			if ($!mmu.mmuIsPresent$) then
+				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+			else
+				if ($!mmu.mmuEnabled()$) then
+					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				else
+					wait(tlbLookupDelay, 0);
+					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
+					if (not $tlbHit$) then
+						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
+						do
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							run phyMemReadProcedure;
+							wait(pageTableWalkStepDelay, 0);
+							$
+							uint64_t d = phyMemReadProcedure.response.readData;
+							uint32_t fetchedPte = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+							continueWalk = mmu.recordWalkStep(fetchedPte);
+							$;
+						while (continueWalk) end do;
+					end if;
+
+					//isWrite=true, isAtomic=true (Ref translate()'s own
+					//comment: checked as one precise dual-permission
+					//operation).
+					$ faulted = mmu.checkAndRecordFault(request.asi, true, true, false, request.address); $;
+
+					if (faulted) then
+						$ needsFinalDataAccess = true; translationOk = false; $;
+					else
+						$
+						mmu.commitTranslation(request.address, mmu.currentContext(), translatedPhysAddr, translatedCacheable, translatedAcc);
+						needsRMWriteback = mmu.computeAndStageRMUpdate(true);
+						$;
+						if (not tlbHit) then
+							wait(tlbFillDelay, 0);
+						end if;
+						if (needsRMWriteback) then
+							$
+							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;
+							phyMemWriteProcedure.request.physicalAddress = dwAddr;
+							phyMemWriteProcedure.request.data     = lowHalf ? (uint64_t)mmu.stagedUpdatedPte() : ((uint64_t)mmu.stagedUpdatedPte() << 32);
+							phyMemWriteProcedure.request.byteMask = lowHalf ? (uint8_t)0x0F : (uint8_t)0xF0;
+							phyMemWriteProcedure.request.lock     = false;
+							$;
+							run phyMemWriteProcedure;
+							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+						end if;
+						$ needsFinalDataAccess = true; translationOk = true; $;
+					end if;
+				end if;
+			end if;
+
+			if (needsFinalDataAccess) then
+				if (translationOk) then
+					//Locked read immediately followed by an ordinary
+					//write, both to translatedPhysAddr -- Ref
+					//Mmu.cpp's atomicReadModifyWritePhysical(). Rounded
+					//down to the doubleword boundary byteMask was
+					//computed against, same reasoning as LOAD/STORE above.
+					$
+					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+					phyMemReadProcedure.request.lock            = true;
+					phyMemReadProcedure.request.data            = 0;
+					phyMemReadProcedure.request.byteMask        = 0;
+					$;
+					run phyMemReadProcedure;
+					$
+					uint64_t readData = phyMemReadProcedure.response.readData;
+					response.readWord0 = (uint32_t)(readData & 0xFFFFFFFFu);
+					response.readWord1 = (uint32_t)(readData >> 32);
+
+					phyMemWriteProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+					phyMemWriteProcedure.request.data     = (((uint64_t)request.word1) << 32) | (uint64_t)request.word0;
+					phyMemWriteProcedure.request.byteMask = (uint8_t)request.byteMask;
+					phyMemWriteProcedure.request.lock     = false;
+					$;
+					run phyMemWriteProcedure;
+					$ response.mae = phyMemReadProcedure.response.mae or phyMemWriteProcedure.response.mae; $;
+				else
+					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
+				end if;
+			end if;
+
+		end if;
+
+		//FLUSH/NO_ACCESS: no branch above matched -- falls through as a
+		//no-op, matching Mmu::access()'s own default case.
+
+		$ response.valid = true; $;
+
+		wait until (this_phase==0 and not($response.valid$));
+
+	while(1) end do;
+
+	end behavior
+end procedure

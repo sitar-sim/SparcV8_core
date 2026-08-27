@@ -10,7 +10,10 @@
 
 Mmu::Mmu(PhysicalMemoryInterface& downstream, int threadId)
 	: mmuIsPresent(true), independentMmuContextPerThread(true), tlbEnabled(MMU_TLB_PRESENT),
-	  downstream_(downstream), threadId_(threadId), logger_(0), simulatedTime_(0)
+	  downstream_(downstream), threadId_(threadId),
+	  walkL1Index_(0), walkL2Index_(0), walkL3Index_(0), walkCurLevel_(0), walkCurPhyAddr_(0),
+	  walkResultPte_(0), walkResultLevel_(0), walkResultPhyAddrOfPte_(0), translateWasTlbHit_(false),
+	  stagedUpdatedPte_(0), logger_(0), simulatedTime_(0)
 {
 	for (int i = 0; i < MAX_THREADS; i++)
 	{
@@ -115,8 +118,8 @@ void Mmu::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFet
 	if (!mmuIsPresent)
 	{
 		stats.bypassAccesses++;
-		readWord0 = readPhysicalWord(address, mae);
-		if (readSecondWord) { bool mae1 = false; readWord1 = readPhysicalWord(address + 4, mae1); mae = mae || mae1; }
+		if (readSecondWord) readPhysicalDoubleword(address, readWord0, readWord1, mae);
+		else readWord0 = readPhysicalWord(address, mae);
 		return;
 	}
 
@@ -170,13 +173,8 @@ void Mmu::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFet
 	uint64_t physAddr = 0; bool cacheable = false; uint8_t acc = 0;
 	bool ok = translate(address, asi, isInstructionFetch, /*isWrite=*/false, /*isAtomic=*/false, physAddr, cacheable, acc);
 	if (!ok) { mae = !noFaultSuppressesTrap(asi); return; }
-	readWord0 = readPhysicalWord(physAddr, mae);
-	if (readSecondWord)
-	{
-		bool mae1 = false;
-		readWord1 = readPhysicalWord(physAddr + 4, mae1);
-		mae = mae || mae1;
-	}
+	if (readSecondWord) readPhysicalDoubleword(physAddr, readWord0, readWord1, mae);
+	else readWord0 = readPhysicalWord(physAddr, mae);
 }
 
 void Mmu::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae)
@@ -277,20 +275,24 @@ bool Mmu::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isW
 	}
 
 	uint32_t context = contextRegister_[threadId_ & 1];
-	uint32_t pte = 0; uint8_t level = 0; uint64_t phyAddrOfPte = 0;
 
-	//With the TLB inactive (Ref MmuConfig.h's MMU_TLB_PRESENT / Mmu.h's
-	//tlbEnabled), it is never looked at at all -- not even to record a
-	//"miss" -- every access walks the page tables directly.
-	bool hit = false;
-	if (tlbActive())
-	{
-		hit = tlb_.lookup(va, context, pte, level, phyAddrOfPte);
-		if (hit) stats.tlbHitsAtLevel[level]++;
-		else stats.tlbMisses++;
-	}
+	//Ref this file's header/Mmu.h's own comment: built from the shared
+	//step primitives below rather than one opaque function, so this
+	//exact sequence is what Mmu.sitar's own behavior independently
+	//duplicates, substituting a `run phyMemReadProcedure;`/
+	//`phyMemWriteProcedure;` for each readPageTableEntryFromMemory()/
+	//writePageTableEntryToMemory() call.
+	bool hit = tlbLookup(va, context);
 	if (!hit)
-		walkPageTables(va, context, pte, level, phyAddrOfPte); //fills pte/level/phyAddrOfPte regardless of success
+	{
+		beginWalk(va, context);
+		bool continueWalk;
+		do
+		{
+			uint32_t fetchedPte = readPageTableEntryFromMemory(walkCurPhyAddr());
+			continueWalk = recordWalkStep(fetchedPte);
+		} while (continueWalk);
+	}
 
 	//An atomic load-store (LDSTUB/SWAP) is checked as a single, precise
 	//operation requiring *both* load and store permission against this
@@ -304,87 +306,141 @@ bool Mmu::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isW
 	//instruction -- its own term, naming LDSTUB/SWAP/LDD explicitly -- to
 	//be precise, unlike the one exception it carves out (non-resumable
 	//machine-check faults, not ordinary protection/privilege faults).
-	uint8_t at = computeAccessType(asi, isWrite);
-	uint8_t faultType = computeFaultType(at, pte);
-	if (isAtomic && faultType == FaultType::NONE)
-	{
-		uint8_t otherAt = computeAccessType(asi, !isWrite);
-		uint8_t otherFaultType = computeFaultType(otherAt, pte);
-		if (otherFaultType != FaultType::NONE) { at = otherAt; faultType = otherFaultType; }
-	}
-	if (faultType != FaultType::NONE)
-	{
-		recordFault(at, faultType, level, va, isInstructionFetch);
+	//checkAndRecordFault() implements exactly this (isAtomic parameter).
+	if (checkAndRecordFault(asi, isWrite, isAtomic, isInstructionFetch, va))
 		return false;
-	}
 
-	if (!hit && tlbActive())
-		tlb_.insert(va, context, pte, level, phyAddrOfPte);
-
-	physicalAddr = constructPhysicalAddr(pte, level, va);
-	cacheable = readBits(pte, PteBits::C_BIT, PteBits::C_BIT) != 0;
-	acc = (uint8_t) readBits(pte, PteBits::ACC_HIGH_BIT, PteBits::ACC_LOW_BIT);
+	commitTranslation(va, context, physicalAddr, cacheable, acc);
 
 	//Referenced/Modified bit update, Ref Appendix H.7: a successful
 	//translation sets R; a successful write additionally sets M. Written
 	//back to memory (and the cached TLB copy) only if something actually
 	//changed -- which, since both bits are sticky, only happens the
 	//first time a page is read or (separately) written.
-	bool setR = readBits(pte, PteBits::R_BIT, PteBits::R_BIT) == 0;
-	bool setM = isWrite && readBits(pte, PteBits::M_BIT, PteBits::M_BIT) == 0;
-	if (setR || setM)
+	if (computeAndStageRMUpdate(isWrite))
 	{
-		uint32_t updatedPte = pte;
-		if (setR) writeBits(updatedPte, PteBits::R_BIT, PteBits::R_BIT, 1);
-		if (setM) writeBits(updatedPte, PteBits::M_BIT, PteBits::M_BIT, 1);
-		writePageTableEntryToMemory(phyAddrOfPte, updatedPte);
-		if (tlbActive()) tlb_.updatePte(va, context, level, updatedPte);
-		if (setR) stats.referencedBitWriteBacks++;
-		if (setM) stats.modifiedBitWriteBacks++;
+		writePageTableEntryToMemory(walkResultPhyAddrOfPte(), stagedUpdatedPte());
+		commitRMTlbUpdate(va, context);
 	}
 
 	stats.translatedAccesses++;
 	return true;
 }
 
-bool Mmu::walkPageTables(uint32_t va, uint32_t context, uint32_t& pte, uint8_t& level, uint64_t& phyAddrOfPte)
+//---------------------------------------------------------------------
+// Step-by-step translation primitives (Ref Mmu.h's own comment on the
+// public section these belong to).
+//---------------------------------------------------------------------
+
+bool Mmu::tlbLookup(uint32_t va, uint32_t context)
 {
-	uint32_t l1Index = readBits(va, PageTableWalk::L1_INDEX_HIGH_BIT, PageTableWalk::L1_INDEX_LOW_BIT);
-	uint32_t l2Index = readBits(va, PageTableWalk::L2_INDEX_HIGH_BIT, PageTableWalk::L2_INDEX_LOW_BIT);
-	uint32_t l3Index = readBits(va, PageTableWalk::L3_INDEX_HIGH_BIT, PageTableWalk::L3_INDEX_LOW_BIT);
+	translateWasTlbHit_ = false;
 
-	uint8_t curLevel = 0;
-	uint64_t phyAddr = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_ & 1], context);
-	uint32_t curPte = readPageTableEntryFromMemory(phyAddr);
+	//With the TLB inactive (Ref MmuConfig.h's MMU_TLB_PRESENT / Mmu.h's
+	//tlbEnabled), it is never looked at at all -- not even to record a
+	//"miss" -- every access walks the page tables directly.
+	if (!tlbActive()) return false;
 
-	if (readBits(curPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD)
+	uint32_t pte = 0; uint8_t level = 0; uint64_t phyAddr = 0;
+	bool hit = tlb_.lookup(va, context, pte, level, phyAddr);
+	if (hit)
 	{
-		curLevel = 1;
-		phyAddr = getPhyAddrFromPTD(curPte, l1Index);
-		curPte = readPageTableEntryFromMemory(phyAddr);
+		walkResultPte_ = pte;
+		walkResultLevel_ = level;
+		walkResultPhyAddrOfPte_ = phyAddr;
+		translateWasTlbHit_ = true;
+		stats.tlbHitsAtLevel[level]++;
+	}
+	else
+	{
+		stats.tlbMisses++;
+	}
+	return hit;
+}
 
-		if (readBits(curPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD)
-		{
-			curLevel = 2;
-			phyAddr = getPhyAddrFromPTD(curPte, l2Index);
-			curPte = readPageTableEntryFromMemory(phyAddr);
+void Mmu::beginWalk(uint32_t va, uint32_t context)
+{
+	walkL1Index_ = readBits(va, PageTableWalk::L1_INDEX_HIGH_BIT, PageTableWalk::L1_INDEX_LOW_BIT);
+	walkL2Index_ = readBits(va, PageTableWalk::L2_INDEX_HIGH_BIT, PageTableWalk::L2_INDEX_LOW_BIT);
+	walkL3Index_ = readBits(va, PageTableWalk::L3_INDEX_HIGH_BIT, PageTableWalk::L3_INDEX_LOW_BIT);
+	walkCurLevel_ = 0;
+	walkCurPhyAddr_ = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_ & 1], context);
+}
 
-			if (readBits(curPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD)
-			{
-				curLevel = 3;
-				phyAddr = getPhyAddrFromPTD(curPte, l3Index);
-				curPte = readPageTableEntryFromMemory(phyAddr);
-			}
-		}
+bool Mmu::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
+{
+	stats.pageTableMemoryAccesses++;
+
+	bool isPtd = readBits(fetchedPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD;
+	if (isPtd && walkCurLevel_ < stopAtLevel)
+	{
+		uint32_t index = (walkCurLevel_ == 0) ? walkL1Index_ : (walkCurLevel_ == 1) ? walkL2Index_ : walkL3Index_;
+		walkCurLevel_++;
+		walkCurPhyAddr_ = getPhyAddrFromPTD(fetchedPte, index);
+		return true; //fetch again
 	}
 
-	bool found = readBits(curPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTE;
-	pte = curPte; level = curLevel; phyAddrOfPte = phyAddr;
+	walkResultPte_ = fetchedPte;
+	walkResultLevel_ = walkCurLevel_;
+	walkResultPhyAddrOfPte_ = walkCurPhyAddr_;
+	translateWasTlbHit_ = false;
 
-	if (found) stats.walksTerminatedAtLevel[curLevel]++;
+	bool found = readBits(fetchedPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTE;
+	if (found) stats.walksTerminatedAtLevel[walkCurLevel_]++;
 	else stats.walksNotFound++;
 
-	return found;
+	return false;
+}
+
+bool Mmu::checkAndRecordFault(uint32_t asi, bool isWrite, bool isAtomic, bool isInstructionFetch, uint32_t va)
+{
+	uint8_t at = computeAccessType(asi, isWrite);
+	uint8_t faultType = computeFaultType(at, walkResultPte_);
+	if (isAtomic && faultType == FaultType::NONE)
+	{
+		uint8_t otherAt = computeAccessType(asi, !isWrite);
+		uint8_t otherFaultType = computeFaultType(otherAt, walkResultPte_);
+		if (otherFaultType != FaultType::NONE) { at = otherAt; faultType = otherFaultType; }
+	}
+	if (faultType == FaultType::NONE) return false;
+
+	recordFault(at, faultType, walkResultLevel_, va, isInstructionFetch);
+	return true;
+}
+
+void Mmu::commitTranslation(uint32_t va, uint32_t context, uint64_t& physicalAddr, bool& cacheable, uint8_t& acc)
+{
+	if (!translateWasTlbHit_ && tlbActive())
+		tlb_.insert(va, context, walkResultPte_, walkResultLevel_, walkResultPhyAddrOfPte_);
+
+	physicalAddr = constructPhysicalAddr(walkResultPte_, walkResultLevel_, va);
+	cacheable = readBits(walkResultPte_, PteBits::C_BIT, PteBits::C_BIT) != 0;
+	acc = (uint8_t) readBits(walkResultPte_, PteBits::ACC_HIGH_BIT, PteBits::ACC_LOW_BIT);
+}
+
+bool Mmu::computeAndStageRMUpdate(bool isWrite)
+{
+	bool setR = readBits(walkResultPte_, PteBits::R_BIT, PteBits::R_BIT) == 0;
+	bool setM = isWrite && readBits(walkResultPte_, PteBits::M_BIT, PteBits::M_BIT) == 0;
+	if (!setR && !setM) return false;
+
+	uint32_t updatedPte = walkResultPte_;
+	if (setR) writeBits(updatedPte, PteBits::R_BIT, PteBits::R_BIT, 1);
+	if (setM) writeBits(updatedPte, PteBits::M_BIT, PteBits::M_BIT, 1);
+	stagedUpdatedPte_ = updatedPte;
+
+	if (setR) stats.referencedBitWriteBacks++;
+	if (setM) stats.modifiedBitWriteBacks++;
+	return true;
+}
+
+void Mmu::commitRMTlbUpdate(uint32_t va, uint32_t context)
+{
+	//Ref translate()'s own header comment: this MMU is write-through (a
+	//successful R/M update is always written back to memory synchronously,
+	//right here), so a flush never needs to write anything back -- it
+	//just drops the cached copy.
+	if (tlbActive()) tlb_.updatePte(va, context, walkResultLevel_, stagedUpdatedPte_);
 }
 
 bool Mmu::probe(uint32_t va, uint32_t& resultPte)
@@ -395,37 +451,47 @@ bool Mmu::probe(uint32_t va, uint32_t& resultPte)
 
 	if (probeType == 4) //entire: whatever a normal lookup/walk actually finds
 	{
-		uint32_t pte = 0; uint8_t level = 0; uint64_t phyAddr = 0;
-		bool hit = tlbActive() && tlb_.lookup(va, context, pte, level, phyAddr);
-		if (!hit) hit = walkPageTables(va, context, pte, level, phyAddr);
-		if (hit) resultPte = pte;
-		return hit;
+		bool hit = tlbLookup(va, context);
+		if (!hit)
+		{
+			beginWalk(va, context);
+			bool continueWalk;
+			do
+			{
+				uint32_t fetchedPte = readPageTableEntryFromMemory(walkCurPhyAddr());
+				continueWalk = recordWalkStep(fetchedPte);
+			} while (continueWalk);
+		}
+		//A TLB entry is always a leaf PTE (Ref Tlb.h's own class comment),
+		//so on a hit this is unconditionally true; on a walk it's exactly
+		//walkPageTables()'s own former "found" result.
+		bool found = readBits(walkResultPte_, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTE;
+		if (found) resultPte = walkResultPte_;
+		return found;
 	}
 
 	if (probeType > 3) return false; //reserved types (Table H-4): undefined, treated as not-found
 
 	//page(0)->level 3, segment(1)->level 2, region(2)->level 1, context(3)->level 0.
+	//Unlike an ordinary translation or the entire-probe case above, this
+	//walk must stop exactly at targetLevel even if a PTD sits there (Ref
+	//Table H-4), so it drives beginWalk()/recordWalkStep() itself instead
+	//of going through translate()'s tlbLookup-then-walk-to-a-leaf shape --
+	//no TLB is ever consulted for these four probe types, matching the
+	//original implementation.
 	uint8_t targetLevel = (uint8_t) (3 - probeType);
 
-	uint32_t l1Index = readBits(va, PageTableWalk::L1_INDEX_HIGH_BIT, PageTableWalk::L1_INDEX_LOW_BIT);
-	uint32_t l2Index = readBits(va, PageTableWalk::L2_INDEX_HIGH_BIT, PageTableWalk::L2_INDEX_LOW_BIT);
-	uint32_t l3Index = readBits(va, PageTableWalk::L3_INDEX_HIGH_BIT, PageTableWalk::L3_INDEX_LOW_BIT);
-
-	uint64_t phyAddr = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_ & 1], context);
-	uint32_t pte = readPageTableEntryFromMemory(phyAddr);
-	uint8_t level = 0;
-
-	while (level < targetLevel && readBits(pte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD)
+	beginWalk(va, context);
+	bool continueWalk;
+	do
 	{
-		level++;
-		uint32_t index = (level == 1) ? l1Index : (level == 2) ? l2Index : l3Index;
-		phyAddr = getPhyAddrFromPTD(pte, index);
-		pte = readPageTableEntryFromMemory(phyAddr);
-	}
+		uint32_t fetchedPte = readPageTableEntryFromMemory(walkCurPhyAddr());
+		continueWalk = recordWalkStep(fetchedPte, targetLevel);
+	} while (continueWalk);
 
-	if (level != targetLevel) return false; //never reached the probed level (Table H-4: 0)
+	if (walkResultLevel_ != targetLevel) return false; //never reached the probed level (Table H-4: 0)
 
-	uint32_t et = readBits(pte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT);
+	uint32_t et = readBits(walkResultPte_, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT);
 	if (et == PteBits::ET_RESERVED) return false; //Table H-4: "res" always returns 0
 
 	//Table H-4: at the probed level, a PTE or an invalid (ET=0) entry is
@@ -437,7 +503,7 @@ bool Mmu::probe(uint32_t va, uint32_t& resultPte)
 	//to) and the table specifies 0 instead.
 	if (et == PteBits::ET_PTD && probeType == 0) return false;
 
-	resultPte = pte;
+	resultPte = walkResultPte_;
 	return true;
 }
 
@@ -551,6 +617,17 @@ uint32_t Mmu::readPhysicalWord(uint64_t physAddr, bool& mae)
 	uint32_t word0 = (uint32_t) (response.readData & 0xFFFFFFFFu); //low 32 bits of the doubleword
 	uint32_t word1 = (uint32_t) (response.readData >> 32);          //high 32 bits
 	return ((physAddr & 0x4u) == 0) ? word0 : word1;
+}
+
+void Mmu::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae)
+{
+	uint64_t alignedAddr = physAddr & ~0x7ULL;
+	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, 0};
+	PhysicalMemoryResponse response{false, 0, false};
+	downstream_.access(request, response);
+	mae = response.mae;
+	word0 = (uint32_t) (response.readData & 0xFFFFFFFFu);
+	word1 = (uint32_t) (response.readData >> 32);
 }
 
 void Mmu::writePhysicalMaskedDoubleWord(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask, bool& mae)

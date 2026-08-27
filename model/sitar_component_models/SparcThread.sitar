@@ -61,11 +61,11 @@ procedure SparcThread
 			          processorID=id;
 			          core.setProcessorID(id);
 
-			  ifetchThread.processorID	   =id;
-			 memReadThread.processorID	   =id;
-			memWriteThread.processorID	   =id;
-			atomicLoadStoreThread.processorID  =id;
-			     flushThread.processorID  =id;
+			  ifetchProcedure.processorID	   =id;
+			 memReadProcedure.processorID	   =id;
+			memWriteProcedure.processorID	   =id;
+			atomicLoadStoreProcedure.processorID  =id;
+			     flushProcedure.processorID  =id;
 			};
 
 	unsigned int 	getProcessorID(){return processorID;};
@@ -75,11 +75,11 @@ procedure SparcThread
 			          coreID=id;
 			          core.setCoreID(id);
 
-			  ifetchThread.coreID = id;
-			 memReadThread.coreID = id;
-			memWriteThread.coreID = id;
-			atomicLoadStoreThread.coreID=id;
-			     flushThread.coreID=id;
+			  ifetchProcedure.coreID = id;
+			 memReadProcedure.coreID = id;
+			memWriteProcedure.coreID = id;
+			atomicLoadStoreProcedure.coreID=id;
+			     flushProcedure.coreID=id;
 			};
 
 
@@ -103,21 +103,21 @@ procedure SparcThread
 	//effect of the connection style. Keep it this way even as caches are
 	//added later: give MemoryInterface a nonzero delay rather than
 	//switching these to modules/ports.
-	procedure ifetchThread   : MemoryInterface  //should be linked to I cache OR main memory to model 0-delay ifetch
-	procedure memReadThread  : MemoryInterface  //should be linked to D cache
-	procedure memWriteThread : MemoryInterface  //should be linked to D cache
-	procedure atomicLoadStoreThread : MemoryInterface
-	procedure flushThread    : MemoryInterface  //conveys FLUSH to whatever is connected (a cache/memory etc)
+	procedure ifetchProcedure   : MemoryInterface  //should be linked to I cache OR main memory to model 0-delay ifetch
+	procedure memReadProcedure  : MemoryInterface  //should be linked to D cache
+	procedure memWriteProcedure : MemoryInterface  //should be linked to D cache
+	procedure atomicLoadStoreProcedure : MemoryInterface
+	procedure flushProcedure    : MemoryInterface  //conveys FLUSH to whatever is connected (a cache/memory etc)
 
 
 	//initialize memory interface procedures
 	init
 	$
-	ifetchThread.memoryAccessType   = MemAccessType::IFETCH;
-	memReadThread.memoryAccessType  = MemAccessType::LOAD;
-	memWriteThread.memoryAccessType = MemAccessType::STORE;
-	atomicLoadStoreThread.memoryAccessType = MemAccessType::ATOMIC_LS;
-	flushThread.memoryAccessType    = MemAccessType::FLUSH;
+	ifetchProcedure.memoryAccessType   = MemAccessType::IFETCH;
+	memReadProcedure.memoryAccessType  = MemAccessType::LOAD;
+	memWriteProcedure.memoryAccessType = MemAccessType::STORE;
+	atomicLoadStoreProcedure.memoryAccessType = MemAccessType::ATOMIC_LS;
+	flushProcedure.memoryAccessType    = MemAccessType::FLUSH;
 	$
 
 
@@ -263,23 +263,23 @@ procedure SparcThread
 							//and store the fetched instruction in core.reg.instruction.
 							//Set bit MAE if there was a memory access exception
 							if(core.reg.R_S() ==0)
-								ifetchThread.request.asi=8; //user-mode
+								ifetchProcedure.request.asi=8; //user-mode
 							else
-								ifetchThread.request.asi=9; //supervisor-mode
-							ifetchThread.request.address = core.reg.R_PC();
+								ifetchProcedure.request.asi=9; //supervisor-mode
+							ifetchProcedure.request.address = core.reg.R_PC();
 							$;
 
 							//wait until instruction fetch finishes
-							run ifetchThread;
+							run ifetchProcedure;
 
 
 
 							//examine the fetched instruction
 							$
-							core.MAE = ifetchThread.response.mae;
-							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchThread.response.readWord0, 0);
+							core.MAE = ifetchProcedure.response.mae;
+							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchProcedure.response.readWord0, 0);
 							//check for instruction access exception
-							if(  (ifetchThread.response.mae == 1) && (core.annul == 0) )
+							if(  (ifetchProcedure.response.mae == 1) && (core.annul == 0) )
 							{
 								core.trap=1;
 								core.instruction_access_exception=1;
@@ -289,7 +289,7 @@ procedure SparcThread
 							if(core.state==SparcCore::EXECUTE and core.trap==0) then
 								//decode and execute the current instruction
 								$
-								instruction=ifetchThread.response.readWord0;
+								instruction=ifetchProcedure.response.readWord0;
 								core.reg.W_instruction(instruction);
 								opcode=core.decoder.decode(&core.reg);
 
@@ -356,18 +356,18 @@ procedure SparcThread
 												$core.execute_PreLoad(opcode);$;
 
 												if(core.trap==0) then
-													//perform Read using memReadThread.
+													//perform Read using memReadProcedure.
 													$
-													memReadThread.request.address=core.address;
-													memReadThread.request.asi=core.addr_space;
+													memReadProcedure.request.address=core.address;
+													memReadProcedure.request.asi=core.addr_space;
 													$;
 
-													run memReadThread;
+													run memReadProcedure;
 
 													$
-													core.MAE=memReadThread.response.mae;
-													core.readWord0=memReadThread.response.readWord0;
-													core.readWord1=memReadThread.response.readWord1;
+													core.MAE=memReadProcedure.response.mae;
+													core.readWord0=memReadProcedure.response.readWord0;
+													core.readWord1=memReadProcedure.response.readWord1;
 													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_mem_read(current_time.cycle(), core.address, core.readWord0, core.readWord1, isDoubleLoadInstruction(opcode), core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::LOAD, core.address, core.readWord0, core.readWord1);
@@ -388,17 +388,17 @@ procedure SparcThread
 													if(core.trap==0) then
 														//Write to memory using write thread
 														$
-														memWriteThread.request.address	=core.address;
-														memWriteThread.request.asi	=core.addr_space;
-														memWriteThread.request.word0    =core.writeWord0;
-														memWriteThread.request.word1    =core.writeWord1;
-														memWriteThread.request.byteMask =core.byte_mask;
+														memWriteProcedure.request.address	=core.address;
+														memWriteProcedure.request.asi	=core.addr_space;
+														memWriteProcedure.request.word0    =core.writeWord0;
+														memWriteProcedure.request.word1    =core.writeWord1;
+														memWriteProcedure.request.byteMask =core.byte_mask;
 														$;
 
-														run memWriteThread;
+														run memWriteProcedure;
 
 														$
-														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteThread.response.mae);
+														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteProcedure.response.mae);
 														debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 														$;
 
@@ -412,21 +412,21 @@ procedure SparcThread
 												$core.execute_PreAtomicLoadStore(opcode);$;
 
 												if(core.trap==0) then
-													//perform Read using atomicLoadStoreThread
+													//perform Read using atomicLoadStoreProcedure
 													$
-													atomicLoadStoreThread.request.address=core.address;
-													atomicLoadStoreThread.request.asi=core.addr_space;
-													atomicLoadStoreThread.request.word0 = core.writeWord0;
-													atomicLoadStoreThread.request.word1 = core.writeWord1;
-													atomicLoadStoreThread.request.byteMask  = core.byte_mask;
+													atomicLoadStoreProcedure.request.address=core.address;
+													atomicLoadStoreProcedure.request.asi=core.addr_space;
+													atomicLoadStoreProcedure.request.word0 = core.writeWord0;
+													atomicLoadStoreProcedure.request.word1 = core.writeWord1;
+													atomicLoadStoreProcedure.request.byteMask  = core.byte_mask;
 													$;
 
-													run atomicLoadStoreThread;
+													run atomicLoadStoreProcedure;
 
 													$
-													core.MAE=atomicLoadStoreThread.response.mae;
-													core.readWord0=atomicLoadStoreThread.response.readWord0;
-													core.readWord1=atomicLoadStoreThread.response.readWord1;
+													core.MAE=atomicLoadStoreProcedure.response.mae;
+													core.readWord0=atomicLoadStoreProcedure.response.readWord0;
+													core.readWord1=atomicLoadStoreProcedure.response.readWord1;
 													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
 													log<<endl<<core.logger.log_atomic(current_time.cycle(), core.address, core.readWord0, core.writeWord0, core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, core.readWord0, core.writeWord0);
@@ -442,14 +442,14 @@ procedure SparcThread
 
 												//Convey the flush onward. In direct-interface mode
 												//(no cache connected) this is a no-op; once a cache is
-												//ported, flushThread's port-based branch is where the
+												//ported, flushProcedure's port-based branch is where the
 												//request gets forwarded to it.
 												$
-												flushThread.request.address=core.address;
-												flushThread.request.asi=core.addr_space;
+												flushProcedure.request.address=core.address;
+												flushProcedure.request.asi=core.addr_space;
 												$;
 
-												run flushThread;
+												run flushProcedure;
 
 												$
 										log<<endl<<core.logger.log_generic(current_time.cycle(), "FLUSH", "");
@@ -478,7 +478,8 @@ procedure SparcThread
 									//Opcode-wise per-instruction latency (see OpcodeLatencies.h),
 									//charged whether this instruction was executed or annulled.
 									//For a memory instruction, the effective total latency is the
-									//sum of this, MemoryInterface.delay, and MainMemory.delay.
+									//sum of this, MemoryInterface.delay, and MainMemoryVA.delay/
+									//MainMemory.delay (depending on config).
 									$opcode_delay = getOpcodeLatency(opcode);$;
 									wait(opcode_delay, 0);
 								end if;
@@ -501,29 +502,29 @@ procedure SparcThread
 		ss<<"\n ----------------------------------------------------------";
 		ss<<"\n Processor "<<hierarchicalId()<<" halted";
 		ss<<" -- last instruction executed :"<<printOpcode(opcode);
-		ss<<" at address      : 0x"<<std::hex<<ifetchThread.request.address<<std::dec;
+		ss<<" at address      : 0x"<<std::hex<<ifetchProcedure.request.address<<std::dec;
 		ss<<"\n trap status = "<<core.trap;
 		ss<<"\n-----------------------------";
 		ss<<"\n\n Memory accesses:";
 		ss<<"\n-----------------------------";
 		ss<<"\n Instruction fetches:";
-		ss<<"\n\t total references = "<<ifetchThread.numAccesses;
-		ss<<"\n\t avg latency      = "<<(double(ifetchThread.totalLatency)/double(ifetchThread.numAccesses));
+		ss<<"\n\t total references = "<<ifetchProcedure.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(ifetchProcedure.totalLatency)/double(ifetchProcedure.numAccesses));
 		ss<<"\n";
 
 		ss<<"\n Mem READS:";
-		ss<<"\n\t total references = "<<memReadThread.numAccesses;
-		ss<<"\n\t avg latency      = "<<(double(memReadThread.totalLatency)/double(memReadThread.numAccesses));
+		ss<<"\n\t total references = "<<memReadProcedure.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(memReadProcedure.totalLatency)/double(memReadProcedure.numAccesses));
 		ss<<"\n";
 
 		ss<<"\n Mem WRITES:";
-		ss<<"\n\t total references = "<<memWriteThread.numAccesses;
-		ss<<"\n\t avg latency      = "<<(double(memWriteThread.totalLatency)/double(memWriteThread.numAccesses));
+		ss<<"\n\t total references = "<<memWriteProcedure.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(memWriteProcedure.totalLatency)/double(memWriteProcedure.numAccesses));
 		ss<<"\n";
 
 		ss<<"\n Atomic Loads/Stores:";
-		ss<<"\n\t total references = "<<atomicLoadStoreThread.numAccesses;
-		ss<<"\n\t avg latency      = "<<(double(atomicLoadStoreThread.totalLatency)/double(atomicLoadStoreThread.numAccesses));
+		ss<<"\n\t total references = "<<atomicLoadStoreProcedure.numAccesses;
+		ss<<"\n\t avg latency      = "<<(double(atomicLoadStoreProcedure.totalLatency)/double(atomicLoadStoreProcedure.numAccesses));
 		ss<<"\n";
 
 		return ss.str();
