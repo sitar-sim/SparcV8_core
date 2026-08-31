@@ -2,20 +2,36 @@
 
 An overview of what's in `model/`, and how the pieces relate. See each
 subdirectory's own `README.md` for full detail. This page is the map.
+See [Model Components Reference](model_components_reference.md) for a
+complete, per-file table of every Sitar module/procedure. It lists what
+each one wraps, what can embed it, and in which configuration(s).
 
 ```
 model/
   cpp_common_code/          SparcCore and SparcStateMachine. Timing-agnostic.
-  sitar_component_models/    MemoryInterface/MainMemory/SparcThread, the
-                               reusable Sitar procedures every configuration
-                               is built from.
+                              mmu/ holds the MMU's own MmuCore class.
+  sitar_component_models/    VirtualMainMemoryInterface/VirtualMainMemory/
+                               SparcThread, the reusable Sitar procedures
+                               every configuration is built from. Where an
+                               MMU is present, also Mmu/
+                               PhysicalMainMemoryInterface/PhysicalMainMemory,
+                               plus PullAToken/PushAToken, two generic
+                               single-token I/O procedures.
   system_models/
     core_only/
       cpp_model/               SparcStateMachine driving MemCore directly,
                                  0-delay, no Sitar.
       sitar_model/              Top/Core wiring the shared Sitar procedures
                                   together, cycle-level (non-pipelined).
+    core_mmu/
+      cpp_model/               SparcStateMachine driving SparcCore through
+                                 an MmuCore instance instead of MemCore.
+      sitar_model/              Top/System/Core, with the MMU reaching
+                                  physical memory over real Sitar nets.
 ```
+
+See [Model Configurations](model_configurations.md) for a block diagram
+of each configuration listed above.
 
 ---
 
@@ -35,8 +51,9 @@ benefits both.
 
 Also here: `Decoder` (instruction word -> `Opcode`), `MemCore` (flat,
 byte-addressed functional memory, used directly by the `core_only`
-configuration's `cpp_model` and wrapped with timing by `MainMemory.sitar`
-in `sitar_component_models/`), `FloatingPointFunctions.h`
+configuration's `cpp_model` and wrapped with timing by
+`VirtualMainMemory.sitar` in `sitar_component_models/`),
+`FloatingPointFunctions.h`
 (IEEE-754 single/double/quad-precision arithmetic, quad via
 `libquadmath`), and `CoreLogger` (`SparcCore::logger`, which formats and,
 depending on how a driver configures it, emits this core's state as a
@@ -107,10 +124,25 @@ with no special-casing at zero (see
 how to observe the effect):
 
 1. **Opcode latency**. Charged by `SparcThread` for every instruction.
-2. **`MemoryInterface.delay`**. Per memory-access channel, on the
+2. **`VirtualMainMemoryInterface.delay`**. Per memory-access channel, on the
    requester side (models interconnect/cache latency).
-3. **`MainMemory.delay`**. The memory's own service time, shared by all
+3. **`VirtualMainMemory.delay`**. The memory's own service time, shared by all
    requesters.
+
+---
+
+## The MMU (`core_mmu` only)
+
+`Mmu` (`sitar_component_models/Mmu.sitar`) wraps `MmuCore`
+(`cpp_common_code/mmu/MmuCore.h`/`.cpp`), the SPARC Reference MMU: the
+register map, the page-table walk, TLB lookup and fill, fault and
+permission checking, and probe and flush handling. `SparcThread` talks to
+it exactly the way it talks to `VirtualMainMemory` in `core_only`, over
+the same procedure handshake. Below the MMU, `PhysicalMainMemory` is a
+module, not a procedure, reached over two nets. See [Model
+Configurations](model_configurations.md) for the block diagram, and
+`core_mmu/sitar_model/src/System.sitar`'s own header comment for the
+full design and the latency this net crossing adds.
 
 ---
 
@@ -119,14 +151,18 @@ how to observe the effect):
 !!! note "Stub"
     This section is a placeholder. A worked example of connecting an
     external component to the core, a cache sitting between
-    `SparcThread`'s memory-interface threads and `MainMemory`, is
+    `SparcThread`'s memory-interface procedures and `VirtualMainMemory`, is
     planned for this page. It will demonstrate the general pattern for
     building a larger Sitar model around this core. Until then, the
-    shape of the pattern is already visible in how `MemoryInterface` and
-    `MainMemory` connect today. They share a request/response struct
-    pair (`VirtualMemoryRequest`/`VirtualMemoryResponse`, see
+    shape of the pattern is already visible in how `VirtualMainMemoryInterface`
+    and `VirtualMainMemory` connect today. They share a request/response
+    struct pair (`VirtualMemoryRequest`/`VirtualMemoryResponse`, see
     `model/cpp_common_code/MemoryInterfaces.h`) plus a valid-bit
-    handshake -- see that file's header comment for the exact protocol.
-    An interposed cache would be another `MainMemory`-like persistent
-    procedure, itself acting as a requester to a further
-    `MemoryInterface`/`MainMemory` pair behind it.
+    handshake. See that file's header comment for the exact protocol.
+    An interposed cache would be another `VirtualMainMemory`-like
+    persistent procedure, itself acting as a requester to a further
+    `VirtualMainMemoryInterface`/`VirtualMainMemory` pair behind it. A
+    component reached over real nets instead, like `core_mmu`'s own
+    `PhysicalMainMemory`, follows a different pattern. See [The
+    MMU](#the-mmu-core_mmu-only) above and
+    `core_mmu/sitar_model/src/System.sitar`'s own header comment.

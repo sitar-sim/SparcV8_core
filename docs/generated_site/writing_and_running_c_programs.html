@@ -922,6 +922,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -930,6 +958,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1249,16 +1305,16 @@ with the bundled cross-toolchain, and run it the same way. This page
 covers writing one, building and running it, and checking its result.</p>
 <hr />
 <h2 id="no-standard-library-by-design">No standard library, by design<a class="headerlink" href="#no-standard-library-by-design" title="Permanent link">&para;</a></h2>
-<p>This model has <strong>no MMU, no cache, no peripheral/device model, and no
-operating system</strong> (see <a href="index.html#models">Models</a>). There is nothing for
-a C standard library to call into. <code>printf</code> has no console to write to.
+<p>This model has <strong>no operating system</strong>. There is nothing for a C
+standard library to call into. <code>printf</code> has no console to write to.
 <code>malloc</code> has no OS to request pages from. C programs for this model must
 be <strong>freestanding</strong>: no <code>#include &lt;stdio.h&gt;</code>, no libc at all, just the C
 language itself plus whatever you implement by hand against the flat
 memory space <code>MemCore</code> provides.</p>
-<p>This is the same reason <code>model/cpp_model/sparc_sim.cpp</code>'s driver doesn't
-try to model a console. There's genuinely nothing on the other end of
-one yet.</p>
+<p>This is the same reason
+<code>model/system_models/core_only/cpp_model/src/sparc_sim.cpp</code>'s driver
+doesn't try to model a console. There's genuinely nothing on the other
+end of one yet.</p>
 <hr />
 <h2 id="structuring-a-test-program">Structuring a test program<a class="headerlink" href="#structuring-a-test-program" title="Permanent link">&para;</a></h2>
 <p>Write an ordinary, freestanding C <code>main()</code>. Every test in
@@ -1403,7 +1459,7 @@ function and global-variable addresses included. See
 <a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>.</p>
 <p>Run it directly against the model the same way as an assembly test, see
 <a href="writing_and_running_assembly_programs.html#running-a-test-program">Running a test program</a>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>your_program.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only<span class="w"> </span>your_program.hex
 </span></code></pre></div>
 <hr />
 <h2 id="adding-it-to-the-validation-suite">Adding it to the validation suite<a class="headerlink" href="#adding-it-to-the-validation-suite" title="Permanent link">&para;</a></h2>

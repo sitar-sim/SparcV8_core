@@ -1,20 +1,15 @@
 //DebugRegistry.h
 //
-//Lets gdb reach a live SparcCore/MemCore from *any* stopped frame, in
-//either model, without caring who constructed it or which frame it's
+//Lets a debugger reach a live SparcCore/MemCore from any stopped frame,
+//in either model, without caring who constructed it or which frame it's
 //lexically reachable from. SparcCore/MemCore each register themselves
-//here, once, in their own constructor -- see SparcCore.cpp/MemCore.cpp.
-//This is what debug/sparc.gdb's commands are built on: findCoreByID()
-//and firstMemCore() are the two calls that make sparc-print-regs,
-//sparc-watch-reg etc. work identically whether you're stopped inside a
-//debug_hook_*() (cpp_model) or a Sitar-generated SparcThread method
-//(sitar_model), which have no C++ scope relationship to each other at all.
+//here once, in their own constructor. findCoreByID()/firstMemCore() are
+//what debug/sparc.gdb's commands are built on.
 //
-//Only real when built with -DSPARC_DEBUG_HOOKS_ENABLED (see
-//build.sh/build.py's --debug); otherwise every function here is a no-op
-//stub returning nullptr/0, so registerCore()/registerMemCore() are safe
-//to call unconditionally from SparcCore/MemCore's constructors regardless
-//of build mode -- same pattern as DebugHooks.h.
+//Only real when built with -DSPARC_DEBUG_HOOKS_ENABLED. Otherwise every
+//function is a no-op stub returning null, so registerCore()/
+//registerMemCore() are safe to call unconditionally regardless of build
+//mode.
 
 #ifndef DEBUG_REGISTRY_H
 #define DEBUG_REGISTRY_H

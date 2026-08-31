@@ -933,6 +933,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -941,6 +969,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1301,8 +1357,8 @@ debugger prompt, changeable between runs with no recompile.</p>
 <h2 id="building-with-debug">Building with <code>--debug</code><a class="headerlink" href="#building-with-debug" title="Permanent link">&para;</a></h2>
 <p>By default, neither model is built with debug symbols. Rebuild with
 <code>--debug</code>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/sitar_model/build.py<span class="w"> </span>--debug
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--debug
 </span></code></pre></div>
 <p>This adds debug symbols and a handful of stable, named hook points gdb
 can break on by name, at exactly the points an instruction can finish
@@ -1372,8 +1428,8 @@ at the end of this section) and load the convenience commands from
 <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
 (this walkthrough only uses a few, see
 <a href="gdb_command_reference.html">GDB Command Reference</a> for every one):</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gdb<span class="w"> </span>model/cpp_model/sparc_sim_cpp
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>gdb<span class="w"> </span>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_debug
 </span></code></pre></div>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(gdb) source debug/sparc.gdb
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>(gdb) sparc-break pc=0x203c
@@ -1458,11 +1514,13 @@ directly:
 </span><span id="__span-12-6"><a id="__codelineno-12-6" name="__codelineno-12-6" href="#__codelineno-12-6"></a>o0 = 0x1 (1)
 </span></code></pre></div></p>
 <p><strong>Sitar model</strong>: everything above works identically against
-<code>model/sitar_model/executable/sparc_sim_sitar</code> (built with
-<code>model/sitar_model/build.py --debug</code>), same commands, same addresses,
-same CLI. Both models drive the same <code>SparcCore</code>, and the debug hooks
-live in the shared <code>cpp_common_code/</code>, not in either driver.
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>gdb<span class="w"> </span>model/sitar_model/executable/sparc_sim_sitar
+<code>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_debug</code>
+(built with
+<code>model/system_models/core_only/sitar_model/build.sh --debug</code>), same
+commands, same addresses, same CLI. Both models drive the same
+<code>SparcCore</code>, and the debug hooks live in the shared <code>cpp_common_code/</code>,
+not in either driver.
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>gdb<span class="w"> </span>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_debug
 </span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span><span class="nb">source</span><span class="w"> </span>debug/sparc.gdb
 </span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>sparc-break<span class="w"> </span><span class="nv">pc</span><span class="o">=</span>0x203c
 </span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a><span class="o">(</span>gdb<span class="o">)</span><span class="w"> </span>run<span class="w"> </span>docs/source/examples/array_sum/array_sum.hex<span class="w"> </span>docs/source/examples/array_sum/array_sum.expected

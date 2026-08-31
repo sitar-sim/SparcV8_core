@@ -17,11 +17,11 @@ just uses it) and how to narrow a trace down at runtime.
 | Knob | Where | Charged | Default |
 |---|---|---|---|
 | Opcode latency | `model/sitar_component_models/cpp_code/OpcodeLatencies.h` | Every instruction, memory or not | 1 cycle |
-| `MemoryInterface.delay` | `Core.sitar`'s `init` block | Requester side, per channel, after the response is available | 0 |
-| `MainMemory.delay` | `Core.sitar`'s `init` block | The memory's own service time, shared by all requesters | 0 |
+| `VirtualMainMemoryInterface.delay` | `Core.sitar`'s `init` block | Requester side, per channel, after the response is available | 0 |
+| `VirtualMainMemory.delay` | `Core.sitar`'s `init` block | The memory's own service time, shared by all requesters | 0 |
 
 All three are independent and additive. A load with opcode latency 1,
-`MemoryInterface.delay` 2, and `MainMemory.delay` 3 takes 6 cycles total,
+`VirtualMainMemoryInterface.delay` 2, and `VirtualMainMemory.delay` 3 takes 6 cycles total,
 not 3. All three accept `0` with no special-casing. With everything at
 `0`, the Sitar model runs with zero elapsed simulated time per
 instruction, functionally identical to the plain `cpp_model`.
@@ -48,20 +48,20 @@ deliberately not a runtime-loaded config file.
 
 ## Memory-side latency
 
-The other two knobs, `MemoryInterface.delay` and `MainMemory.delay`,
-both default to `0` and are otherwise only ever assigned from outside,
-in `Core.sitar`'s `init` block, alongside the `downstreamRequest`/
-`downstreamResponse` wiring that connects each of `sparcThread`'s
-memory-interface threads to `mainMemory`:
+The other two knobs, `VirtualMainMemoryInterface.delay` and
+`VirtualMainMemory.delay`, both default to `0` and are otherwise only
+ever assigned from outside, in `Core.sitar`'s `init` block, alongside the
+`downstreamRequest`/`downstreamResponse` wiring that connects each of
+`sparcThread`'s memory-interface procedures to `mainMemory`:
 
 ```sitar
 init
 $
-sparcThread.ifetchThread.downstreamRequest  = &mainMemory.request;
-sparcThread.ifetchThread.downstreamResponse = &mainMemory.response;
-sparcThread.ifetchThread.delay              = 2;   // add a line like this
+sparcThread.ifetchProcedure.downstreamRequest  = &mainMemory.request;
+sparcThread.ifetchProcedure.downstreamResponse = &mainMemory.response;
+sparcThread.ifetchProcedure.delay              = 2;   // add a line like this
 ...
-mainMemory.delay = 3;                              // and/or this
+mainMemory.delay = 3;                                 // and/or this
 $
 ```
 
@@ -98,13 +98,13 @@ row, where it jumps by 4, exactly the overridden gap. Reverting the
 override (back to the empty `OPCODE_LATENCY_OVERRIDES = {};` default) and
 rebuilding restores the uniform 1-cycle spacing.
 
-For `MemoryInterface.delay`/`MainMemory.delay`, look in the *other* file
-`--logging` produces, `sitar.log` (Sitar's own per-request/response
-messages, not part of the architectural trace, see
+For `VirtualMainMemoryInterface.delay`/`VirtualMainMemory.delay`, look in
+the *other* file `--logging` produces, `sitar.log` (Sitar's own
+per-request/response messages, not part of the architectural trace, see
 `model/system_models/core_only/sitar_model/README.md`) for
 `"servicing"`/`"response ready"`
-(`MainMemory`) and `"Started memory reference"`/`"Finished memory
-reference"` (`MemoryInterface`), each timestamped `[t=<cycle>]`.
+(`VirtualMainMemory`) and `"Started memory reference"`/`"Finished memory
+reference"` (`VirtualMainMemoryInterface`), each timestamped `[t=<cycle>]`.
 
 Logging is off by default. Rebuild without `--logging` to go back to
 that. It's noticeably slower and noisier, meant for exactly this kind of

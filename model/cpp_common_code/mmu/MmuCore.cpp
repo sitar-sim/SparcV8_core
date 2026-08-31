@@ -1,6 +1,6 @@
-//Mmu.cpp
+//MmuCore.cpp
 
-#include "Mmu.h"
+#include "MmuCore.h"
 #include "Addresses.h"
 #include "../AsiValues.h"
 #include "../BitManipulation.h"
@@ -8,7 +8,7 @@
 #include <cassert>
 #include <string>
 
-Mmu::Mmu(PhysicalMemoryInterface& downstream, int threadId)
+MmuCore::MmuCore(PhysicalMemoryInterface& downstream, int threadId)
 	: mmuIsPresent(true), independentMmuContextPerThread(true), tlbEnabled(MMU_TLB_PRESENT),
 	  downstream_(downstream), threadId_(threadId),
 	  walkL1Index_(0), walkL2Index_(0), walkL3Index_(0), walkCurLevel_(0), walkCurPhyAddr_(0),
@@ -26,24 +26,24 @@ Mmu::Mmu(PhysicalMemoryInterface& downstream, int threadId)
 	}
 }
 
-void Mmu::setLogger(CoreLogger* logger, const unsigned long* simulatedTime)
+void MmuCore::setLogger(CoreLogger* logger, const unsigned long* simulatedTime)
 {
 	logger_ = logger;
 	simulatedTime_ = simulatedTime;
 }
 
-void Mmu::log(const std::string& event, const std::string& detail)
+void MmuCore::log(const std::string& event, const std::string& detail)
 {
 	if (logger_ && simulatedTime_)
 		logger_->log_generic(*simulatedTime_, event, detail);
 }
 
-bool Mmu::mmuEnabled() const
+bool MmuCore::mmuEnabled() const
 {
 	return readBits(controlRegister_[threadId_ & 1], MmuControlBits::E_BIT, MmuControlBits::E_BIT) != 0;
 }
 
-bool Mmu::alwaysCacheable() const
+bool MmuCore::alwaysCacheable() const
 {
 	return readBits(controlRegister_[threadId_ & 1], MmuControlBits::ALWAYS_CACHEABLE_BIT, MmuControlBits::ALWAYS_CACHEABLE_BIT) != 0;
 }
@@ -58,16 +58,16 @@ bool Mmu::alwaysCacheable() const
 //meaningful once a fault has actually been recorded (a disabled MMU or a
 //successful translation never reaches this) -- callers check this
 //exactly where they'd otherwise set mae=true.
-bool Mmu::noFaultSuppressesTrap(uint32_t asi) const
+bool MmuCore::noFaultSuppressesTrap(uint32_t asi) const
 {
 	bool nf = readBits(controlRegister_[threadId_ & 1], MmuControlBits::NF_BIT, MmuControlBits::NF_BIT) != 0;
 	return nf && asi != ASI_SUPERVISOR_INSTRUCTION;
 }
 
-bool Mmu::tlbActive() const
+bool MmuCore::tlbActive() const
 {
 	assert((!tlbEnabled || MMU_TLB_PRESENT) &&
-	       "Mmu::tlbEnabled is true but MMU_TLB_PRESENT (MmuConfig.h) is false -- "
+	       "MmuCore::tlbEnabled is true but MMU_TLB_PRESENT (MmuConfig.h) is false -- "
 	       "can't enable a TLB that wasn't compiled in");
 	return tlbEnabled;
 }
@@ -76,7 +76,7 @@ bool Mmu::tlbActive() const
 // VirtualMemoryInterface interface
 //---------------------------------------------------------------------
 
-void Mmu::access(const VirtualMemoryRequest& request, VirtualMemoryResponse& response)
+void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse& response)
 {
 	response.valid     = true;
 	response.readWord0 = 0;
@@ -110,7 +110,7 @@ void Mmu::access(const VirtualMemoryRequest& request, VirtualMemoryResponse& res
 	}
 }
 
-void Mmu::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
+void MmuCore::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
                             uint32_t& readWord0, uint32_t& readWord1, bool& mae)
 {
 	mae = false;
@@ -168,7 +168,7 @@ void Mmu::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFet
 
 	//CASE 6: an ordinary instruction/data access. A LOAD's second word
 	//reuses this same translation (+4) rather than translating it
-	//separately -- Ref Mmu.h's own comment on handleReadAccess() for why
+	//separately -- Ref MmuCore.h's own comment on handleReadAccess() for why
 	//that's safe.
 	uint64_t physAddr = 0; bool cacheable = false; uint8_t acc = 0;
 	bool ok = translate(address, asi, isInstructionFetch, /*isWrite=*/false, /*isAtomic=*/false, physAddr, cacheable, acc);
@@ -177,7 +177,7 @@ void Mmu::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFet
 	else readWord0 = readPhysicalWord(physAddr, mae);
 }
 
-void Mmu::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae)
+void MmuCore::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae)
 {
 	mae = false;
 
@@ -226,7 +226,7 @@ void Mmu::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, ui
 	writePhysicalMaskedDoubleWord(physAddr, word0, word1, byte_mask, mae);
 }
 
-void Mmu::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
+void MmuCore::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
                               uint32_t& readWord0, uint32_t& readWord1, bool& mae)
 {
 	mae = false;
@@ -243,7 +243,7 @@ void Mmu::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, u
 	//unlike handleReadAccess()/handleWriteAccess(), no MMU-register/
 	//flush/probe/diagnostic dispatch is attempted here. isAtomic=true:
 	//checked as a single, precise operation requiring both load and store
-	//permission (Ref translate()'s own comment, and Mmu.h's -- this is
+	//permission (Ref translate()'s own comment, and MmuCore.h's -- this is
 	//option 3 from the docs/compliance/ write-up, a deliberate deviation
 	//from Ajit's own split-transaction behavior). That precision is
 	//entirely a permission-check-time property, resolved here, above the
@@ -262,7 +262,7 @@ void Mmu::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, u
 // Translation
 //---------------------------------------------------------------------
 
-bool Mmu::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isWrite, bool isAtomic,
+bool MmuCore::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isWrite, bool isAtomic,
                      uint64_t& physicalAddr, bool& cacheable, uint8_t& acc)
 {
 	if (!mmuIsPresent || !mmuEnabled())
@@ -276,7 +276,7 @@ bool Mmu::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isW
 
 	uint32_t context = contextRegister_[threadId_ & 1];
 
-	//Ref this file's header/Mmu.h's own comment: built from the shared
+	//Ref this file's header/MmuCore.h's own comment: built from the shared
 	//step primitives below rather than one opaque function, so this
 	//exact sequence is what Mmu.sitar's own behavior independently
 	//duplicates, substituting a `run phyMemReadProcedure;`/
@@ -328,15 +328,15 @@ bool Mmu::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool isW
 }
 
 //---------------------------------------------------------------------
-// Step-by-step translation primitives (Ref Mmu.h's own comment on the
+// Step-by-step translation primitives (Ref MmuCore.h's own comment on the
 // public section these belong to).
 //---------------------------------------------------------------------
 
-bool Mmu::tlbLookup(uint32_t va, uint32_t context)
+bool MmuCore::tlbLookup(uint32_t va, uint32_t context)
 {
 	translateWasTlbHit_ = false;
 
-	//With the TLB inactive (Ref MmuConfig.h's MMU_TLB_PRESENT / Mmu.h's
+	//With the TLB inactive (Ref MmuConfig.h's MMU_TLB_PRESENT / MmuCore.h's
 	//tlbEnabled), it is never looked at at all -- not even to record a
 	//"miss" -- every access walks the page tables directly.
 	if (!tlbActive()) return false;
@@ -358,7 +358,7 @@ bool Mmu::tlbLookup(uint32_t va, uint32_t context)
 	return hit;
 }
 
-void Mmu::beginWalk(uint32_t va, uint32_t context)
+void MmuCore::beginWalk(uint32_t va, uint32_t context)
 {
 	walkL1Index_ = readBits(va, PageTableWalk::L1_INDEX_HIGH_BIT, PageTableWalk::L1_INDEX_LOW_BIT);
 	walkL2Index_ = readBits(va, PageTableWalk::L2_INDEX_HIGH_BIT, PageTableWalk::L2_INDEX_LOW_BIT);
@@ -367,7 +367,7 @@ void Mmu::beginWalk(uint32_t va, uint32_t context)
 	walkCurPhyAddr_ = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_ & 1], context);
 }
 
-bool Mmu::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
+bool MmuCore::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
 {
 	stats.pageTableMemoryAccesses++;
 
@@ -392,7 +392,7 @@ bool Mmu::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
 	return false;
 }
 
-bool Mmu::checkAndRecordFault(uint32_t asi, bool isWrite, bool isAtomic, bool isInstructionFetch, uint32_t va)
+bool MmuCore::checkAndRecordFault(uint32_t asi, bool isWrite, bool isAtomic, bool isInstructionFetch, uint32_t va)
 {
 	uint8_t at = computeAccessType(asi, isWrite);
 	uint8_t faultType = computeFaultType(at, walkResultPte_);
@@ -408,7 +408,7 @@ bool Mmu::checkAndRecordFault(uint32_t asi, bool isWrite, bool isAtomic, bool is
 	return true;
 }
 
-void Mmu::commitTranslation(uint32_t va, uint32_t context, uint64_t& physicalAddr, bool& cacheable, uint8_t& acc)
+void MmuCore::commitTranslation(uint32_t va, uint32_t context, uint64_t& physicalAddr, bool& cacheable, uint8_t& acc)
 {
 	if (!translateWasTlbHit_ && tlbActive())
 		tlb_.insert(va, context, walkResultPte_, walkResultLevel_, walkResultPhyAddrOfPte_);
@@ -418,7 +418,7 @@ void Mmu::commitTranslation(uint32_t va, uint32_t context, uint64_t& physicalAdd
 	acc = (uint8_t) readBits(walkResultPte_, PteBits::ACC_HIGH_BIT, PteBits::ACC_LOW_BIT);
 }
 
-bool Mmu::computeAndStageRMUpdate(bool isWrite)
+bool MmuCore::computeAndStageRMUpdate(bool isWrite)
 {
 	bool setR = readBits(walkResultPte_, PteBits::R_BIT, PteBits::R_BIT) == 0;
 	bool setM = isWrite && readBits(walkResultPte_, PteBits::M_BIT, PteBits::M_BIT) == 0;
@@ -434,7 +434,7 @@ bool Mmu::computeAndStageRMUpdate(bool isWrite)
 	return true;
 }
 
-void Mmu::commitRMTlbUpdate(uint32_t va, uint32_t context)
+void MmuCore::commitRMTlbUpdate(uint32_t va, uint32_t context)
 {
 	//Ref translate()'s own header comment: this MMU is write-through (a
 	//successful R/M update is always written back to memory synchronously,
@@ -443,7 +443,7 @@ void Mmu::commitRMTlbUpdate(uint32_t va, uint32_t context)
 	if (tlbActive()) tlb_.updatePte(va, context, walkResultLevel_, stagedUpdatedPte_);
 }
 
-bool Mmu::probe(uint32_t va, uint32_t& resultPte)
+bool MmuCore::probe(uint32_t va, uint32_t& resultPte)
 {
 	resultPte = 0;
 	uint8_t probeType = (uint8_t) readBits(va, 11, 8); //Ref Table H-6
@@ -507,7 +507,7 @@ bool Mmu::probe(uint32_t va, uint32_t& resultPte)
 	return true;
 }
 
-void Mmu::flush(uint32_t va)
+void MmuCore::flush(uint32_t va)
 {
 	if (!tlbActive()) return; //nothing cached to flush
 	uint8_t flushType = (uint8_t) readBits(va, 11, 8); //Ref Table H-6, same VA[11:8] convention as probe
@@ -518,7 +518,7 @@ void Mmu::flush(uint32_t va)
 // Registers
 //---------------------------------------------------------------------
 
-uint32_t Mmu::readRegister(uint32_t addr)
+uint32_t MmuCore::readRegister(uint32_t addr)
 {
 	uint32_t registerId = readBits(addr, 31, 8); //Ref Table H-5
 	uint32_t result = 0;
@@ -539,7 +539,7 @@ uint32_t Mmu::readRegister(uint32_t addr)
 	return result;
 }
 
-void Mmu::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask)
+void MmuCore::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask)
 {
 	uint32_t registerId = readBits(addr, 31, 8);
 	//A plain (non-double) STA lands its 32-bit value in whichever of
@@ -579,7 +579,7 @@ void Mmu::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t 
 // Page-table memory access
 //---------------------------------------------------------------------
 
-uint32_t Mmu::readPageTableEntryFromMemory(uint64_t physAddr)
+uint32_t MmuCore::readPageTableEntryFromMemory(uint64_t physAddr)
 {
 	bool mae = false;
 	uint32_t value = readPhysicalWord(physAddr, mae);
@@ -587,7 +587,7 @@ uint32_t Mmu::readPageTableEntryFromMemory(uint64_t physAddr)
 	return value;
 }
 
-void Mmu::writePageTableEntryToMemory(uint64_t physAddr, uint32_t value)
+void MmuCore::writePageTableEntryToMemory(uint64_t physAddr, uint32_t value)
 {
 	//Single-half write: put value in whichever of word0/word1 physAddr's
 	//own bit 2 selects, mask off the other half entirely so
@@ -607,7 +607,7 @@ void Mmu::writePageTableEntryToMemory(uint64_t physAddr, uint32_t value)
 // Half-select adaptation to PhysicalMemoryInterface (Ref MemoryInterfaces.h)
 //---------------------------------------------------------------------
 
-uint32_t Mmu::readPhysicalWord(uint64_t physAddr, bool& mae)
+uint32_t MmuCore::readPhysicalWord(uint64_t physAddr, bool& mae)
 {
 	uint64_t alignedAddr = physAddr & ~0x7ULL;
 	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, 0};
@@ -619,7 +619,7 @@ uint32_t Mmu::readPhysicalWord(uint64_t physAddr, bool& mae)
 	return ((physAddr & 0x4u) == 0) ? word0 : word1;
 }
 
-void Mmu::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae)
+void MmuCore::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae)
 {
 	uint64_t alignedAddr = physAddr & ~0x7ULL;
 	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, 0};
@@ -630,7 +630,7 @@ void Mmu::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& w
 	word1 = (uint32_t) (response.readData >> 32);
 }
 
-void Mmu::writePhysicalMaskedDoubleWord(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask, bool& mae)
+void MmuCore::writePhysicalMaskedDoubleWord(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask, bool& mae)
 {
 	//Packing convention (this port's own choice, not AJIT's RTL bit
 	//assignment -- Ref MemoryInterfaces.h): word0 -> data bits[31:0],
@@ -646,7 +646,7 @@ void Mmu::writePhysicalMaskedDoubleWord(uint64_t physAddr, uint32_t word0, uint3
 	mae = response.mae;
 }
 
-void Mmu::atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask,
+void MmuCore::atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, uint32_t word1, uint32_t byte_mask,
                                          uint32_t& readWord0, uint32_t& readWord1, bool& mae)
 {
 	//No ATOMIC_LS at the physical interface (Ref MemoryInterfaces.h's
@@ -676,7 +676,7 @@ void Mmu::atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, uint3
 // Pure helpers (no MMU state needed -- Ref Appendix H)
 //---------------------------------------------------------------------
 
-uint64_t Mmu::getPhyAddrFromPTD(uint32_t ptd, uint32_t index)
+uint64_t MmuCore::getPhyAddrFromPTD(uint32_t ptd, uint32_t index)
 {
 	uint64_t phyAddr = ptd & ~0x3u; //clear the ET field
 	phyAddr = phyAddr << 4;         //PTD's page-table-pointer field (PTD bits 31:2) -> physical address bits 35:6 (Ref Figure H-7)
@@ -684,7 +684,7 @@ uint64_t Mmu::getPhyAddrFromPTD(uint32_t ptd, uint32_t index)
 	return phyAddr;
 }
 
-uint64_t Mmu::constructPhysicalAddr(uint32_t pte, uint8_t level, uint32_t va)
+uint64_t MmuCore::constructPhysicalAddr(uint32_t pte, uint8_t level, uint32_t va)
 {
 	uint32_t pageOffset;
 	if      (level == 3) pageOffset = readBits(va, 11, 0);
@@ -696,7 +696,7 @@ uint64_t Mmu::constructPhysicalAddr(uint32_t pte, uint8_t level, uint32_t va)
 	return (((uint64_t) ppn) << 12) | pageOffset;
 }
 
-uint8_t Mmu::computeAccessType(uint32_t asi, bool isWrite)
+uint8_t MmuCore::computeAccessType(uint32_t asi, bool isWrite)
 {
 	bool userData = (asi == ASI_USER_DATA);
 	bool supervisorData = (asi == ASI_SUPERVISOR_DATA);
@@ -724,7 +724,7 @@ uint8_t Mmu::computeAccessType(uint32_t asi, bool isWrite)
 	return 0;
 }
 
-uint8_t Mmu::computeFaultType(uint8_t at, uint32_t pte)
+uint8_t MmuCore::computeFaultType(uint8_t at, uint32_t pte)
 {
 	uint32_t et  = readBits(pte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT);
 	uint32_t acc = readBits(pte, PteBits::ACC_HIGH_BIT, PteBits::ACC_LOW_BIT);
@@ -762,7 +762,7 @@ uint8_t Mmu::computeFaultType(uint8_t at, uint32_t pte)
 // Fault recording
 //---------------------------------------------------------------------
 
-void Mmu::recordFault(uint8_t at, uint8_t faultType, uint8_t level, uint32_t va, bool isInstructionFetch)
+void MmuCore::recordFault(uint8_t at, uint8_t faultType, uint8_t level, uint32_t va, bool isInstructionFetch)
 {
 	uint32_t fsr = 0;
 	writeBits(fsr, MmuFsrBits::EBE_HIGH_BIT, MmuFsrBits::EBE_LOW_BIT, 0); //external bus errors not modeled
@@ -785,7 +785,7 @@ void Mmu::recordFault(uint8_t at, uint8_t faultType, uint8_t level, uint32_t va,
 	log("FAULT", "type=" + std::to_string(faultType) + " at=" + std::to_string(at) + " va=" + std::to_string(va));
 }
 
-void Mmu::updateFsrFar(uint32_t fsrVal, uint32_t farVal, uint8_t faultClass)
+void MmuCore::updateFsrFar(uint32_t fsrVal, uint32_t farVal, uint8_t faultClass)
 {
 	int tid = threadId_ & 1;
 

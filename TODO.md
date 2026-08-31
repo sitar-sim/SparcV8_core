@@ -5,7 +5,7 @@ milestones are reached rather than treating it as a historical log --
 keep the "Current status" section accurate to the present state of the
 repo, and move completed "Next steps" items into it.
 
-## Current status (as of 2026-08-27)
+## Current status (as of 2026-08-31)
 
 **Milestone 3 -- SoC integration (MMU, devices, L1 caches): MMU block
 implemented and validated for both drivers (cpp_model and sitar_model);
@@ -29,12 +29,18 @@ devices and caches still at the planning stage.**
 - **MMU implemented and validated**: `model/cpp_common_code/mmu/`
   (register map, full 3-level page-table walk, TLB, fault/permission
   logic, selective flush, all five probe types), wired into the
-  `core_mmu` configuration -- both the cpp_model and, now, a Sitar timing
-  model (`MmuUnit.sitar`, inserted as a real, independently-scheduled
-  procedure between `SparcThread` and physical memory, with 5 of its own
-  additive latency knobs, each audited against `Mmu.cpp`'s actual
-  conditional logic rather than just checked against pass/fail at the
-  zero default). See `Plan_MMU_integration.md` and `mmu/README.md`.
+  `core_mmu` configuration, both the cpp_model and a Sitar timing model
+  (`Mmu.sitar`, inserted between `SparcThread` and physical memory, with
+  5 of its own additive latency knobs, each audited against
+  `MmuCore.cpp`'s actual conditional logic rather than just checked
+  against pass/fail at the zero default). See `Plan_MMU_integration.md`
+  and `mmu/README.md`.
+- **MMU-to-main-memory link converted to real Sitar ports and nets**
+  (roadmap stage 2): `PhysicalMainMemory` is now a module, reached from
+  `Core` over two nets declared in the new `System.sitar`, instead of a
+  plain procedure handshake. See `docs/source/model_configurations.md`
+  for the block diagram and `System.sitar`'s own header comment for the
+  design.
 - **Memory interface redesigned to support this**: `MemoryInterfaces.h`
   now defines `VirtualMemoryInterface` (32-bit, ASI-aware -- what
   `SparcStateMachine`/`SparcThread` talk to) and `PhysicalMemoryInterface`
@@ -58,7 +64,7 @@ devices and caches still at the planning stage.**
   along the way -- see `mmu/README.md`'s "Test coverage" section for the
   functional-porting ones, `Plan_MMU_integration.md`'s "Sitar timing
   model" section for the timing-specific ones found while building and
-  auditing `MmuUnit.sitar`.
+  auditing `Mmu.sitar`.
 
 ## Milestone 1-2 history (as of 2026-07-19)
 

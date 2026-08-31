@@ -1,0 +1,52 @@
+
+//================================================================
+// procedure PullAToken
+// Author: Neha Karanjkar
+//
+// Generic single-token consumer, parameterized by token width `W`.
+// `run` blocks until exactly one token has been pulled off the inport
+// it's pointed at, retrying once per cycle until one is available.
+//
+// Nested inside whatever module or procedure needs to receive one token
+// at a time. A procedure can't declare its own port, so `ptr` is set by
+// whichever ancestor module owns the real inport, at that module's own
+// init.
+//================================================================
+
+procedure PullAToken
+
+	parameter int W = 1
+
+	decl
+	$
+	//Set by an ancestor module's init to the real inport this instance
+	//should pull from. Never owned here.
+	inport<W>* ptr;
+
+	//The token most recently pulled -- read by the caller immediately
+	//after `run` returns.
+	token<W> tok;
+
+	bool pulled;
+	$
+	init
+	$
+	ptr = NULL;
+	pulled = false;
+	$
+
+	behavior
+
+	$
+	assert(ptr);
+	$;
+
+	$ pulled = false; $;
+	do
+		wait until (this_phase==0);
+		$ pulled = ptr->pull(tok); $;
+		if (not pulled) then wait end if;
+	while (not pulled) end do;
+
+	end behavior
+end procedure

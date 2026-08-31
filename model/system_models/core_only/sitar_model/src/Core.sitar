@@ -3,23 +3,17 @@
 // module Core
 // Author: Neha Karanjkar
 //
-// Wrapper module for the SPARC V8 core: assembles SparcThread (the state
-// machine, plus its 5 memory-interface procedures) together with a
-// single MainMemoryVA instance.
+// Wrapper module for the SPARC V8 core. Assembles SparcThread (the state
+// machine, plus its 5 memory-interface procedures) with a single
+// VirtualMainMemory instance.
 //
-// sparcThread and mainMemory run as two branches of one parallel block
-// (not two modules connected by ports/nets), so their handshake can
-// complete within a single phase -- see MainMemoryVA.sitar and
-// MemoryInterface.sitar's file-level comments on the chaining pattern.
-// mainMemory owns its own request/response state; this module's only
-// job is to wire each of sparcThread's 5 memory-interface procedures'
-// downstream pointers directly at mainMemory's own fields below -- Core
-// itself owns no separate copy of that state. All 5 procedures point at
-// the one mainMemory -- safe because SparcThread's FSM only ever has one
-// memory access in flight at a time (see TODO.md for the split-I/D-cache
-// testbench this is expected to still support later, by pointing
-// individual memory-interface procedures at separate MainMemoryVA-like
-// procedures instead).
+// sparcThread and mainMemory run as two branches of one parallel block,
+// so their handshake completes within a single phase. mainMemory owns
+// its own request/response state. This module's only job is to wire
+// each of sparcThread's 5 memory-interface procedures' downstream
+// pointers at mainMemory's own fields. All 5 point at the one
+// mainMemory, safe because SparcThread's FSM only ever has one memory
+// access in flight at a time.
 //================================================================
 
 module Core
@@ -33,7 +27,7 @@ module Core
 	procedure sparcThread : SparcThread
 
 	//The memory this core's 5 memory-interface procedures all share.
-	procedure mainMemory : MainMemoryVA
+	procedure mainMemory : VirtualMainMemory
 
 	init
 	$

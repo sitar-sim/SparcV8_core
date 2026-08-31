@@ -14,7 +14,7 @@ comes from `SparcCore`.
   literally named `Top`.
 - **`src/Core.sitar`** -- this configuration's own composition: runs
   `sparcThread` (from `../../../sitar_component_models/SparcThread.sitar`)
-  and `mainMemory : MainMemoryVA` (from `.../MainMemoryVA.sitar`) as two
+  and `mainMemory : VirtualMainMemory` (from `.../VirtualMainMemory.sitar`) as two
   parallel procedures, plus a third parallel branch that watches
   `sparcThread.HALT.VALUE` and, once it's set, prints
   `sparcThread.printInfo()` and calls `stop simulation`. `sparcThread`'s 5
@@ -24,7 +24,7 @@ comes from `SparcCore`.
   directly at `mainMemory.request`/`mainMemory.response` -- Core owns no
   separate copy of that state. This is the file that changes shape
   between configurations (`../../core_mmu/sitar_model/src/Core.sitar`
-  wires an `MmuUnit` in between instead); `Top.sitar` and the procedures
+  wires an `Mmu` in between instead); `Top.sitar` and the procedures
   it composes do not.
 - **`src/sparc_sim.cpp`** -- the `-m` custom main for `sitar compile`,
   building this configuration's executable: same CLI, expected-results
@@ -48,14 +48,14 @@ comes from `SparcCore`.
 ## Latency model
 
 Three knobs, independent and additive -- e.g. a `LD` with opcode latency 1,
-`MemoryInterface.delay` 2, and `MainMemory.delay` 3 takes 6 cycles total:
+`VirtualMainMemoryInterface.delay` 2, and `VirtualMainMemory.delay` 3 takes 6 cycles total:
 
 1. **Opcode latency** (`../../../sitar_component_models/cpp_code/OpcodeLatencies.h`)
    -- charged by `SparcThread` for every instruction, memory or not.
-2. **`MemoryInterface.delay`** -- charged on the requester side (one of
+2. **`VirtualMainMemoryInterface.delay`** -- charged on the requester side (one of
    `sparcThread`'s 5 memory-interface procedures), after the response is
    available (e.g. interconnect/cache latency).
-3. **`MainMemoryVA.delay`** -- charged by the memory itself before
+3. **`VirtualMainMemory.delay`** -- charged by the memory itself before
    publishing its response (memory service time), shared by all
    requesters.
 
@@ -111,7 +111,7 @@ usual stderr output:
   `../../../../log_viewer/` (see that directory's `README.md`) with no
   extraction needed.
 - **`sitar.log`** -- everything else: `mainMemory`/`ifetchProcedure`/the
-  other `MemoryInterface` instances' own per-request/response messages,
+  other `VirtualMainMemoryInterface` instances' own per-request/response messages,
   timestamped `[t=<cycle>]`, prefixed with each module's hierarchical id
   as usual.
 
@@ -120,7 +120,7 @@ To change a latency knob, edit the relevant source and rebuild:
 - Opcode latency:
   `../../../sitar_component_models/cpp_code/OpcodeLatencies.h`
   (`DEFAULT_PER_OPCODE_DELAY` / `OPCODE_LATENCY_OVERRIDES`).
-- `MemoryInterface.delay` / `MainMemoryVA.delay`: both fields default to
+- `VirtualMainMemoryInterface.delay` / `VirtualMainMemory.delay`: both fields default to
   `0` (set in each procedure's own `init` block) and are otherwise only
   ever assigned from outside, in `Core.sitar`'s own consolidated `init`
   block, e.g.:

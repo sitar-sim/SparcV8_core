@@ -5,7 +5,7 @@
 // not suppressed: an ordinary supervisor-mode instruction fetch that
 // faults always traps the processor regardless of NF (Ref Appendix H.3:
 // NF's suppression explicitly excludes ASI 9, Supervisor Instruction --
-// see Mmu.cpp's noFaultSuppressesTrap()), so the only way to inspect
+// see MmuCore.cpp's noFaultSuppressesTrap()), so the only way to inspect
 // FSR *after* such a fault, before the program halts, is from inside
 // the trap handler itself. crt0.s's own default handler for every trap
 // (`mov N,%g1; restore; ta 0`) doesn't read FSR, so this test replaces

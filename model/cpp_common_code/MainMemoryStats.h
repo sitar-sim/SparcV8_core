@@ -1,12 +1,8 @@
 //MainMemoryStats.h
 //
-//Functional/architectural counters for MainMemory, in the same spirit as
-//mmu/MmuStats.h (owned by MainMemory the same way MmuStats is owned by
-//Mmu -- every MainMemory gets one for free). Sized for later comparison
-//against whatever access-count instrumentation AJIT's own memory-model
-//hardware exposes, once that comparison is actually done -- not derived
-//from reading any specific AJIT counter set today. Deliberately excludes
-//anything timing-related, matching MmuStats.
+//Functional and architectural counters for MainMemory, owned by it the
+//same way MmuStats is owned by MmuCore. Deliberately excludes anything
+//timing-related.
 
 #ifndef MAIN_MEMORY_STATS_H
 #define MAIN_MEMORY_STATS_H

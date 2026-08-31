@@ -31,7 +31,7 @@ void MainMemory::access(const PhysicalMemoryRequest& request, PhysicalMemoryResp
 
 	if (request.accessType == PhysicalAccessType::READ)
 	{
-		uint32_t word0 = mem_.readWord(addr);     //low 32 bits (Ref Mmu.cpp's packing convention)
+		uint32_t word0 = mem_.readWord(addr);     //low 32 bits (Ref MmuCore.cpp's packing convention)
 		uint32_t word1 = mem_.readWord(addr + 4); //high 32 bits
 		response.readData = (((uint64_t) word1) << 32) | (uint64_t) word0;
 

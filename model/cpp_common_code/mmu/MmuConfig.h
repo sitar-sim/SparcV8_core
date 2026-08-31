@@ -18,8 +18,8 @@
 //
 //This is the compile-time axis; the runtime axis (should the TLB
 //actually be used for a *specific* run, given that it's present) is
-//Mmu::tlbEnabled, which must be false whenever this is false --
-//Mmu asserts that at run time.
+//MmuCore::tlbEnabled, which must be false whenever this is false --
+//MmuCore asserts that at run time.
 static const bool MMU_TLB_PRESENT = true;
 
 // TLB (Page Descriptor Cache) sizing, one constant per walk-termination

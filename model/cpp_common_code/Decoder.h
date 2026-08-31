@@ -1,8 +1,8 @@
 //Decoder.h
-//Decodes the 32 bit instruction stored in Instruction register to return an Opcode
-//The instruction Register and its bit fields are described in Registers.h
-//The Opcodes are enumerated in Opcodes.h
-
+//
+//Decodes the 32-bit instruction word into an Opcode. The instruction
+//register and its bit fields are described in Registers.h. Opcodes are
+//enumerated in Opcodes.h.
 
 #ifndef DECODER_H
 #define DECODER_H

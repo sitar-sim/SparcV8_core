@@ -7,21 +7,22 @@ root. This page summarizes the larger, still-open directions.
 
 ## Remaining Sitar testbench configurations
 
-The current Sitar model (`model/sitar_component_models/`) tightly couples
-`SparcThread` to `MainMemory` via a shared struct and a same-phase
-handshake (see [Model Components](model_components.md)). Two further
-configurations are planned:
+`SparcThread` talks to `VirtualMainMemory` (core_only) or `Mmu`
+(core_mmu) via a shared struct and a same-phase handshake (see [Model
+Components](model_components.md)). `core_mmu`'s MMU-to-memory link is
+different: `PhysicalMainMemory` is a module, reached over real Sitar
+ports and nets, adding Sitar's own unavoidable minimum one cycle of
+latency each way. This is `Plan_SoC_Integration_Roadmap.md`'s
+phased-development stage 2, done. See [Model
+Configurations](model_configurations.md) for the block diagram.
 
-1. **Loosely coupled via ports**. A variant wrapping `MemCore` behind
-   real Sitar module ports/nets instead of the parallel-block handshake,
-   adding at least one cycle of communication latency each way. This is
-   unlike `MemoryInterface.delay`, which approximates latency without an
-   actual port connection.
-2. **Split instruction/data caches**. Core plus separate I/D caches,
-   each a `MainMemory`-like persistent procedure, connected the same way
-   `MainMemory` is today, in turn talking to an external memory over
-   ports/nets. This is also the planned worked example for
-   [Connecting other components](model_components.md#connecting-other-components).
+One further configuration is planned:
+
+- **Split instruction/data caches**. Core plus separate I/D caches, each
+  a `VirtualMainMemory`/`PhysicalMainMemory`-like persistent component,
+  connected the same way, in turn talking to an external memory over
+  ports/nets. This is also the planned worked example for [Connecting
+  other components](model_components.md#connecting-other-components).
 
 ## MMU, caches, and peripherals
 
@@ -29,11 +30,11 @@ The plan is to grow this repository into a fuller SoC-level model built
 around the core (see `Plan_SoC_Integration_Roadmap.md`), rather than a
 separate repository or version. The MMU (Ref Appendix H) is implemented
 and validated, in a `core_mmu` configuration alongside the existing
-`core_only` one -- see `Plan_MMU_integration.md` and
+`core_only` one. See `Plan_MMU_integration.md` and
 `model/cpp_common_code/mmu/README.md`. L1 caches (as persistent
 components, not just the illustrative example above) and peripherals
-(timer, interrupt controller, serial) are still planned, not yet built
--- see `Plan_Devices_integration.md` and `Plan_Caches_integration.md`.
+(timer, interrupt controller, serial) are still planned, not yet built.
+See `Plan_Devices_integration.md` and `Plan_Caches_integration.md`.
 
 ## Opcode-wise test coverage
 

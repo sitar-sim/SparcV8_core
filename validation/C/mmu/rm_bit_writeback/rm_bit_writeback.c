@@ -1,7 +1,7 @@
 // rm_bit_writeback.c
 //
 // R (Referenced) and M (Modified) bit write-back on a leaf PTE (Ref
-// Mmu::translate()'s setR/setM logic): a load sets R (leaves M alone),
+// MmuCore::translate()'s setR/setM logic): a load sets R (leaves M alone),
 // a store sets both, and once both are already set, further accesses
 // leave them set (not corrupted). The PTE lives in an ordinary static
 // array (l3_table, in the identity-mapped code region), so its raw bit

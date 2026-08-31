@@ -1000,6 +1000,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -1008,6 +1036,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1411,7 +1467,7 @@ repository.</p>
 <h2 id="a-simple-program">A simple program<a class="headerlink" href="#a-simple-program" title="Permanent link">&para;</a></h2>
 <p>Let's consider a simple assembly-level program: put two numbers in
 registers, and add them. It's already present at
-<code>model/cpp_model/test/test_simple_ADD.s</code>:</p>
+<code>validation/test_simple_ADD/test_simple_ADD.s</code>:</p>
 <div class="language-sparc highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">! test_simple_ADD.s</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">!</span>
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">! The simplest possible SPARC V8 test program: add two numbers and put</span>
@@ -1443,10 +1499,10 @@ registers, and add them. It's already present at
 </span></code></pre></div>
 <p>The first step after writing a program like this is to convert it into
 machine code and load it into the simulated processor's memory. A memory
-image is already present too, at <code>test/test_simple_ADD.hex</code>, along with
-its disassembly at <code>test/test_simple_ADD.objdump</code> (both paths relative
-to <code>model/cpp_model/</code>). We'll point the simulator straight at the <code>.hex</code>
-file.</p>
+image is already present too, at
+<code>validation/test_simple_ADD/test_simple_ADD.hex</code>, along with its
+disassembly at <code>validation/test_simple_ADD/test_simple_ADD.objdump</code>.
+We'll point the simulator straight at the <code>.hex</code> file.</p>
 <p>Later, to modify this test or write your own, you'll need to compile it
 into a memory image (<code>.hex</code>) yourself. See
 <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
@@ -1454,18 +1510,17 @@ or <a href="writing_and_running_c_programs.html">Writing and Running C Programs<
 <hr />
 <h2 id="building-the-sparc-models">Building the SPARC models<a class="headerlink" href="#building-the-sparc-models" title="Permanent link">&para;</a></h2>
 <p>From the repo root, build the plain C++ model:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>model/cpp_model
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build.sh<span class="w"> </span>--logging
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build.sh
 </span></code></pre></div>
 <p>And the Sitar-timed model, the same way. From the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>model/sitar_model
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./build.py<span class="w"> </span>--logging
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./build.sh
 </span></code></pre></div>
-<p>We're building with <code>--logging</code> here (off by default), so this run also
-produces an instruction trace. In comparison to the C++ model, the Sitar
-model drives the exact same core through
-<a href="https://sitar-sim.github.io/sitar/">Sitar</a> instead of the plain
-functional loop, adding real per-opcode, interconnect, and memory timing.</p>
+<p>In comparison to the C++ model, the Sitar model drives the exact same
+core through <a href="https://sitar-sim.github.io/sitar/">Sitar</a> instead of the
+plain functional loop, adding real per-opcode, interconnect, and memory
+timing.</p>
 <p>Both build scripts take the same options:</p>
 <ul>
 <li><strong><code>--logging</code> / <code>--no-logging</code></strong> (default: off)<br />
@@ -1478,15 +1533,15 @@ functional loop, adding real per-opcode, interconnect, and memory timing.</p>
 <hr />
 <h2 id="running-the-simulator">Running the simulator<a class="headerlink" href="#running-the-simulator" title="Permanent link">&para;</a></h2>
 <p>To run the C++ model against a memory image, from the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>model/cpp_model
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>./sparc_sim_cpp<span class="w"> </span>test/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>Similarly, for the Sitar-timed model, from the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>model/sitar_model/executable
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./sparc_sim_sitar<span class="w"> </span>test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./executable/sparc_sim_sitar_core_only<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>The simulation executable expects the following arguments:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sparc_sim_cpp &lt;hex_file&gt; [expected_results_file] [max_cycles]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles]
 </span></code></pre></div>
 <ul>
 <li><strong>A hex file</strong> (required)<br />
@@ -1508,9 +1563,15 @@ that to finish.</li>
 </li>
 </ul>
 <p>For example, checking the same run against its expected-results file,
-back in <code>model/cpp_model</code>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>./sparc_sim_cpp<span class="w"> </span>test/test_simple_ADD.hex<span class="w"> </span>test/test_simple_ADD.expected<span class="w"> </span><span class="m">1000</span>
+back in <code>model/system_models/core_only/cpp_model</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.expected<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="m">1000</span>
 </span></code></pre></div>
+<p>(Or, more simply, <code>./run_simple_test.sh</code> -- a fixed, minimal wrapper
+around the same hex-file-plus-expected-results check, bundled in this
+folder.)</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>PASS: o0 = 0xc
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>PASS: l0 = 0x5
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>PASS: l1 = 0x7
@@ -1518,9 +1579,17 @@ back in <code>model/cpp_model</code>:</p>
 </span></code></pre></div>
 <hr />
 <h2 id="observing-the-simulation-log">Observing the simulation log<a class="headerlink" href="#observing-the-simulation-log" title="Permanent link">&para;</a></h2>
-<p>When built with <code>--logging</code>, a simulation run also produces a <code>.log</code>
-file in the current directory, containing a detailed simulation trace
-showing the processor state at the end of each instruction cycle.</p>
+<p>Rebuild with <code>--logging</code> (still in <code>model/system_models/core_only/cpp_model</code>):</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./build.sh<span class="w"> </span>--logging
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>./executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
+</span></code></pre></div>
+<p>A <code>--logging</code> build gets its own executable name (with a <code>_logging</code>
+suffix), so it coexists in <code>executable/</code> alongside the plain default
+build from the section above, rather than replacing it. Running it
+produces a <code>.log</code> file in the current directory, containing a detailed
+simulation trace showing the processor state at the end of each
+instruction cycle.</p>
 <p>The generated log file has the same name as the <code>.hex</code> file, but with a
 <code>.log</code> extension. Although it's a plain text file in tab-separated value
 (tsv) format, and can be viewed in any editor, this project provides a
@@ -1570,7 +1639,7 @@ types are:</p>
     (that's what the <code>wr %g0, %psr</code> at the top did), so it has no
     handler to jump to. The processor forces itself into <code>error_mode</code>
     instead. This is this project's halt convention, used by every test
-    program in the repository. It's what <code>sparc_sim_cpp</code>'s
+    program in the repository. It's what the executable's
     <code>PROCESSOR STATE: ERROR</code> and <code>Simulation halted after N cycles.</code>
     output means, and it's expected, not a bug.</li>
 </ul>
@@ -1605,28 +1674,30 @@ tests, and the scripts to run them, are included in <code>validation/</code>.</p
     summary.</li>
 </ul>
 <p>It's worth running whenever you change the model itself, to check
-nothing broke. Rebuild both models without <code>--logging</code> first. Some
-tests run long, and logging isn't needed here:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>model/cpp_model/build.sh
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>model/sitar_model/build.py
+nothing broke. <code>validation/run_tests.py</code> drives each model's plain
+default build (no <code>--logging</code>, no <code>--debug</code>) -- the one already built in
+"Building the SPARC models" above, some tests run long, and logging
+isn't needed here. Rebuild it if you've made changes since:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>model/system_models/core_only/cpp_model/build.sh
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>model/system_models/core_only/sitar_model/build.sh
 </span></code></pre></div>
 <p>Then run <code>validation/run_tests.py</code>, pointing it at a folder of tests.
 Example, a small subset first:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/misc/
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/misc/
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>
-</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a>&lt;passed&gt;/&lt;total&gt; tests passed
+<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>
+</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>&lt;passed&gt;/&lt;total&gt; tests passed
 </span></code></pre></div>
 <p>Point it at <code>validation</code> itself to run the entire suite instead of one
 folder:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>validation/run_tests.py<span class="w"> </span>validation
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>validation/run_tests.py<span class="w"> </span>validation
 </span></code></pre></div>
 <p>The script runs the tests on the C++ model by default. To run it on the
 Sitar model instead, pass the <code>--sitar</code> option. Add <code>-v</code> to show every
 check's result, not just failures:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--sitar<span class="w"> </span>-v
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--sitar<span class="w"> </span>-v
 </span></code></pre></div>
 <p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test and how to add a new test to the suite.</p>
 <hr />
@@ -1644,15 +1715,15 @@ to them directly, no cross-debugger or special protocol needed. Using it
 well does still need some familiarity with the model's own source, to
 know which variables hold the simulated architectural state.</p>
 <p>Build with <code>--debug</code> first:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>model/cpp_model/build.sh<span class="w"> </span>--debug
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>model/sitar_model/build.py<span class="w"> </span>--debug
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--debug
 </span></code></pre></div>
 <p>To make this convenient, <code>debug/sparc.gdb</code> provides a large set of
 shortcut commands. For example, setting a breakpoint at a specific PC, a
 watchpoint on a memory location, or printing one register:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>(gdb) sparc-break pc=0x203c
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>(gdb) sparc-watch-mem addr=0xfffffe0
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>(gdb) sparc-print-reg o0
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>(gdb) sparc-print-reg o0
 </span></code></pre></div>
 <p>See <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
 for the full command reference and a complete walkthrough.</p>

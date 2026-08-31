@@ -8,19 +8,19 @@ deviation from AJIT (atomic load-store permission checking).
 
 ## What's what
 
-- **`Mmu.h` / `.cpp`** -- the main class: register map, page-table walk,
+- **`MmuCore.h` / `.cpp`** -- the main class: register map, page-table walk,
   fault-type/permission logic, PTE/PPN encoding, FSR/FAR/OW/R/M
   semantics. Implements `VirtualMemoryInterface` (see
   `../MemoryInterfaces.h`), so it plugs in wherever `SparcStateMachine`
   expects one, and drives whatever's downstream (`MainMemory` today)
   through `PhysicalMemoryInterface` instead -- see that file's own
-  comment for the AJIT-bus citation and `Mmu.cpp`'s half-select
+  comment for the AJIT-bus citation and `MmuCore.cpp`'s half-select
   adaptation between the two. `translate()`/`probe()`/`walkPageTables()`
   are real, callable functions the cpp_model keeps using unchanged, but
   internally each is now built from a sequence of small, public,
   no-downstream-access-of-their-own step-primitives (`beginWalk()`,
   `recordWalkStep()`, `computeAndStageRMUpdate()`, ...) -- this is what
-  lets `../../sitar_component_models/MmuUnit.sitar` (the Sitar timing
+  lets `../../sitar_component_models/Mmu.sitar` (the Sitar timing
   model, Ref `Plan_MMU_integration.md`'s "Sitar timing model" section)
   independently duplicate the exact same step sequence, substituting a
   real, time-consuming `run phyMemReadProcedure;`/`phyMemWriteProcedure;`
@@ -81,7 +81,7 @@ unchanged at that size), confirmed a non-power-of-two
 then reverted to the values above.
 
 The number of hardware threads per core (`NUM_THREADS_PER_CORE`, sizing
-`Mmu.h`'s own `MAX_THREADS` register-array alias) lives one level up, in
+`MmuCore.h`'s own `MAX_THREADS` register-array alias) lives one level up, in
 `../MultiThreadingConfig.h`, since it isn't MMU-specific -- the core's
 own register file and a future L1 cache's per-thread state will need the
 same number.
@@ -99,12 +99,12 @@ Two separate knobs, deliberately not one:
 - **`MmuConfig.h`'s `MMU_TLB_PRESENT`** (compile-time): does this build
   include TLB hardware at all. The sizing constants above are only
   meaningful when this is true.
-- **`Mmu::tlbEnabled`** (runtime, public field, defaults to
+- **`MmuCore::tlbEnabled`** (runtime, public field, defaults to
   `MMU_TLB_PRESENT`): should the TLB actually be used for this
   particular run. `false` means the TLB is never looked at, updated, or
   flushed -- every access re-walks the page tables directly, and
   `MmuStats`' TLB hit/miss counters stay at zero. Setting it `true` while
-  `MMU_TLB_PRESENT` is `false` fails an assertion in `Mmu::tlbActive()`
+  `MMU_TLB_PRESENT` is `false` fails an assertion in `MmuCore::tlbActive()`
   (the single choke point every `tlb_` touch goes through) the first
   time the MMU would actually need the TLB, rather than being silently
   ignored.
@@ -114,7 +114,7 @@ speed detail -- disabling the TLB changes `MmuStats`' hit/miss/walk
 counters (see the worked example below), even though translation results
 themselves are unaffected either way.
 
-Verified: ran all 12 `validation/C/mmu/` tests with `Mmu::tlbEnabled`
+Verified: ran all 12 `validation/C/mmu/` tests with `MmuCore::tlbEnabled`
 forced off (via the `MMU_TLB_ENABLED=0` environment variable `core_mmu`'s
 `sparc_sim.cpp` checks purely for this kind of manual testing -- not part
 of the documented CLI, and invisible to `run_tests.py`'s normal
@@ -155,7 +155,7 @@ Two real issues were found and resolved while writing this last batch of
 tests (both already fixed/decided by the time the tests above were
 written, so they're reflected in current behavior, not open items):
 
-- `Mmu::noFaultSuppressesTrap()` checked the wrong ASI (`Supervisor
+- `MmuCore::noFaultSuppressesTrap()` checked the wrong ASI (`Supervisor
   Data`, 0x0B, instead of `Supervisor Instruction`, 0x09) against
   Appendix H.3's NF description -- a porting bug, not present in the
   model this was ported from. Fixed.

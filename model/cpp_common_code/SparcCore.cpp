@@ -1,4 +1,6 @@
 //SparcCore.cpp
+//
+//See SparcCore.h.
 
 #include"SparcCore.h"
 #include"BitManipulation.h"
@@ -2032,7 +2034,7 @@ void SparcCore::execute_PreFlush(Opcode op)
 	//This only computes the address; SparcCore has no memory/cache interface
 	//of its own. The driver (SparcStateMachine.cpp for the standalone model,
 	//SparcThread.sitar for the timed model) is responsible for conveying the
-	//flush onward -- see MemoryInterface's FLUSH access type.
+	//flush onward -- see VirtualMainMemoryInterface's FLUSH access type.
 	uint32_t operand1 = reg.R_r(reg.R_rs1());
 	uint32_t operand2;
 	if (reg.R_i() == 0)

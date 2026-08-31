@@ -40,7 +40,7 @@
 // R (Referenced) and M (Modified) bits within a leaf PTE (Ref H.3.2,
 // Figure H-8). make_pte() below always constructs R=M=0 (a freshly
 // created, unreferenced leaf); the MMU itself sets these on a real
-// access (Ref Mmu::translate()'s setR/setM logic).
+// access (Ref MmuCore::translate()'s setR/setM logic).
 #define PTE_R(pte) (((pte) >> 5) & 0x1u)
 #define PTE_M(pte) (((pte) >> 6) & 0x1u)
 

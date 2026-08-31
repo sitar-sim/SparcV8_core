@@ -494,7 +494,7 @@ exceptions.
 
 ### What this model does instead
 
-`Mmu::translate()` (`model/cpp_common_code/mmu/Mmu.cpp`) checks an atomic
+`MmuCore::translate()` (`model/cpp_common_code/mmu/MmuCore.cpp`) checks an atomic
 load-store as a single, precise operation: it computes the fault type
 for the access's primary AT (store, since LDSTUB/SWAP unconditionally
 write memory) and, only if that check passes, additionally checks the
@@ -502,7 +502,7 @@ opposite-direction AT (load) against the same PTE before allowing the
 access to proceed. If *either* direction would fault, the whole operation
 faults before any memory access happens at all -- no read is performed,
 no value becomes visible, and the target byte/word is left completely
-unmodified. See `Mmu::translate()`'s and `Mmu.h`'s own comments for the
+unmodified. See `MmuCore::translate()`'s and `MmuCore.h`'s own comments for the
 implementation.
 
 ### Worked (hypothetical) example

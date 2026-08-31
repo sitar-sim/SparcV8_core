@@ -1,19 +1,13 @@
 //ImplementationDependent.h
 //
-//
-//All implementation dependent stuff is put here
+//Implementation-defined SPARC V8 parameters that the manual leaves open
+//(number of register windows, which ASRs are implemented, etc).
 
 #ifndef IMPLEMENTATION_DEPENDENT_H
 #define IMPLEMENTATION_DEPENDENT_H
 
-
-
-#define MEMORY_SIZE 0x4000  //x4 bytes
-	//memory size in words.
-	//memory is word(32bit -addressable)
-	//memory is implemented as a simple array of uint32_t inside sparc core itself.
-	//Memory map is defined by the linker script used to compile programs for the simulator
-#define NWINDOWS 8  
+#define MEMORY_SIZE 0x4000  //unused. Actual memory sizing is MemCore::memSize.
+#define NWINDOWS 8
 	//Number of Register windows in the implementation of Sparc V8
 	//can be between 2 and 32
 	//

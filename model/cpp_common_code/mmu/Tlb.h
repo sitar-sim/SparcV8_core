@@ -1,25 +1,21 @@
 //Tlb.h
 //
-//The Page Descriptor Cache (PDC), Ref Appendix H in the SPARC V8 manual.
-//Purpose-built for this port rather than a port of Ajit's generic
-//associative-memory library (see Plan_MMU_integration.md); same sizing,
-//associativity, and context-qualified tag semantics per level.
+//The Page Descriptor Cache (PDC), Ref Appendix H. Purpose-built for
+//this port, not a port of Ajit's own generic associative-memory
+//library. Same sizing, associativity, and context-qualified tag
+//semantics per level.
 //
-//Mirrors the page-table walk's own four levels (0 = context table, 1-3 =
-//L1/L2/L3 tables). A cached entry is always a leaf PTE (ET == 2), never
-//a PTD -- Mmu only ever inserts an entry once walkPageTables() has
-//actually found a valid leaf, exactly as Ajit's writeTlbNewEntry() does.
-//Because the page-table walk can terminate at any level (a "huge page"
-//leaf found early, without descending further -- see
-//Mmu::constructPhysicalAddr's level-dependent page-offset width), a
-//level-0 entry is tagged by context alone (it covers the entire 4GB
-//space for that context), a level-1 entry by (context, VA[31:24]) --
-//covering a 16MB region -- level-2 by (context, VA[31:18]) -- 256KB --
-//and level-3 by (context, VA[31:12]) -- one 4KB page, the common case.
+//Mirrors the page-table walk's own four levels: 0 is the context table,
+//1 through 3 are the L1/L2/L3 tables. A cached entry is always a leaf
+//PTE, never a PTD. Since a walk can terminate at any level, a level-0
+//entry is tagged by context alone (it covers the entire 4GB space for
+//that context), a level-1 entry by context and VA[31:24] (a 16MB
+//region), level-2 by context and VA[31:18] (256KB), and level-3 by
+//context and VA[31:12] (one 4KB page, the common case).
 //
-//Sizing (see MmuConfig.h): level 0, 1, and 2 are fully associative,
-//level 3 is set-associative, indexed by the low bits of the page number
-//(VA[12] upward -- however many bits MMU_TLB_LEVEL3_SETS needs).
+//Sizing is in MmuConfig.h. Levels 0, 1, and 2 are fully associative.
+//Level 3 is set-associative, indexed by the low bits of the page
+//number.
 
 #ifndef MMU_TLB_H
 #define MMU_TLB_H
@@ -53,7 +49,7 @@ class Tlb
 		//write-back to memory), if this exact entry is still present.
 		//Avoids the re-walk Ajit's own translateToPhysicalAddress() does
 		//to relocate a PTE it already had cached, by using the
-		//phyAddrOfPte insert() already stored -- see Mmu.cpp.
+		//phyAddrOfPte insert() already stored -- see MmuCore.cpp.
 		void updatePte(uint32_t va, uint32_t context, uint8_t level, uint32_t newPte);
 
 		//Selective flush, Ref Appendix H.3 and Table H-2 (this TLB only

@@ -1,25 +1,20 @@
 //sparc_sim.cpp
 //Author: Neha Karanjkar
 //
-//Builds sparc_sim_sitar: the Sitar-driven counterpart to
-//model/cpp_model's sparc_sim_cpp -- same job (load a hex-dump memory
-//image, run to halt or a cycle limit, either just report the final state
-//or, if given an expected-results file, check it and print PASS/FAIL per
-//check and an OVERALL verdict), but drives the actual Sitar
-//Top/Core/SparcThread model instead of the standalone C++
-//SparcStateMachine. This is the `-m` custom main file for `sitar compile`
-//-- see build.py.
+//Builds sparc_sim_sitar, the Sitar-driven counterpart to
+//../cpp_model's sparc_sim_cpp. Same job: load a hex-dump memory image,
+//run to halt or a cycle limit, then report the final state, or, if
+//given an expected-results file, check it and print PASS/FAIL per check
+//and an overall verdict. Drives the Sitar Top/Core/SparcThread model
+//instead of the standalone C++ SparcStateMachine. This is the `-m`
+//custom main file for `sitar compile`.
 //
-//Kept as a near-duplicate of sparc_sim_cpp's source (same CLI, same
-//expected-file format, same output format) rather than a shared library,
-//so that validation/run_tests.py can point at either binary
-//interchangeably (see its --sitar flag) with zero changes to the
-//test-comparison logic itself.
+//Kept as a near-duplicate of sparc_sim_cpp's source, same CLI, same
+//expected-file format, same output format, rather than a shared
+//library, so that validation/run_tests.py can point at either binary
+//interchangeably with zero changes to the test-comparison logic.
 //
-//expected_file is optional, exactly as in sparc_sim_cpp: pass "" (or
-//omit it, along with max_cycles) to skip validation and just run the
-//program, printing the final processor state instead of
-//PASS/FAIL/OVERALL.
+//expected_file is optional, exactly as in sparc_sim_cpp.
 //
 //Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles]
 
@@ -126,7 +121,7 @@ int main(int argc, char** argv)
 
 #ifdef SITAR_ENABLE_LOGGING
 	//Sitar's own per-request/response log (mainMemory, ifetchProcedure and
-	//the other MemoryInterface instances) -- everything except
+	//the other VirtualMainMemoryInterface instances) -- everything except
 	//sparcThread's own CoreLogger trace, which gets its own dedicated
 	//file below.
 	std::ofstream sitarLogFile("sitar.log");

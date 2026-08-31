@@ -829,6 +829,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -837,6 +865,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1244,29 +1300,32 @@
 root. This page summarizes the larger, still-open directions.</p>
 <hr />
 <h2 id="remaining-sitar-testbench-configurations">Remaining Sitar testbench configurations<a class="headerlink" href="#remaining-sitar-testbench-configurations" title="Permanent link">&para;</a></h2>
-<p>The current Sitar model (<code>model/sitar_model/</code>) tightly couples
-<code>SparcThread</code> to <code>MainMemory</code> via a shared struct and a same-phase
-handshake (see <a href="model_components.html">Model Components</a>). Two further
-configurations are planned:</p>
-<ol>
-<li><strong>Loosely coupled via ports</strong>. A variant wrapping <code>MemCore</code> behind
-   real Sitar module ports/nets instead of the parallel-block handshake,
-   adding at least one cycle of communication latency each way. This is
-   unlike <code>MemoryInterface.delay</code>, which approximates latency without an
-   actual port connection.</li>
-<li><strong>Split instruction/data caches</strong>. Core plus separate I/D caches,
-   each a <code>MainMemory</code>-like persistent procedure, connected the same way
-   <code>MainMemory</code> is today, in turn talking to an external memory over
-   ports/nets. This is also the planned worked example for
-   <a href="model_components.html#connecting-other-components">Connecting other components</a>.</li>
-</ol>
+<p><code>SparcThread</code> talks to <code>VirtualMainMemory</code> (core_only) or <code>Mmu</code>
+(core_mmu) via a shared struct and a same-phase handshake (see <a href="model_components.html">Model
+Components</a>). <code>core_mmu</code>'s MMU-to-memory link is
+different: <code>PhysicalMainMemory</code> is a module, reached over real Sitar
+ports and nets, adding Sitar's own unavoidable minimum one cycle of
+latency each way. This is <code>Plan_SoC_Integration_Roadmap.md</code>'s
+phased-development stage 2, done. See <a href="model_configurations.html">Model
+Configurations</a> for the block diagram.</p>
+<p>One further configuration is planned:</p>
+<ul>
+<li><strong>Split instruction/data caches</strong>. Core plus separate I/D caches, each
+  a <code>VirtualMainMemory</code>/<code>PhysicalMainMemory</code>-like persistent component,
+  connected the same way, in turn talking to an external memory over
+  ports/nets. This is also the planned worked example for <a href="model_components.html#connecting-other-components">Connecting
+  other components</a>.</li>
+</ul>
 <h2 id="mmu-caches-and-peripherals">MMU, caches, and peripherals<a class="headerlink" href="#mmu-caches-and-peripherals" title="Permanent link">&para;</a></h2>
-<p>This repository models the core only (see
-<a href="index.html#models">Models</a>). A
-full SoC-level model built around this core is planned as a separate
-repository or version, rather than growing this one beyond a core model.
-That model would add an MMU, caches as persistent components (not just
-the illustrative example above), and peripherals or devices.</p>
+<p>The plan is to grow this repository into a fuller SoC-level model built
+around the core (see <code>Plan_SoC_Integration_Roadmap.md</code>), rather than a
+separate repository or version. The MMU (Ref Appendix H) is implemented
+and validated, in a <code>core_mmu</code> configuration alongside the existing
+<code>core_only</code> one. See <code>Plan_MMU_integration.md</code> and
+<code>model/cpp_common_code/mmu/README.md</code>. L1 caches (as persistent
+components, not just the illustrative example above) and peripherals
+(timer, interrupt controller, serial) are still planned, not yet built.
+See <code>Plan_Devices_integration.md</code> and <code>Plan_Caches_integration.md</code>.</p>
 <h2 id="opcode-wise-test-coverage">Opcode-wise test coverage<a class="headerlink" href="#opcode-wise-test-coverage" title="Permanent link">&para;</a></h2>
 <p>A systematic pass comparing the full SPARC V8 instruction set against
 <code>validation/asm/</code> was completed, finding and filling several real gaps

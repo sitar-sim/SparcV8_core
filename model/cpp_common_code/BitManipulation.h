@@ -1,11 +1,9 @@
 //BitManipulation.h
+//
+//Functions for bit manipulation of 32-bit unsigned integers.
+
 #ifndef BIT_MANIPULATION_H
 #define BIT_MANIPULATION_H
-
-
-
-//Functions for bit manipulations of 32bit unsigned integers
-//Neha Karanjkar March 2013
 
 #include<stdint.h>
 #include<iostream>

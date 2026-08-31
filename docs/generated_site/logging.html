@@ -922,6 +922,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -930,6 +958,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1259,7 +1315,7 @@ way in the log viewer, regardless of which model produced it. See
 "The log viewer" below and <code>model/cpp_common_code/CoreLogger.h</code>.</p>
 <p>A driver uses <code>CoreLogger</code> one of two ways.</p>
 <ul>
-<li><strong><code>do_print=true</code></strong> (<code>cpp_model/sparc_sim.cpp</code>)<br />
+<li><strong><code>do_print=true</code></strong> (<code>cpp_model/src/sparc_sim.cpp</code>)<br />
 <code>CoreLogger</code> writes each row directly to a given <code>ostream</code> itself.</li>
 <li><strong><code>do_print=false</code></strong> (<code>sitar_model</code>)<br />
     Each <code>log_*()</code> call just returns the formatted row. The caller
@@ -1284,8 +1340,8 @@ for the full mechanism. It can be pointed at:</p>
     <code>useDefaultPrefix=false</code> and <code>setPrefix("")</code> to drop Sitar's own
     <code>(time)hierarchicalId:</code> prefix, gives <code>sparcThread</code>'s own trace: pure
     <code>CoreLogger</code> rows, nothing else, a clean file completely separate
-    from <code>mainMemory</code> and the <code>MemoryInterface</code> instances' own messages
-    (<code>sitar.log</code>). See <code>model/sitar_model/README.md</code>.</li>
+    from <code>mainMemory</code> and the <code>VirtualMainMemoryInterface</code> instances' own messages
+    (<code>sitar.log</code>). See <code>model/system_models/core_only/sitar_model/README.md</code>.</li>
 </ul>
 <p>Both models name that trace file after the hex file's own basename, with
 the trailing <code>.hex</code> replaced by <code>.log</code> (<code>test_simple_ADD.hex</code> produces
@@ -1294,10 +1350,11 @@ different test right after doesn't clobber the previous one's trace, the
 way a single fixed filename would.</p>
 <hr />
 <h2 id="compile-time-onoff">Compile-time on/off<a class="headerlink" href="#compile-time-onoff" title="Permanent link">&para;</a></h2>
-<p>Two macros are tied to the same <code>--logging</code> flag. <code>model/cpp_model/build.sh</code>
-and <code>model/sitar_model/build.py</code> both expose it. <code>build.py --logging</code>
-passes <code>--cflags=-DSPARC_LOGGING_ENABLED</code> through to <code>sitar compile</code>
-alongside Sitar's own <code>--logging</code>, so one flag controls both.</p>
+<p>Two macros are tied to the same <code>--logging</code> flag. Every configuration's
+<code>cpp_model/build.sh</code> and <code>sitar_model/build.sh</code> both expose it (the
+latter forwarding to the shared <code>build_scripts/build_sitar_model.py</code>).
+<code>--logging</code> passes <code>--cflags=-DSPARC_LOGGING_ENABLED</code> through to <code>sitar
+compile</code> alongside Sitar's own <code>--logging</code>, so one flag controls both.</p>
 <ul>
 <li><strong><code>SPARC_LOGGING_ENABLED</code></strong><br />
     Gates <code>CoreLogger</code>. Without it (the default), every <code>log_*()</code> method

@@ -4,25 +4,17 @@
 // Author: Neha Karanjkar
 //
 // The SPARC V8 fetch-decode-execute-trap state machine (Ref Appendix
-// C.5), implemented as a procedure. Drives a SparcCore instance (the
-// timing-agnostic ISA/state library, see cpp_common_code/SparcCore.h)
-// through RESET/EXECUTE/ERROR, dispatching to it every cycle; owns 5
-// MemoryInterface instances (ifetch/read/write/atomic/flush) that carry
-// out the actual memory-referencing side of each instruction.
+// C.5). Drives a SparcCore instance through RESET/EXECUTE/ERROR,
+// dispatching to it every cycle. Owns 5 VirtualMainMemoryInterface
+// instances (ifetch, read, write, atomic, flush) that carry out the
+// memory side of each instruction.
 //
-// Conventions:
-//
-//	Exactly like the plain C++ model (model/cpp_model/SparcStateMachine):
-//	a trap that occurs while traps are disabled (ET==0) has no handler
-//	left to jump to, so SparcCore::selectTrap() puts the core into
-//	error_mode instead -- that is the one and only way this procedure
-//	halts (HALT.VALUE, below). There is nothing special about any
-//	particular trap number; this procedure makes no judgment about
-//	whether a given halt represents a passing or failing test. That
-//	verdict comes from comparing final register/memory state against a
-//	test's own expected-results file (see sitar_check_test.cpp, which
-//	waits for HALT.VALUE and then does exactly that -- same convention
-//	as check_test.cpp for the cpp model).
+// A trap that occurs while traps are disabled has no handler to jump
+// to, so SparcCore::selectTrap() puts the core into error_mode instead.
+// This is the only way this procedure halts (HALT.VALUE below). No trap
+// number is treated as special here. Pass/fail is decided by the
+// caller, by comparing final register and memory state against a test's
+// own expected-results file.
 //================================================================
 
 
@@ -98,16 +90,16 @@ procedure SparcThread
 	//complete within the same cycle it started (0-delay), whereas a
 	//module-to-module net enforces Sitar's minimum 1-cycle latency on
 	//every hop. Any latency for these memory references is instead
-	//modeled explicitly, as an actual `wait`, inside MemoryInterface
+	//modeled explicitly, as an actual `wait`, inside VirtualMainMemoryInterface
 	//itself (see its `delay` parameter) -- not as an incidental side
 	//effect of the connection style. Keep it this way even as caches are
-	//added later: give MemoryInterface a nonzero delay rather than
-	//switching these to modules/ports.
-	procedure ifetchProcedure   : MemoryInterface  //should be linked to I cache OR main memory to model 0-delay ifetch
-	procedure memReadProcedure  : MemoryInterface  //should be linked to D cache
-	procedure memWriteProcedure : MemoryInterface  //should be linked to D cache
-	procedure atomicLoadStoreProcedure : MemoryInterface
-	procedure flushProcedure    : MemoryInterface  //conveys FLUSH to whatever is connected (a cache/memory etc)
+	//added later: give VirtualMainMemoryInterface a nonzero delay rather
+	//than switching these to modules/ports.
+	procedure ifetchProcedure   : VirtualMainMemoryInterface  //should be linked to I cache OR main memory to model 0-delay ifetch
+	procedure memReadProcedure  : VirtualMainMemoryInterface  //should be linked to D cache
+	procedure memWriteProcedure : VirtualMainMemoryInterface  //should be linked to D cache
+	procedure atomicLoadStoreProcedure : VirtualMainMemoryInterface
+	procedure flushProcedure    : VirtualMainMemoryInterface  //conveys FLUSH to whatever is connected (a cache/memory etc)
 
 
 	//initialize memory interface procedures
@@ -478,8 +470,8 @@ procedure SparcThread
 									//Opcode-wise per-instruction latency (see OpcodeLatencies.h),
 									//charged whether this instruction was executed or annulled.
 									//For a memory instruction, the effective total latency is the
-									//sum of this, MemoryInterface.delay, and MainMemoryVA.delay/
-									//MainMemory.delay (depending on config).
+									//sum of this, VirtualMainMemoryInterface.delay, and VirtualMainMemory.delay/
+									//PhysicalMainMemory.delay (depending on config).
 									$opcode_delay = getOpcodeLatency(opcode);$;
 									wait(opcode_delay, 0);
 								end if;

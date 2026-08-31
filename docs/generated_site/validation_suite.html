@@ -978,6 +978,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -986,6 +1014,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1465,7 +1521,7 @@ the existing suite. Phase 1 is only needed after adding or editing a
 <tbody>
 <tr>
 <td><code>--sitar</code></td>
-<td>Run against the Sitar-timed model (<code>model/sitar_model/executable/sparc_sim_sitar</code>) instead of the plain C++ model (<code>model/cpp_model/sparc_sim_cpp</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+<td>Run against the Sitar-timed model (<code>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only</code>) instead of the plain C++ model (<code>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
 </tr>
 <tr>
 <td><code>--max-cycles N</code></td>
@@ -1565,10 +1621,10 @@ the existing suite. Phase 1 is only needed after adding or editing a
 </li>
 </ul>
 <p>Alongside them sits <code>test_simple_ADD/</code>, one more <code>.vprj</code> test, but its
-main job is as the small worked example used throughout the docs
-(<code>model/cpp_model/test/</code>, <code>model/sitar_model/executable/</code>, and
-<code>log_viewer/</code> all symlink to the files here rather than keeping their
-own copies), see <code>validation/README.md</code>.</p>
+main job is as the small worked example used throughout the docs (every
+configuration's <code>run_simple_test.sh</code> reads the files here directly, and
+<code>log_viewer/</code> symlinks to the reference trace produced here, rather than
+keeping their own copies), see <code>validation/README.md</code>.</p>
 <hr />
 <h2 id="adding-an-asm-test">Adding an asm test<a class="headerlink" href="#adding-an-asm-test" title="Permanent link">&para;</a></h2>
 <ol>
@@ -1583,8 +1639,9 @@ own copies), see <code>validation/README.md</code>.</p>
 <li>Build and run it directly first, to find the actual final register
    values, see
    <a href="writing_and_running_assembly_programs.html#assembling-to-generate-a-memory-image-hex">Assembling to generate a memory image</a>
-   (<code>compiler/assemble.sh &lt;name&gt;.s</code>, then <code>sparc_sim_cpp &lt;name&gt;.hex</code>
-   with no expected-results argument, prints the final state).</li>
+   (<code>compiler/assemble.sh &lt;name&gt;.s</code>, then
+   <code>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only
+   &lt;name&gt;.hex</code> with no expected-results argument, prints the final state).</li>
 <li>Write <code>&lt;name&gt;.vprj</code>, naming <code>&lt;name&gt;.s</code> as its <code>SOURCES</code> and listing
    the register (and, if needed, memory) values from step 3 that you
    want checked, see the format above.</li>

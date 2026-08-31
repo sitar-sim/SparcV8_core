@@ -983,6 +983,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -991,6 +1019,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1427,20 +1483,22 @@ needed only for the step listed.</p>
 <p>No further dependencies are needed. This model has no Sitar dependency at
 all.</p>
 <p>From the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>model/cpp_model
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build.sh<span class="w"> </span>--logging
 </span></code></pre></div>
-<p>This builds an executable, <code>sparc_sim_cpp</code>.</p>
+<p>This builds an executable, <code>sparc_sim_cpp_core_only_logging</code>, inside
+<code>executable/</code>.</p>
 <p>Let's try it. The executable expects the name of a test program compiled
 to a memory image (a <code>.hex</code> file). A minimal example program,
-<code>test/test_simple_ADD.s</code>, is present in the same directory in the repo
+<code>validation/test_simple_ADD/test_simple_ADD.s</code>, is bundled in the repo
 for a quick test of the model, along with its already-assembled memory
 image. It adds two numbers and puts the result in a register, then
 halts. View it first:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cat<span class="w"> </span>test/test_simple_ADD.s
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>cat<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.s
 </span></code></pre></div>
 <p>Then run it:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./sparc_sim_cpp<span class="w"> </span>test/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>The run generates an output:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>PROCESSOR STATE: ERROR
@@ -1482,12 +1540,13 @@ correctly installed, from any location:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sitar<span class="w"> </span>-h
 </span></code></pre></div>
 <p>From the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>model/sitar_model
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>./build.py<span class="w"> </span>--logging
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>./build.sh<span class="w"> </span>--logging
 </span></code></pre></div>
-<p>This builds an executable, <code>sparc_sim_sitar</code>, inside <code>executable/</code>.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="nb">cd</span><span class="w"> </span>executable/
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>./sparc_sim_sitar<span class="w"> </span>test_simple_ADD.hex
+<p>This builds an executable, <code>sparc_sim_sitar_core_only_logging</code>, inside
+<code>executable/</code>.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./executable/sparc_sim_sitar_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>The run generates an output, the same shape as step 2 above:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>PROCESSOR STATE: ERROR

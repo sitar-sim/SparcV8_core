@@ -1,9 +1,6 @@
 //Decoder.cpp
-
-//Decodes the 32 bit instruction to return an Opcode
-//The instruction Register and its bit fields are described in Registers.h
-//The Opcodes are enumerated in Opcodes.h
-
+//
+//See Decoder.h.
 
 #include"Decoder.h"
 #include"Opcodes.h"

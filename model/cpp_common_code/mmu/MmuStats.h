@@ -1,11 +1,9 @@
 //MmuStats.h
 //
-//Functional/architectural MMU statistics, common to both the cpp and
-//Sitar models (owned by Mmu the same way SparcCore::logger is owned by
-//SparcCore -- every driver gets one for free). Deliberately excludes
-//anything timing-related (e.g. cycles spent walking) -- that's a
-//separate concern for this block's own Sitar timing model, not these
-//counters. See Plan_MMU_integration.md's "Proposed stats set".
+//Functional and architectural MMU statistics, common to both the cpp
+//and Sitar models. Owned by MmuCore the same way SparcCore::logger is
+//owned by SparcCore. Deliberately excludes anything timing-related,
+//such as cycles spent walking.
 
 #ifndef MMU_STATS_H
 #define MMU_STATS_H

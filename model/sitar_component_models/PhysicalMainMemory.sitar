@@ -1,0 +1,132 @@
+
+//================================================================
+// module PhysicalMainMemory
+// Author: Neha Karanjkar
+//
+// A persistent memory model, the terminal node below an MMU. Wraps the
+// plain C++ MainMemory class (`mem` below). PM-shaped
+// (PhysicalMemoryRequest/Response): a 64-bit physical address and a
+// 64-bit doubleword of data, no ASI. Where there is no MMU, e.g.
+// core_only, VirtualMainMemory.sitar is used instead: VM-shaped, wraps
+// MemCore, connected by a procedure handshake rather than nets.
+//
+// The C++ MainMemory class already implements the full doubleword and
+// half-select PhysicalMemoryInterface contract, so this module's only
+// job is to call it and add timing: one `mem.access(request, response);`
+// per request.
+//
+// Named PhysicalMainMemory rather than MainMemory, the C++ class it
+// embeds, to avoid a real compile failure: this file's own
+// `#include"MainMemory.h"` is a quote include, which searches its own
+// generated output directory first. A same-named module would generate
+// its own MainMemory.h there, and the include would silently resolve to
+// that instead of the real header.
+//
+// Requests and responses arrive and leave as tokens on
+// `requestIn`/`responseOut`. `getRequest`/`sendResponse` are nested
+// PullAToken/PushAToken instances, wired to those ports by this
+// module's own init.
+//================================================================
+
+module PhysicalMainMemory
+
+	include
+	$
+	#include"MainMemory.h"
+	#include"MemoryInterfaces.h"
+	$
+
+	inport  requestIn   : width TOKEN_REQ_WIDTH
+	outport responseOut : width TOKEN_RESP_WIDTH
+
+	decl
+	$
+	MainMemory mem;                //the actual memory storage + doubleword dispatch
+
+	//Local staging area, unpacked from/packed into getRequest.tok/
+	//sendResponse.tok below, then handed to mem.access() exactly the same
+	//shape the earlier procedure-handshake version used.
+	PhysicalMemoryRequest  request;
+	PhysicalMemoryResponse response;
+	$
+	init
+	$
+	request.valid           = false;
+	request.accessType      = PhysicalAccessType::READ;
+	request.lock            = false;
+	request.physicalAddress = 0;
+	request.data            = 0;
+	request.byteMask        = 0;
+
+	response.valid    = false;
+	response.readData = 0;
+	response.mae      = false;
+	$
+
+	//--------------------------------------------------------
+	//Nested single-token I/O procedures (Ref PullAToken.sitar/
+	//PushAToken.sitar's own header comments) -- pointed at this module's
+	//own ports below, since a procedure can never own a port itself.
+	//--------------------------------------------------------
+	procedure getRequest   : PullAToken<TOKEN_REQ_WIDTH>
+	procedure sendResponse : PushAToken<TOKEN_RESP_WIDTH>
+
+	init
+	$
+	getRequest.ptr   = &requestIn;
+	sendResponse.ptr = &responseOut;
+	$
+	//--------------------------------------------------------
+
+	//--------------------------------------------------------
+	//Access latency: how many cycles it takes this memory itself to
+	//service a request, i.e. between accepting it and publishing the
+	//response. Default 0. Independent of, and additive with,
+	//PhysicalMainMemoryInterface.delay on the requester side (Mmu's
+	//phyMemReadProcedure/phyMemWriteProcedure), and with the >=1 cycle
+	//minimum latency requestNet/responseNet themselves add crossing this
+	//module boundary either way (Ref System.sitar's own comment on that).
+	//--------------------------------------------------------
+	decl$uint32_t delay;$
+	init$delay = 0;$
+	//--------------------------------------------------------
+
+	//--------------------------------------------------------
+	//Behavior
+	//--------------------------------------------------------
+	behavior
+
+	do
+		run getRequest;
+
+		$
+		sitar::unpack(getRequest.tok, request.accessType, request.lock,
+		              request.physicalAddress, request.data, request.byteMask);
+
+		log<<endl<<"[t="<<current_time<<"] PhysicalMainMemory: servicing "
+		   <<(request.accessType==PhysicalAccessType::READ ? "READ" : "WRITE")
+		   <<" request for address 0x"<<std::hex<<request.physicalAddress<<std::dec;
+
+		mem.access(request, response);
+		$;
+
+		//model this memory's own service latency (default 0 -- see
+		//`delay` above) before the response is sent
+		if ($delay > 0$) then
+			wait(delay, 0);
+		end if;
+
+		$
+		log<<endl<<"[t="<<current_time<<"] PhysicalMainMemory: response ready for "
+		   <<(request.accessType==PhysicalAccessType::READ ? "READ" : "WRITE")
+		   <<" request for address 0x"<<std::hex<<request.physicalAddress<<std::dec;
+
+		sitar::pack(sendResponse.tok, response.readData, response.mae);
+		$;
+
+		run sendResponse;
+
+	while(1) end do;
+
+	end behavior
+end module

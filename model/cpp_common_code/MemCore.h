@@ -1,14 +1,11 @@
+//MemCore.h
+//
+//A flat, byte-addressed functional memory: a word-addressable array of
+//32-bit words underneath. Addresses passed to its read/write functions
+//are byte addresses, converted internally to word addresses.
 
 #ifndef MEMCORE_H
 #define MEMCORE_H
-//MemCore.h
-//
-//Functional model of a random-access memory
-//implemented as a word addressable array of 32bit words
-//
-//
-//NOTE:Addresses supplied to MemCore for Read/Write functions are Byte addresses!!
-//and have to be converted to word addresses
 
 #include<fstream>
 #include<stdint.h>

@@ -1,0 +1,52 @@
+
+//================================================================
+// procedure PushAToken
+// Author: Neha Karanjkar
+//
+// Generic single-token producer, parameterized by token width `W`. The
+// caller fills `tok`, then `run`s this, which blocks until that one
+// token has been pushed onto the outport it's pointed at, retrying once
+// per cycle until there's room.
+//
+// Nested inside whatever module or procedure needs to send one token at
+// a time. A procedure can't declare its own port, so `ptr` is set by
+// whichever ancestor module owns the real outport, at that module's own
+// init.
+//================================================================
+
+procedure PushAToken
+
+	parameter int W = 1
+
+	decl
+	$
+	//Set by an ancestor module's init to the real outport this instance
+	//should push to. Never owned here.
+	outport<W>* ptr;
+
+	//The token to send -- the caller sets this before calling `run`.
+	token<W> tok;
+
+	bool pushed;
+	$
+	init
+	$
+	ptr = NULL;
+	pushed = false;
+	$
+
+	behavior
+
+	$
+	assert(ptr);
+	$;
+
+	$ pushed = false; $;
+	do
+		wait until (this_phase==1);
+		$ pushed = ptr->push(tok); $;
+		if (not pushed) then wait end if;
+	while (not pushed) end do;
+
+	end behavior
+end procedure

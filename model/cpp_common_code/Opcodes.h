@@ -1,14 +1,14 @@
 //Opcodes.h
-
+//
+//Enumerates every SPARC V8 instruction opcode.
 
 #ifndef OPCODES_H
 #define OPCODES_H
 
 #include<iostream>
-//209 Opcodes in total
 
-//WARNING : Do not change the order of Opcodes.
-//Code inside SparcCore.cpp contains stuff like : if (op>=LDSB and op<=LDD)...
+//WARNING: do not change the order of opcodes. SparcCore.cpp relies on
+//it for range checks like `if (op>=LDSB and op<=LDD)`.
 enum Opcode
 {
 		//Memory-related instructions------------------------

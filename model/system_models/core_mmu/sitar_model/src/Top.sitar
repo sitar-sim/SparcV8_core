@@ -2,13 +2,12 @@
 // module Top
 // Author: Neha Karanjkar
 //
-// The top-level module Sitar requires for `sitar compile` (it looks for
-// a module literally named Top). Just instantiates Core -- kept as its
-// own file rather than folded into Core.sitar so that Core stays a
-// reusable submodule (e.g. for a future multi-core Top). Identical in
-// shape to core_only's own Top.sitar.
+// The top-level module Sitar requires for `sitar compile`. It looks for
+// a module literally named Top. Just instantiates System. Kept as its
+// own file rather than folded into System.sitar so that System stays a
+// reusable submodule.
 //================================================================
 
 module Top
-	submodule core : Core
+	submodule system : System
 end module

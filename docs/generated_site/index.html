@@ -430,6 +430,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#configurations-provided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configurations provided
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -931,6 +942,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -939,6 +978,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1239,6 +1306,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#configurations-provided" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configurations provided
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1277,9 +1355,9 @@ ANSI/IEEE Std 1754-1994.</p>
     framework.</p>
 </li>
 </ol>
-<p>Both models provide only the processor core (no MMU/cache/devices). The
-full executable testbenches provided here connect the cores to a simple
-array-like byte addressable memory that allows a user to run programs.
+<p>The full executable testbenches provided here connect the cores to a
+simple array-like byte addressable memory that allows a user to run
+programs.
 These models are meant to be used as:</p>
 <ul>
 <li>Educational simulation models, to run programs on the core and observe their execution.<br />
@@ -1356,20 +1434,22 @@ pipelining of its own. The two models differ only in how they drive this
 common code.</p>
 <ul>
 <li><strong>The C++ only functional model</strong><br />
-    Lives in <code>model/cpp_model/</code>. A plain host C++ fetch-decode-execute-trap
-    loop (<code>SparcStateMachine</code>) drives the core directly, with zero modeled
-    latency. Every instruction "completes" the moment it starts. There are
-    no timing knobs here at all. Its intended use is fast, ISA-level
-    correctness checking.</li>
+    Lives in each configuration's own <code>cpp_model/</code> subfolder, e.g.
+    <code>model/system_models/core_only/cpp_model/</code>. A plain host C++
+    fetch-decode-execute-trap loop (<code>SparcStateMachine</code>) drives the core
+    directly, with zero modeled latency. Every instruction "completes"
+    the moment it starts. There are no timing knobs here at all. Its
+    intended use is fast, ISA-level correctness checking.</li>
 <li><strong>The Sitar cycle-based timing model</strong><br />
-    Lives in <code>model/sitar_model/</code>. The same core is instead driven through
-    <a href="https://sitar-sim.github.io/sitar/">Sitar</a>, with a configurable opcode
-    latency plus separate interconnect and memory latencies you supply. Its
-    intended use is performance modeling, either standalone (to see how a
-    given latency configuration affects a program's runtime) or as the
-    timed core component inside a larger Sitar-based SoC/many-core
-    simulation. See <a href="performance_modeling.html">Performance Modeling</a> for the
-    three latency knobs.</li>
+    Lives in each configuration's own <code>sitar_model/</code> subfolder, e.g.
+    <code>model/system_models/core_only/sitar_model/</code>. The same core is
+    instead driven through <a href="https://sitar-sim.github.io/sitar/">Sitar</a>,
+    with a configurable opcode latency plus separate interconnect and
+    memory latencies you supply. Its intended use is performance
+    modeling, either standalone (to see how a given latency configuration
+    affects a program's runtime) or as the timed core component inside a
+    larger Sitar-based SoC/many-core simulation. See <a href="performance_modeling.html">Performance
+    Modeling</a> for the three latency knobs.</li>
 </ul>
 <p>Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.</p>
@@ -1382,8 +1462,11 @@ of connecting an external component such as a cache.</p>
 top-level folders are organized as follows.</p>
 <ul>
 <li><strong><code>model/</code></strong><br />
-    The core itself (<code>cpp_common_code/</code>), and the two testbenches that
-    drive it (<code>cpp_model/</code>, <code>sitar_model/</code>). See <a href="model_components.html">Model Components</a>.</li>
+    The core itself (<code>cpp_common_code/</code>), the reusable Sitar procedures
+    (<code>sitar_component_models/</code>), and one folder per configuration
+    (<code>system_models/</code>, e.g. <code>system_models/core_only/</code>), each with the
+    two testbenches that drive it (<code>cpp_model/</code>, <code>sitar_model/</code>). See
+    <a href="model_components.html">Model Components</a>.</li>
 <li><strong><code>validation/</code></strong><br />
     The functional validation suite, assembly and C tests. See
     <a href="validation_suite.html">Validation Suite</a>.</li>
@@ -1400,6 +1483,25 @@ top-level folders are organized as follows.</p>
 </ul>
 <p>To get started, see <a href="installation.html">Installation</a> and
 <a href="getting_started.html">Getting Started</a>.</p>
+<hr />
+<h2 id="configurations-provided">Configurations provided<a class="headerlink" href="#configurations-provided" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong><code>core_only</code></strong><br />
+    The core plus main memory, no MMU, devices, or caches. See <a href="model_configurations.html#core_only">Model
+    Configurations</a>.</li>
+<li><strong><code>core_mmu</code></strong><br />
+    Adds an MMU. See <a href="model_configurations.html#core_mmu">Model
+    Configurations</a>.</li>
+<li><strong><code>core_mmu_devices</code></strong> (planned)<br />
+    Adds a timer, an interrupt controller, and a serial device. See
+    <a href="model_configurations.html#core_mmu_devices-planned">Model
+    Configurations</a>.</li>
+<li><strong><code>core_l1cache_mmu_devices</code></strong> (planned)<br />
+    Adds split instruction and data L1 caches. See <a href="model_configurations.html#core_l1cache_mmu_devices-planned">Model
+    Configurations</a>.</li>
+</ul>
+<p>See <a href="model_configurations.html">Model Configurations</a> for a block diagram
+of each one.</p>
 
 
 

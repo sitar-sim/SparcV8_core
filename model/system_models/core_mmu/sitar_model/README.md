@@ -1,80 +1,76 @@
 # core_mmu/sitar_model/
 
-The timed model for this configuration: the same `SparcThread` used by
-`../../core_only/sitar_model/`, but with an `MmuUnit` procedure spliced in
-between it and memory, and `MainMemoryPA` (the PM-shaped memory,
-Ref `../../../cpp_common_code/MainMemory.h`) as the terminal node instead
-of `MainMemoryVA`. See `Plan_MMU_integration.md`'s "Sitar timing model"
-section for the full design and `../../../sitar_component_models/
-MmuUnit.sitar`'s own header comment for the implementation.
+The timed model for this configuration. Same `SparcThread` as
+`../../core_only/sitar_model/`, but with `Mmu` spliced in between it and
+memory, reaching physical memory over real Sitar ports and nets instead
+of a procedure handshake. See `docs/source/model_configurations.md` for
+the block diagram, and `src/System.sitar`'s own header comment for the
+full design.
 
 ## What's what
 
-- **`src/Top.sitar`** -- trivial wrapper module (`submodule core : Core`),
-  same convention as every other configuration's `Top.sitar`.
-- **`src/Core.sitar`** -- this configuration's own composition: runs
-  `sparcThread`, `mmu : MmuUnit`, and `mainMemory : MainMemoryPA` as three
-  parallel branches of one `[ ... || ... || ... ]` block, plus the usual
-  halt-watcher branch. `sparcThread`'s 5 memory-interface procedures'
-  downstream pointers are wired to `&mmu.request`/`&mmu.response` instead
-  of a memory procedure directly; `mmu`'s own `phyMemReadProcedure`/
-  `phyMemWriteProcedure` are in turn wired to `&mainMemory.request`/
-  `&mainMemory.response`. This is the one file that differs structurally
-  from `../../core_only/sitar_model/src/Core.sitar` -- `SparcThread.sitar`
-  and `MemoryInterface.sitar` needed zero changes to support the MMU
-  being inserted (Ref the "lego block" interface contract,
-  `Plan_SoC_Integration_Roadmap.md`).
+- **`src/Top.sitar`** -- trivial wrapper module (`submodule system :
+  System`), same convention as every other configuration's `Top.sitar`.
+- **`src/System.sitar`** -- assembles `Core` and `PhysicalMainMemory` as
+  sibling submodules, connected by two nets (`requestNet`,
+  `responseNet`). Also owns the single consolidated, commented list of
+  every latency knob in this configuration.
+- **`src/Core.sitar`** -- the SPARC core plus the MMU: `sparcThread` and
+  `mmu : Mmu` as two parallel procedures, plus the usual halt-watcher
+  branch. Exposes two ports, `requestOut`/`responseIn`, wired to `mmu`'s
+  own two `PhysicalMainMemoryInterface` instances at init.
+  `SparcThread.sitar` and `VirtualMainMemoryInterface.sitar` needed zero
+  changes to support any of this (Ref the "lego block" interface
+  contract, `Plan_SoC_Integration_Roadmap.md`).
 - **`src/sparc_sim.cpp`** -- the `-m` custom main, same shape as every
   other configuration's, except `MEM` checks in an expected-results file
-  read `TOP->core.mainMemory.mem.readWord()` (physical memory, bypassing
-  the MMU, same convention `core_mmu/cpp_model/src/sparc_sim.cpp` uses).
+  read `TOP->system.mainMemory.mem.readWord()` (physical memory,
+  bypassing the MMU, same convention `core_mmu/cpp_model/src/sparc_sim.cpp`
+  uses).
 - **`build.sh`** -- thin wrapper around the shared
   `../../../build_scripts/build_sitar_model.py`.
 - **`run_simple_test.sh`** -- runs the default build against the bundled
   `test_simple_ADD` example. Like `core_mmu/cpp_model/run_simple_test.sh`,
-  this only exercises the MMU in its disabled, pass-through state -- see
+  this only exercises the MMU in its disabled, pass-through state. See
   `validation/C/mmu/` for real translation coverage, run against this
   driver via `--sitar --config core_mmu` (below).
 - **`executable/`**, **`build/`** -- gitignored build output and scratch.
 
 ## Latency model
 
-Every knob defaults to `0` -- with everything at `0` this model produces
-the exact same cycle counts as `core_mmu/cpp_model/` (0 elapsed time) and,
-with the MMU further disabled at runtime, the exact same counts as
-`core_only/sitar_model/` too (the bypass path adds none of these). See
-`../src/Core.sitar`'s own `init` block for the single consolidated,
-commented list of every knob in this configuration -- the summary below
-is what each one means, not where to set it.
+Every knob defaults to `0`. Unlike `core_only`, this configuration
+cannot reach 0 elapsed cycles even at every knob's default: crossing a
+net costs Sitar's own unavoidable minimum one cycle each way, and every
+physical access, including every instruction fetch, crosses two nets
+(`requestNet`, then `responseNet`). See `src/System.sitar`'s own init
+block for the single consolidated, commented list of every knob in this
+configuration. The summary below is what each one means, not where to
+set it.
 
-- **Opcode latency, `MemoryInterface.delay`** -- same as
-  `core_only/sitar_model/`, charged by `SparcThread`/its 5 memory-interface
-  procedures, upstream of the MMU entirely.
+- **`sparcThread.<memory-interface procedure>.delay`** -- same as
+  `core_only/sitar_model/`, charged upstream of the MMU entirely.
 - **`mmu.tlbLookupDelay`** -- TLB tag-compare cost. Charged once per
-  ordinary translated access (hit or miss) and, separately, once for an
-  entire-type TLB probe -- *not* for the other four probe types, which
-  always walk fresh and never consult the TLB at all (Ref
-  `Mmu.cpp`'s `probe()`).
-- **`mmu.pageTableWalkStepDelay`** -- page-table walker control overhead,
-  charged once per level actually visited during a walk (1-3 levels,
-  depending where the walk terminates).
-- **`mmu.tlbFillDelay`** -- cost of inserting a freshly-resolved entry
-  into the TLB. Charged only on a fresh miss that successfully translates
-  (not on a hit, not on a fault).
-- **`mmu.registerAccessDelay`** -- MMU control/context/FSR/FAR register
-  read or write (ASI 4).
+  ordinary translated access, hit or miss, and once for an entire-type
+  TLB probe. Not charged for the other four probe types, which always
+  walk fresh and never consult the TLB (Ref `MmuCore.cpp`'s `probe()`).
+- **`mmu.pageTableWalkStepDelay`** -- page-table walker control overhead.
+  Charged once per level actually visited during a walk, one to three
+  levels depending where the walk terminates.
+- **`mmu.tlbFillDelay`** -- cost of inserting a freshly resolved entry
+  into the TLB. Charged only on a fresh miss that successfully
+  translates.
+- **`mmu.registerAccessDelay`** -- MMU control, context, FSR, or FAR
+  register read or write (ASI 4).
 - **`mmu.flushDelay`** -- TLB invalidate (ASI 3 write). No memory access
-  at all -- the TLB is write-through (Ref `Plan_MMU_integration.md`), so
-  a flush never needs to write anything back to memory first.
+  at all. The TLB is write-through, so a flush never needs to write
+  anything back to memory first.
 - **`mmu.phyMemReadProcedure.delay` / `phyMemWriteProcedure.delay`** --
-  the MMU-to-memory interconnect, additive with `mainMemory.delay`
-  exactly the way `MemoryInterface.delay`/`MainMemoryVA.delay` are on the
-  virtual side.
+  the MMU-to-memory interconnect, additive with `mainMemory.delay` and
+  with requestNet/responseNet's own minimum latency.
 - **`mainMemory.delay`** -- physical memory's own service latency,
-  shared by every physical access the MMU makes (walk reads, R/M
-  write-back, the final data access) -- so unlike `core_only`, a single
-  translated access here can pay this delay more than once per
-  instruction.
+  shared by every physical access the MMU makes. A single translated
+  access can pay this more than once: a walk step, an R/M write-back,
+  and the final data access are each a separate physical access.
 
 ## How to build and run it
 
@@ -94,5 +90,5 @@ validation/run_tests.py validation/C --sitar --config core_mmu
 validation/run_tests.py validation/C/mmu --sitar --config core_mmu
 ```
 
-To change a knob, edit `src/Core.sitar`'s consolidated `init` block and
-rebuild -- see "Latency model" above for what each one means.
+To change a knob, edit `src/System.sitar`'s consolidated `init` block
+and rebuild. See "Latency model" above for what each one means.

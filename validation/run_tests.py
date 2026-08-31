@@ -78,7 +78,7 @@ def run_one_test(vprj_path, max_cycles, env, check_test):
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument('root', help="folder to search for .vprj files (recursively)")
-    ap.add_argument('--max-cycles', type=int, default=10000, help="cycle limit per test (default: 10000)")
+    ap.add_argument('--max-cycles', type=int, default=200000, help="cycle limit per test (default: 200000 -- core_mmu's sitar_model needs this much headroom, since every physical access, including every instruction fetch, now crosses two nets)")
     ap.add_argument('-v', '--verbose', action='store_true', help="show per-check output for every test, not just failures")
     ap.add_argument('--sitar', action='store_true',
                      help="drive --config's sitar_model executable (the actual Sitar model) instead "

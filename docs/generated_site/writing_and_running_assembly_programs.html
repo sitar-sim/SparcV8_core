@@ -972,6 +972,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -980,6 +1008,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1384,8 +1440,8 @@ bundled toolchain.</p>
 <h2 id="running-a-test-program">Running a test program<a class="headerlink" href="#running-a-test-program" title="Permanent link">&para;</a></h2>
 <p>Rebuild the models with <code>--logging</code>, then run them on this test. From
 the repo root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/cpp_model/build.sh<span class="w"> </span>--logging
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>temp_asm/test_simple_SUB.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--logging
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging<span class="w"> </span>temp_asm/test_simple_SUB.hex
 </span></code></pre></div>
 <p>This prints the final register state once the program halts, see
 <a href="getting_started.html#running-the-simulator">Getting Started</a> for the
@@ -1400,7 +1456,7 @@ specific format, see "Recommended format for a test program" below for
 how the source file itself needs to be structured to make this
 possible.</p>
 <p>The simulator executables take the following arguments:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sparc_sim_cpp &lt;hex_file&gt; [expected_results_file] [max_cycles]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles]
 </span></code></pre></div>
 <ul>
 <li><strong>A hex file</strong> (required): the memory image to run.</li>
@@ -1419,7 +1475,8 @@ directly instead.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>REG o0 0xfffffffe
 </span></code></pre></div>
 <p>Then run it:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>temp_asm/test_simple_SUB.hex<span class="w"> </span>temp_asm/test_simple_SUB.expected
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>temp_asm/test_simple_SUB.hex<span class="w"> </span>temp_asm/test_simple_SUB.expected
 </span></code></pre></div>
 <hr />
 <h2 id="format-for-the-expected-results-file">Format for the expected-results file<a class="headerlink" href="#format-for-the-expected-results-file" title="Permanent link">&para;</a></h2>

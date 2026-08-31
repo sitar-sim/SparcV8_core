@@ -48,7 +48,7 @@ for the full mechanism. It can be pointed at:
     `useDefaultPrefix=false` and `setPrefix("")` to drop Sitar's own
     `(time)hierarchicalId:` prefix, gives `sparcThread`'s own trace: pure
     `CoreLogger` rows, nothing else, a clean file completely separate
-    from `mainMemory` and the `MemoryInterface` instances' own messages
+    from `mainMemory` and the `VirtualMainMemoryInterface` instances' own messages
     (`sitar.log`). See `model/system_models/core_only/sitar_model/README.md`.
 
 Both models name that trace file after the hex file's own basename, with

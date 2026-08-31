@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="sparcv8_architecture.html">
+        <link rel="prev" href="model_configurations.html">
       
       
-        <link rel="next" href="performance_modeling.html">
+        <link rel="next" href="model_components_reference.html">
       
       
         
@@ -828,6 +828,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -924,6 +952,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-mmu-core_mmu-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The MMU (core_mmu only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connecting-other-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -938,6 +977,34 @@
   
 </nav>
       
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
     </li>
   
 
@@ -1209,6 +1276,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#the-mmu-core_mmu-only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The MMU (core_mmu only)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#connecting-other-components" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1241,13 +1319,34 @@
 
 <h1 id="model-components">Model Components<a class="headerlink" href="#model-components" title="Permanent link">&para;</a></h1>
 <p>An overview of what's in <code>model/</code>, and how the pieces relate. See each
-subdirectory's own <code>README.md</code> for full detail. This page is the map.</p>
+subdirectory's own <code>README.md</code> for full detail. This page is the map.
+See <a href="model_components_reference.html">Model Components Reference</a> for a
+complete, per-file table of every Sitar module/procedure. It lists what
+each one wraps, what can embed it, and in which configuration(s).</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  cpp_common_code/   SparcCore, the core itself. Timing-agnostic.
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>  cpp_model/          SparcStateMachine, 0-delay driver, no Sitar.
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  sitar_model/        Top/Core/SparcThread/MemoryInterface/MainMemory,
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                       Sitar-timed driver, cycle-level (non-pipelined).
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  cpp_common_code/          SparcCore and SparcStateMachine. Timing-agnostic.
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>                              mmu/ holds the MMU&#39;s own MmuCore class.
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>  sitar_component_models/    VirtualMainMemoryInterface/VirtualMainMemory/
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                               SparcThread, the reusable Sitar procedures
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                               every configuration is built from. Where an
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                               MMU is present, also Mmu/
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                               PhysicalMainMemoryInterface/PhysicalMainMemory,
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                               plus PullAToken/PushAToken, two generic
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                               single-token I/O procedures.
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  system_models/
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    core_only/
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>      cpp_model/               SparcStateMachine driving MemCore directly,
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>                                 0-delay, no Sitar.
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>      sitar_model/              Top/Core wiring the shared Sitar procedures
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>                                  together, cycle-level (non-pipelined).
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    core_mmu/
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>      cpp_model/               SparcStateMachine driving SparcCore through
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>                                 an MmuCore instance instead of MemCore.
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>      sitar_model/              Top/System/Core, with the MMU reaching
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>                                  physical memory over real Sitar nets.
 </span></code></pre></div>
+<p>See <a href="model_configurations.html">Model Configurations</a> for a block diagram
+of each configuration listed above.</p>
 <hr />
 <h2 id="cpp_common_code-the-core-itself"><code>cpp_common_code/</code>: the core itself<a class="headerlink" href="#cpp_common_code-the-core-itself" title="Permanent link">&para;</a></h2>
 <p><code>SparcCore</code> is a pure C++ class implementing SPARC V8 instruction
@@ -1262,8 +1361,10 @@ access itself. This is deliberate: it's the one place ISA semantics live,
 shared unmodified by both models below, so a bug fix or new instruction
 benefits both.</p>
 <p>Also here: <code>Decoder</code> (instruction word -&gt; <code>Opcode</code>), <code>MemCore</code> (flat,
-byte-addressed functional memory, used directly by <code>cpp_model</code> and wrapped
-with timing by <code>sitar_model</code>'s <code>MainMemory</code>), <code>FloatingPointFunctions.h</code>
+byte-addressed functional memory, used directly by the <code>core_only</code>
+configuration's <code>cpp_model</code> and wrapped with timing by
+<code>VirtualMainMemory.sitar</code> in <code>sitar_component_models/</code>),
+<code>FloatingPointFunctions.h</code>
 (IEEE-754 single/double/quad-precision arithmetic, quad via
 <code>libquadmath</code>), and <code>CoreLogger</code> (<code>SparcCore::logger</code>, which formats and,
 depending on how a driver configures it, emits this core's state as a
@@ -1271,16 +1372,17 @@ trace of architectural events). Both drivers below produce the identical
 trace format, viewable in the <a href="logging.html#the-log-viewer">log viewer</a>.</p>
 <hr />
 <h2 id="cpp_model-the-0-delay-functional-driver"><code>cpp_model/</code>: the 0-delay functional driver<a class="headerlink" href="#cpp_model-the-0-delay-functional-driver" title="Permanent link">&para;</a></h2>
-<p><code>SparcStateMachine</code> drives <code>SparcCore</code> through an ordinary
+<p><code>SparcStateMachine</code> (<code>cpp_common_code/</code>, reused unchanged by every
+configuration's <code>cpp_model</code>) drives <code>SparcCore</code> through an ordinary
 fetch-decode-execute-trap loop, with <strong>zero modeled latency</strong>. Every
 instruction "completes" in the same iteration it starts, and that
 iteration, one complete instruction execution, is counted and reported
-as 1 "cycle" by <code>sparc_sim_cpp</code> (see <code>--max-cycles</code>/its halt message).
-This is purely an iteration count, with no notion of how long a real
-instruction or memory access would actually take, unlike the Sitar model
-below where a cycle is an actual elapsed clock cycle. No Sitar dependency
-at all. This is the fast, simple reference to check ISA-level correctness
-against. It's what <code>validation/run_tests.py</code> uses by default.</p>
+as 1 "cycle" by the built executable (see <code>--max-cycles</code>/its halt
+message). This is purely an iteration count, with no notion of how long a
+real instruction or memory access would actually take, unlike the Sitar
+model below where a cycle is an actual elapsed clock cycle. No Sitar
+dependency at all. This is the fast, simple reference to check ISA-level
+correctness against. It's what <code>validation/run_tests.py</code> uses by default.</p>
 <hr />
 <h2 id="sitar_model-the-cycle-timed-driver"><code>sitar_model/</code>: the cycle-timed driver<a class="headerlink" href="#sitar_model-the-cycle-timed-driver" title="Permanent link">&para;</a></h2>
 <p>The same <code>SparcCore</code>, driven through Sitar with a <strong>simple, non-pipelined
@@ -1301,46 +1403,66 @@ cycle-level timing model</strong>. Structurally:</p>
 </span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>    <span class="p">]</span>
 </span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a><span class="k">end</span> <span class="kd">behavior</span>
 </span></code></pre></div>
-<p>This is <code>Core.sitar</code>'s top-level behavior: <code>sparcThread</code> (the state
-machine, which owns <code>SparcCore</code> plus five memory-interface threads for
-ifetch/read/write/atomic/flush) and <code>mainMemory</code> (a persistent procedure
-owning the actual <code>MemCore</code> storage) run as two branches of one <strong>parallel
-block</strong>, communicating through a shared request/response struct, alongside
-a third branch that watches for <code>sparcThread</code> halting (its own procedure
-never returns, it loops forever across <code>RESET</code>/<code>EXECUTE</code>/<code>ERROR</code> by
-design) and stops the simulation once it does. <code>sparcThread</code> and
-<code>mainMemory</code> are procedures on branches of the same parallel block, not
-modules connected by ports/nets. Because of that, their handshake can
-complete within a single phase, meaning zero added cycles, before either
-side's own configured latency is even applied.</p>
+<p>This is <code>core_only/sitar_model/src/Core.sitar</code>'s top-level behavior:
+<code>sparcThread</code> (the state machine, which owns <code>SparcCore</code> plus five
+memory-interface threads for ifetch/read/write/atomic/flush) and
+<code>mainMemory</code> (a persistent procedure owning the actual <code>MemCore</code> storage)
+run as two branches of one <strong>parallel block</strong>, communicating through a
+shared request/response struct, alongside a third branch that watches for
+<code>sparcThread</code> halting (its own procedure never returns, it loops forever
+across <code>RESET</code>/<code>EXECUTE</code>/<code>ERROR</code> by design) and stops the simulation once
+it does. <code>sparcThread</code> and <code>mainMemory</code> are procedures on branches of the
+same parallel block, not modules connected by ports/nets. Because of
+that, their handshake can complete within a single phase, meaning zero
+added cycles, before either side's own configured latency is even
+applied. <code>sparcThread</code> and <code>mainMemory</code> themselves are reusable
+components, from <code>sitar_component_models/</code>; <code>Top.sitar</code>/<code>Core.sitar</code>
+(this composition) are the part that's specific to the <code>core_only</code>
+configuration and would look different in another configuration.</p>
 <p>Three independent, additive latency knobs, all ordinary <code>int &gt;= 0</code> values
 with no special-casing at zero (see
 <a href="performance_modeling.html">Performance Modeling</a> for where to set them and
 how to observe the effect):</p>
 <ol>
 <li><strong>Opcode latency</strong>. Charged by <code>SparcThread</code> for every instruction.</li>
-<li><strong><code>MemoryInterface.delay</code></strong>. Per memory-access channel, on the
+<li><strong><code>VirtualMainMemoryInterface.delay</code></strong>. Per memory-access channel, on the
    requester side (models interconnect/cache latency).</li>
-<li><strong><code>MainMemory.delay</code></strong>. The memory's own service time, shared by all
+<li><strong><code>VirtualMainMemory.delay</code></strong>. The memory's own service time, shared by all
    requesters.</li>
 </ol>
+<hr />
+<h2 id="the-mmu-core_mmu-only">The MMU (<code>core_mmu</code> only)<a class="headerlink" href="#the-mmu-core_mmu-only" title="Permanent link">&para;</a></h2>
+<p><code>Mmu</code> (<code>sitar_component_models/Mmu.sitar</code>) wraps <code>MmuCore</code>
+(<code>cpp_common_code/mmu/MmuCore.h</code>/<code>.cpp</code>), the SPARC Reference MMU: the
+register map, the page-table walk, TLB lookup and fill, fault and
+permission checking, and probe and flush handling. <code>SparcThread</code> talks to
+it exactly the way it talks to <code>VirtualMainMemory</code> in <code>core_only</code>, over
+the same procedure handshake. Below the MMU, <code>PhysicalMainMemory</code> is a
+module, not a procedure, reached over two nets. See <a href="model_configurations.html">Model
+Configurations</a> for the block diagram, and
+<code>core_mmu/sitar_model/src/System.sitar</code>'s own header comment for the
+full design and the latency this net crossing adds.</p>
 <hr />
 <h2 id="connecting-other-components">Connecting other components<a class="headerlink" href="#connecting-other-components" title="Permanent link">&para;</a></h2>
 <div class="admonition note">
 <p class="admonition-title">Stub</p>
-<p>This section is a placeholder. This project models the core only (see
-<a href="index.html#models">Models</a>). A
-worked example of connecting an external component to it, a cache
-sitting between <code>SparcThread</code>'s memory-interface threads and
-<code>MainMemory</code>, is planned for this page. It will demonstrate the
-general pattern for building a larger Sitar model around this core.
-Until then, the shape of the pattern is already visible in how
-<code>MemoryInterface</code> and <code>MainMemory</code> connect today. They share a
-<code>MemAccessInterface</code> struct plus a request/response valid-bit
-handshake (see <code>model/sitar_model/src/cpp_code/MemAccessInterface.h</code>'s
-header comment for the exact protocol). An interposed cache would be
-another <code>MainMemory</code>-like persistent procedure, itself acting as a
-requester to a further <code>MemoryInterface</code>/<code>MainMemory</code> pair behind it.</p>
+<p>This section is a placeholder. A worked example of connecting an
+external component to the core, a cache sitting between
+<code>SparcThread</code>'s memory-interface procedures and <code>VirtualMainMemory</code>, is
+planned for this page. It will demonstrate the general pattern for
+building a larger Sitar model around this core. Until then, the
+shape of the pattern is already visible in how <code>VirtualMainMemoryInterface</code>
+and <code>VirtualMainMemory</code> connect today. They share a request/response
+struct pair (<code>VirtualMemoryRequest</code>/<code>VirtualMemoryResponse</code>, see
+<code>model/cpp_common_code/MemoryInterfaces.h</code>) plus a valid-bit
+handshake. See that file's header comment for the exact protocol.
+An interposed cache would be another <code>VirtualMainMemory</code>-like
+persistent procedure, itself acting as a requester to a further
+<code>VirtualMainMemoryInterface</code>/<code>VirtualMainMemory</code> pair behind it. A
+component reached over real nets instead, like <code>core_mmu</code>'s own
+<code>PhysicalMainMemory</code>, follows a different pattern. See <a href="#the-mmu-core_mmu-only">The
+MMU</a> above and
+<code>core_mmu/sitar_model/src/System.sitar</code>'s own header comment.</p>
 </div>
 
 

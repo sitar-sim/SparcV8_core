@@ -1,9 +1,7 @@
 //DebugHooks.cpp
 //
-//See DebugHooks.h. Deliberately empty: the value of each function here is
-//that it exists, by a stable name, for a debugger to break on -- its
-//parameters are read by the debugger's breakpoint condition and by hand
-//once stopped, not by this body.
+//See DebugHooks.h. Deliberately empty. The value of each function is
+//that it exists, by a stable name, for a debugger to break on.
 
 #include "DebugHooks.h"
 

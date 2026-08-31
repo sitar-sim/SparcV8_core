@@ -54,8 +54,11 @@ in either.
 
 Timing is deliberately kept out of `cpp_common_code/` entirely.
 `SparcThread.sitar` and its supporting files (`OpcodeLatencies.h`,
-`MemoryInterface.sitar`, `MainMemory.sitar`) are the only place cycle
-counts exist. See [Performance Modeling](performance_modeling.md).
+`VirtualMainMemoryInterface.sitar`, `VirtualMainMemory.sitar`, and,
+where an MMU is present, `Mmu.sitar`, `PhysicalMainMemoryInterface.sitar`,
+`PhysicalMainMemory.sitar`, and each configuration's own top-level
+composition file, e.g. `System.sitar` in `core_mmu`) are the only place
+cycle counts exist. See [Performance Modeling](performance_modeling.md).
 
 ## Linking against libquadmath
 

@@ -2,7 +2,7 @@
 
 The 0-delay functional driver for this configuration: `SparcStateMachine`
 (`../../../cpp_common_code/`, reused unchanged from `core_only/`) driving
-`SparcCore` through an `Mmu` instance (`../../../cpp_common_code/mmu/`)
+`SparcCore` through an `MmuCore` instance (`../../../cpp_common_code/mmu/`)
 instead of talking to `MemCore` directly. The MMU's own downstream target
 is `MainMemory` (`../../../cpp_common_code/MainMemory.h`), reached
 through `PhysicalMemoryInterface` (see `../../../cpp_common_code/
@@ -13,7 +13,7 @@ cache or devices yet. See `Plan_MMU_integration.md`.
 
 - **`src/sparc_sim.cpp`** -- this configuration's entry point. Same shape
   as `core_only/cpp_model/src/sparc_sim.cpp`, except it constructs a
-  `MainMemory` and an `Mmu` on top of it: `MainMemory mem; Mmu mmu(mem);
+  `MainMemory` and an `MmuCore` on top of it: `MainMemory mem; MmuCore mmu(mem);
   core.memCore = &mmu; SparcStateMachine runner(core, mmu);`. `MEM`
   checks in an expected-results file still read `MainMemory`'s
   underlying storage directly (bypassing the MMU), since they check

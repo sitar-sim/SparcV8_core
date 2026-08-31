@@ -1005,6 +1005,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -1013,6 +1041,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1465,7 +1521,7 @@ of three ways:</p>
 the same address:</p>
 <ul>
 <li><strong>Hex</strong>: <code>pc=0x203c</code></li>
-<li><strong>Binary</strong>: <code>pc=0b10000000000111100</code></li>
+<li><strong>Binary</strong>: <code>pc=0b10000000111100</code></li>
 <li><strong>Decimal</strong>: <code>pc=8252</code></li>
 </ul>
 <h2 id="register-name-syntax">Register-name syntax<a class="headerlink" href="#register-name-syntax" title="Permanent link">&para;</a></h2>
@@ -1689,6 +1745,15 @@ it to stop on any cause:</p>
 <p>For a rare event, <code>sparc-break-mae</code> is the simple, no-thought shortcut.
 For anything more specific (a particular kind/address that also faults),
 use <code>sparc-break-mem</code> with <code>mae</code> added.</p>
+<p>Omitting <code>type=</code> on <code>sparc-break-trap</code> stops at whatever cause is raised
+first, and that is always the reset trap. This model always asserts a
+reset trap at the very start of every run, before any of the program's
+own instructions execute, so a bare <code>sparc-break-trap</code> reliably catches
+that one first rather than whatever cause you actually meant to look
+for. Continue once to move past it and reach the next cause the program
+itself raises. There is no way yet to break on any cause except one in
+particular, filtering that one reset trap out. That kind of negated
+condition may be added in the future.</p>
 <p>Examples:
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(gdb) sparc-break pc=0x203c
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>(gdb) sparc-break-nth pc=0x203c n=10
@@ -1745,7 +1810,7 @@ value, comparing it against its value at the previous check:</p>
 </tr>
 <tr>
 <td><code>value=</code>/<code>mask=</code></td>
-<td>once, on the transition <em>into</em> a matching value (edge-triggered)</td>
+<td>on each transition <em>into</em> a matching value (edge-triggered), not on every instruction that merely holds it</td>
 </tr>
 <tr>
 <td><code>value=</code>/<code>mask=</code> + <code>persist</code></td>
@@ -1753,6 +1818,14 @@ value, comparing it against its value at the previous check:</p>
 </tr>
 </tbody>
 </table>
+<p>Edge-triggered here means "once per transition," not "once for the
+whole run." If the value leaves the match and later re-enters it, that
+counts as a new transition and fires again. A windowed register (<code>o0</code>,
+<code>l3</code>, and so on) can also appear to re-enter the same value across a
+<code>save</code>/<code>restore</code> even though nothing in the program explicitly wrote it
+again, since the physical storage a windowed name refers to rotates with
+the register window. Seeing a second stop at what looks like the same
+value is expected, not a bug.</p>
 <p>Examples:
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>(gdb) sparc-watch-mem addr=0xfffffe0
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(gdb) sparc-watch-reg cwp

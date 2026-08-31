@@ -8,7 +8,7 @@
 //     Fault Status Register clears it").
 //   - Writes to the Fault Status and Fault Address Registers are
 //     ignored (H.5: "Writes to the Fault Status Register are ignored";
-//     Mmu.cpp applies the same to FAR, which the manual doesn't
+//     MmuCore.cpp applies the same to FAR, which the manual doesn't
 //     separately call out but which has no defined write behavior
 //     either since software only ever reads it).
 

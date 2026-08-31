@@ -7,7 +7,9 @@ model/system_models/*/sitar_model/. Takes the path to that configuration's
 own sitar_model/ folder and builds entirely relative to it: translates and
 compiles every *.sitar file found both in model/sitar_component_models/
 (the reusable procedures every configuration shares -- SparcThread,
-MemoryInterface, MainMemory today) and in <config_folder>/src/ (that
+VirtualMainMemoryInterface, VirtualMainMemory, Mmu,
+PhysicalMainMemoryInterface, PhysicalMainMemory today) and in
+<config_folder>/src/ (that
 configuration's own Top/Core composition, the part that actually differs
 per configuration), against cpp_common_code/ and
 sitar_component_models/cpp_code/, and writes the executable into
@@ -122,7 +124,7 @@ def main():
 
     # One -d per cpp_common_code subfolder (mmu/, and later cache/,
     # devices/), in addition to cpp_common_code/ itself, so e.g.
-    # "#include "Mmu.h"" resolves the same way regardless of which folder
+    # "#include "MmuCore.h"" resolves the same way regardless of which folder
     # is including it -- same mechanism and reasoning as
     # build_cpp_model.sh's own COMMON_CODE_INCLUDES. Auto-discovered, not
     # hardcoded by name, so a new block's subfolder needs no change here.

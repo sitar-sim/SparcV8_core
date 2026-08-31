@@ -1,15 +1,13 @@
 //MainMemory.h
 //
-//Physical-memory endpoint for a config with an MMU: implements
-//PhysicalMemoryInterface (Ref MemoryInterfaces.h), wrapping a MemCore
-//for the actual backing storage exactly the way MainMemory.sitar already
-//does on the Sitar side -- MemCore itself is untouched (still a flat,
-//32-bit-indexed 256MB array, still loaded via initializeMemory()), only
-//this wrapper's outward-facing methods are 64-bit/doubleword-shaped.
+//Physical-memory endpoint for a configuration with an MMU. Implements
+//PhysicalMemoryInterface, wrapping a MemCore for the actual backing
+//storage. MemCore itself is untouched, still a flat, 32-bit-indexed
+//array. This wrapper's own outward-facing methods are 64-bit,
+//doubleword-shaped.
 //
-//Used only by configs with an MMU present (core_mmu today) -- core_only
-//has no MMU and no PhysicalMemoryInterface consumer, so it keeps talking
-//to a plain MemCore directly, same as before this class existed.
+//Used only where an MMU is present. Where there is none, the core talks
+//to a plain MemCore directly.
 
 #ifndef MAIN_MEMORY_H
 #define MAIN_MEMORY_H
@@ -33,7 +31,7 @@ class MainMemory : public PhysicalMemoryInterface
 
 		//PhysicalMemoryInterface: {READ, WRITE} only -- no distinct
 		//atomic type (Ref MemoryInterfaces.h's file comment on why
-		//atomicity doesn't percolate this far down). Mmu.cpp issues a
+		//atomicity doesn't percolate this far down). MmuCore.cpp issues a
 		//locked READ followed by an ordinary WRITE for an atomic access.
 		void access(const PhysicalMemoryRequest& request, PhysicalMemoryResponse& response) override;
 

@@ -1,9 +1,6 @@
 //BitManipulation.cpp
-
-
-
-//Functions for bit manipulations of 32bit unsigned integers
-//Neha Karanjkar March 2013
+//
+//See BitManipulation.h.
 
 
 #include"BitManipulation.h"

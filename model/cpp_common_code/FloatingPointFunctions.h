@@ -1,43 +1,37 @@
-//functions to convert ints and floats between various formats
+//FloatingPointFunctions.h
 //
-//==================================================================================================
-// **ASSUMPTIONS**:
-//==================================================================================================
-//1.  host machine is little Endian (Simulator (Sparc) is Big Endian)
-//2.  float  is 4B on Host machine (standard IEEE representation)
-//3.  double is 8B on Host machine (standard IEEE representation)
-//4.  memories in both are organized as words (32bit) (Word-swap is used instead of bit-swap)
-//==================================================================================================
+//Functions to convert ints and floats between formats, and to detect
+//IEEE 754 exceptions for the SPARC V8 floating-point instructions
+//(Ref Appendix C.9, where each op returns (result, texc, c)).
 //
-// IEEE 754 exception detection (Ref SPARC V8 manual Chapter 4 "FSR_current_exception (cexc)" /
-// Appendix C.9 "Floating-point ... Instructions", where each op is specified as returning
-// (result, texc, c)):
+//Assumptions: the host machine is little-endian (the simulated SPARC is
+//big-endian), float is 4 bytes and double is 8 bytes in standard IEEE
+//representation on the host, and memory in both is organized as 32-bit
+//words, so a word swap is used instead of a bit swap.
 //
-// Every function below that can raise an IEEE 754 exception takes a trailing `uint32_t* texc`
-// out-parameter, which it fills with the 5-bit exception code (bit4=invalid, bit3=overflow,
-// bit2=underflow, bit1=division-by-zero, bit0=inexact -- matching FSR's cexc/aexc/TEM bit
-// layout, see Registers.h) using the host FPU's own IEEE 754 exception flags (<cfenv>): since
-// the host is assumed IEEE-754-compliant (see assumption 2/3 above), bracketing each operation
-// with feclearexcept()/fetestexcept() is a direct, correct way to obtain SPARC's own
-// manual-specified cexc bits, without reimplementing IEEE 754 arithmetic exception rules by hand.
+//Every function that can raise an IEEE 754 exception takes a trailing
+//uint32_t* texc out-parameter, filled with the 5-bit exception code
+//(bit4 invalid, bit3 overflow, bit2 underflow, bit1 division-by-zero,
+//bit0 inexact, matching FSR's cexc/aexc/TEM layout). Single and double
+//precision use the host FPU's own IEEE 754 exception flags directly,
+//via feclearexcept()/fetestexcept() bracketing each operation.
 //
-// Quad-precision (__float128) exception detection does NOT use fenv: __float128 arithmetic goes
-// through libquadmath/libgcc TF-mode routines rather than native FPU instructions, and empirically
-// does not reliably raise the host's hardware fenv flags (confirmed: 0Q/0Q and sqrtq(-1Q) correctly
-// set FE_INVALID, but a genuinely inexact quad division does not set FE_INEXACT). This project
-// deliberately implements quad-precision arithmetic at all (unlike the AJIT test suite's assumption
-// that quad ops are unimplemented -- see validation/README.md), so invalid/overflow conditions for
-// quad ops are instead detected directly from the IEEE 754 special-value rules on the
-// operands/result (see quadAddSubIsInvalid, quadMulIsInvalid, quadDivIsInvalid, quadSqrtIsInvalid,
-// quadIsOverflow, isSignalingNaNQ below) -- the same technique used for FCMP/FCMPE's NaN handling.
-// Underflow and inexact are NOT detected for quad precision (always report 0 for those bits):
-// unlike invalid/overflow, they cannot be determined from the operands/result alone without either
-// hardware support or an independent higher-than-quad-precision reference, neither available here.
+//Quad precision (__float128) does not use fenv: __float128 arithmetic
+//goes through libquadmath/libgcc TF-mode routines rather than native
+//FPU instructions, and does not reliably raise the host's hardware fenv
+//flags. Invalid and overflow conditions for quad ops are instead
+//detected directly from the IEEE 754 special-value rules on the
+//operands and result (quadAddSubIsInvalid, quadMulIsInvalid,
+//quadDivIsInvalid, quadSqrtIsInvalid, quadIsOverflow, isSignalingNaNQ
+//below). Underflow and inexact are not detected for quad precision and
+//always report 0, since neither can be determined from the operands and
+//result alone without hardware support or a higher-precision reference.
 //
-// Comparisons (compare_* / compare_e_*) are handled separately from fenv, because the SPARC
-// manual's own distinction between FCMP (traps only on a *signaling* NaN operand) and FCMPE
-// (traps on *any* NaN operand, quiet or signaling) doesn't correspond to a single host fenv
-// outcome -- it requires inspecting the NaN's own bit pattern (quiet vs signaling) directly.
+//Comparisons (compare_*/compare_e_*) are handled separately from fenv.
+//The manual's distinction between FCMP, which traps only on a signaling
+//NaN operand, and FCMPE, which traps on any NaN operand, requires
+//inspecting the NaN's own bit pattern directly, not a single fenv
+//outcome.
 
 
 #include<stdint.h>

@@ -6,7 +6,7 @@
 // returned value against what Table H-4 says for each entry-type case.
 //
 // The interesting cases (not just "finds an ordinary leaf") are the
-// ones this project's own Mmu::probe() got wrong before a recent fix:
+// ones this project's own MmuCore::probe() got wrong before a recent fix:
 // Table H-4 says that for page/segment/region/context probes (types
 // 0-3), a PTD or an invalid entry found *at* the probed level is
 // returned as-is ("*" in the table), not treated as "not found" -- the

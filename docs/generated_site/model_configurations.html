@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="model_components_reference.html">
+        <link rel="prev" href="sparcv8_architecture.html">
       
       
-        <link rel="next" href="next_steps.html">
+        <link rel="next" href="model_components.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Performance Modeling - Sitar model of a SPARC V8 core</title>
+        <title>Model Configurations - Sitar model of a SPARC V8 core</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#performance-modeling" class="md-skip">
+        <a href="#model-configurations" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Performance Modeling
+              Model Configurations
             
           </span>
         </div>
@@ -828,10 +828,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="model_configurations.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="model_configurations.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -847,6 +874,70 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#core_only" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_only
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core_mmu" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_mmu
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core_mmu_devices-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_mmu_devices (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#core_l1cache_mmu_devices-planned" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_l1cache_mmu_devices (planned)
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -912,37 +1003,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Performance Modeling
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="performance_modeling.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="performance_modeling.html" class="md-nav__link">
         
   
   
@@ -958,70 +1022,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-three-knobs" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The three knobs
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#opcode-latency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Opcode latency
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#memory-side-latency" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Memory-side latency
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#confirming-a-change-took-effect" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Confirming a change took effect
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -1232,10 +1232,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-three-knobs" class="md-nav__link">
+  <a href="#core_only" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The three knobs
+        core_only
       
     </span>
   </a>
@@ -1243,10 +1243,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#opcode-latency" class="md-nav__link">
+  <a href="#core_mmu" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Opcode latency
+        core_mmu
       
     </span>
   </a>
@@ -1254,10 +1254,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#memory-side-latency" class="md-nav__link">
+  <a href="#core_mmu_devices-planned" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Memory-side latency
+        core_mmu_devices (planned)
       
     </span>
   </a>
@@ -1265,10 +1265,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#confirming-a-change-took-effect" class="md-nav__link">
+  <a href="#core_l1cache_mmu_devices-planned" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Confirming a change took effect
+        core_l1cache_mmu_devices (planned)
       
     </span>
   </a>
@@ -1295,116 +1295,69 @@
   
 
 
-<h1 id="performance-modeling">Performance Modeling<a class="headerlink" href="#performance-modeling" title="Permanent link">&para;</a></h1>
-<p>The Sitar model (<code>model/sitar_component_models/</code>, composed per
-configuration under <code>model/system_models/*/sitar_model/</code>) is a <strong>simple,
-non-pipelined
-cycle-level timing model</strong>. There is no pipelining and no out-of-order
-execution, just a fixed delay per opcode plus separately configurable
-memory-access latencies. This page covers where to change those
-numbers, and how to confirm a change actually took effect. See
-<a href="logging.html">Logging</a> for how logging itself is architected (this page
-just uses it) and how to narrow a trace down at runtime.</p>
-<hr />
-<h2 id="the-three-knobs">The three knobs<a class="headerlink" href="#the-three-knobs" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Knob</th>
-<th>Where</th>
-<th>Charged</th>
-<th>Default</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>Opcode latency</td>
-<td><code>model/sitar_component_models/cpp_code/OpcodeLatencies.h</code></td>
-<td>Every instruction, memory or not</td>
-<td>1 cycle</td>
-</tr>
-<tr>
-<td><code>VirtualMainMemoryInterface.delay</code></td>
-<td><code>Core.sitar</code>'s <code>init</code> block</td>
-<td>Requester side, per channel, after the response is available</td>
-<td>0</td>
-</tr>
-<tr>
-<td><code>VirtualMainMemory.delay</code></td>
-<td><code>Core.sitar</code>'s <code>init</code> block</td>
-<td>The memory's own service time, shared by all requesters</td>
-<td>0</td>
-</tr>
-</tbody>
-</table>
-<p>All three are independent and additive. A load with opcode latency 1,
-<code>VirtualMainMemoryInterface.delay</code> 2, and <code>VirtualMainMemory.delay</code> 3 takes 6 cycles total,
-not 3. All three accept <code>0</code> with no special-casing. With everything at
-<code>0</code>, the Sitar model runs with zero elapsed simulated time per
-instruction, functionally identical to the plain <code>cpp_model</code>.</p>
-<hr />
-<h2 id="opcode-latency">Opcode latency<a class="headerlink" href="#opcode-latency" title="Permanent link">&para;</a></h2>
-<p>This is a compile-time table, <code>OpcodeLatencies.h</code>:</p>
-<div class="language-cpp highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="cp">#define DEFAULT_PER_OPCODE_DELAY 1</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">Opcode</span><span class="p">,</span><span class="w"> </span><span class="kt">uint32_t</span><span class="o">&gt;</span><span class="w"> </span><span class="n">OPCODE_LATENCY_OVERRIDES</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span>
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="c1">// {UMUL, 4}, {SMUL, 4}, ...</span>
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="p">};</span>
+<h1 id="model-configurations">Model Configurations<a class="headerlink" href="#model-configurations" title="Permanent link">&para;</a></h1>
+<p>A block-diagram-level summary of each testbench configuration under
+<code>model/system_models/</code>, current and planned. See <a href="model_components.html">Model
+Components</a> for what each piece actually is, and
+<a href="model_components_reference.html">Model Components Reference</a> for the
+full per-file table.</p>
+<p>Each configuration provides two drivers: a <code>cpp_model</code> (0-delay
+functional) and a <code>sitar_model</code> (cycle-timed). The diagrams below are
+for the <code>sitar_model</code> side, since that's where the structure differs
+between configurations. The <code>cpp_model</code> side is always a plain,
+untimed function-call chain through the same C++ classes.</p>
+<h2 id="core_only">core_only<a class="headerlink" href="#core_only" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>Top
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a> |
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a> +-- Core (module)
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>      |
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>      +-- sparcThread : SparcThread (procedure)
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>      |    |
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>      |    +-- 5x VirtualMainMemoryInterface (procedure)
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>      |
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>      +-- mainMemory : VirtualMainMemory (procedure)
 </span></code></pre></div>
-<p>Every opcode not listed in <code>OPCODE_LATENCY_OVERRIDES</code> gets
-<code>DEFAULT_PER_OPCODE_DELAY</code>. List only the exceptions there, e.g. to
-approximate a multi-cycle multiplier/divider. Edit and rebuild (each
-configuration's own <code>sitar_model/build.sh</code>) to change it. This is
-deliberately not a runtime-loaded config file.</p>
-<h2 id="memory-side-latency">Memory-side latency<a class="headerlink" href="#memory-side-latency" title="Permanent link">&para;</a></h2>
-<p>The other two knobs, <code>VirtualMainMemoryInterface.delay</code> and
-<code>VirtualMainMemory.delay</code>, both default to <code>0</code> and are otherwise only
-ever assigned from outside, in <code>Core.sitar</code>'s <code>init</code> block, alongside the
-<code>downstreamRequest</code>/<code>downstreamResponse</code> wiring that connects each of
-<code>sparcThread</code>'s memory-interface procedures to <code>mainMemory</code>:</p>
-<div class="language-sitar highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k k-Preproc">init</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="g">$</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="g">sparcThread.ifetchProcedure.downstreamRequest  = &amp;mainMemory.request;</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="g">sparcThread.ifetchProcedure.downstreamResponse = &amp;mainMemory.response;</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="g">sparcThread.ifetchProcedure.delay              = 2;   </span><span class="cm">// add a line like this</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="g">...</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="g">mainMemory.delay = 3;                                 </span><span class="cm">// and/or this</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="g">$</span>
+<p>The core talks directly to memory over a procedure handshake, the same
+pattern all the way down. No net crossing anywhere, so a fully 0-delay
+run is possible with every latency knob at its default.</p>
+<h2 id="core_mmu">core_mmu<a class="headerlink" href="#core_mmu" title="Permanent link">&para;</a></h2>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>Top
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a> |
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a> +-- System (module)
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>      |
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>      +-- core : Core (module)
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>      |    |
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>      |    +-- sparcThread : SparcThread (procedure)
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a>      |    |    |
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a>      |    |    +-- 5x VirtualMainMemoryInterface (procedure)
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a>      |    |
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a>      |    +-- mmu : Mmu (procedure)
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a>      |         |
+</span><span id="__span-1-13"><a id="__codelineno-1-13" name="__codelineno-1-13" href="#__codelineno-1-13"></a>      |         +-- 2x PhysicalMainMemoryInterface (procedure)
+</span><span id="__span-1-14"><a id="__codelineno-1-14" name="__codelineno-1-14" href="#__codelineno-1-14"></a>      |              |
+</span><span id="__span-1-15"><a id="__codelineno-1-15" name="__codelineno-1-15" href="#__codelineno-1-15"></a>      |              +-- PullAToken / PushAToken (procedure)
+</span><span id="__span-1-16"><a id="__codelineno-1-16" name="__codelineno-1-16" href="#__codelineno-1-16"></a>      |
+</span><span id="__span-1-17"><a id="__codelineno-1-17" name="__codelineno-1-17" href="#__codelineno-1-17"></a>      +-- mainMemory : PhysicalMainMemory (module)
+</span><span id="__span-1-18"><a id="__codelineno-1-18" name="__codelineno-1-18" href="#__codelineno-1-18"></a>           |
+</span><span id="__span-1-19"><a id="__codelineno-1-19" name="__codelineno-1-19" href="#__codelineno-1-19"></a>           +-- PullAToken / PushAToken (procedure)
+</span><span id="__span-1-20"><a id="__codelineno-1-20" name="__codelineno-1-20" href="#__codelineno-1-20"></a>
+</span><span id="__span-1-21"><a id="__codelineno-1-21" name="__codelineno-1-21" href="#__codelineno-1-21"></a>core.requestOut  --requestNet--&gt;  mainMemory.requestIn
+</span><span id="__span-1-22"><a id="__codelineno-1-22" name="__codelineno-1-22" href="#__codelineno-1-22"></a>core.responseIn  &lt;-responseNet--  mainMemory.responseOut
 </span></code></pre></div>
-<hr />
-<h2 id="confirming-a-change-took-effect">Confirming a change took effect<a class="headerlink" href="#confirming-a-change-took-effect" title="Permanent link">&para;</a></h2>
-<p>Rebuild with logging enabled and run a test (commands below are for the
-<code>core_only</code> configuration; substitute another configuration's own path
-and executable name as needed):</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--logging
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_logging<span class="w"> </span>&lt;hex&gt;<span class="w"> </span>&lt;expected&gt;
-</span></code></pre></div>
-<p>This writes <code>&lt;hex&gt;</code>'s own trace file (<code>&lt;hex&gt;</code> with its <code>.hex</code> replaced by
-<code>.log</code>, see <a href="getting_started.html#observing-the-simulation-log">Getting Started</a>
-and <a href="logging.html#the-log-viewer">The log viewer</a>) into the current
-directory. Its <code>time</code> column is exactly the per-instruction cycle count
-this page is about. Either open it in <code>log_viewer/viewer.html</code> and read
-<code>time</code> off consecutive <code>FETCH</code> rows directly, or grep it on the command
-line:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>awk<span class="w"> </span>-F<span class="s1">&#39;\t&#39;</span><span class="w"> </span><span class="s1">&#39;$4==&quot;FETCH&quot;{print $2, $3, $5}&#39;</span><span class="w"> </span>&lt;hex_basename&gt;.log
-</span></code></pre></div>
-<p>For example, overriding <code>ADD</code>'s latency to 4 cycles (<code>{ADD, 4}</code> in
-<code>OPCODE_LATENCY_OVERRIDES</code>) and running
-<code>validation/asm/integer_alu/Arithmetic/Add/ADD.hex</code> produces <code>time</code>
-values increasing by 1 between fetches, except right after the <code>ADD</code>
-row, where it jumps by 4, exactly the overridden gap. Reverting the
-override (back to the empty <code>OPCODE_LATENCY_OVERRIDES = {};</code> default) and
-rebuilding restores the uniform 1-cycle spacing.</p>
-<p>For <code>VirtualMainMemoryInterface.delay</code>/<code>VirtualMainMemory.delay</code>, look in
-the <em>other</em> file <code>--logging</code> produces, <code>sitar.log</code> (Sitar's own
-per-request/response messages, not part of the architectural trace, see
-<code>model/system_models/core_only/sitar_model/README.md</code>) for
-<code>"servicing"</code>/<code>"response ready"</code>
-(<code>VirtualMainMemory</code>) and <code>"Started memory reference"</code>/<code>"Finished memory
-reference"</code> (<code>VirtualMainMemoryInterface</code>), each timestamped <code>[t=&lt;cycle&gt;]</code>.</p>
-<p>Logging is off by default. Rebuild without <code>--logging</code> to go back to
-that. It's noticeably slower and noisier, meant for exactly this kind of
-debugging rather than everyday use.</p>
+<p>The core talks to the MMU over the same procedure handshake <code>core_only</code>
+uses. The MMU talks to physical memory over two nets, since
+<code>PhysicalMainMemory</code> is a module, not a procedure. Crossing a net costs
+Sitar's own unavoidable minimum one cycle each way, so even at every
+knob's default this configuration cannot reach a fully 0-delay run the
+way <code>core_only</code> can. See <code>core_mmu/sitar_model/src/System.sitar</code>'s own
+header comment for the full design and the reasoning behind it.</p>
+<h2 id="core_mmu_devices-planned">core_mmu_devices (planned)<a class="headerlink" href="#core_mmu_devices-planned" title="Permanent link">&para;</a></h2>
+<p>Adds a timer, an interrupt controller, and a serial device as further
+sibling submodules of <code>System</code>, each reached over its own net pair
+through a shared bus. See <code>Plan_Devices_integration.md</code>.</p>
+<h2 id="core_l1cache_mmu_devices-planned">core_l1cache_mmu_devices (planned)<a class="headerlink" href="#core_l1cache_mmu_devices-planned" title="Permanent link">&para;</a></h2>
+<p>Adds split instruction and data L1 caches between the core and the MMU.
+See <code>Plan_Caches_integration.md</code>.</p>
 
 
 

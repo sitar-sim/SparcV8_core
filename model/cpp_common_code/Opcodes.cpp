@@ -1,9 +1,8 @@
 //Opcodes.cpp
+//
+//See Opcodes.h.
 
 #include"Opcodes.h"
-
-//202 Opcodes in total
-
 
 std::string printOpcode(Opcode op)
 {

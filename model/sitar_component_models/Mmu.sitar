@@ -1,55 +1,39 @@
 
 //================================================================
-// procedure MmuUnit
+// procedure Mmu
 // Author: Neha Karanjkar
 //
-// The Sitar timing model for the MMU (Ref Plan_MMU_integration.md's
-// "Sitar timing model" section for the full design this implements).
-// Named MmuUnit rather than "Mmu" to avoid this procedure sharing a
-// name with the plain C++ class it embeds -- Ref MainMemoryVA.sitar's
-// and MainMemoryPA.sitar's header comments for the two different
-// mechanical ways this same class of collision can break a build
-// (an embedded member whose type name matches the enclosing generated
-// class, or a same-named #include silently resolving to itself); "Mmu"
-// would hit the header-guard/self-include form of it (Mmu.h's own guard
-// is literally MMU_H), so this procedure is named to sidestep the whole
-// class of risk instead.
+// The Sitar timing model for the MMU. Embeds an instance of the plain
+// C++ MmuCore class, named MmuCore rather than Mmu so this procedure
+// can safely take the plain name.
 //
-// Inserted into the chain between SparcThread and memory: SparcThread's
-// 5 memory-interface procedures now point downstream at this procedure
-// (VM-typed) instead of directly at a memory procedure; this procedure
-// in turn drives two PhysicalMemoryProcedure instances,
-// phyMemReadProcedure and phyMemWriteProcedure, pointed downstream at
-// MainMemoryPA.sitar (PM-typed) -- Ref Core.sitar's own init block for how
-// these get wired. Persistent, for the same reason MainMemoryVA.sitar
-// is (a procedure MemoryInterface talks to over the pointer+valid
-// handshake must be independently, continuously scheduled).
+// Sits between SparcThread and physical memory: SparcThread's 5
+// memory-interface procedures point downstream at this procedure
+// instead of at a memory procedure directly. This procedure in turn
+// drives two PhysicalMainMemoryInterface instances, phyMemReadProcedure
+// and phyMemWriteProcedure. Persistent, for the same reason
+// VirtualMainMemory.sitar is: a procedure talking to it over the
+// pointer and valid-bit handshake needs it independently and
+// continuously scheduled.
 //
-// The core design point (Ref Plan_MMU_integration.md): every genuinely
-// multi-cycle piece of a translation -- a page-table walk, an R/M-bit
-// write-back, the final data access -- is realized here as a real
-// `run phyMemReadProcedure;`/`run phyMemWriteProcedure;` call, not a
-// plain C++ function call, so the latency composes through genuine
-// simulated time (and for free with MainMemoryPA.sitar's own configured
-// delay) exactly the way SparcThread.sitar's own memory instructions
-// already do one level up. Mmu.cpp's translate()/probe() stay real,
-// callable functions the cpp_model keeps using unchanged; this
-// procedure independently duplicates the exact same step sequence they
-// are now built from (Ref Mmu.h's own comment on that public section),
-// substituting a real `run` for each physical-primitive call. The
-// embedded Mmu instance's own downstream_ reference (unusedDownstream
-// below) is never actually exercised on this path at all.
+// Every genuinely multi-cycle piece of a translation, a page-table
+// walk, an R/M-bit write-back, the final data access, is realized here
+// as a real `run phyMemReadProcedure;`/`run phyMemWriteProcedure;`
+// call, not a plain C++ function call, so latency composes through
+// genuine simulated time. MmuCore.cpp's translate()/probe() stay real,
+// callable functions the cpp_model uses directly. This procedure
+// independently walks the same step sequence they're built from,
+// substituting a real `run` for each physical-access step.
 //
-// NOTE: Sitar's `if` statement has no `elsif` (Ref its grammar) -- every
-// multi-way ASI dispatch below is written as nested if/else/end if
-// instead of a flat elsif chain.
+// Sitar's `if` has no `elsif`. Every multi-way ASI dispatch below is
+// written as nested if/else/end if.
 //================================================================
 
-procedure MmuUnit
+procedure Mmu
 
 	include
 	$
-	#include"Mmu.h"
+	#include"MmuCore.h"
 	#include"Addresses.h"
 	#include"MemoryInterfaces.h"
 	#include"AsiValues.h"
@@ -58,9 +42,9 @@ procedure MmuUnit
 
 	decl
 	$
-	//Mmu's constructor requires a PhysicalMemoryInterface& to bind its
+	//MmuCore's constructor requires a PhysicalMemoryInterface& to bind its
 	//own downstream_ to, but nothing on this Sitar path ever calls
-	//Mmu::access() or any private helper that would use it (Ref this
+	//MmuCore::access() or any private helper that would use it (Ref this
 	//file's header comment) -- this throwaway adapter exists purely to
 	//satisfy that constructor requirement and should never actually be
 	//invoked.
@@ -68,17 +52,17 @@ procedure MmuUnit
 	{
 		void access(const PhysicalMemoryRequest&, PhysicalMemoryResponse&) override
 		{
-			assert(false && "Mmu's own downstream_ should never be called from the Sitar timing model");
+			assert(false && "MmuCore's own downstream_ should never be called from the Sitar timing model");
 		}
 	} unusedDownstream;
 
-	Mmu mmu{unusedDownstream};
+	MmuCore mmu{unusedDownstream};
 
 	//This procedure's own request/response -- the object whatever is
 	//immediately upstream (each of SparcThread's 5 memory-interface
 	//procedures, via their downstreamRequest/downstreamResponse
 	//pointers) reads/writes directly. Owned here, not by the parent
-	//module -- Ref MainMemoryVA.sitar's header comment for the general
+	//module -- Ref VirtualMainMemory.sitar's header comment for the general
 	//chaining rule.
 	VirtualMemoryRequest  request;
 	VirtualMemoryResponse response;
@@ -86,8 +70,8 @@ procedure MmuUnit
 	//Scratch state, procedure-instance-level rather than function-local:
 	//it survives across `run phyMemReadProcedure;`/
 	//`run phyMemWriteProcedure;` boundaries within one request. State
-	//intrinsic to the translation algorithm itself lives as an Mmu-class
-	//private member instead (walkResultPte_ etc, Ref Mmu.h) -- this is
+	//intrinsic to the translation algorithm itself lives as an MmuCore-class
+	//private member instead (walkResultPte_ etc, Ref MmuCore.h) -- this is
 	//purely about sequencing this procedure's own dispatch.
 	bool     isSecondWord;        //LOAD (two words) vs IFETCH (one)
 	bool     tlbHit;
@@ -122,15 +106,15 @@ procedure MmuUnit
 
 	//--------------------------------------------------------
 	//Physical-side connections -- two instances of the reusable
-	//PhysicalMemoryProcedure (Ref that file's own header
+	//PhysicalMainMemoryInterface (Ref that file's own header
 	//comment), one per transaction shape. accessType is fixed at init;
 	//downstreamRequest/downstreamResponse are wired by Core.sitar's own
-	//init block, at MainMemory's local request/response, exactly the
-	//same pattern SparcThread.sitar's own 5 memory-interface instances
+	//init block, at PhysicalMainMemory's local request/response, exactly
+	//the same pattern SparcThread.sitar's own 5 memory-interface instances
 	//already use one level up.
 	//--------------------------------------------------------
-	procedure phyMemReadProcedure  : PhysicalMemoryProcedure
-	procedure phyMemWriteProcedure : PhysicalMemoryProcedure
+	procedure phyMemReadProcedure  : PhysicalMainMemoryInterface
+	procedure phyMemWriteProcedure : PhysicalMainMemoryInterface
 
 	init
 	$
@@ -141,7 +125,7 @@ procedure MmuUnit
 	//--------------------------------------------------------
 	//Latency knobs -- Ref Plan_MMU_integration.md's "Sitar timing model"
 	//section for what real hardware cost each stands in for. Plain
-	//runtime fields, default 0, matching MemoryInterface.delay's own
+	//runtime fields, default 0, matching VirtualMainMemoryInterface.delay's own
 	//convention -- never compile-time constants. Set from Core.sitar's
 	//consolidated knob block, not here (Ref that file's own comment).
 	//--------------------------------------------------------
@@ -171,7 +155,7 @@ procedure MmuUnit
 		wait until (this_phase==0 and $request.valid$);
 
 		$
-		log<<endl<<"[t="<<current_time<<"] MmuUnit: servicing "<<accessTypeToString(request.accessType)
+		log<<endl<<"[t="<<current_time<<"] Mmu: servicing "<<accessTypeToString(request.accessType)
 		   <<" request for address 0x"<<std::hex<<request.address<<std::dec;
 		response.readWord0 = 0;
 		response.readWord1 = 0;
@@ -181,7 +165,7 @@ procedure MmuUnit
 		$;
 
 		//=================================================================
-		// IFETCH / LOAD -- Ref Mmu.cpp's handleReadAccess()
+		// IFETCH / LOAD -- Ref MmuCore.cpp's handleReadAccess()
 		//=================================================================
 		if (request.accessType==MemAccessType::IFETCH or request.accessType==MemAccessType::LOAD) then
 
@@ -191,7 +175,7 @@ procedure MmuUnit
 				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 			else
 			if ($asiIsCacheTagOrData((uint8_t)request.asi) or asiIsIcacheFlush((uint8_t)request.asi) or asiIsDcacheFlush((uint8_t)request.asi)$) then
-				nothing; //no cache present yet -- no-op, matches Mmu.cpp
+				nothing; //no cache present yet -- no-op, matches MmuCore.cpp
 			else
 			if ($request.asi==ASI_MMU_FLUSH_PROBE$) then
 				//Probe: duplicates the exact same beginWalk()/
@@ -202,7 +186,7 @@ procedure MmuUnit
 
 				if ($probeType == 4$) then
 					//Only the entire-probe type ever actually consults
-					//the TLB (Ref Mmu.cpp's probe() -- the page/segment/
+					//the TLB (Ref MmuCore.cpp's probe() -- the page/segment/
 					//region/context types below always walk fresh, no
 					//tlb_.lookup() call at all), so tlbLookupDelay is
 					//charged here only, matching CASE 6's own placement.
@@ -258,7 +242,7 @@ procedure MmuUnit
 				wait(registerAccessDelay, 0);
 			else
 			if ($asiIsMmuAccess((uint8_t)request.asi)$) then
-				nothing; //diagnostic ASIs (5/6/7): unimplemented, no-op (Ref Mmu.cpp)
+				nothing; //diagnostic ASIs (5/6/7): unimplemented, no-op (Ref MmuCore.cpp)
 			else
 				//CASE 6: ordinary translated access
 				if ($!mmu.mmuEnabled()$) then
@@ -319,7 +303,7 @@ procedure MmuUnit
 					//(an IFETCH, or bypass carrying an IFETCH's address,
 					//is never doubleword-aligned in general) -- round
 					//down before the request, matching
-					//Mmu.cpp's readPhysicalWord()/readPhysicalDoubleword()
+					//MmuCore.cpp's readPhysicalWord()/readPhysicalDoubleword()
 					//doing exactly this internally.
 					$
 					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
@@ -342,7 +326,7 @@ procedure MmuUnit
 		end if;
 
 		//=================================================================
-		// STORE -- Ref Mmu.cpp's handleWriteAccess()
+		// STORE -- Ref MmuCore.cpp's handleWriteAccess()
 		//=================================================================
 		if (request.accessType==MemAccessType::STORE) then
 
@@ -354,7 +338,7 @@ procedure MmuUnit
 			else
 			if ($request.asi==ASI_MMU_FLUSH_PROBE$) then
 				//Flush needs no run calls at all -- write-through TLB
-				//(Ref Mmu.h's own comment on commitRMTlbUpdate()): a
+				//(Ref MmuCore.h's own comment on commitRMTlbUpdate()): a
 				//flush only ever drops cached copies, never writes
 				//memory.
 				$ mmu.flush(request.address); $;
@@ -443,7 +427,7 @@ procedure MmuUnit
 		end if;
 
 		//=================================================================
-		// ATOMIC_LS -- Ref Mmu.cpp's handleAtomicAccess(): no register/
+		// ATOMIC_LS -- Ref MmuCore.cpp's handleAtomicAccess(): no register/
 		// flush/probe/cache dispatch attempted here at all, unlike LOAD/
 		// STORE.
 		//=================================================================
@@ -507,7 +491,7 @@ procedure MmuUnit
 				if (translationOk) then
 					//Locked read immediately followed by an ordinary
 					//write, both to translatedPhysAddr -- Ref
-					//Mmu.cpp's atomicReadModifyWritePhysical(). Rounded
+					//MmuCore.cpp's atomicReadModifyWritePhysical(). Rounded
 					//down to the doubleword boundary byteMask was
 					//computed against, same reasoning as LOAD/STORE above.
 					$
@@ -537,7 +521,7 @@ procedure MmuUnit
 		end if;
 
 		//FLUSH/NO_ACCESS: no branch above matched -- falls through as a
-		//no-op, matching Mmu::access()'s own default case.
+		//no-op, matching MmuCore::access()'s own default case.
 
 		$ response.valid = true; $;
 

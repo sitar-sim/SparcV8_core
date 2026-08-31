@@ -10,7 +10,7 @@
 // happening to succeed because nothing was ever configured.
 //
 // Note: `translate()`'s disabled-MMU branch also decides the `cacheable`
-// result the caller gets back (Ref Mmu.cpp), but that value currently
+// result the caller gets back (Ref MmuCore.cpp), but that value currently
 // has no effect anywhere observable -- no cache exists yet to consume
 // it, and it isn't captured in MmuStats either -- so it isn't checked
 // here. See mmu/README.md's own note on this (the current formula can

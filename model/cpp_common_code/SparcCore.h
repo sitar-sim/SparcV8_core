@@ -1,7 +1,13 @@
 //SparcCore.h
 //
-//author: Neha Karanjkar 
-//March 2012
+//Author: Neha Karanjkar
+//
+//A pure C++ implementation of SPARC V8 instruction semantics: decode
+//dispatch, ALU and FPU operations, trap logic, and the register file.
+//No notion of cycles, timing, or a driving loop of its own. A driver
+//calls its methods in the right order and supplies memory access
+//itself. This keeps ISA semantics in one place, shared unmodified by
+//the 0-delay and Sitar timed drivers.
 
 #ifndef SPARC_CORE_H
 #define SPARC_CORE_H

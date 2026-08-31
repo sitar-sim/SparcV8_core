@@ -81,7 +81,9 @@ nav:
 
   - The Model:
       - SPARC V8 Architecture: sparcv8_architecture.md
+      - Model Configurations: model_configurations.md
       - Model Components: model_components.md
+      - Model Components Reference: model_components_reference.md
       - Performance Modeling: performance_modeling.md
 
   - More:

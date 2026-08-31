@@ -1,39 +1,30 @@
 //DebugHooks.h
 //
 //Named, otherwise-empty functions called from the same points in the
-//instruction loop that CoreLogger logs from (see CoreLogger.h), purely so
-//a host debugger has a stable place to break on by name -- e.g. (gdb)
-//`break debug_hook_after_execute if core.reg.PC==0x2054 && core.coreID==0`
-//-- instead of a source file:line, which drifts every time the driver code
-//is edited (and doesn't exist at all for the sitar model, whose driver is
-//generated C++). Nothing here is gdb-specific (plain -g/DWARF info plus a
-//noinline symbol works under any debugger); gdb is simply the one this
-//repository documents and ships convenience commands for -- see
-//docs/source/examining_core_state_with_gdb.md and debug/sparc.gdb.
+//instruction loop that CoreLogger logs from. They give a host debugger
+//a stable place to break on by name, instead of a source file and line,
+//which drifts as driver code is edited, and doesn't exist at all for
+//the sitar model's generated C++ driver.
 //
-//Only real (and only then declared noinline, so the optimizer can't fold
-//the empty body away and remove the breakpoint target) when built with
-//-DSPARC_DEBUG_HOOKS_ENABLED (see build.sh/build.py's --debug). Otherwise
-//this is a plain empty inline function -- calls to it compile away to
-//nothing, same zero-cost-when-unused principle as CoreLogger's own logging
-//gate.
+//Only real, and only then declared noinline so the optimizer can't fold
+//the empty body away, when built with -DSPARC_DEBUG_HOOKS_ENABLED.
+//Otherwise each is an empty inline function that compiles away to
+//nothing.
 //
-//Not every CoreLogger event has a hook here -- only ones a `watch` (a
-//native gdb hardware watchpoint on a memory location or register) can't
-//already reach just as well. "PC/register/memory reaches a value" is a
-//`watch` or a plain `break ... if`, no hook needed. What's left, and does
-//need a hook, is state-machine *transitions* that aren't a single value
-//changing: an instruction finishing (executed, trapped, or annulled), or a
-//memory access completing.
+//Not every CoreLogger event has a hook. Only ones a debugger's own
+//watchpoint can't already reach as well. What needs a hook is a
+//state-machine transition that isn't a single value changing: an
+//instruction finishing (executed, trapped, or annulled), or a memory
+//access completing.
 //
-//Together these four cover every way one iteration of the fetch-decode-
-//execute loop can conclude: debug_hook_after_execute (executed -- this
-//also fires, alongside debug_hook_trap_raised, for an instruction that
-//trapped partway through -- see that hook's own comment), debug_hook_
-//trap_raised (a trap pre-empted execution entirely), debug_hook_annulled
-//(a delay-slot instruction was skipped, never decoded). debug_hook_
-//mem_access is a sub-event within debug_hook_after_execute's instruction,
-//not an alternative to it.
+//These four cover every way one iteration of the fetch-decode-execute
+//loop can conclude. debug_hook_after_execute fires when an instruction
+//executes, and also alongside debug_hook_trap_raised for one that
+//trapped partway through. debug_hook_trap_raised fires when a trap
+//pre-empts execution entirely. debug_hook_annulled fires when a
+//delay-slot instruction is skipped, never decoded. debug_hook_mem_access
+//is a sub-event within debug_hook_after_execute's instruction, not an
+//alternative to it.
 
 #ifndef DEBUG_HOOKS_H
 #define DEBUG_HOOKS_H

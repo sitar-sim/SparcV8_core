@@ -1,30 +1,23 @@
 //CoreLogger.h
 //
 //Formats one SparcCore instance's state into a trace of architectural
-//events (fetch, trap, memory access, ...), one line per event, in the
+//events (fetch, trap, memory access), one line per event, in the
 //tab-separated format the browser-based viewer in model/log_viewer/
-//understands. Owned by SparcCore itself (see SparcCore::logger), so any
-//driver holding a SparcCore -- SparcStateMachine (cpp_model) or the
-//SparcThread sitar procedure (sitar_model) -- gets one for free, with no
-//extra wiring, the same way SparcCore::printSparcState() already did.
+//understands. Owned by SparcCore itself, so any driver holding a
+//SparcCore gets one for free.
 //
-//Two ways to consume a logged row, chosen via do_print:
-//  - do_print == true:  the row is written directly to *out (see init())
-//    and the call returns "" (the cpp model's main.cpp works this way).
-//  - do_print == false: nothing is written here at all; the formatted
-//    row is just returned, for the caller to forward wherever it likes
-//    (the sitar model forwards it into its own per-module `log` object,
-//    so logging keeps splitting by hierarchy the way Sitar already does
-//    in parallel simulation).
+//Two ways to consume a logged row, chosen via do_print. If true, the
+//row is written directly to *out and the call returns an empty string.
+//If false, nothing is written here. The formatted row is just returned,
+//for the caller to forward wherever it likes, which is how the sitar
+//model routes each row into its own per-module log object.
 //
 //Every log_* method does real work only when built with
-//-DSPARC_LOGGING_ENABLED (see build.sh); otherwise each is a one-line
-//stub that touches nothing and returns "". That's a compile-time
-//distinction, not a runtime one: with the macro undefined, none of the
-//state-collection/formatting code exists in the compiled log_* bodies at
-//all. print_state() and init() are the exception -- they're plain
-//formatting/setup utilities, not part of the per-cycle trace, so they
-//always do real work regardless of that macro.
+//-DSPARC_LOGGING_ENABLED. Otherwise each is a one-line stub that
+//touches nothing and returns an empty string, a compile-time
+//distinction, not a runtime one. print_state() and init() are plain
+//formatting and setup utilities, not part of the per-cycle trace, so
+//they always do real work.
 
 #ifndef CORE_LOGGER_H
 #define CORE_LOGGER_H

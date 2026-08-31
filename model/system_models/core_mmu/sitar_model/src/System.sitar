@@ -1,0 +1,89 @@
+
+//================================================================
+// module System
+// Author: Neha Karanjkar
+//
+// Assembles Core (the SPARC V8 core with an MMU) and PhysicalMainMemory
+// as sibling submodules, connected by two nets. PhysicalMainMemory is a
+// sibling of Core, not a child of it, so a future device module can
+// join here the same way, as another sibling, rather than nesting
+// inside Core.
+//
+// Crossing a module boundary over a net costs Sitar's own unavoidable
+// minimum one cycle of latency each way, regardless of any latency knob
+// below being at its default of 0. Even with the MMU disabled and every
+// knob at 0, a memory access here costs at least 2 cycles more than the
+// same access in core_only or in this configuration's own cpp_model,
+// one cycle each way across requestNet/responseNet.
+//
+// Owns the single consolidated, commented list of every latency knob in
+// this configuration.
+//================================================================
+
+module System
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	$
+
+	submodule core       : Core
+	submodule mainMemory : PhysicalMainMemory
+
+	net requestNet  : capacity 1 width TOKEN_REQ_WIDTH
+	net responseNet : capacity 1 width TOKEN_RESP_WIDTH
+
+	core.requestOut        => requestNet
+	mainMemory.requestIn   <= requestNet
+	mainMemory.responseOut => responseNet
+	core.responseIn        <= responseNet
+
+	init
+	$
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted (to 0) in its own owning procedure/
+	// module; the value set here runs afterward (Sitar's child-then-
+	// parent init order) and is the authoritative one for the
+	// simulation.
+	//---------------------------------------------------------
+	//Opcode-wise latency: compile-time, see OpcodeLatencies.h
+	//(DEFAULT_PER_OPCODE_DELAY / OPCODE_LATENCY_OVERRIDES) -- not
+	//settable here.
+	//
+	//Core-side interconnect latency (memory-interface delay: cycles
+	//beyond 0-delay procedure-call semantics, per access type):
+	core.sparcThread.ifetchProcedure.delay          = 0; //ifetch
+	core.sparcThread.memReadProcedure.delay         = 0; //load
+	core.sparcThread.memWriteProcedure.delay        = 0; //store
+	core.sparcThread.atomicLoadStoreProcedure.delay = 0; //atomic load-store
+	core.sparcThread.flushProcedure.delay           = 0; //flush
+	//
+	//MMU-related (all charged only on the paths described -- Ref
+	//Mmu.sitar's own comment on each field):
+	core.mmu.tlbLookupDelay         = 0; //TLB tag-compare cost, charged whether hit or miss
+	core.mmu.pageTableWalkStepDelay = 0; //walker control overhead, once per page-table level visited
+	core.mmu.tlbFillDelay           = 0; //cost of inserting a resolved entry into the TLB, on a fresh miss only
+	core.mmu.registerAccessDelay    = 0; //MMU control/context/FSR/FAR register read or write (ASI 4)
+	core.mmu.flushDelay             = 0; //TLB invalidate (ASI 3 write) -- no memory access, write-through TLB
+	//
+	//MMU-to-memory interconnect latency (additive with requestNet/
+	//responseNet's own unavoidable >=1 cycle each way -- Ref this file's
+	//own header comment):
+	core.mmu.phyMemReadProcedure.delay  = 0;
+	core.mmu.phyMemWriteProcedure.delay = 0;
+	//
+	//Physical memory service latency:
+	mainMemory.delay = 0;
+	//---------------------------------------------------------
+	$
+
+	//No behavior block: core and mainMemory are both submodules, so the
+	//kernel schedules them automatically every phase -- nothing here
+	//needs to `run` either of them (only procedures are `run`; modules
+	//never are). Core's own halt-watcher branch already calls `stop
+	//simulation` when sparcThread halts, which halts the entire
+	//simulation regardless of how deep the caller is nested, so System
+	//needs no watcher of its own either.
+end module

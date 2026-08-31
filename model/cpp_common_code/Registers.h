@@ -1,19 +1,16 @@
 //Registers.h
-
-//Implements all registers, aliases, constants and 
-//internal signals in the Sparc Core
+//
+//Implements all registers, aliases, constants, and internal signals in
+//the SPARC core. NWINDOWS, the number of register windows, is defined
+//in ImplementationDependent.h.
 
 #ifndef REGISTERS_H
 #define REGISTERS_H
 
-#include"BitManipulation.h" //describes functions for bit manipulations in registers
+#include"BitManipulation.h"
 #include"ImplementationDependent.h"
 #include<cassert>
 #include<stdint.h>
-
-
-//Number of window registers in the implementation of Sparc V8
-//(NWIMDOWS) is defined in implementationDependent.h
 
 class Registers
 {

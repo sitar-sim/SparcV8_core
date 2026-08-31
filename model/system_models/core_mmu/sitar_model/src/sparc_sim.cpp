@@ -1,19 +1,17 @@
 //sparc_sim.cpp
 //Author: Neha Karanjkar
 //
-//The core_mmu configuration's Sitar entry point: identical to
-//core_only's own sitar sparc_sim.cpp (same CLI, same expected-results
-//format, same PASS/FAIL/OVERALL output -- see that file's own header
-//comment for the full description), except SparcThread's 5 memory-
-//interface procedures now talk to an MmuUnit instead of a MainMemoryVA
-//directly, with a MainMemory (PM-shaped) below it -- Ref
-//Plan_MMU_integration.md's "Sitar timing model" section.
+//The core_mmu configuration's Sitar entry point. Identical to
+//core_only's own sitar sparc_sim.cpp, except SparcThread's 5
+//memory-interface procedures talk to an Mmu instead of a
+//VirtualMainMemory directly, with a PhysicalMainMemory below it,
+//reached over nets. TOP->system.core is the SPARC core plus MMU.
+//TOP->system.mainMemory is the physical memory, a sibling of core.
 //
-//MEM checks in the expected-results file still read straight from
-//MainMemory's own plain readWord() (not through the MMU), exactly like
-//core_mmu's cpp_model does -- they're checking physical memory state
-//directly, what a test setting up page tables and checking their
-//contents needs.
+//MEM checks in the expected-results file read straight from
+//MainMemory's own plain readWord(), not through the MMU, since they're
+//checking physical memory state directly, what a test setting up page
+//tables needs.
 //
 //Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles]
 
@@ -130,10 +128,10 @@ int main(int argc, char** argv)
 	std::ofstream sparcTraceFile(traceFile.c_str());
 	if (sparcTraceFile.is_open())
 	{
-		TOP->core.sparcThread.log.setOstream(&sparcTraceFile);
-		TOP->core.sparcThread.log.useDefaultPrefix = false;
-		TOP->core.sparcThread.log.setPrefix("");
-		sparcTraceFile << TOP->core.sparcThread.core.logger.header() << "\n";
+		TOP->system.core.sparcThread.log.setOstream(&sparcTraceFile);
+		TOP->system.core.sparcThread.log.useDefaultPrefix = false;
+		TOP->system.core.sparcThread.log.setPrefix("");
+		sparcTraceFile << TOP->system.core.sparcThread.core.logger.header() << "\n";
 	}
 	else
 	{
@@ -141,7 +139,7 @@ int main(int argc, char** argv)
 	}
 #endif
 
-	TOP->core.mainMemory.mem.initializeMemory(hexFile);
+	TOP->system.mainMemory.mem.initializeMemory(hexFile);
 
 	//run for up to maxCycles cycles (Sitar counts phases, 2 per cycle),
 	//or until the model itself calls `stop simulation` (Core.sitar does
@@ -154,12 +152,12 @@ int main(int argc, char** argv)
 			break;
 	}
 
-	bool          halted        = TOP->core.sparcThread.HALT.VALUE;
+	bool          halted        = TOP->system.core.sparcThread.HALT.VALUE;
 	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
 
 	if (expectedFile.empty())
 	{
-		std::cout << "\n" << TOP->core.sparcThread.core.logger.print_state() << "\n";
+		std::cout << "\n" << TOP->system.core.sparcThread.core.logger.print_state() << "\n";
 		if (halted)
 			std::cout << "Simulation halted after " << cyclesExecuted << " cycles.\n";
 		else
@@ -184,7 +182,7 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
-	Registers& reg = TOP->core.sparcThread.core.reg;
+	Registers& reg = TOP->system.core.sparcThread.core.reg;
 
 	bool allPass    = true;
 	int  numChecks  = 0;
@@ -230,7 +228,7 @@ int main(int argc, char** argv)
 			ss >> std::hex >> addr >> expected >> mask;
 
 			uint32_t alignedAddr = addr & (~0x3u);
-			uint32_t word        = TOP->core.mainMemory.mem.readWord(alignedAddr);
+			uint32_t word        = TOP->system.mainMemory.mem.readWord(alignedAddr);
 			numChecks++;
 			if ((word & mask) == (expected & mask))
 			{

@@ -2,30 +2,20 @@
 // OpcodeLatencies.h
 // Author: Neha Karanjkar
 //
-// Opcode-wise per-instruction latency, for the Sitar timing model.
-//
-// This is deliberately NOT part of model/cpp_common_code/ -- the C++ core
-// (SparcCore) has no notion of cycles or timing at all, by design (see
-// model/README.md); timing lives entirely in the Sitar layer that
-// drives it. This file is included only from SparcThread.sitar.
+// Opcode-wise per-instruction latency for the Sitar timing model.
+// Included only from SparcThread.sitar. Not part of cpp_common_code/,
+// since SparcCore has no notion of cycles or timing at all.
 //
 // getOpcodeLatency(op) returns how many cycles SparcThread spends on a
-// given opcode via wait(opcode_delay, 0) -- see the EXECUTE loop in
-// SparcThread.sitar, a plain "fetch-decode-execute; wait(opcode_delay,0)"
-// loop with no structural per-iteration floor, so a delay of 0 is a real
-// zero-time yield, not a no-op. This is a compile-time table, not a
-// runtime-loaded config file: to change a latency, edit
+// given opcode via wait(opcode_delay, 0). A compile-time table, not a
+// runtime-loaded config file. To change a latency, edit
 // OPCODE_LATENCY_OVERRIDES below and rebuild.
 //
-// IMPORTANT: this is the latency of *executing* the opcode itself
-// (decode/ALU/etc.), and is charged IN ADDITION TO whatever separate
-// memory-access latency a load/store/ifetch/atomic/flush instruction
-// incurs via MemoryInterface.delay and/or MainMemoryVA.delay/MainMemory.delay
-// (see MemoryInterface.sitar and MainMemoryVA.sitar/MainMemory.sitar -- two
-// independent knobs on either side of that connection, depending on
-// config). All three are independent and additive, e.g. a LD with an
-// opcode latency of 1, a MemoryInterface delay of 2, and a
-// MainMemoryVA/MainMemory delay of 3 takes 6 cycles total, not 3.
+// This is the latency of executing the opcode itself, charged in
+// addition to whatever separate memory-access latency a memory
+// instruction incurs on its own. Independent and additive, e.g. a LD
+// with an opcode latency of 1 and a memory-access latency of 5 takes 6
+// cycles total.
 //================================================================
 
 #ifndef OPCODE_LATENCIES_H

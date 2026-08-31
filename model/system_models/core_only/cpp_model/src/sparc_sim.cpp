@@ -1,33 +1,30 @@
 //sparc_sim.cpp
 //
-//Builds sparc_sim_cpp: loads a memory image, runs it via
-//SparcStateMachine until it halts (or a cycle limit is reached), then
-//either just reports the final state, or -- if an expected-results file
-//is given -- checks final register/memory state against it and prints
-//PASS/FAIL per check plus an overall verdict for the test as a whole.
+//Builds sparc_sim_cpp. Loads a memory image, runs it via
+//SparcStateMachine until it halts or a cycle limit is reached, then
+//either reports the final state, or, if an expected-results file is
+//given, checks final register and memory state against it and prints
+//PASS/FAIL per check plus an overall verdict. This is
+//validation/run_tests.py's own default checker binary.
 //
-//expected_file is optional: pass "" (or omit it, along with max_cycles)
-//to skip validation entirely and just run the program, printing the
-//final processor state instead of PASS/FAIL/OVERALL. Useful for ad hoc
-//runs of a .hex file that has no paired expected-results file at all.
-//This is validation/run_tests.py's own default checker binary (see its
-//--sitar flag for the Sitar-driven counterpart, model/sitar_model's
-//sparc_sim_sitar).
+//expected_file is optional. Pass "" or omit it, along with max_cycles,
+//to skip validation and just run the program, printing the final
+//processor state.
 //
-//The expected-results file, when given, is a normalized format produced
-//by validation/run_tests.py from a test's .vprj RESULTS block:
+//The expected-results file, when given, is a normalized format
+//produced by validation/run_tests.py from a test's .vprj RESULTS block:
 //
 //    REG <name> <hex_value>
 //    MEM <hex_addr> <hex_value> <hex_mask>
 //
-//Register names: g1-g7, o0-o7, l0-l7, i0-i7 (windowed integer registers),
-//f0-f31 (floating point), psr, fpsr, y, wim, tbr, pc, npc, asr0-asr31.
-//MEM checks read a whole word at <hex_addr> (word-aligned) and compare
-//(word & mask) against (value & mask) -- this is how partial-word
-//store/atomic checks (byte/halfword masks) are expressed.
+//Register names: g1-g7, o0-o7, l0-l7, i0-i7 (windowed integer
+//registers), f0-f31 (floating point), psr, fpsr, y, wim, tbr, pc, npc,
+//asr0-asr31. MEM checks read a whole word at <hex_addr> and compare
+//(word & mask) against (value & mask), which is how partial-word store
+//and atomic checks are expressed.
 //
-//Exit code: 0 if the core halted (and, when validating, every check
-//passed too), 1 otherwise.
+//Exit code 0 if the core halted, and when validating, every check
+//passed too. 1 otherwise.
 //
 //Usage: sparc_sim_cpp <hex_file> [expected_file] [max_cycles]
 

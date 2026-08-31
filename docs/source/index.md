@@ -153,3 +153,24 @@ top-level folders are organized as follows.
 
 To get started, see [Installation](installation.md) and
 [Getting Started](getting_started.md).
+
+---
+
+## Configurations provided
+
+- **`core_only`**  
+    The core plus main memory, no MMU, devices, or caches. See [Model
+    Configurations](model_configurations.md#core_only).
+- **`core_mmu`**  
+    Adds an MMU. See [Model
+    Configurations](model_configurations.md#core_mmu).
+- **`core_mmu_devices`** (planned)  
+    Adds a timer, an interrupt controller, and a serial device. See
+    [Model
+    Configurations](model_configurations.md#core_mmu_devices-planned).
+- **`core_l1cache_mmu_devices`** (planned)  
+    Adds split instruction and data L1 caches. See [Model
+    Configurations](model_configurations.md#core_l1cache_mmu_devices-planned).
+
+See [Model Configurations](model_configurations.md) for a block diagram
+of each one.

@@ -1,62 +1,42 @@
-//Mmu.h
+//MmuCore.h
 //
-//The SPARC Reference MMU (Ref Appendix H in the SPARC V8 manual). Ported
-//from Ajit's mmu/src/Mmu.c (branch marshal), rewritten as a C++ class --
-//see Plan_MMU_integration.md's "Implementation plan" for the rationale
-//and the full deviation/simplification list this file's comments refer
-//back to. The page-table walk, fault matrix, PTE/PPN encoding, and
-//FSR/FAR/OW/R/M semantics are ported faithfully; the pthread/mutex/pipe
-//scaffolding Ajit's version needed for real concurrent hardware threads
-//and an untimed event-less simulator is dropped entirely (this driver is
-//strictly sequential -- see the roadmap's execution-model discussion).
+//The SPARC Reference MMU (Ref Appendix H). Ported from Ajit's C model
+//and rewritten as a C++ class. The page-table walk, fault matrix,
+//PTE/PPN encoding, and FSR/FAR/OW/R/M semantics are ported faithfully.
+//The pthread/mutex/pipe scaffolding Ajit's version needed for
+//concurrent hardware threads is dropped: this driver is strictly
+//sequential.
 //
 //Implements VirtualMemoryInterface, so it plugs in wherever
 //SparcStateMachine expects one, and drives whatever sits downstream
-//(MainMemory today) through PhysicalMemoryInterface instead -- a 36-bit
-//physical address (Ref Appendix H), zero-padded into 64 bits, with
-//every downstream transaction doubleword-shaped, mimicking AJIT's own
-//AJIT Core Bus -- see MemoryInterfaces.h's file comment for the full
-//citation and the half-select adaptation this class implements at that
-//boundary (readWord()/writePageTableEntryToMemory() etc.).
+//through PhysicalMemoryInterface: a 36-bit physical address,
+//zero-padded into 64 bits, with every downstream transaction
+//doubleword-shaped.
 //
-//Known simplifications relative to Ajit, beyond dropping the threading
-//machinery:
-//  - No deferred instruction-fetch-fault commit (Ajit's MMU_WRITE_FSR
-//    path): this driver has no pipeline, so no fetch is ever speculative
-//    or squashed -- see MemoryInterfaces.h's file comment.
-//  - Atomic load-store (LDSTUB/SWAP) is checked as a single, precise
-//    operation requiring both load and store permission before any
-//    memory access happens -- see translate()'s own comment below, and
-//    docs/compliance/ for the full write-up of why this deliberately
-//    deviates from Ajit's own split-transaction (locked read, then
-//    separate unlocked write) behavior.
-//  - MMU probe (full 5-type support, not just Ajit's entire-only): the
-//    page/segment/region/context probes (types 0-3) implement Table H-4
-//    directly, including its per-entry-type return values at the probed
-//    level (PTE and invalid entries returned as-is for every type; a PTD
-//    also returned as-is for segment/region/context, but not for a page
-//    probe, which has no level-4 table for a level-3 PTD to point to).
+//Deliberate deviations from Ajit:
 //
-//Step-by-step public methods (tlbLookup/beginWalk/recordWalkStep/
-//checkAndRecordFault/commitTranslation/computeAndStageRMUpdate/
-//commitRMTlbUpdate, plus probe/flush/readRegister/writeRegister below):
-//these exist so the Sitar timing model (Mmu.sitar, Ref
-//Plan_MMU_integration.md's "Sitar timing model" section) can drive a
-//translation one physical access at a time -- interleaving its own
-//`wait`s and `run phyMemReadProcedure;`/`run phyMemWriteProcedure;`
-//calls between them -- while the cpp_model calls the exact same methods
-//back to back with no waits at all. translate()/probe() below still
-//exist and are what the cpp_model actually calls; they're just
-//implemented in terms of these smaller pieces now (walkPageTables() no
-//longer exists as its own function -- both translate() and probe()'s
-//own walks are built directly from beginWalk()/recordWalkStep()), so
-//both drivers are built from one shared step sequence.
-//Public because Sitar-generated code is a method of a *different*
-//generated class and needs to call them from outside this class -- the
-//same reason SparcCore::execute_PreLoad/execute_PostLoad are public.
+//- No deferred instruction-fetch-fault commit. This driver has no
+//  pipeline, so no fetch is ever speculative or squashed.
+//- Atomic load-store (LDSTUB/SWAP) is checked as a single, precise
+//  operation requiring both load and store permission before any
+//  memory access happens, rather than Ajit's split-transaction (locked
+//  read, then separate unlocked write) permission checking. See
+//  docs/compliance/ for the full write-up.
+//- MMU probe supports all five types, not just Ajit's entire-only.
+//
+//tlbLookup/beginWalk/recordWalkStep/checkAndRecordFault/
+//commitTranslation/computeAndStageRMUpdate/commitRMTlbUpdate, plus
+//probe/flush/readRegister/writeRegister, are public step-by-step
+//primitives. translate()/probe() are built from them, and the cpp_model
+//calls translate()/probe() directly, back to back with no waits. The
+//Sitar timing model drives the same primitives one physical access at a
+//time, interleaving real `wait`s between them. They're public because
+//Sitar-generated code calling them is a method of a different generated
+//class, the same reason SparcCore::execute_PreLoad/execute_PostLoad are
+//public.
 
-#ifndef MMU_H
-#define MMU_H
+#ifndef MMUCORE_H
+#define MMUCORE_H
 
 #include "MemoryInterfaces.h"
 #include "Tlb.h"
@@ -67,7 +47,7 @@
 
 class CoreLogger;
 
-class Mmu : public VirtualMemoryInterface
+class MmuCore : public VirtualMemoryInterface
 {
 	public:
 		//downstream: whatever this MMU forwards translated or
@@ -78,7 +58,7 @@ class Mmu : public VirtualMemoryInterface
 		//MMU_MAX_NUMBER_OF_THREADS) even though only thread_id 0 is used
 		//until SMT support lands, so that extension needs no interface
 		//change later.
-		explicit Mmu(PhysicalMemoryInterface& downstream, int threadId = 0);
+		explicit MmuCore(PhysicalMemoryInterface& downstream, int threadId = 0);
 
 		//Dispatches on request.accessType to handleReadAccess()/
 		//handleWriteAccess()/handleAtomicAccess() below -- those three
@@ -112,7 +92,7 @@ class Mmu : public VirtualMemoryInterface
 		//isn't in MultiThreadingConfig.h alongside NUM_THREADS_PER_CORE.
 		//This port has no equivalent config-string parser yet, so it's
 		//just a public field, defaulted to true and left for whatever
-		//constructs the Mmu to override.
+		//constructs the MmuCore to override.
 		bool independentMmuContextPerThread;
 
 		//Model-configuration: should this run actually use the TLB
@@ -122,7 +102,7 @@ class Mmu : public VirtualMemoryInterface
 		//at, updated, or flushed -- every access re-walks the page
 		//tables, and MmuStats' TLB hit/miss counters stay at zero, since
 		//there is nothing to hit or miss. True requires MMU_TLB_PRESENT
-		//to also be true -- Mmu asserts this the first time it would
+		//to also be true -- MmuCore asserts this the first time it would
 		//touch the TLB, rather than at construction, since this field
 		//can be changed after construction.
 		bool tlbEnabled;
@@ -413,4 +393,4 @@ class Mmu : public VirtualMemoryInterface
 		void updateFsrFar(uint32_t fsrVal, uint32_t farVal, uint8_t faultClass);
 };
 
-#endif
+#endif //MMUCORE_H

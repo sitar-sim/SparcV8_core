@@ -1,35 +1,22 @@
 //SparcStateMachine.h
 //
-//Standalone fetch-decode-execute driver for SparcCore.
+//Standalone fetch-decode-execute driver for SparcCore, zero-latency and
+//functional only. Calls SparcCore's methods in the same order any
+//driver would, performing memory accesses directly against whatever
+//VirtualMemoryInterface it's given, with no latency of its own. What
+//implements that interface, MemCore directly, an MMU, or a cache, is a
+//per-configuration choice made by whoever constructs this class.
 //
-//Provides zero-latency, functional-only execution: for each instruction it
-//calls SparcCore's methods (see the note above the commented-out
-//SparcCore::run() in SparcCore.cpp) in the same order any driver of SparcCore
-//would, but performs memory accesses directly against whatever
-//VirtualMemoryInterface it's given, with no modeled latency of its own. This
-//is the fixed, config-invariant FSM: what implements VirtualMemoryInterface
-//(MemCore directly, or later an MMU or a cache) is a per-configuration
-//choice made by whoever constructs this class, not something this file
-//knows or cares about (see Plan_SoC_Integration_Roadmap.md's "lego-block
-//interface contract"). This makes it suitable for functional (no-timing)
-//testing of small assembly/machine-code programs, with no dependencies
-//beyond plain C++ and this repository's cpp_common_code/ library.
+//Trap handling matches Appendix C exactly: every trap is dispatched via
+//SparcCore::executeTraps(), with no special-casing by trap type. Per
+//select_trap, the core enters error_mode and halts precisely when a
+//trap occurs while traps are disabled, which falls straight out of
+//SparcCore's own trap logic.
 //
-//Trap handling matches Appendix C of the SPARC V8 manual exactly: every trap
-//is dispatched via SparcCore::executeTraps() (Ref Section C.5, C.8) with no
-//special-casing by trap type. Per select_trap (Section C.8), the core enters
-//error_mode (halts) precisely when a trap occurs while traps are disabled
-//(ET==0) -- this falls straight out of SparcCore's existing, already-correct
-//trap logic, nothing SparcStateMachine-specific about it.
-//
-//SparcStateMachine itself has no notion of "success" or "failure" -- it only
-//tracks whether the core halted (entered error_mode) and how many cycles
-//that took. Test programs signal completion by halting (typically via a
-//deliberate trap after installing their own trap table -- see
-//validation/instruction_tests/README.md for the convention used there);
-//whether a given halt represents a passing or failing test is decided by
-//comparing final register/memory state against that test's expected
-//results (see sparc_sim.cpp), not by anything intrinsic to the halt itself.
+//SparcStateMachine has no notion of success or failure. It only tracks
+//whether the core halted and how many cycles that took. Whether a given
+//halt represents a passing or failing test is decided by comparing
+//final register and memory state against that test's expected results.
 
 #ifndef SPARC_STATE_MACHINE_H
 #define SPARC_STATE_MACHINE_H

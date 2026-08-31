@@ -825,6 +825,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../model_components.html" class="md-nav__link">
         
   
@@ -833,6 +861,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1184,8 +1240,8 @@
 <h1 id="log_viewer">log_viewer/<a class="headerlink" href="#log_viewer" title="Permanent link">&para;</a></h1>
 <p>A lightweight, self-contained, single-file browser tool for viewing SPARC
 V8 instruction/state traces produced by <code>CoreLogger</code>
-(<code>model/cpp_common_code/CoreLogger.h</code>) -- used by both <code>model/cpp_model</code>
-and <code>model/sitar_model</code>, since both drive the same <code>SparcCore</code> and
+(<code>model/cpp_common_code/CoreLogger.h</code>) -- used by every configuration's
+<code>cpp_model</code> and <code>sitar_model</code>, since both drive the same <code>SparcCore</code> and
 therefore emit the same trace format.</p>
 <h2 id="whats-here">What's here<a class="headerlink" href="#whats-here" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1212,36 +1268,38 @@ adds are simply ignored, not required.</p>
 <h2 id="viewing-a-trace">Viewing a trace<a class="headerlink" href="#viewing-a-trace" title="Permanent link">&para;</a></h2>
 <ol>
 <li>Build the cpp model with logging enabled, and run a test program:
-   <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/cpp_model/build.sh<span class="w"> </span>--logging
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>model/cpp_model/test/test_simple_ADD.hex
+   <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--logging
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="w">    </span>validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
    This writes <code>test_simple_ADD.log</code> into the current directory (a
    trace file is always named after the hex file it ran).</li>
 <li>Open <code>log_viewer/viewer.html</code> in a browser (double-click it, or
    <code>open log_viewer/viewer.html</code> / <code>xdg-open log_viewer/viewer.html</code>).</li>
 <li>Click <strong>Load trace</strong> and pick <code>test_simple_ADD.log</code>; click <strong>Load
-   objdump</strong> and pick <code>model/cpp_model/test/test_simple_ADD.objdump</code>
-   (the matching disassembly, symlinked alongside the test, see
-   <code>../validation/README.md</code>).</li>
+   objdump</strong> and pick <code>validation/test_simple_ADD/test_simple_ADD.objdump</code>
+   (the matching disassembly, see <code>../validation/README.md</code>).</li>
 </ol>
 <h3 id="example-viewing-the-bundled-test_simple_add-example">Example: viewing the bundled <code>test_simple_ADD</code> example<a class="headerlink" href="#example-viewing-the-bundled-test_simple_add-example" title="Permanent link">&para;</a></h3>
 <p>From the repository root:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/cpp_model/build.sh<span class="w"> </span>--logging
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/cpp_model/sparc_sim_cpp<span class="w"> </span>model/cpp_model/test/test_simple_ADD.hex
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>open<span class="w"> </span>log_viewer/viewer.html<span class="w">   </span><span class="c1"># or: xdg-open log_viewer/viewer.html</span>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--logging
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span>validation/test_simple_ADD/test_simple_ADD.hex
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>open<span class="w"> </span>log_viewer/viewer.html<span class="w">   </span><span class="c1"># or: xdg-open log_viewer/viewer.html</span>
 </span></code></pre></div>
 <p>Then in the viewer: <strong>Load trace</strong> -&gt; <code>test_simple_ADD.log</code> (written into
 the repository root, since that's where the command above was run from),
-<strong>Load objdump</strong> -&gt; <code>model/cpp_model/test/test_simple_ADD.objdump</code>.</p>
+<strong>Load objdump</strong> -&gt; <code>validation/test_simple_ADD/test_simple_ADD.objdump</code>.</p>
 <h3 id="the-same-via-the-sitar-model">The same, via the sitar model<a class="headerlink" href="#the-same-via-the-sitar-model" title="Permanent link">&para;</a></h3>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/sitar_model/build.py<span class="w"> </span>--logging
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/sitar_model/executable/sparc_sim_sitar<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>model/sitar_model/executable/test_simple_ADD.expected
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--logging
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span>validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span>validation/test_simple_ADD/test_simple_ADD.expected
 </span></code></pre></div>
 <p>Writes <code>test_simple_ADD.log</code> (<code>sparcThread</code>'s trace, directly loadable,
 same as above) and <code>sitar.log</code> (everything else Sitar logs -- see
-<code>model/sitar_model/README.md</code>) into the current directory.</p>
+<code>model/system_models/core_only/sitar_model/README.md</code>) into the current
+directory.</p>
 <h3 id="optional-serve-it-for-auto-loading">Optional: serve it for auto-loading<a class="headerlink" href="#optional-serve-it-for-auto-loading" title="Permanent link">&para;</a></h3>
 <p>If you'd rather not click through file pickers every time, serve the
 directory containing both files and pass them as URL query parameters --

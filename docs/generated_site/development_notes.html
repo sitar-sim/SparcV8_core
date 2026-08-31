@@ -829,6 +829,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -837,6 +865,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1290,27 +1346,31 @@ tests, or building on this model for a larger system.</p>
 <h2 id="repository-layout">Repository layout<a class="headerlink" href="#repository-layout" title="Permanent link">&para;</a></h2>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SparcV8_core/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  model/
-</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    cpp_common_code/   SparcCore, the core, timing-agnostic. Shared by both drivers.
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    cpp_model/          0-delay C++ driver, no Sitar dependency.
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    sitar_model/         Sitar-timed driver.
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>  validation/
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>    asm/                Instruction-level assembly test suite.
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    C/                  Self-validating bare-metal C mini-benchmark suite.
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  docs/                    This documentation site.
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    generated_site/           Prebuilt, committed output. Open index.html directly.
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    mkdocs.yml, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>      and vendored syntax lexers (Sitar, SPARC assembly).
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    cpp_common_code/          SparcCore, the core, timing-agnostic. Shared by both drivers.
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>    sitar_component_models/    The reusable Sitar procedures every configuration is built from.
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    system_models/              One folder per configuration (e.g. core_only/), each with its
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>                                  own cpp_model/ (0-delay driver) and sitar_model/ (Sitar-timed
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                  driver) subfolders.
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    build_scripts/               Shared build logic every configuration&#39;s own build.sh invokes.
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>  validation/
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    asm/                Instruction-level assembly test suite.
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    C/                  Self-validating bare-metal C mini-benchmark suite.
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  docs/                    This documentation site.
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    generated_site/           Prebuilt, committed output. Open index.html directly.
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    mkdocs.yml, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>      and vendored syntax lexers (Sitar, SPARC assembly).
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
 </span></code></pre></div>
-<p>Each of <code>model/cpp_common_code/</code>, <code>model/cpp_model/</code>, and
-<code>model/sitar_model/</code> has its own <code>README.md</code> with a per-file breakdown.
-Start there for source-level detail. See also
-<a href="model_components.html">Model Components</a> for the higher-level picture.</p>
+<p>Each of <code>model/cpp_common_code/</code>, <code>model/sitar_component_models/</code>, and
+every <code>model/system_models/&lt;config&gt;/{cpp_model,sitar_model}/</code> has its own
+<code>README.md</code> with a per-file breakdown. Start there for source-level
+detail. See also <a href="model_components.html">Model Components</a> for the
+higher-level picture.</p>
 <hr />
 <h2 id="where-isa-semantics-live">Where ISA semantics live<a class="headerlink" href="#where-isa-semantics-live" title="Permanent link">&para;</a></h2>
 <p><code>SparcCore</code> (<code>model/cpp_common_code/SparcCore.cpp</code>) is the single source
@@ -1324,15 +1384,19 @@ in either.</p>
 <h2 id="where-timing-lives">Where timing lives<a class="headerlink" href="#where-timing-lives" title="Permanent link">&para;</a></h2>
 <p>Timing is deliberately kept out of <code>cpp_common_code/</code> entirely.
 <code>SparcThread.sitar</code> and its supporting files (<code>OpcodeLatencies.h</code>,
-<code>MemoryInterface.sitar</code>, <code>MainMemory.sitar</code>) are the only place cycle
-counts exist. See <a href="performance_modeling.html">Performance Modeling</a>.</p>
+<code>VirtualMainMemoryInterface.sitar</code>, <code>VirtualMainMemory.sitar</code>, and,
+where an MMU is present, <code>Mmu.sitar</code>, <code>PhysicalMainMemoryInterface.sitar</code>,
+<code>PhysicalMainMemory.sitar</code>, and each configuration's own top-level
+composition file, e.g. <code>System.sitar</code> in <code>core_mmu</code>) are the only place
+cycle counts exist. See <a href="performance_modeling.html">Performance Modeling</a>.</p>
 <h2 id="linking-against-libquadmath">Linking against libquadmath<a class="headerlink" href="#linking-against-libquadmath" title="Permanent link">&para;</a></h2>
 <p><code>FloatingPointFunctions.h</code> needs <code>libquadmath</code> for quad-precision support.
 <code>sitar compile --cflags</code> only reaches the compile step (<code>CCFLAGS</code>), never
 the link step, so linking an extra library needs <code>sitar compile</code>'s
-separate <code>-l</code>/<code>--libs</code> option instead. <code>model/sitar_model/build.py</code> builds
-with <code>-l quadmath</code>. If you're writing your own build script against this
-model instead of using <code>build.py</code>, do the same.</p>
+separate <code>-l</code>/<code>--libs</code> option instead.
+<code>model/build_scripts/build_sitar_model.py</code> builds with <code>-l quadmath</code>. If
+you're writing your own build script against this model instead of using
+it, do the same.</p>
 <h2 id="test-suite-conventions">Test-suite conventions<a class="headerlink" href="#test-suite-conventions" title="Permanent link">&para;</a></h2>
 <p>See <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
 for the full test-authoring format. A few conventions worth knowing if
@@ -1344,7 +1408,7 @@ you're reading existing tests rather than writing new ones:</p>
 <li><code>docs/compliance/</code> exists specifically so that a documented, understood
   divergence from an external reference (AJIT, in this project's case)
   doesn't get silently "fixed" by editing the test to match a reference
-  that's actually wrong. See <code>docs/compliance/README.md</code> for three worked
+  that's actually wrong. See <code>docs/compliance/README.md</code> for worked
   examples of this reasoning. The same pattern is worth following for any
   future external reference comparison.</li>
 </ul>

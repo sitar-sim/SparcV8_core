@@ -180,8 +180,8 @@ logic is wrong.
 
 ## Worked example in this repo
 
-See `model/sitar_component_models/MmuUnit.sitar` (the timing model) next
-to `model/cpp_common_code/mmu/Mmu.{h,cpp}` (the functional model it
+See `model/sitar_component_models/Mmu.sitar` (the timing model) next
+to `model/cpp_common_code/mmu/MmuCore.{h,cpp}` (the functional model it
 restructures into step-primitives) and `Plan_MMU_integration.md`'s "Sitar
 timing model" section (the design writeup) for a full, concrete
 application of every pattern and pitfall above.

@@ -73,7 +73,7 @@ CONFIG_NAME="$(basename "$(dirname "$CONFIG_DIR")")"
 mkdir -p "$EXECUTABLE_DIR"
 
 # One -I per cpp_common_code subfolder (mmu/, and later cache/, devices/),
-# in addition to cpp_common_code/ itself, so e.g. "#include "Mmu.h""
+# in addition to cpp_common_code/ itself, so e.g. "#include "MmuCore.h""
 # resolves the same way regardless of which folder is including it.
 # Auto-discovered, not hardcoded by name, so a new block's subfolder needs
 # no change here.

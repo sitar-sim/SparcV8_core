@@ -1,91 +1,50 @@
 
 //================================================================
-// procedure MemoryInterface
+// procedure VirtualMainMemoryInterface
 // Author: Neha Karanjkar
 //
-// A minimal, blocking memory-access interface, called synchronously
-// (via `run`) by SparcThread's ifetch/load/store/atomic/flush procedures --
-// see SparcThread.sitar for why these are procedure calls and not
-// module/port connections. Each `run` performs exactly one access and
-// returns; the procedure instance itself is not destroyed and is reused
-// for the next access (no loop of its own -- contrast with whatever's
-// downstream, MainMemoryVA or MainMemory depending on config, which is
-// persistent).
+// A minimal, blocking memory-access interface, called via `run` by
+// SparcThread's ifetch, load, store, atomic, and flush procedures. Each
+// `run` performs exactly one access. The instance is reused for the
+// next one, not destroyed.
 //
-// `request`/`response` (VirtualMemoryRequest/VirtualMemoryResponse, Ref
-// MemoryInterfaces.h) are this procedure's own public state: SparcThread
-// sets request.address/asi/word0/word1/byteMask directly before calling
-// `run`, and reads response.readWord0/readWord1/mae afterwards -- the
-// same struct types and field names used everywhere else memory
-// requests/responses are described (cpp_model's MemCore/MainMemory/Mmu,
-// and this file's own downstream connection below), not a parallel,
-// independently-named shadow copy of them.
+// Named VirtualMainMemoryInterface rather than VirtualMemoryInterface,
+// which would exactly match the abstract C++ interface class of that
+// name in MemoryInterfaces.h.
 //
-// Talks to whatever persistent procedure is connected on the other end
-// (MainMemoryVA for core_only, MainMemory for core_mmu; later, a cache)
-// through `downstreamRequest`/`downstreamResponse` -- pointers directly
-// into that downstream procedure's OWN local request/response fields
-// (e.g. mainMemory.request/mainMemory.response), not a separate object owned
-// by this procedure, this file's downstream neighbor, or the parent
-// module. The parent module (see Core.sitar) only wires these pointers
-// together at init
-// (e.g. `ifetchProcedure.downstreamRequest = &mainMemory.request;`); it
-// does not own or hold a copy of the state itself. This is the general
-// chaining pattern for a run of persistent procedures A -> B -> C
-// (arrows = request flow): each procedure but the first owns its own
-// local request/response (the object its upstream neighbor reads/
-// writes), and each procedure but the last holds downstream pointers
-// into the *next* procedure's own local request/response -- so a chain
-// of any length is just a chain of identically-shaped links, with no
-// extra shared objects introduced at the parent level. Analogous to how
-// AJIT's own sysMemBusRequest() hands a request to whatever services the
-// bus. Because both sides are procedures running as branches of the same
-// parallel block -- not modules connected by nets -- this handshake can
-// complete within a single phase, i.e. with 0 added cycles, exactly like
-// PipelinedProcessor's inter-stage handshake in the sitar repo's
-// examples. If more than one requester ever needs to reach this same
-// memory (e.g. before ifetch and load/store are split onto separate
-// caches), point their downstreamRequest/downstreamResponse pointers at
-// that same downstream procedure's local request/response -- only one is
-// ever in flight at a time under SparcThread's current, strictly
-// sequential FSM.
+// `request`/`response` (VirtualMemoryRequest/VirtualMemoryResponse) are
+// this procedure's own public state. The caller sets request fields
+// directly, then calls `run`, then reads the response fields.
 //
-// NOTE on `valid`: `request`/`response` and `*downstreamRequest`/
-// `*downstreamResponse` are two DIFFERENT handshakes, upstream-facing and
-// downstream-facing respectively, and each one's `valid` bit is owned by
-// a single side of that handshake -- downstreamRequest->valid is set by
-// this procedure and cleared by this procedure once the response is
-// consumed; downstreamResponse->valid is set by whatever services it
-// (MainMemoryVA or MainMemory) and cleared by this procedure. request.valid/
-// response.valid are the same shape one level up: they would be set by
-// whoever calls this procedure and cleared by this procedure (request),
-// and set by this procedure and cleared by the caller (response) -- Ref
-// below, only relevant once a persistent, chained procedure connects
-// upstream of this one via those fields rather than SparcThread's direct
-// field-set-then-`run` calling convention.
+// Talks to whatever persistent procedure is on the other end
+// (VirtualMainMemory for core_only, Mmu for core_mmu) through
+// `downstreamRequest`/`downstreamResponse`: pointers into that
+// procedure's own local request/response fields, wired up by the parent
+// module at init. This procedure holds no separate copy of that state.
 //
-// Because of this, the payload fields (address/asi/word0/word1/byteMask/
-// readWord0/readWord1/mae) are copied individually between `request`/
-// `response` and `*downstreamRequest`/`*downstreamResponse` below --
-// never via a whole-struct assignment -- so that each `valid` bit is only
-// ever touched by the code that actually owns it under the handshake it
-// belongs to. Under today's calling convention (SparcThread sets fields
-// directly and calls `run` synchronously, blocking until it returns) the
-// local request.valid/response.valid are simply never touched by this
-// procedure and stay at their init value -- correct today, and already
-// in the right shape for a future persistent, chained procedure (e.g. a
-// cache) that DOES need those fields to carry real upstream handshake
-// state, with no rework needed here when that happens.
+// `valid` ownership:
 //
-// NOTE:
-//	all accesses are double word accesses.
-//	address must be double word aligned.
+// - `downstreamRequest->valid` is set by this procedure, cleared by
+//   this procedure once the response is consumed.
+// - `downstreamResponse->valid` is set by whatever services it, cleared
+//   by this procedure.
+// - `request.valid`/`response.valid` are unused today. They exist for a
+//   future persistent procedure calling this one through the same
+//   fields, instead of SparcThread's direct set-then-run convention.
+//
+// Payload fields are copied individually between `request`/`response`
+// and `*downstreamRequest`/`*downstreamResponse`, never by whole-struct
+// assignment, so each `valid` bit stays owned by whoever the rule above
+// says owns it.
+//
+// All accesses are doubleword accesses. The address must be doubleword
+// aligned.
 //	For writes: a byte mask is used to write to a specific set of
 //	bytes in the double word.
 //================================================================
 
 
-procedure MemoryInterface
+procedure VirtualMainMemoryInterface
 
 	//--------------------------------------------------------
 	//Fields to be set by processor at start:
@@ -119,7 +78,7 @@ procedure MemoryInterface
 	//Cycles only (not phases): the number of *extra* cycles this
 	//procedure blocks its caller for, beyond the 0-delay procedure-call
 	//semantics it would otherwise have. Default 0. Lets a directly
-	//connected MainMemoryVA/MainMemory (or, later, a cache) have an access latency
+	//connected VirtualMainMemory/Mmu (or, later, a cache) have an access latency
 	//approximated here without that latency needing to be modeled by the
 	//connected procedure itself. Independent of, and in addition to, the
 	//opcode-wise per-instruction delay applied in SparcThread (see
@@ -188,8 +147,8 @@ procedure MemoryInterface
 
 
 	//--------------------------------------------------------
-	//Connection to whatever is servicing this interface (MainMemoryVA or
-	//MainMemory, or later a cache) -- pointers directly into that downstream
+	//Connection to whatever is servicing this interface (VirtualMainMemory
+	//or Mmu, or later a cache) -- pointers directly into that downstream
 	//procedure's own local request/response fields, wired up by the
 	//parent module at init (Ref this file's header comment).
 	//--------------------------------------------------------

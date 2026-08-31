@@ -922,6 +922,34 @@
   
   
     <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="model_components.html" class="md-nav__link">
         
   
@@ -930,6 +958,34 @@
     
   
     Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
   
 
     
@@ -1249,23 +1305,23 @@ everything at <code>-O0</code>, and how any command can reach a live <code>Sparc
 <code>debug/sparc.gdb</code> itself, or just curious how it works.</p>
 <hr />
 <h2 id="the-four-hook-points">The four hook points<a class="headerlink" href="#the-four-hook-points" title="Permanent link">&para;</a></h2>
-<p><code>model/cpp_common_code/DebugHooks.h</code> declares four named, otherwise-empty
-functions, called from the same points in the instruction loop that
-<code>CoreLogger</code> logs from:</p>
+<p>Four named, otherwise-empty functions declared in
+<code>model/cpp_common_code/DebugHooks.h</code> are called from the same points in
+the instruction loop that <code>CoreLogger</code> logs from:</p>
 <ul>
-<li><code>debug_hook_after_execute(core, op)</code> — an instruction has fully
+<li><code>debug_hook_after_execute(core, op)</code>: an instruction has fully
   executed (registers/memory/PSR all updated), but before PC/nPC advance
   to the next instruction. Also fires for an instruction that raised a
   trap partway through, matching <code>CoreLogger</code>'s own <code>EXECUTED</code> event.</li>
-<li><code>debug_hook_trap_raised(core)</code> — a trap has just been detected, before
+<li><code>debug_hook_trap_raised(core)</code>: a trap has just been detected, before
   <code>SparcCore::selectTrap()</code> clears the trap-cause flags or computes
   <code>TBR</code>'s <code>tt</code> field, so those flags (not <code>TBR</code>) are what's actually
   inspectable here.</li>
-<li><code>debug_hook_mem_access(core, kind, address, word0, word1)</code> — a memory
+<li><code>debug_hook_mem_access(core, kind, address, word0, word1)</code>: a memory
   reference of the given <code>DebugMemAccessKind</code> (<code>IFETCH</code>/<code>LOAD</code>/<code>STORE</code>/
   <code>ATOMIC</code>/<code>FLUSH</code>) has just completed. A sub-event within
   <code>debug_hook_after_execute</code>'s instruction, not an alternative to it.</li>
-<li><code>debug_hook_annulled(core)</code> — a delay-slot instruction was skipped by
+<li><code>debug_hook_annulled(core)</code>: a delay-slot instruction was skipped by
   an untaken annulling branch, never fetched-for-real or decoded, so
   there is no <code>Opcode</code> to pass. Fires before PC/nPC update for the skip.</li>
 </ul>
@@ -1299,7 +1355,8 @@ of functions the <code>sparc-*</code> commands actually rely on calling this way
 individually pinned to <code>-O0</code> in their own definitions, via
 <code>__attribute__((optimize("O0")))</code>:</p>
 <ul>
-<li><code>Registers::R_r()</code></li>
+<li><code>Registers::R_r()</code>, plus the six special-register accessors
+  <code>R_PC()</code>/<code>R_nPC()</code>/<code>R_Y()</code>/<code>R_PSR()</code>/<code>R_WIM()</code>/<code>R_TBR()</code></li>
 <li><code>CoreLogger::print_state()</code></li>
 <li><code>SparcCore::printTrap()</code></li>
 <li><code>MemCore::wordPtr()</code></li>
@@ -1307,7 +1364,12 @@ individually pinned to <code>-O0</code> in their own definitions, via
 </ul>
 <p>So the rest of the simulator stays fast, and only these few pay the
 <code>-O0</code> cost, exactly the functions <code>sparc-print-regs</code>, <code>sparc-print-reg</code>,
-<code>sparc-print-traps</code>, and <code>sparc-print-mem</code> call into.</p>
+<code>sparc-print-traps</code>, <code>sparc-watch-reg</code>, and <code>sparc-print-mem</code> call into.
+Every one of the seven register accessors needs its own pin. They're
+equally trivial one-line getters, but the optimizer only keeps a
+standalone, callable copy of the ones it has a reason to, and nothing
+else in the simulator happens to call some of them directly. Without the
+attribute, gdb's inferior call to a fully inlined one fails outright.</p>
 <p>If you need to debug something <em>outside</em> the four hook points, an
 arbitrary breakpoint or single-step deep inside <code>SparcCore</code> itself,
 where <code>-O3</code>'s inlining and register allocation make local variables
@@ -1316,15 +1378,16 @@ the whole binary at <code>-O0</code>. It's slower, only worth it for that kind o
 deep dive, not everyday use.</p>
 <hr />
 <h2 id="debugregistry"><code>DebugRegistry</code><a class="headerlink" href="#debugregistry" title="Permanent link">&para;</a></h2>
-<p><code>model/cpp_common_code/DebugRegistry.h</code> is what makes every <code>sparc-*</code>
-command reachable from <em>any</em> stopped frame, in either model, without
-caring who constructed the <code>SparcCore</code>/<code>MemCore</code> or which frame it's
-lexically reachable from. <code>SparcCore</code> and <code>MemCore</code> register themselves
-there, once, in their own constructors. This is why <code>coreid=</code> on the
-probe/print commands is a <strong>selector</strong> (an index into this registry) —
-there's no "currently in scope" frame to fall back on, unlike the
-breakpoint commands, which read <code>core</code> directly out of the hook they're
-attached to and use <code>coreid=</code> only as a <strong>filter</strong> on top of that.</p>
+<p>Every <code>sparc-*</code> command is reachable from <em>any</em> stopped frame, in either
+model, without caring who constructed the <code>SparcCore</code>/<code>MemCore</code> or which
+frame it's lexically reachable from. <code>model/cpp_common_code/DebugRegistry.h</code>
+is what makes that possible: <code>SparcCore</code> and <code>MemCore</code> register
+themselves there, once, in their own constructors. This is why
+<code>coreid=</code> on the probe/print commands is a <strong>selector</strong> (an index into
+this registry). There's no "currently in scope" frame to fall back on,
+unlike the breakpoint commands, which read <code>core</code> directly out of the
+hook they're attached to and use <code>coreid=</code> only as a <strong>filter</strong> on top
+of that.</p>
 <hr />
 <h2 id="reading-a-stdstring-back-from-the-debuggee">Reading a <code>std::string</code> back from the debuggee<a class="headerlink" href="#reading-a-stdstring-back-from-the-debuggee" title="Permanent link">&para;</a></h2>
 <p><code>print_state()</code> and <code>printTrap()</code> both return a <code>std::string</code> by value.

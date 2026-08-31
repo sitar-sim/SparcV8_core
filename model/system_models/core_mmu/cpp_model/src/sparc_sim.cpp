@@ -1,26 +1,22 @@
 //sparc_sim.cpp
 //
-//The core_mmu configuration's entry point: identical to core_only's own
-//sparc_sim.cpp (same CLI, same expected-results format, same PASS/FAIL/
-//OVERALL output -- see that file's own header comment for the full
-//description), except SparcStateMachine drives SparcCore through an Mmu
-//instance instead of talking to MemCore directly. The MMU's downstream
-//target is a MainMemory (Ref MainMemory.h), which speaks
-//PhysicalMemoryInterface and wraps a MemCore for the actual backing
-//storage -- this configuration has no cache or devices yet (Ref
-//Plan_MMU_integration.md).
+//The core_mmu configuration's entry point. Identical to core_only's own
+//sparc_sim.cpp, except SparcStateMachine drives SparcCore through an
+//MmuCore instance instead of talking to MemCore directly. The MMU's
+//downstream target is a MainMemory, which wraps a MemCore for the
+//actual backing storage.
 //
-//MEM checks in the expected-results file still read straight from
-//MainMemory's own plain readWord() (not through the MMU), since they're
-//checking physical memory state directly -- exactly what a test setting
-//up page tables and checking their contents needs.
+//MEM checks in the expected-results file read straight from
+//MainMemory's own plain readWord(), not through the MMU, since they're
+//checking physical memory state directly, what a test setting up page
+//tables needs.
 //
 //Usage: sparc_sim_cpp <hex_file> [expected_file] [max_cycles]
 
 #include "SparcCore.h"
 #include "MainMemory.h"
 #include "SparcStateMachine.h"
-#include "Mmu.h"
+#include "MmuCore.h"
 #include <iostream>
 #include <fstream>
 #include <sstream>
@@ -96,9 +92,9 @@ int main(int argc, char** argv)
 	MainMemory mem;
 	mem.initializeMemory(hexFile);
 
-	Mmu mmu(mem);
+	MmuCore mmu(mem);
 
-	//Manual/debug knob for exercising Mmu::tlbEnabled -- not part of the
+	//Manual/debug knob for exercising MmuCore::tlbEnabled -- not part of the
 	//documented CLI (argv parsing above is untouched, so run_tests.py's
 	//fixed <hex> [expected] [max_cycles] invocation is unaffected).
 	//MMU_TLB_ENABLED=0 forces the TLB off for this run; unset or any
