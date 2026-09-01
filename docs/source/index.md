@@ -114,8 +114,10 @@ common code.
     memory latencies you supply. Its intended use is performance
     modeling, either standalone (to see how a given latency configuration
     affects a program's runtime) or as the timed core component inside a
-    larger Sitar-based SoC/many-core simulation. See [Performance
-    Modeling](performance_modeling.md) for the three latency knobs.
+    larger Sitar-based SoC/many-core simulation. See [Model
+    Configuration Settings](model_configuration_settings.md) for the
+    latency knobs, and [Performance Modeling](performance_modeling.md)
+    for how to observe their effect.
 
 Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.
@@ -123,6 +125,29 @@ instruction in the core is automatically reflected in both.
 See [Model Components](model_components.md) for how the core, the
 memory, and any other components fit together, including a stub example
 of connecting an external component such as a cache.
+
+---
+
+## Configurations
+
+- **`core_only`**  
+    The core plus main memory, no MMU, devices, or caches. See [Model
+    Configurations](model_configurations.md#configuration-core_only).
+- **`core_mmu`**  
+    Adds a Memory Management Unit (MMU), the [SPARC Reference
+    MMU](sparcv8_Architecture_reference_Manual.pdf#page=236) described in
+    Appendix H of the manual. See [Model
+    Configurations](model_configurations.md#configuration-core_mmu).
+- **`core_mmu_devices`** (planned)  
+    Adds a timer, an interrupt controller, and a serial device. See
+    [Model
+    Configurations](model_configurations.md#configuration-core_mmu_devices-planned).
+- **`core_l1cache_mmu_devices`** (planned)  
+    Adds split instruction and data L1 caches. See [Model
+    Configurations](model_configurations.md#configuration-core_l1cache_mmu_devices-planned).
+
+See [Model Configurations](model_configurations.md) for a block diagram
+of each one.
 
 ---
 
@@ -153,24 +178,3 @@ top-level folders are organized as follows.
 
 To get started, see [Installation](installation.md) and
 [Getting Started](getting_started.md).
-
----
-
-## Configurations provided
-
-- **`core_only`**  
-    The core plus main memory, no MMU, devices, or caches. See [Model
-    Configurations](model_configurations.md#core_only).
-- **`core_mmu`**  
-    Adds an MMU. See [Model
-    Configurations](model_configurations.md#core_mmu).
-- **`core_mmu_devices`** (planned)  
-    Adds a timer, an interrupt controller, and a serial device. See
-    [Model
-    Configurations](model_configurations.md#core_mmu_devices-planned).
-- **`core_l1cache_mmu_devices`** (planned)  
-    Adds split instruction and data L1 caches. See [Model
-    Configurations](model_configurations.md#core_l1cache_mmu_devices-planned).
-
-See [Model Configurations](model_configurations.md) for a block diagram
-of each one.

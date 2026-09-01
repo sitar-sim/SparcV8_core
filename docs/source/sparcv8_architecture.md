@@ -91,6 +91,3 @@ appear directly in source comments throughout that file and
 | C.8 | [Traps](sparcv8_Architecture_reference_Manual.pdf#page=158) | The `execute_trap` macro: how the highest-priority pending trap is selected and dispatched. `SparcCore::executeTraps()` implements this. | 161 |
 | C.9 | [Instruction Definitions](sparcv8_Architecture_reference_Manual.pdf#page=160) | The ISP pseudocode for every instruction, one by one. This is the definition each `SparcCore::execute_*()` function follows. | 163 |
 | C.10 | [Floating-Point Operate Instructions](sparcv8_Architecture_reference_Manual.pdf#page=181) | Notation specific to the multiple-precision floating-point instructions (register-pair/quad alignment). | 184 |
-
-See [Model Components](model_components.md) for how this pseudocode maps
-onto the actual C++ classes in this repository.

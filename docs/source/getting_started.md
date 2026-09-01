@@ -42,18 +42,39 @@ or [Writing and Running C Programs](writing_and_running_c_programs.md).
 
 ## Building the SPARC models
 
-From the repo root, build the plain C++ model:
+The models under `model/` are available in several configurations, each
+in its own folder under `model/system_models/` (`core_only`, `core_mmu`,
+and more, see [Configurations](index.md#configurations)). Each
+configuration's folder contains two testbenches, `cpp_model/` and
+`sitar_model/` (see [Models](index.md#models)), each with its own
+`build.sh`. A build's resulting executable is written into that
+testbench's own `executable/` subfolder.
+
+To build a particular configuration, say `core_only`, from the repo
+root:
 
 ```sh
 cd model/system_models/core_only/cpp_model
 ./build.sh
+./build.sh --logging
 ```
 
-And the Sitar-timed model, the same way. From the repo root:
+The first produces the plain, fast executable
+(`executable/sparc_sim_cpp_core_only`), used by `run_simple_test.sh`
+below and by the validation suite. The second, in addition, produces a
+`_logging`-suffixed executable
+(`executable/sparc_sim_cpp_core_only_logging`) that writes an
+instruction trace when run, used in "Observing the simulation log"
+below. Logging defaults to off (see "Both build scripts take the same
+options" below), so building it explicitly is the only way to get a
+trace.
+
+Build the Sitar-timed model the same way, from the repo root:
 
 ```sh
 cd model/system_models/core_only/sitar_model
 ./build.sh
+./build.sh --logging
 ```
 
 In comparison to the C++ model, the Sitar model drives the exact same
@@ -70,9 +91,32 @@ Both build scripts take the same options:
     Whether to build with debug symbols, for examining a running model
     with gdb, see [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
 
+Build each of the other configurations the same way, substituting its
+own folder:
+
+```sh
+cd model/system_models/core_mmu/cpp_model
+./build.sh
+./build.sh --logging
+
+cd model/system_models/core_mmu/sitar_model
+./build.sh
+./build.sh --logging
+```
+
+`core_mmu_devices` and `core_l1cache_mmu_devices` are planned
+configurations, not yet buildable, see [Model
+Configurations](model_configurations.md).
+
 ---
 
 ## Running the simulator
+
+The process is: first build a configuration (previous section), then
+run its simulator executable, pointing it at a hex file. A hex file is
+a memory image, the machine code for the program to run on the
+simulator, in the format `MemCore`'s `initializeMemory()` reads
+directly (`model/cpp_common_code/MemCore.h`).
 
 To run the C++ model against a memory image, from the repo root:
 
@@ -91,7 +135,7 @@ cd model/system_models/core_only/sitar_model
 The simulation executable expects the following arguments:
 
 ```
-sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles]
+sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles] [--stats]
 ```
 
 - **A hex file** (required)  
@@ -109,6 +153,11 @@ sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles]
     1000000. Pass a smaller number to fail fast on a quick test, or a
     larger one for a program that legitimately needs more cycles than
     that to finish.
+- **`--stats`** (optional, can appear anywhere among the arguments)  
+    Prints the model's own performance measures (instruction mix, and,
+    where present, MMU and physical-memory statistics) once the run
+    finishes. Off by default. See [Performance
+    Modeling](performance_modeling.md#printing-the-performance-measures).
 
 For example, checking the same run against its expected-results file,
 back in `model/system_models/core_only/cpp_model`:
@@ -120,10 +169,6 @@ back in `model/system_models/core_only/cpp_model`:
     1000
 ```
 
-(Or, more simply, `./run_simple_test.sh` -- a fixed, minimal wrapper
-around the same hex-file-plus-expected-results check, bundled in this
-folder.)
-
 ```
 PASS: o0 = 0xc
 PASS: l0 = 0x5
@@ -131,14 +176,31 @@ PASS: l1 = 0x7
 OVERALL: PASS (3 checks)
 ```
 
+### Running the existing simple test
+
+The same check has a shortcut, `run_simple_test.sh`, bundled in every
+testbench folder. `cd` to the same level as the build script (the
+testbench folder, e.g. `model/system_models/core_only/cpp_model`) and
+run it directly:
+
+```sh
+./run_simple_test.sh
+```
+
+A fixed, minimal wrapper around the exact same hex-file-plus-expected-
+results check above, always against the plain, non-logging build, so it
+doesn't produce a `.log` file itself. For a simulation log of this same
+run, see "Observing the simulation log" below, which runs the
+`_logging` executable directly against the same hex file instead.
+
 ---
 
 ## Observing the simulation log
 
-Rebuild with `--logging` (still in `model/system_models/core_only/cpp_model`):
+Run the `_logging` executable built earlier (see "Building the SPARC
+models" above), still in `model/system_models/core_only/cpp_model`:
 
 ```sh
-./build.sh --logging
 ./executable/sparc_sim_cpp_core_only_logging \
     ../../../../validation/test_simple_ADD/test_simple_ADD.hex
 ```

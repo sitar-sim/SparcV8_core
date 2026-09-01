@@ -52,7 +52,11 @@ markdown_extensions:
   - pymdownx.inlinehilite
   - pymdownx.snippets:
       base_path: ..
-  - pymdownx.superfences
+  - pymdownx.superfences:
+      custom_fences:
+        - name: mermaid
+          class: mermaid
+          format: !!python/name:pymdownx.superfences.fence_code_format
   - attr_list
   - pymdownx.tasklist:
       custom_checkbox: true
@@ -62,6 +66,8 @@ extra_css:
   - stylesheets/extra.css
 
 nav:
+  - Navigation: navigation.md
+
   - Introduction:
       - Overview: index.md
       - Installation: installation.md
@@ -84,10 +90,10 @@ nav:
       - Model Configurations: model_configurations.md
       - Model Components: model_components.md
       - Model Components Reference: model_components_reference.md
+      - Model Configuration Settings: model_configuration_settings.md
       - Performance Modeling: performance_modeling.md
 
   - More:
-      - Next Steps / TODOs: next_steps.md
       - Development Notes: development_notes.md
       - Authors: authors.md
       - License: license.md

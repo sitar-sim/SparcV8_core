@@ -114,6 +114,7 @@ void SparcStateMachine::runOneCycle()
 		//DebugHooks.h's own comment -- so core.reg.PC/nPC here are still
 		//the annulled instruction's own address and what it advances to.
 		core.annul = false;
+		core.stats.annulledInstructions++;
 		core.logger.log_generic(cyclesExecuted, "ANNUL", "instruction annulled");
 		debug_hook_annulled(core);
 		core.reg.W_PC(core.reg.R_nPC());
@@ -187,6 +188,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			uint32_t word1 = response.readWord1;
 			core.MAE       = response.mae;
 			core.execute_PostLoad(op, word0, word1);
+			core.stats.loads++;
 			//core.address (not alignedAddr): the instruction's own,
 			//byte-precise target address -- matches SparcThread.sitar's
 			//equivalent log_mem_read() call.
@@ -210,6 +212,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 				core.trap = true;
 				core.data_access_exception = true;
 			}
+			core.stats.stores++;
 			core.logger.log_mem_write(cyclesExecuted, core.address, core.writeWord0, core.writeWord1, core.byte_mask, mae);
 			debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 		}
@@ -227,6 +230,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 			uint32_t word1 = response.readWord1;
 			core.MAE = response.mae;
 			core.execute_PostAtomicLoadStore(op, word0, word1);
+			core.stats.atomicLoadStores++;
 			core.logger.log_atomic(cyclesExecuted, core.address, word0, core.writeWord0, core.MAE);
 			debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, word0, core.writeWord0);
 		}
@@ -238,6 +242,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		//flush to -- computing the address is enough to keep decode/register
 		//behavior faithful to the manual (Ref Appendix B.32).
 		core.execute_PreFlush(op);
+		core.stats.flushes++;
 		core.logger.log_generic(cyclesExecuted, "FLUSH", "");
 		debug_hook_mem_access(core, DebugMemAccessKind::FLUSH, core.address, 0, 0);
 	}

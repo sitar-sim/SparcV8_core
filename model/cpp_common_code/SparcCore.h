@@ -22,6 +22,7 @@
 
 
 #include"CoreLogger.h"			//formats/emits this core's state as an architectural-event trace
+#include"SparcCoreStats.h"		//instruction-mix counters (ifetches/loads/stores/atomics/flushes)
 #include"MemoryInterfaces.h"	//abstract memory-access interface (see that file's comment)
 
 #include<iostream>
@@ -136,6 +137,13 @@ class SparcCore
 		//driver is stepping this core) so any driver gets one for free,
 		//initialized and ready via this constructor, with no extra wiring.
 		CoreLogger logger;
+
+		//Instruction-mix counters, incremented at each real memory
+		//access (not on every attempt -- a trapped Load/Store/
+		//AtomicLoadStore never reaches the counter, matching what
+		//actually crosses the memory interface). Owned here for the
+		//same reason logger is above. See SparcCoreStats.h.
+		SparcCoreStats stats;
 
 
 

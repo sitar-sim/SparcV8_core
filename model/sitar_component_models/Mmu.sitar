@@ -172,7 +172,7 @@ procedure Mmu
 			$ isSecondWord = (request.accessType==MemAccessType::LOAD); $;
 
 			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
-				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 			else
 			if ($asiIsCacheTagOrData((uint8_t)request.asi) or asiIsIcacheFlush((uint8_t)request.asi) or asiIsDcacheFlush((uint8_t)request.asi)$) then
 				nothing; //no cache present yet -- no-op, matches MmuCore.cpp
@@ -182,7 +182,7 @@ procedure Mmu
 				//recordWalkStep() sequence probe() itself now uses
 				//internally, substituting a real run phyMemReadProcedure;
 				//for each fetch.
-				$ probeResultPte = 0; probeType = (uint8_t) readBits(request.address, 11, 8); $;
+				$ mmu.stats.probeRequests++; probeResultPte = 0; probeType = (uint8_t) readBits(request.address, 11, 8); $;
 
 				if ($probeType == 4$) then
 					//Only the entire-probe type ever actually consults
@@ -246,7 +246,7 @@ procedure Mmu
 			else
 				//CASE 6: ordinary translated access
 				if ($!mmu.mmuEnabled()$) then
-					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+					$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 				else
 					wait(tlbLookupDelay, 0);
 					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
@@ -286,9 +286,9 @@ procedure Mmu
 							phyMemWriteProcedure.request.lock     = false;
 							$;
 							run phyMemWriteProcedure;
-							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+							$ mmu.stats.pageTableMemoryAccesses++; mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
 						end if;
-						$ needsFinalDataAccess = true; translationOk = true; $;
+						$ mmu.stats.translatedAccesses++; needsFinalDataAccess = true; translationOk = true; $;
 					end if;
 				end if;
 			end if;
@@ -331,7 +331,7 @@ procedure Mmu
 		if (request.accessType==MemAccessType::STORE) then
 
 			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
-				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 			else
 			if ($asiIsCacheTagOrData((uint8_t)request.asi) or asiIsIcacheFlush((uint8_t)request.asi) or asiIsDcacheFlush((uint8_t)request.asi)$) then
 				nothing;
@@ -341,7 +341,7 @@ procedure Mmu
 				//(Ref MmuCore.h's own comment on commitRMTlbUpdate()): a
 				//flush only ever drops cached copies, never writes
 				//memory.
-				$ mmu.flush(request.address); $;
+				$ mmu.stats.flushRequests++; mmu.flush(request.address); $;
 				wait(flushDelay, 0);
 			else
 			if ($request.asi==ASI_MMU_REGISTER$) then
@@ -353,7 +353,7 @@ procedure Mmu
 			else
 				//CASE 6
 				if ($!mmu.mmuEnabled()$) then
-					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+					$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 				else
 					wait(tlbLookupDelay, 0);
 					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
@@ -393,9 +393,9 @@ procedure Mmu
 							phyMemWriteProcedure.request.lock     = false;
 							$;
 							run phyMemWriteProcedure;
-							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+							$ mmu.stats.pageTableMemoryAccesses++; mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
 						end if;
-						$ needsFinalDataAccess = true; translationOk = true; $;
+						$ mmu.stats.translatedAccesses++; needsFinalDataAccess = true; translationOk = true; $;
 					end if;
 				end if;
 			end if;
@@ -434,10 +434,10 @@ procedure Mmu
 		if (request.accessType==MemAccessType::ATOMIC_LS) then
 
 			if ($!mmu.mmuIsPresent$) then
-				$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+				$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 			else
 				if ($!mmu.mmuEnabled()$) then
-					$ translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
+					$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
 				else
 					wait(tlbLookupDelay, 0);
 					$ tlbHit = mmu.tlbLookup(request.address, mmu.currentContext()); $;
@@ -480,9 +480,9 @@ procedure Mmu
 							phyMemWriteProcedure.request.lock     = false;
 							$;
 							run phyMemWriteProcedure;
-							$ mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
+							$ mmu.stats.pageTableMemoryAccesses++; mmu.commitRMTlbUpdate(request.address, mmu.currentContext()); $;
 						end if;
-						$ needsFinalDataAccess = true; translationOk = true; $;
+						$ mmu.stats.translatedAccesses++; needsFinalDataAccess = true; translationOk = true; $;
 					end if;
 				end if;
 			end if;

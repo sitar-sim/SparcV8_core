@@ -369,6 +369,9 @@ void MmuCore::beginWalk(uint32_t va, uint32_t context)
 
 bool MmuCore::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
 {
+	//The one counting point for a walk-step physical access -- both
+	//drivers call this uniformly (Ref readPageTableEntryFromMemory()'s
+	//own comment).
 	stats.pageTableMemoryAccesses++;
 
 	bool isPtd = readBits(fetchedPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTD;
@@ -582,8 +585,11 @@ void MmuCore::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint3
 uint32_t MmuCore::readPageTableEntryFromMemory(uint64_t physAddr)
 {
 	bool mae = false;
+	//No stats.pageTableMemoryAccesses++ here -- every call site immediately
+	//passes the result to recordWalkStep(), which counts it once (Ref its
+	//own comment). That's the one call site the Sitar model also drives
+	//directly, so counting here too would double-count every walk step.
 	uint32_t value = readPhysicalWord(physAddr, mae);
-	stats.pageTableMemoryAccesses++;
 	return value;
 }
 

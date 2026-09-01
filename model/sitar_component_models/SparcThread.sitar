@@ -268,6 +268,7 @@ procedure SparcThread
 
 							//examine the fetched instruction
 							$
+							core.stats.ifetches++;
 							core.MAE = ifetchProcedure.response.mae;
 							debug_hook_mem_access(core, DebugMemAccessKind::IFETCH, core.reg.R_PC(), ifetchProcedure.response.readWord0, 0);
 							//check for instruction access exception
@@ -301,6 +302,7 @@ procedure SparcThread
 									//and what it advances to.
 									$
 									core.annul=0;
+									core.stats.annulledInstructions++;
 									log<<endl<<core.logger.log_generic(current_time.cycle(), "ANNUL", "instruction annulled");
 									debug_hook_annulled(core);
 									core.reg.W_PC(core.reg.R_nPC()); //PC=nPC
@@ -361,6 +363,7 @@ procedure SparcThread
 													core.readWord0=memReadProcedure.response.readWord0;
 													core.readWord1=memReadProcedure.response.readWord1;
 													core.execute_PostLoad(opcode, core.readWord0, core.readWord1);
+													core.stats.loads++;
 													log<<endl<<core.logger.log_mem_read(current_time.cycle(), core.address, core.readWord0, core.readWord1, isDoubleLoadInstruction(opcode), core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::LOAD, core.address, core.readWord0, core.readWord1);
 													$;
@@ -390,6 +393,7 @@ procedure SparcThread
 														run memWriteProcedure;
 
 														$
+														core.stats.stores++;
 														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteProcedure.response.mae);
 														debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);
 														$;
@@ -420,6 +424,7 @@ procedure SparcThread
 													core.readWord0=atomicLoadStoreProcedure.response.readWord0;
 													core.readWord1=atomicLoadStoreProcedure.response.readWord1;
 													core.execute_PostAtomicLoadStore(opcode, core.readWord0, core.readWord1);
+													core.stats.atomicLoadStores++;
 													log<<endl<<core.logger.log_atomic(current_time.cycle(), core.address, core.readWord0, core.writeWord0, core.MAE);
 													debug_hook_mem_access(core, DebugMemAccessKind::ATOMIC, core.address, core.readWord0, core.writeWord0);
 													$;
@@ -444,6 +449,7 @@ procedure SparcThread
 												run flushProcedure;
 
 												$
+										core.stats.flushes++;
 										log<<endl<<core.logger.log_generic(current_time.cycle(), "FLUSH", "");
 										debug_hook_mem_access(core, DebugMemAccessKind::FLUSH, core.address, 0, 0);
 										$;

@@ -1,3 +1,8 @@
+---
+hide:
+  - toc
+---
+
 # Model Components Reference
 
 A complete, per-file index of every Sitar design unit (`module` or
@@ -65,14 +70,3 @@ configuration that uses it.
     `PullAToken`, `PushAToken`) and to the three purely structural
     modules (`Top`, `System`, `Core`). None of these hold a
     functional-model class instance themselves.
-
-- **Why the procedure names differ from the C++ class names**  
-    `VirtualMainMemory`, `PhysicalMainMemory`, and `Mmu`'s names
-    deliberately differ from the C++ class each one embeds (`MemCore`,
-    `MainMemory`, `MmuCore`). Naming a Sitar procedure or module
-    identically to a C++ class it embeds has caused real build failures
-    in this repo before: injected-class-name shadowing, header-guard
-    collisions, and quote-include self-resolution. See each file's own
-    header comment and
-    [`sitar-procedure-composition`](../../.claude/skills/sitar-procedure-composition/SKILL.md)
-    for the general pattern.

@@ -1,6 +1,11 @@
 # Claude Code's local/personal settings -- not shared project config
 .claude/settings.local.json
 
+# Local, personal day-to-day progress tracking -- not shared project
+# status. See docs/source/development_notes.md's "Reporting issues"
+# section.
+/TODO.md
+
 # Editor/OS cruft
 .DS_Store
 Thumbs.db

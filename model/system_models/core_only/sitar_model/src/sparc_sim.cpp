@@ -16,7 +16,12 @@
 //
 //expected_file is optional, exactly as in sparc_sim_cpp.
 //
-//Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles]
+//Usage: sparc_sim_sitar <hex_file> [expected_file] [max_cycles] [--stats]
+//
+//--stats prints the core's instruction-mix counters (see
+//SparcCoreStats.h) once the run finishes, to stdout, ahead of the
+//state/PASS-FAIL report below. Off by default. Can appear anywhere
+//among the arguments.
 
 #include "Top.h"
 #include "Registers.h"
@@ -25,6 +30,7 @@
 #include <fstream>
 #include <sstream>
 #include <string>
+#include <vector>
 #include <cctype>
 #include <cstdlib>
 
@@ -103,15 +109,28 @@ static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& 
 
 int main(int argc, char** argv)
 {
-	if (argc < 2)
+	//Pull --stats out of the argument list wherever it appears, leaving
+	//the rest to be parsed positionally exactly as before.
+	bool printStats = false;
+	std::vector<std::string> args;
+	for (int i = 1; i < argc; i++)
 	{
-		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles]\n";
+		std::string arg = argv[i];
+		if (arg == "--stats")
+			printStats = true;
+		else
+			args.push_back(arg);
+	}
+
+	if (args.empty())
+	{
+		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles] [--stats]\n";
 		return 1;
 	}
 
-	std::string   hexFile      = argv[1];
-	std::string   expectedFile = (argc >= 3) ? argv[2] : "";
-	unsigned long maxCycles    = (argc >= 4) ? std::strtoul(argv[3], NULL, 10) : 1000000UL;
+	std::string   hexFile      = args[0];
+	std::string   expectedFile = (args.size() >= 2) ? args[1] : "";
+	unsigned long maxCycles    = (args.size() >= 3) ? std::strtoul(args[2].c_str(), NULL, 10) : 1000000UL;
 
 	using namespace sitar;
 
@@ -178,6 +197,9 @@ int main(int argc, char** argv)
 
 	bool          halted        = TOP->core.sparcThread.HALT.VALUE;
 	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
+
+	if (printStats)
+		std::cout << TOP->core.sparcThread.core.stats.toString();
 
 	//No expected-results file: just run the program and report the
 	//final state, the same idea as cpp_model's sparc_sim_cpp. Nothing

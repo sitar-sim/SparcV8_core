@@ -291,6 +291,7 @@ bool SparcCore::instructionFetch()
 	VirtualMemoryRequest request{true, MemAccessType::IFETCH, addr, addr_space, 0, 0, 0};
 	VirtualMemoryResponse response{false, 0, 0, false};
 	memCore->access(request, response);
+	stats.ifetches++;
 	instruction = response.readWord0;
 	MAE = response.mae ? 1 : 0;
 
@@ -2102,26 +2103,26 @@ void SparcCore::selectTrap()
 	{
 		state = ERROR;
 	}
-	else if (data_store_error == 1)		      	{reg.W_tt(0B00101011); }
-	else if (instruction_access_error == 1)		{reg.W_tt(0B00100001); }
-	else if (r_register_access_error == 1)		{reg.W_tt(0B00100000); }
-	else if (instruction_access_exception == 1)  	{reg.W_tt(0B00000001); }
-	else if (privileged_instruction == 1)		{reg.W_tt(0B00000011); }
-	else if (illegal_instruction == 1)		{reg.W_tt(0B00000010); }
-	else if (fp_disabled == 1)			{reg.W_tt(0B00000100); }
-	else if (cp_disabled == 1)			{reg.W_tt(0B00100100); }
-	else if (unimplemented_FLUSH == 1)		{reg.W_tt(0B00100101); }
-	else if (window_overflow == 1)			{reg.W_tt(0B00000101); }
-	else if (window_underflow == 1)			{reg.W_tt(0B00000110); }
-	else if (mem_address_not_aligned == 1)		{reg.W_tt(0B00000111); }
-	else if (fp_exception == 1)			{reg.W_tt(0B00001000); }
-	else if (cp_exception == 1)			{reg.W_tt(0B00101000); }
-	else if (data_access_error == 1)	        {reg.W_tt(0B00101001); } 
-	else if (data_access_exception == 1)		{reg.W_tt(0B00001001); }
-	else if (tag_overflow == 1)			{reg.W_tt(0B00001010); }
-	else if (division_by_zero == 1)			{reg.W_tt(0B00101010); }
-	else if (trap_instruction == 1)			{reg.W_tt(0B10000000 | readBits( ticc_trap_type,6,0));}
-	else if (interrupt_level > 0)			{reg.W_tt(0B00010000 | readBits( interrupt_level,3,0));}
+	else if (data_store_error == 1)		      	{reg.W_tt(0B00101011); stats.trapDataStoreError++; }
+	else if (instruction_access_error == 1)		{reg.W_tt(0B00100001); stats.trapInstructionAccessError++; }
+	else if (r_register_access_error == 1)		{reg.W_tt(0B00100000); stats.trapRRegisterAccessError++; }
+	else if (instruction_access_exception == 1)  	{reg.W_tt(0B00000001); stats.trapInstructionAccessException++; }
+	else if (privileged_instruction == 1)		{reg.W_tt(0B00000011); stats.trapPrivilegedInstruction++; }
+	else if (illegal_instruction == 1)		{reg.W_tt(0B00000010); stats.trapIllegalInstruction++; }
+	else if (fp_disabled == 1)			{reg.W_tt(0B00000100); stats.trapFpDisabled++; }
+	else if (cp_disabled == 1)			{reg.W_tt(0B00100100); stats.trapCpDisabled++; }
+	else if (unimplemented_FLUSH == 1)		{reg.W_tt(0B00100101); stats.trapUnimplementedFlush++; }
+	else if (window_overflow == 1)			{reg.W_tt(0B00000101); stats.trapWindowOverflow++; }
+	else if (window_underflow == 1)			{reg.W_tt(0B00000110); stats.trapWindowUnderflow++; }
+	else if (mem_address_not_aligned == 1)		{reg.W_tt(0B00000111); stats.trapMemAddressNotAligned++; }
+	else if (fp_exception == 1)			{reg.W_tt(0B00001000); stats.trapFpException++; }
+	else if (cp_exception == 1)			{reg.W_tt(0B00101000); stats.trapCpException++; }
+	else if (data_access_error == 1)	        {reg.W_tt(0B00101001); stats.trapDataAccessError++; }
+	else if (data_access_exception == 1)		{reg.W_tt(0B00001001); stats.trapDataAccessException++; }
+	else if (tag_overflow == 1)			{reg.W_tt(0B00001010); stats.trapTagOverflow++; }
+	else if (division_by_zero == 1)			{reg.W_tt(0B00101010); stats.trapDivisionByZero++; }
+	else if (trap_instruction == 1)			{reg.W_tt(0B10000000 | readBits( ticc_trap_type,6,0)); stats.trapTicc++; }
+	else if (interrupt_level > 0)			{reg.W_tt(0B00010000 | readBits( interrupt_level,3,0)); stats.trapInterruptLevel++; }
 
 
 	trap = 0;
@@ -2287,15 +2288,17 @@ void SparcCore::complete_fp_execution(Opcode op)
 {
 	//The complete_fp_execution() checks for floating-point traps and
 	//maintains the Floating-point State Register (FSR).
-	if (trap == 0) 
+	if (trap == 0)
 	{
-		// no traps so far 
-		if (reg.bp_FPU_present == 0) 
+		// no traps so far
+		stats.fpInstructionsExecuted++;
+		if (reg.bp_FPU_present == 0)
 		{
-			//no FPU is present 
+			//no FPU is present
 			trap = 1;
 			fp_exception = 1;
 			reg.W_ftt(Registers::unimplemented_FPop);
+			stats.fpTrapsUnimplementedFPop++;
 			//std::cout<<"\n Trap type 1 \n";
 		}
 		else if (reg.fpu_c == 0) //not finished
@@ -2303,11 +2306,12 @@ void SparcCore::complete_fp_execution(Opcode op)
 			trap = 1;
 			fp_exception = 1;
 			reg.W_ftt(Registers::unfinished_FPop);
+			stats.fpTrapsUnfinishedFPop++;
 			//std::cout<<"\n Trap type 2 \n";
 		}
-		else 
+		else
 		{
-			// FPU present; FPop executed and finished 
+			// FPU present; FPop executed and finished
 			if ( (reg.R_texc() & reg.R_TEM()) != 0)
 			{
 				//floating-point trap has occured
@@ -2315,6 +2319,7 @@ void SparcCore::complete_fp_execution(Opcode op)
 				trap = 1;
 				fp_exception = 1;
 				reg.W_ftt(Registers::IEEE_754_exception);
+				stats.fpTrapsIEEE754Exception++;
 				//std::cout<<"\n Trap type 3 \n";
 			}
 			else

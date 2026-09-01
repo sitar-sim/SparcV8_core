@@ -1,111 +1,75 @@
+---
+hide:
+  - toc
+---
+
 # Performance Modeling
 
-The Sitar model (`model/sitar_component_models/`, composed per
-configuration under `model/system_models/*/sitar_model/`) is a **simple,
-non-pipelined
-cycle-level timing model**. There is no pipelining and no out-of-order
-execution, just a fixed delay per opcode plus separately configurable
-memory-access latencies. This page covers where to change those
-numbers, and how to confirm a change actually took effect. See
-[Logging](logging.md) for how logging itself is architected (this page
-just uses it) and how to narrow a trace down at runtime.
+Model configuration knobs are of two kinds, structural and timing. See
+[Model Configuration Settings](model_configuration_settings.md) for
+the complete list of both kinds, and where to set each one.
+
+Once you've chosen knob values to model a specific system (rebuild
+first if any of them are compile-time), run the simulation with
+`--stats` enabled.
 
 ---
 
-## The three knobs
+## Printing the performance measures
 
-| Knob | Where | Charged | Default |
+Every configuration's own executable, both drivers, takes an optional
+`--stats` flag, alongside the existing `<hex_file> [expected_file]
+[max_cycles]` arguments (it can appear anywhere among them):
+
+```sh
+model/system_models/core_mmu/cpp_model/executable/sparc_sim_cpp_core_mmu <hex> --stats
+```
+
+Off by default, so `run_simple_test.sh` and `validation/run_tests.py`
+run unaffected. When given, it prints every performance measure the
+model tracks (the table below), to stdout, once the run finishes. Each
+configuration prints only what it actually has: `core_only` prints its
+core statistics alone. `core_mmu` prints core statistics, then MMU
+statistics, then physical memory statistics.
+
+---
+
+## Performance measures reported by the model
+
+### Core
+
+| Performance measure | Component | Models/configs available in | Description |
 |---|---|---|---|
-| Opcode latency | `model/sitar_component_models/cpp_code/OpcodeLatencies.h` | Every instruction, memory or not | 1 cycle |
-| `VirtualMainMemoryInterface.delay` | `Core.sitar`'s `init` block | Requester side, per channel, after the response is available | 0 |
-| `VirtualMainMemory.delay` | `Core.sitar`'s `init` block | The memory's own service time, shared by all requesters | 0 |
+| **Total cycles to halt** | [`SparcStateMachine`](../../model/cpp_common_code/SparcStateMachine.h) | core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar | The number of cycles the run took before the core halted, or the cycle limit was reached first. This number corresponds to the total instruction execution count in the functional `cpp_model`, whereas in the `sitar_model` it corresponds to the actual elapsed clock cycles of the timed simulation. |
+| **Core memory references**<br>(`ifetches`, `loads`, `stores`, `atomicLoadStores`, `flushes`) | [`SparcCoreStats`](../../model/cpp_common_code/SparcCoreStats.h) | core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar | The number of memory references made by the core, broken down by access type. `ifetches` equals total instructions executed, one fetch per instruction. A Load/Store/AtomicLoadStore that faults before reaching memory (e.g. a misaligned address) is not counted. One that faults as a result of the access itself is still counted, since the access happened. |
+| **Annulled instructions**<br>(`annulledInstructions`) | [`SparcCoreStats`](../../model/cpp_common_code/SparcCoreStats.h) | core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar | The number of not-taken annulling branches whose delay-slot instruction was fetched but never executed (Appendix B.4's `a` bit). |
+| **Traps by type**<br>(`trapIllegalInstruction`, `trapWindowOverflow`, ...) | [`SparcCoreStats`](../../model/cpp_common_code/SparcCoreStats.h) | core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar | The number of traps raised, broken down by trap type (Appendix C.8, Table 7-1): illegal instruction, privileged instruction, window overflow/underflow, misaligned address, division by zero, and more. `trapTicc` counts software-raised traps (a `Ticc` instruction executed). Every other counter is hardware-detected. |
+| **FP execution outcomes**<br>(`fpInstructionsExecuted`, `fpTrapsIEEE754Exception`, ...) | [`SparcCoreStats`](../../model/cpp_common_code/SparcCoreStats.h) | core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar | The number of floating-point instructions that completed, and the number that hit each of three possible FP trap outcomes (Appendix C.7). An FP result that only sets an accrued exception flag without actually trapping (e.g. an inexact result with that trap disabled) still counts as completed, but not as one of the three trap outcomes. |
 
-All three are independent and additive. A load with opcode latency 1,
-`VirtualMainMemoryInterface.delay` 2, and `VirtualMainMemory.delay` 3 takes 6 cycles total,
-not 3. All three accept `0` with no special-casing. With everything at
-`0`, the Sitar model runs with zero elapsed simulated time per
-instruction, functionally identical to the plain `cpp_model`.
+### MMU
 
----
+| Performance measure | Component | Models/configs available in | Description |
+|---|---|---|---|
+| **TLB hits and misses**<br>(`tlbHitsAtLevel[0..3]`, `tlbMisses`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of TLB hits, broken down by the page-table level the hit occurred at, and the number of misses (any access that needed a page-table walk because it wasn't found at any level). |
+| **Page-table walks**<br>(`walksTerminatedAtLevel[0..3]`, `walksNotFound`, `pageTableMemoryAccesses`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of page-table walks, broken down by the level a valid leaf PTE was found at, the number that found no valid PTE at all, and the total physical memory accesses issued purely to walk the page tables (one per level actually visited). |
+| **MMU faults**<br>(`faultsInvalidAddress`, `faultsProtection`, `faultsPrivilege`, `faultsTranslationError`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of faults raised, broken down by fault type (Appendix H.5's FT field). |
+| **R/M bit write-backs**<br>(`referencedBitWriteBacks`, `modifiedBitWriteBacks`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of translations that required writing an updated Referenced or Modified bit back to the page-table entry in memory. |
+| **MMU register accesses**<br>(`registerReads`, `registerWrites`, `contextRegisterWrites`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of reads and writes of the MMU's own control/context/fault registers (ASI 4), and the number of writes to the context register specifically. |
+| **MMU access mix**<br>(`flushRequests`, `probeRequests`, `bypassAccesses`, `translatedAccesses`) | [`MmuStats`](../../model/cpp_common_code/mmu/MmuStats.h) | core_mmu/cpp, core_mmu/sitar | The number of accesses that were TLB flushes, probes, explicit MMU-bypass accesses, or ordinary translated accesses. |
 
-## Opcode latency
+### Main Memory
 
-This is a compile-time table, `OpcodeLatencies.h`:
+| Performance measure | Component | Models/configs available in | Description |
+|---|---|---|---|
+| **Physical memory accesses**<br>(`reads`, `maskedWrites`, `lockedReads`, `fullDoublewordAccesses`, `partialAccesses`) | [`MainMemoryStats`](../../model/cpp_common_code/MainMemoryStats.h) | core_mmu/cpp, core_mmu/sitar | The number of doubleword transactions reaching physical memory, broken down by read/write, whether a read was the locked half of an atomic pair, and whether a write touched all 8 bytes of the doubleword or only some of them. |
 
-```cpp
-#define DEFAULT_PER_OPCODE_DELAY 1
-
-static const std::unordered_map<Opcode, uint32_t> OPCODE_LATENCY_OVERRIDES = {
-    // {UMUL, 4}, {SMUL, 4}, ...
-};
-```
-
-Every opcode not listed in `OPCODE_LATENCY_OVERRIDES` gets
-`DEFAULT_PER_OPCODE_DELAY`. List only the exceptions there, e.g. to
-approximate a multi-cycle multiplier/divider. Edit and rebuild (each
-configuration's own `sitar_model/build.sh`) to change it. This is
-deliberately not a runtime-loaded config file.
-
-## Memory-side latency
-
-The other two knobs, `VirtualMainMemoryInterface.delay` and
-`VirtualMainMemory.delay`, both default to `0` and are otherwise only
-ever assigned from outside, in `Core.sitar`'s `init` block, alongside the
-`downstreamRequest`/`downstreamResponse` wiring that connects each of
-`sparcThread`'s memory-interface procedures to `mainMemory`:
-
-```sitar
-init
-$
-sparcThread.ifetchProcedure.downstreamRequest  = &mainMemory.request;
-sparcThread.ifetchProcedure.downstreamResponse = &mainMemory.response;
-sparcThread.ifetchProcedure.delay              = 2;   // add a line like this
-...
-mainMemory.delay = 3;                                 // and/or this
-$
-```
-
----
-
-## Confirming a change took effect
-
-Rebuild with logging enabled and run a test (commands below are for the
-`core_only` configuration; substitute another configuration's own path
-and executable name as needed):
-
-```sh
-model/system_models/core_only/sitar_model/build.sh --logging
-model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only_logging <hex> <expected>
-```
-
-This writes `<hex>`'s own trace file (`<hex>` with its `.hex` replaced by
-`.log`, see [Getting Started](getting_started.md#observing-the-simulation-log)
-and [The log viewer](logging.md#the-log-viewer)) into the current
-directory. Its `time` column is exactly the per-instruction cycle count
-this page is about. Either open it in `log_viewer/viewer.html` and read
-`time` off consecutive `FETCH` rows directly, or grep it on the command
-line:
-
-```sh
-awk -F'\t' '$4=="FETCH"{print $2, $3, $5}' <hex_basename>.log
-```
-
-For example, overriding `ADD`'s latency to 4 cycles (`{ADD, 4}` in
-`OPCODE_LATENCY_OVERRIDES`) and running
-`validation/asm/integer_alu/Arithmetic/Add/ADD.hex` produces `time`
-values increasing by 1 between fetches, except right after the `ADD`
-row, where it jumps by 4, exactly the overridden gap. Reverting the
-override (back to the empty `OPCODE_LATENCY_OVERRIDES = {};` default) and
-rebuilding restores the uniform 1-cycle spacing.
-
-For `VirtualMainMemoryInterface.delay`/`VirtualMainMemory.delay`, look in
-the *other* file `--logging` produces, `sitar.log` (Sitar's own
-per-request/response messages, not part of the architectural trace, see
-`model/system_models/core_only/sitar_model/README.md`) for
-`"servicing"`/`"response ready"`
-(`VirtualMainMemory`) and `"Started memory reference"`/`"Finished memory
-reference"` (`VirtualMainMemoryInterface`), each timestamped `[t=<cycle>]`.
-
-Logging is off by default. Rebuild without `--logging` to go back to
-that. It's noticeably slower and noisier, meant for exactly this kind of
-debugging rather than everyday use.
+In `core_only`, the core connects directly to virtual memory, so the
+Core memory references above already reflect every access actually
+served. In configurations with an MMU, a core-side access doesn't
+necessarily correspond 1:1 to a physical memory access: a TLB hit
+needs none, and a page-table walk needs several. Physical memory is
+also doubleword-addressed in this model (see [Model
+Components](model_components.md#memory)), a different unit than a
+core-side access. This is why physical memory accesses are reported
+separately, only where an MMU is present, rather than folded into the
+Core table above.

@@ -242,16 +242,60 @@ both recurse automatically.
 
 ---
 
-## Provenance
+## Component validation suites
+
+The suite above is purely functional, and purely for the SPARC core
+itself: every opcode, exercised in isolation or as part of a larger C
+program. Alongside it, dedicated test suites validate individual
+components, each living in its own folder:
+
+- **`validation/C/mmu/`**  
+    The MMU: register access, page-table walks, TLB hit/miss/fill,
+    faults, probe and flush, bypass. See [Model
+    Components](model_components.md#mmu).
+- **`validation/C/devices/`** (planned)  
+    The timer, interrupt controller, and serial device. See
+    `Plan_Devices_integration.md`.
+- **`validation/C/caches/`** (planned)  
+    The L1 instruction and data caches. See
+    `Plan_Caches_integration.md`.
+
+A component's tests only pass on a configuration that actually includes
+that component, e.g. the MMU suite needs `core_mmu` or a later
+configuration that also has an MMU, not `core_only`. See the README in
+each config's own folder, or the corresponding validation-suite folder,
+for which configurations a given component's tests run on.
+
+For example, to run the MMU validation suite on `core_mmu`, build that
+configuration first (see [Getting
+Started](getting_started.md#building-the-sparc-models)):
+
+```sh
+model/system_models/core_mmu/cpp_model/build.sh
+```
+
+then run the suite against it, the same way as any other:
+
+```sh
+validation/run_tests.py validation/C/mmu
+```
+
+This same suite runs unmodified on any other configuration that also
+includes an MMU, once one exists, such as `core_mmu_devices`.
+
+---
+
+## Credits: validation suite of the AJIT SPARC V8 processor
 
 Most of `validation/asm/`'s tests, and the scripts that build and run
 this suite, are adapted from the **AJIT processor project** (IIT
 Bombay), specifically its `ajit32` instruction-level verification suite.
-Individual test files carry their original author credit inline. See
-[Authors](authors.md) for the full attribution, and
-`validation/asm/README.md` for which tests were adapted as-is versus
-written new for this project (the quad-precision suite, not present in
-AJIT's own tests at all).
+Many more tests have since been added as part of this project (the
+quad-precision suite, the `validation/C/` benchmarks, and the MMU suite
+above, none of which exist in AJIT's own tests). Tests adapted directly
+from AJIT carry their original author credit inline, and are listed as
+such in `validation/asm/README.md` and [Authors](authors.md). Tests
+developed as part of this project are not AJIT-derived.
 
 A handful of specific, well-understood divergences between this model's
 behavior and AJIT's own reference results are documented, with
