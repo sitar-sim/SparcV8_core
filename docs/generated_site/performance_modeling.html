@@ -1397,31 +1397,31 @@ statistics, then physical memory statistics.</p>
 <tbody>
 <tr>
 <td><strong>Total cycles to halt</strong></td>
-<td><a href="../../model/cpp_common_code/SparcStateMachine.h"><code>SparcStateMachine</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcStateMachine.h"><code>SparcStateMachine</code></a></td>
 <td>core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of cycles the run took before the core halted, or the cycle limit was reached first. This number corresponds to the total instruction execution count in the functional <code>cpp_model</code>, whereas in the <code>sitar_model</code> it corresponds to the actual elapsed clock cycles of the timed simulation.</td>
 </tr>
 <tr>
 <td><strong>Core memory references</strong><br>(<code>ifetches</code>, <code>loads</code>, <code>stores</code>, <code>atomicLoadStores</code>, <code>flushes</code>)</td>
-<td><a href="../../model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
 <td>core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar</td>
-<td>The number of memory references made by the core, broken down by access type. <code>ifetches</code> equals total instructions executed, one fetch per instruction. A Load/Store/AtomicLoadStore that faults before reaching memory (e.g. a misaligned address) is not counted. One that faults as a result of the access itself is still counted, since the access happened.</td>
+<td>The number of memory references made by the core, broken down by access type. <code>ifetches</code> equals total instructions fetched, one fetch per instruction. An annulled instruction is still fetched, just not executed, so this is not the same as a count of instructions executed. A Load/Store/AtomicLoadStore that faults before reaching memory (e.g. a misaligned address) is not counted. One that faults as a result of the access itself is still counted, since the access happened.</td>
 </tr>
 <tr>
 <td><strong>Annulled instructions</strong><br>(<code>annulledInstructions</code>)</td>
-<td><a href="../../model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
 <td>core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of not-taken annulling branches whose delay-slot instruction was fetched but never executed (Appendix B.4's <code>a</code> bit).</td>
 </tr>
 <tr>
 <td><strong>Traps by type</strong><br>(<code>trapIllegalInstruction</code>, <code>trapWindowOverflow</code>, ...)</td>
-<td><a href="../../model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
 <td>core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of traps raised, broken down by trap type (Appendix C.8, Table 7-1): illegal instruction, privileged instruction, window overflow/underflow, misaligned address, division by zero, and more. <code>trapTicc</code> counts software-raised traps (a <code>Ticc</code> instruction executed). Every other counter is hardware-detected.</td>
 </tr>
 <tr>
 <td><strong>FP execution outcomes</strong><br>(<code>fpInstructionsExecuted</code>, <code>fpTrapsIEEE754Exception</code>, ...)</td>
-<td><a href="../../model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCoreStats.h"><code>SparcCoreStats</code></a></td>
 <td>core_only/cpp, core_only/sitar, core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of floating-point instructions that completed, and the number that hit each of three possible FP trap outcomes (Appendix C.7). An FP result that only sets an accrued exception flag without actually trapping (e.g. an inexact result with that trap disabled) still counts as completed, but not as one of the three trap outcomes.</td>
 </tr>
@@ -1440,37 +1440,37 @@ statistics, then physical memory statistics.</p>
 <tbody>
 <tr>
 <td><strong>TLB hits and misses</strong><br>(<code>tlbHitsAtLevel[0..3]</code>, <code>tlbMisses</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of TLB hits, broken down by the page-table level the hit occurred at, and the number of misses (any access that needed a page-table walk because it wasn't found at any level).</td>
 </tr>
 <tr>
 <td><strong>Page-table walks</strong><br>(<code>walksTerminatedAtLevel[0..3]</code>, <code>walksNotFound</code>, <code>pageTableMemoryAccesses</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of page-table walks, broken down by the level a valid leaf PTE was found at, the number that found no valid PTE at all, and the total physical memory accesses issued purely to walk the page tables (one per level actually visited).</td>
 </tr>
 <tr>
 <td><strong>MMU faults</strong><br>(<code>faultsInvalidAddress</code>, <code>faultsProtection</code>, <code>faultsPrivilege</code>, <code>faultsTranslationError</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of faults raised, broken down by fault type (Appendix H.5's FT field).</td>
 </tr>
 <tr>
 <td><strong>R/M bit write-backs</strong><br>(<code>referencedBitWriteBacks</code>, <code>modifiedBitWriteBacks</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of translations that required writing an updated Referenced or Modified bit back to the page-table entry in memory.</td>
 </tr>
 <tr>
 <td><strong>MMU register accesses</strong><br>(<code>registerReads</code>, <code>registerWrites</code>, <code>contextRegisterWrites</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of reads and writes of the MMU's own control/context/fault registers (ASI 4), and the number of writes to the context register specifically.</td>
 </tr>
 <tr>
 <td><strong>MMU access mix</strong><br>(<code>flushRequests</code>, <code>probeRequests</code>, <code>bypassAccesses</code>, <code>translatedAccesses</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuStats.h"><code>MmuStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of accesses that were TLB flushes, probes, explicit MMU-bypass accesses, or ordinary translated accesses.</td>
 </tr>
@@ -1489,7 +1489,7 @@ statistics, then physical memory statistics.</p>
 <tbody>
 <tr>
 <td><strong>Physical memory accesses</strong><br>(<code>reads</code>, <code>maskedWrites</code>, <code>lockedReads</code>, <code>fullDoublewordAccesses</code>, <code>partialAccesses</code>)</td>
-<td><a href="../../model/cpp_common_code/MainMemoryStats.h"><code>MainMemoryStats</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemoryStats.h"><code>MainMemoryStats</code></a></td>
 <td>core_mmu/cpp, core_mmu/sitar</td>
 <td>The number of doubleword transactions reaching physical memory, broken down by read/write, whether a read was the locked half of an atomic pair, and whether a write touched all 8 bytes of the doubleword or only some of them.</td>
 </tr>

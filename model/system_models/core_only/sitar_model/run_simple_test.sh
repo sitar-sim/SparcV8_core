@@ -10,4 +10,4 @@ if [ ! -x "$EXE" ]; then
 	echo "error: $EXE not found -- run ./build.sh first"
 	exit 1
 fi
-"$EXE" "$TEST_DIR/test_simple_ADD.hex" "$TEST_DIR/test_simple_ADD.expected"
+"$EXE" "$TEST_DIR/test_simple_ADD.hex" "$TEST_DIR/test_simple_ADD.expected" --stats

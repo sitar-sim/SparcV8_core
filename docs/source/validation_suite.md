@@ -127,12 +127,13 @@ It recurses to find `.vprj` files, so nesting is free.
 
 | Option | Does |
 |---|---|
-| `--sitar` | Run against the Sitar-timed model (`model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only`) instead of the plain C++ model (`model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only`, the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
-| `--max-cycles N` | Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
+| `--config NAME` | Which `system_models` configuration to run against, default `core_only`. E.g. `--config core_mmu` runs against `model/system_models/core_mmu/`'s own executables instead. |
+| `--sitar` | Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
+| `--max-cycles N` | Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
 | `-v` | Show every check's result, not just failures. |
 
 ```sh
-validation/run_tests.py validation --sitar -v
+validation/run_tests.py validation --config core_mmu --sitar -v
 validation/run_tests.py validation/asm/control_transfer --max-cycles 50000
 ```
 

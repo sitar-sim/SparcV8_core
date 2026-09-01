@@ -491,6 +491,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Building the SPARC models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1384,6 +1401,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Building the SPARC models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1589,9 +1623,8 @@ below and by the validation suite. The second, in addition, produces a
 <code>_logging</code>-suffixed executable
 (<code>executable/sparc_sim_cpp_core_only_logging</code>) that writes an
 instruction trace when run, used in "Observing the simulation log"
-below. Logging defaults to off (see "Both build scripts take the same
-options" below), so building it explicitly is the only way to get a
-trace.</p>
+below. Logging defaults to off (see "Build options" below), so
+building it explicitly is the only way to get a trace.</p>
 <p>Build the Sitar-timed model the same way, from the repo root:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./build.sh
@@ -1601,6 +1634,7 @@ trace.</p>
 core through <a href="https://sitar-sim.github.io/sitar/">Sitar</a> instead of the
 plain functional loop, adding real per-opcode, interconnect, and memory
 timing.</p>
+<h3 id="build-options">Build options<a class="headerlink" href="#build-options" title="Permanent link">&para;</a></h3>
 <p>Both build scripts take the same options:</p>
 <ul>
 <li><strong><code>--logging</code> / <code>--no-logging</code></strong> (default: off)<br />
@@ -1628,8 +1662,7 @@ Configurations</a>.</p>
 <p>The process is: first build a configuration (previous section), then
 run its simulator executable, pointing it at a hex file. A hex file is
 a memory image, the machine code for the program to run on the
-simulator, in the format <code>MemCore</code>'s <code>initializeMemory()</code> reads
-directly (<code>model/cpp_common_code/MemCore.h</code>).</p>
+simulator.</p>
 <p>To run the C++ model against a memory image, from the repo root:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
@@ -1642,40 +1675,43 @@ directly (<code>model/cpp_common_code/MemCore.h</code>).</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles] [--stats]
 </span></code></pre></div>
 <ul>
-<li><strong>A hex file</strong> (required)<br />
+<li><strong><code>hex_file</code></strong> (required)<br />
     The memory image to run.</li>
-<li><strong>An expected-results file</strong> (optional)<br />
+<li><strong><code>expected_results_file</code></strong> (optional)<br />
     A file listing the expected final register values, see
     <a href="writing_and_running_assembly_programs.html#format-for-the-expected-results-file">Format for the expected-results file</a>
     for its format. If given, once the program halts, the final
     processor state is checked against it and the executable prints a
     PASS/FAIL verdict per check plus an OVERALL result, instead of the
     detailed state.</li>
-<li><strong>A cycle limit</strong> (optional)<br />
+<li><strong><code>max_cycles</code></strong> (optional)<br />
     Caps how long the simulator runs before giving up, in case the
-    program never halts (a bug, or a genuine infinite loop). Defaults to<ol>
-<li>Pass a smaller number to fail fast on a quick test, or a
-larger one for a program that legitimately needs more cycles than
-that to finish.</li>
-</ol>
-</li>
+    program never halts (a bug, or a genuine infinite loop). Defaults
+    to 1 million cycles. Pass a smaller number to fail fast on a quick
+    test, or a larger one for a program that legitimately needs more
+    cycles than that to finish.</li>
 <li><strong><code>--stats</code></strong> (optional, can appear anywhere among the arguments)<br />
-    Prints the model's own performance measures (instruction mix, and,
+    Prints the model's own performance measures (core statistics, and,
     where present, MMU and physical-memory statistics) once the run
     finishes. Off by default. See <a href="performance_modeling.html#printing-the-performance-measures">Performance
     Modeling</a>.</li>
 </ul>
 <p>For example, checking the same run against its expected-results file,
-back in <code>model/system_models/core_only/cpp_model</code>:</p>
+with <code>--stats</code> added, back in <code>model/system_models/core_only/cpp_model</code>:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.expected<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="m">1000</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="m">1000</span><span class="w"> </span>--stats
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>PASS: o0 = 0xc
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>PASS: l0 = 0x5
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>PASS: l1 = 0x7
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>OVERALL: PASS (3 checks)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Core statistics:
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  Instructions fetched             = 8
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  Loads                            = 0
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  ... (more counters, all 0 for this simple test)
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>PASS: o0 = 0xc
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>PASS: l0 = 0x5
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>PASS: l1 = 0x7
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>OVERALL: PASS (3 checks)
 </span></code></pre></div>
 <h3 id="running-the-existing-simple-test">Running the existing simple test<a class="headerlink" href="#running-the-existing-simple-test" title="Permanent link">&para;</a></h3>
 <p>The same check has a shortcut, <code>run_simple_test.sh</code>, bundled in every
@@ -1684,9 +1720,10 @@ testbench folder, e.g. <code>model/system_models/core_only/cpp_model</code>) and
 run it directly:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./run_simple_test.sh
 </span></code></pre></div>
-<p>A fixed, minimal wrapper around the exact same hex-file-plus-expected-
-results check above, always against the plain, non-logging build, so it
-doesn't produce a <code>.log</code> file itself. For a simulation log of this same
+<p>A fixed, minimal wrapper around the same hex-file-plus-expected-results
+check above, with <code>--stats</code> always on. Always against the plain,
+non-logging build, so it doesn't produce a <code>.log</code> file itself. For a
+simulation log of this same
 run, see "Observing the simulation log" below, which runs the
 <code>_logging</code> executable directly against the same hex file instead.</p>
 <hr />
@@ -1787,8 +1824,8 @@ tests, and the scripts to run them, are included in <code>validation/</code>.</p
 </ul>
 <p>It's worth running whenever you change the model itself, to check
 nothing broke. <code>validation/run_tests.py</code> drives each model's plain
-default build (no <code>--logging</code>, no <code>--debug</code>) -- the one already built in
-"Building the SPARC models" above, some tests run long, and logging
+default build (no <code>--logging</code>, no <code>--debug</code>), the one already built in
+"Building the SPARC models" above. Some tests run long, and logging
 isn't needed here. Rebuild it if you've made changes since:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>model/system_models/core_only/cpp_model/build.sh
 </span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>model/system_models/core_only/sitar_model/build.sh
@@ -1806,12 +1843,14 @@ Example, a small subset first:</p>
 folder:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>validation/run_tests.py<span class="w"> </span>validation
 </span></code></pre></div>
-<p>The script runs the tests on the C++ model by default. To run it on the
-Sitar model instead, pass the <code>--sitar</code> option. Add <code>-v</code> to show every
-check's result, not just failures:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--sitar<span class="w"> </span>-v
+<p>The script runs against <code>core_only</code> by default. Pass <code>--config
+core_mmu</code> to run it against another configuration instead. It also
+runs the C++ model by default. Pass <code>--sitar</code> to run the Sitar model
+instead. Add <code>-v</code> to show every check's result, not just failures:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
 </span></code></pre></div>
-<p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test and how to add a new test to the suite.</p>
+<p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test, the
+full list of options, and how to add a new test to the suite.</p>
 <hr />
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
 <p>Logging suits a small test program well, but a long-running one can

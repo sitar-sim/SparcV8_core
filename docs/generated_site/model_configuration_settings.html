@@ -1373,21 +1373,21 @@ parameters apply to both.</p>
 <tbody>
 <tr>
 <td><strong>Opcode latency</strong><br>(<code>DEFAULT_PER_OPCODE_DELAY</code>, <code>OPCODE_LATENCY_OVERRIDES</code>)</td>
-<td><a href="../../model/sitar_component_models/cpp_code/OpcodeLatencies.h"><code>OpcodeLatencies.h</code></a> (shared by every configuration)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/cpp_code/OpcodeLatencies.h"><code>OpcodeLatencies.h</code></a> (shared by every configuration)</td>
 <td>Timing</td>
 <td>Compile time</td>
 <td>Cycles charged per instruction, on top of any separate memory-access latency. Every opcode not listed in <code>OPCODE_LATENCY_OVERRIDES</code> gets the default.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong>Memory-interface delay</strong><br>(<code>ifetchProcedure.delay</code>, <code>memReadProcedure.delay</code>, <code>memWriteProcedure.delay</code>, <code>atomicLoadStoreProcedure.delay</code>, <code>flushProcedure.delay</code>)</td>
-<td>core_only: <a href="../../model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>One independent delay per access type (ifetch, load, store, atomic, flush), charged on the requester side, after the response is available. Models core-side interconnect/cache latency between <code>SparcThread</code> and whatever it talks to next (<code>VirtualMainMemory</code> in <code>core_only</code>, the MMU in <code>core_mmu</code>).<br><strong>Range:</strong> non-negative int, per field.</td>
 </tr>
 <tr>
 <td><strong><code>NUM_THREADS_PER_CORE</code></strong></td>
-<td><a href="../../model/cpp_common_code/MultiThreadingConfig.h"><code>MultiThreadingConfig.h</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MultiThreadingConfig.h"><code>MultiThreadingConfig.h</code></a></td>
 <td>Structural</td>
 <td>Compile time</td>
 <td>Hardware threads (SMT) per core. <strong>Not yet implemented.</strong> The current model has no hyperthreading, 1 thread per core.</td>
@@ -1410,70 +1410,70 @@ currently <code>core_mmu</code> (and, once built, <code>core_mmu_devices</code>)
 <tbody>
 <tr>
 <td><strong><code>MMU_TLB_PRESENT</code></strong></td>
-<td><a href="../../model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
 <td>Structural</td>
 <td>Compile time</td>
 <td>Whether this build includes TLB hardware at all. With a TLB present, translations are cached. Without one, every access re-walks the page tables. The sizing constants below only matter when this is true.</td>
 </tr>
 <tr>
 <td><strong>TLB sizing</strong><br>(<code>MMU_TLB_LEVEL0_ENTRIES</code>, <code>MMU_TLB_LEVEL1_ENTRIES</code>, <code>MMU_TLB_LEVEL2_ENTRIES</code>, <code>MMU_TLB_LEVEL3_WAYS</code>, <code>MMU_TLB_LEVEL3_SETS</code>)</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
 <td>Structural</td>
 <td>Compile time</td>
 <td>Number of entries at TLB levels 0-2 (each fully associative), and the sets x ways split for level 3 (ordinary 4KB pages).<br><strong>Range:</strong> <code>LEVEL0</code>/<code>1</code>/<code>2_ENTRIES</code>, <code>LEVEL3_WAYS</code>: positive int. <code>LEVEL3_SETS</code>: power of two, 1 to 2^19.</td>
 </tr>
 <tr>
 <td><strong><code>MMU_CONTROL_ALWAYS_CACHEABLE_BIT</code></strong></td>
-<td><a href="../../model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuConfig.h"><code>MmuConfig.h</code></a></td>
 <td>Structural</td>
 <td>Compile time</td>
 <td>Which bit of the MMU Control Register's implementation-defined SC field means "always cacheable, regardless of the PTE's own C bit" (Appendix H.3).<br><strong>Range:</strong> 8-23.</td>
 </tr>
 <tr>
 <td><strong><code>MmuCore::tlbEnabled</code></strong></td>
-<td>cpp_model: <a href="../../model/system_models/core_mmu/cpp_model/src/sparc_sim.cpp"><code>sparc_sim.cpp</code></a> (<code>MMU_TLB_ENABLED</code> environment variable) or directly<br>sitar_model: <a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a> (<code>core.mmu.mmu.tlbEnabled</code>)</td>
+<td>cpp_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/cpp_model/src/sparc_sim.cpp"><code>sparc_sim.cpp</code></a> (<code>MMU_TLB_ENABLED</code> environment variable) or directly<br>sitar_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a> (<code>core.mmu.mmu.tlbEnabled</code>)</td>
 <td>Structural</td>
 <td>Runtime</td>
 <td>Whether the (compiled-in) TLB is actually used for a specific run. With it false, every access re-walks the page tables regardless of what's compiled in.<br><strong>Range:</strong> true/false (false if <code>MMU_TLB_PRESENT</code> is false).</td>
 </tr>
 <tr>
 <td><strong><code>core.mmu.tlbLookupDelay</code></strong></td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>TLB tag-compare cost, charged whether the lookup hits or misses.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong><code>core.mmu.pageTableWalkStepDelay</code></strong></td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>Page-table walker control overhead, charged once per level visited on a walk.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong><code>core.mmu.tlbFillDelay</code></strong></td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>Cost of inserting a resolved entry into the TLB, on a fresh miss only.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong><code>core.mmu.registerAccessDelay</code></strong></td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>An MMU control/context/FSR/FAR register read or write (ASI 4).<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong><code>core.mmu.flushDelay</code></strong></td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>A TLB invalidate (ASI 3 write). No memory access, since the TLB is write-through.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
 <td><strong>MMU-to-memory interconnect delay</strong><br>(<code>core.mmu.phyMemReadProcedure.delay</code>, <code>core.mmu.phyMemWriteProcedure.delay</code>)</td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>The interface/interconnect delay between the MMU and main memory. The actual delay is 1 plus the value set here: Sitar always adds a compulsory 1 cycle for communication over a net, on top of whatever additional delay this field specifies.<br><strong>Range:</strong> non-negative int, per field.</td>
@@ -1494,7 +1494,7 @@ currently <code>core_mmu</code> (and, once built, <code>core_mmu_devices</code>)
 <tbody>
 <tr>
 <td><strong><code>mainMemory.delay</code></strong></td>
-<td>core_only: <a href="../../model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>The memory's own service time, shared by every requester. <code>VirtualMainMemory.delay</code> in <code>core_only</code>, <code>PhysicalMainMemory.delay</code> in <code>core_mmu</code>.<br><strong>Range:</strong> non-negative int.</td>

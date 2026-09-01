@@ -4,8 +4,8 @@
 # canonical copy, not a local one). Build first with ./build.sh. Doesn't
 # exercise the MMU itself (test_simple_ADD sets up no page tables and
 # never enables the MMU), just confirms the MMU-in-the-loop, disabled,
-# pass-through path works -- see the dedicated MMU tests once they exist
-# for real translation coverage.
+# pass-through path works -- see validation/C/mmu/ for real translation
+# coverage.
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 TEST_DIR="$DIR/../../../../validation/test_simple_ADD"
@@ -14,4 +14,4 @@ if [ ! -x "$EXE" ]; then
 	echo "error: $EXE not found -- run ./build.sh first"
 	exit 1
 fi
-"$EXE" "$TEST_DIR/test_simple_ADD.hex" "$TEST_DIR/test_simple_ADD.expected"
+"$EXE" "$TEST_DIR/test_simple_ADD.hex" "$TEST_DIR/test_simple_ADD.expected" --stats

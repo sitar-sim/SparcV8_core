@@ -17,8 +17,9 @@ class SparcCoreStats
 	public:
 		SparcCoreStats();
 
-		//One instruction fetch per instruction executed, so this also
-		//counts total instructions executed.
+		//One fetch per instruction fetched. An annulled instruction is
+		//still fetched (and counted here), just not executed, so this
+		//is not the same as a count of instructions executed.
 		uint32_t ifetches;
 
 		uint32_t loads;

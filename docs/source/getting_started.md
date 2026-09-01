@@ -65,9 +65,8 @@ below and by the validation suite. The second, in addition, produces a
 `_logging`-suffixed executable
 (`executable/sparc_sim_cpp_core_only_logging`) that writes an
 instruction trace when run, used in "Observing the simulation log"
-below. Logging defaults to off (see "Both build scripts take the same
-options" below), so building it explicitly is the only way to get a
-trace.
+below. Logging defaults to off (see "Build options" below), so
+building it explicitly is the only way to get a trace.
 
 Build the Sitar-timed model the same way, from the repo root:
 
@@ -81,6 +80,8 @@ In comparison to the C++ model, the Sitar model drives the exact same
 core through [Sitar](https://sitar-sim.github.io/sitar/) instead of the
 plain functional loop, adding real per-opcode, interconnect, and memory
 timing.
+
+### Build options
 
 Both build scripts take the same options:
 
@@ -115,8 +116,7 @@ Configurations](model_configurations.md).
 The process is: first build a configuration (previous section), then
 run its simulator executable, pointing it at a hex file. A hex file is
 a memory image, the machine code for the program to run on the
-simulator, in the format `MemCore`'s `initializeMemory()` reads
-directly (`model/cpp_common_code/MemCore.h`).
+simulator.
 
 To run the C++ model against a memory image, from the repo root:
 
@@ -138,38 +138,43 @@ The simulation executable expects the following arguments:
 sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles] [--stats]
 ```
 
-- **A hex file** (required)  
+- **`hex_file`** (required)  
     The memory image to run.
-- **An expected-results file** (optional)  
+- **`expected_results_file`** (optional)  
     A file listing the expected final register values, see
     [Format for the expected-results file](writing_and_running_assembly_programs.md#format-for-the-expected-results-file)
     for its format. If given, once the program halts, the final
     processor state is checked against it and the executable prints a
     PASS/FAIL verdict per check plus an OVERALL result, instead of the
     detailed state.
-- **A cycle limit** (optional)  
+- **`max_cycles`** (optional)  
     Caps how long the simulator runs before giving up, in case the
-    program never halts (a bug, or a genuine infinite loop). Defaults to
-    1000000. Pass a smaller number to fail fast on a quick test, or a
-    larger one for a program that legitimately needs more cycles than
-    that to finish.
+    program never halts (a bug, or a genuine infinite loop). Defaults
+    to 1 million cycles. Pass a smaller number to fail fast on a quick
+    test, or a larger one for a program that legitimately needs more
+    cycles than that to finish.
 - **`--stats`** (optional, can appear anywhere among the arguments)  
-    Prints the model's own performance measures (instruction mix, and,
+    Prints the model's own performance measures (core statistics, and,
     where present, MMU and physical-memory statistics) once the run
     finishes. Off by default. See [Performance
     Modeling](performance_modeling.md#printing-the-performance-measures).
 
 For example, checking the same run against its expected-results file,
-back in `model/system_models/core_only/cpp_model`:
+with `--stats` added, back in `model/system_models/core_only/cpp_model`:
 
 ```sh
 ./executable/sparc_sim_cpp_core_only \
     ../../../../validation/test_simple_ADD/test_simple_ADD.hex \
     ../../../../validation/test_simple_ADD/test_simple_ADD.expected \
-    1000
+    1000 --stats
 ```
 
 ```
+Core statistics:
+  Instructions fetched             = 8
+  Loads                            = 0
+  ... (more counters, all 0 for this simple test)
+
 PASS: o0 = 0xc
 PASS: l0 = 0x5
 PASS: l1 = 0x7
@@ -187,9 +192,10 @@ run it directly:
 ./run_simple_test.sh
 ```
 
-A fixed, minimal wrapper around the exact same hex-file-plus-expected-
-results check above, always against the plain, non-logging build, so it
-doesn't produce a `.log` file itself. For a simulation log of this same
+A fixed, minimal wrapper around the same hex-file-plus-expected-results
+check above, with `--stats` always on. Always against the plain,
+non-logging build, so it doesn't produce a `.log` file itself. For a
+simulation log of this same
 run, see "Observing the simulation log" below, which runs the
 `_logging` executable directly against the same hex file instead.
 
@@ -304,8 +310,8 @@ The suite contains:
 
 It's worth running whenever you change the model itself, to check
 nothing broke. `validation/run_tests.py` drives each model's plain
-default build (no `--logging`, no `--debug`) -- the one already built in
-"Building the SPARC models" above, some tests run long, and logging
+default build (no `--logging`, no `--debug`), the one already built in
+"Building the SPARC models" above. Some tests run long, and logging
 isn't needed here. Rebuild it if you've made changes since:
 
 ```sh
@@ -334,15 +340,17 @@ folder:
 validation/run_tests.py validation
 ```
 
-The script runs the tests on the C++ model by default. To run it on the
-Sitar model instead, pass the `--sitar` option. Add `-v` to show every
-check's result, not just failures:
+The script runs against `core_only` by default. Pass `--config
+core_mmu` to run it against another configuration instead. It also
+runs the C++ model by default. Pass `--sitar` to run the Sitar model
+instead. Add `-v` to show every check's result, not just failures:
 
 ```sh
-validation/run_tests.py validation --sitar -v
+validation/run_tests.py validation --config core_mmu --sitar -v
 ```
 
-See [Validation Suite](validation_suite.md) for what's in a test and how to add a new test to the suite.
+See [Validation Suite](validation_suite.md) for what's in a test, the
+full list of options, and how to add a new test to the suite.
 
 ---
 

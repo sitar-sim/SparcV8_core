@@ -22,7 +22,7 @@ std::string SparcCoreStats::toString() const
 {
 	std::ostringstream out;
 	out << "Core statistics:\n";
-	out << "  Instructions executed (ifetches) = " << ifetches << "\n";
+	out << "  Instructions fetched             = " << ifetches << "\n";
 	out << "  Loads                            = " << loads << "\n";
 	out << "  Stores                           = " << stores << "\n";
 	out << "  Atomic load-stores               = " << atomicLoadStores << "\n";

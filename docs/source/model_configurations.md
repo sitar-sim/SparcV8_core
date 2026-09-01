@@ -36,10 +36,10 @@ summarized here:
 
 | Configuration | Type | Description |
 |---|---|---|
-| core_only | [cpp (functional model)](../../model/system_models/core_only/cpp_model/) | The core plus main memory. No MMU, devices, or caches. |
-| core_only | [sitar (timing model)](../../model/system_models/core_only/sitar_model/) | The core plus main memory. No MMU, devices, or caches. |
-| core_mmu | [cpp (functional model)](../../model/system_models/core_mmu/cpp_model/) | Adds an MMU between the core and main memory. |
-| core_mmu | [sitar (timing model)](../../model/system_models/core_mmu/sitar_model/) | Adds an MMU between the core and main memory. |
+| core_only | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_only/cpp_model/) | The core plus main memory. No MMU, devices, or caches. |
+| core_only | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_only/sitar_model/) | The core plus main memory. No MMU, devices, or caches. |
+| core_mmu | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/cpp_model/) | Adds an MMU between the core and main memory. |
+| core_mmu | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/sitar_model/) | Adds an MMU between the core and main memory. |
 
 For each configuration, both the cpp and sitar models include the same
 components: `core_mmu`'s MMU, for example, is present in both its
@@ -86,15 +86,15 @@ This shows component instance ownership: which design unit
 instantiates which, and how many instances.
 
 <pre>
-<a href="../../model/system_models/core_only/sitar_model/src/Top.sitar">Top</a>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Top.sitar">Top</a>
  |
- +-- <a href="../../model/system_models/core_only/sitar_model/src/Core.sitar">Core</a> (module)
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar">Core</a> (module)
       |
-      +-- sparcThread : <a href="../../model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
       |    |
-      |    +-- 5x <a href="../../model/sitar_component_models/VirtualMainMemoryInterface.sitar">VirtualMainMemoryInterface</a> (procedure)
+      |    +-- 5x <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemoryInterface.sitar">VirtualMainMemoryInterface</a> (procedure)
       |
-      +-- mainMemory : <a href="../../model/sitar_component_models/VirtualMainMemory.sitar">VirtualMainMemory</a> (procedure)
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemory.sitar">VirtualMainMemory</a> (procedure)
 </pre>
 
 ---
@@ -132,25 +132,25 @@ This shows component instance ownership: which design unit
 instantiates which, and how many instances.
 
 <pre>
-<a href="../../model/system_models/core_mmu/sitar_model/src/Top.sitar">Top</a>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/Top.sitar">Top</a>
  |
- +-- <a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar">System</a> (module)
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar">System</a> (module)
       |
-      +-- core : <a href="../../model/system_models/core_mmu/sitar_model/src/Core.sitar">Core</a> (module)
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/Core.sitar">Core</a> (module)
       |    |
-      |    +-- sparcThread : <a href="../../model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      |    +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
       |    |    |
-      |    |    +-- 5x <a href="../../model/sitar_component_models/VirtualMainMemoryInterface.sitar">VirtualMainMemoryInterface</a> (procedure)
+      |    |    +-- 5x <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemoryInterface.sitar">VirtualMainMemoryInterface</a> (procedure)
       |    |
-      |    +-- mmu : <a href="../../model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
+      |    +-- mmu : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
       |         |
-      |         +-- 2x <a href="../../model/sitar_component_models/PhysicalMainMemoryInterface.sitar">PhysicalMainMemoryInterface</a> (procedure)
+      |         +-- 2x <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemoryInterface.sitar">PhysicalMainMemoryInterface</a> (procedure)
       |              |
-      |              +-- <a href="../../model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="../../model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
+      |              +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
       |
-      +-- mainMemory : <a href="../../model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
            |
-           +-- <a href="../../model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="../../model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
+           +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
 
 core.requestOut  --requestNet-->  mainMemory.requestIn
 core.responseIn  <-responseNet--  mainMemory.responseOut

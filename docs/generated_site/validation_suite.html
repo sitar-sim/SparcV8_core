@@ -1569,12 +1569,16 @@ the existing suite. Phase 1 is only needed after adding or editing a
 </thead>
 <tbody>
 <tr>
+<td><code>--config NAME</code></td>
+<td>Which <code>system_models</code> configuration to run against, default <code>core_only</code>. E.g. <code>--config core_mmu</code> runs against <code>model/system_models/core_mmu/</code>'s own executables instead.</td>
+</tr>
+<tr>
 <td><code>--sitar</code></td>
-<td>Run against the Sitar-timed model (<code>model/system_models/core_only/sitar_model/executable/sparc_sim_sitar_core_only</code>) instead of the plain C++ model (<code>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only</code>, the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+<td>Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
 </tr>
 <tr>
 <td><code>--max-cycles N</code></td>
-<td>Per-test cycle limit, default 10000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#building-the-sparc-models">Getting Started</a>.</td>
+<td>Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#building-the-sparc-models">Getting Started</a>.</td>
 </tr>
 <tr>
 <td><code>-v</code></td>
@@ -1582,7 +1586,7 @@ the existing suite. Phase 1 is only needed after adding or editing a
 </tr>
 </tbody>
 </table>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--sitar<span class="w"> </span>-v
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm/control_transfer<span class="w"> </span>--max-cycles<span class="w"> </span><span class="m">50000</span>
 </span></code></pre></div>
 <p><code>validation/clean.sh [folder]</code> removes generated build byproducts (<code>.o</code>,

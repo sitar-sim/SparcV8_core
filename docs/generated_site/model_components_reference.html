@@ -1349,7 +1349,7 @@ configuration that uses it.</p>
 <tbody>
 <tr>
 <td><strong>Top</strong> (module)</td>
-<td><a href="../../model/system_models/core_only/sitar_model/src/Top.sitar"><code>Top.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Top.sitar"><code>Top.sitar</code></a></td>
 <td>core_only</td>
 <td>None</td>
 <td>None (root)</td>
@@ -1357,7 +1357,7 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>Core</strong> (module)</td>
-<td><a href="../../model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
 <td>core_only</td>
 <td>None</td>
 <td><code>Top</code></td>
@@ -1365,15 +1365,15 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>SparcThread</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/SparcThread.sitar"><code>SparcThread.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar"><code>SparcThread.sitar</code></a></td>
 <td>common</td>
-<td><a href="../../model/cpp_common_code/SparcCore.h"><code>SparcCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCore.h"><code>SparcCore</code></a></td>
 <td><code>Core</code> (1 instance: <code>sparcThread</code>)</td>
 <td>The SPARC V8 fetch-decode-execute-trap state machine. Owns 5 <code>VirtualMainMemoryInterface</code> instances for ifetch, load, store, atomic, and flush.</td>
 </tr>
 <tr>
 <td><strong>VirtualMainMemoryInterface</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/VirtualMainMemoryInterface.sitar"><code>VirtualMainMemoryInterface.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemoryInterface.sitar"><code>VirtualMainMemoryInterface.sitar</code></a></td>
 <td>common</td>
 <td>None</td>
 <td><code>SparcThread</code> (5 instances: <code>ifetchProcedure</code>, <code>memReadProcedure</code>, <code>memWriteProcedure</code>, <code>atomicLoadStoreProcedure</code>, <code>flushProcedure</code>)</td>
@@ -1381,9 +1381,9 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>VirtualMainMemory</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/VirtualMainMemory.sitar"><code>VirtualMainMemory.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemory.sitar"><code>VirtualMainMemory.sitar</code></a></td>
 <td>common</td>
-<td><a href="../../model/cpp_common_code/MemCore.h"><code>MemCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MemCore.h"><code>MemCore</code></a></td>
 <td><code>Core</code> (1 instance: <code>mainMemory</code>)</td>
 <td>Persistent VM-shaped memory model wrapping <code>MemCore</code>. <code>core_only</code>'s terminal memory node. No MMU sits downstream of it.</td>
 </tr>
@@ -1404,7 +1404,7 @@ configuration that uses it.</p>
 <tbody>
 <tr>
 <td><strong>Top</strong> (module)</td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/Top.sitar"><code>Top.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/Top.sitar"><code>Top.sitar</code></a></td>
 <td>core_mmu</td>
 <td>None</td>
 <td>None (root)</td>
@@ -1412,7 +1412,7 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>System</strong> (module)</td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>core_mmu</td>
 <td>None</td>
 <td><code>Top</code></td>
@@ -1420,7 +1420,7 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>Core</strong> (module)</td>
-<td><a href="../../model/system_models/core_mmu/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
 <td>core_mmu</td>
 <td>None</td>
 <td><code>System</code> (1 instance: <code>core</code>)</td>
@@ -1428,15 +1428,15 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>SparcThread</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/SparcThread.sitar"><code>SparcThread.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar"><code>SparcThread.sitar</code></a></td>
 <td>common</td>
-<td><a href="../../model/cpp_common_code/SparcCore.h"><code>SparcCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SparcCore.h"><code>SparcCore</code></a></td>
 <td><code>Core</code> (1 instance: <code>sparcThread</code>)</td>
 <td>The SPARC V8 fetch-decode-execute-trap state machine. Owns 5 <code>VirtualMainMemoryInterface</code> instances for ifetch, load, store, atomic, and flush.</td>
 </tr>
 <tr>
 <td><strong>VirtualMainMemoryInterface</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/VirtualMainMemoryInterface.sitar"><code>VirtualMainMemoryInterface.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/VirtualMainMemoryInterface.sitar"><code>VirtualMainMemoryInterface.sitar</code></a></td>
 <td>common</td>
 <td>None</td>
 <td><code>SparcThread</code> (5 instances: <code>ifetchProcedure</code>, <code>memReadProcedure</code>, <code>memWriteProcedure</code>, <code>atomicLoadStoreProcedure</code>, <code>flushProcedure</code>)</td>
@@ -1444,15 +1444,15 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>Mmu</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/Mmu.sitar"><code>Mmu.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar"><code>Mmu.sitar</code></a></td>
 <td>common</td>
-<td><a href="../../model/cpp_common_code/mmu/MmuCore.h"><code>MmuCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/mmu/MmuCore.h"><code>MmuCore</code></a></td>
 <td><code>Core</code> (1 instance: <code>mmu</code>)</td>
 <td>The Sitar timing model for the MMU. Sits between <code>SparcThread</code> and physical memory. Drives <code>MmuCore</code>'s step-primitives through real, timed physical accesses.</td>
 </tr>
 <tr>
 <td><strong>PhysicalMainMemoryInterface</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/PhysicalMainMemoryInterface.sitar"><code>PhysicalMainMemoryInterface.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemoryInterface.sitar"><code>PhysicalMainMemoryInterface.sitar</code></a></td>
 <td>common</td>
 <td>None</td>
 <td><code>Mmu</code> (2 instances: <code>phyMemReadProcedure</code>, <code>phyMemWriteProcedure</code>)</td>
@@ -1460,7 +1460,7 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>PullAToken</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/PullAToken.sitar"><code>PullAToken.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PullAToken.sitar"><code>PullAToken.sitar</code></a></td>
 <td>common</td>
 <td>None</td>
 <td><code>PhysicalMainMemoryInterface</code> (1 instance: <code>getPhyMemResponse</code>) and <code>PhysicalMainMemory</code> (1 instance: <code>getRequest</code>)</td>
@@ -1468,7 +1468,7 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>PushAToken</strong> (procedure)</td>
-<td><a href="../../model/sitar_component_models/PushAToken.sitar"><code>PushAToken.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar"><code>PushAToken.sitar</code></a></td>
 <td>common</td>
 <td>None</td>
 <td><code>PhysicalMainMemoryInterface</code> (1 instance: <code>sendPhyMemRequest</code>) and <code>PhysicalMainMemory</code> (1 instance: <code>sendResponse</code>)</td>
@@ -1476,9 +1476,9 @@ configuration that uses it.</p>
 </tr>
 <tr>
 <td><strong>PhysicalMainMemory</strong> (module)</td>
-<td><a href="../../model/sitar_component_models/PhysicalMainMemory.sitar"><code>PhysicalMainMemory.sitar</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar"><code>PhysicalMainMemory.sitar</code></a></td>
 <td>common</td>
-<td><a href="../../model/cpp_common_code/MainMemory.h"><code>MainMemory</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemory.h"><code>MainMemory</code></a></td>
 <td><code>System</code> (1 instance: <code>mainMemory</code>)</td>
 <td>Persistent PM-shaped memory model wrapping <code>MainMemory</code>. <code>core_mmu</code>'s terminal memory node, below the MMU, reached over nets rather than a procedure handshake.</td>
 </tr>
