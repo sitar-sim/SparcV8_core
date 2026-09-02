@@ -15,6 +15,9 @@
 /Plan_MMU_integration.md
 /Plan_SoC_Integration_Roadmap.md
 
+# Project-local Claude Code skill, not part of the public repository.
+/.claude/skills/sitar-procedure-composition/
+
 # Editor/OS cruft
 .DS_Store
 Thumbs.db
