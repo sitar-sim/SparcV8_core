@@ -6,6 +6,15 @@
 # section.
 /TODO.md
 
+# AI-collaboration working notes and integration plan files -- local
+# working documents only, never part of the public repository.
+/AI_Collaboration_Notes.md
+/Notes_multi_core_modeling.md
+/Plan_Caches_integration.md
+/Plan_Devices_integration.md
+/Plan_MMU_integration.md
+/Plan_SoC_Integration_Roadmap.md
+
 # Editor/OS cruft
 .DS_Store
 Thumbs.db
