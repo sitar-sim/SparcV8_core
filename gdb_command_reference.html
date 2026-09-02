@@ -1,0 +1,2066 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="examining_core_state_with_gdb.html">
+      
+      
+        <link rel="next" href="debug_support_internals.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>GDB Command Reference - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#gdb-command-reference" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              GDB Command Reference
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="gdb_command_reference.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#addresspc-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Address/PC syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#register-name-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register-name syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#coreid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coreid=
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kind=
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type=
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#addresspc-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Address/PC syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#register-name-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register-name syntax
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#common-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Common options
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Common options">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#coreid" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        coreid=
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#kind" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        kind=
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#type" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        type=
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#breakpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Breakpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#watchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#probe-print" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Probe / print
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#managing-breakpointswatchpoints" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Managing breakpoints/watchpoints
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#gdb-itself-briefly" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        GDB itself, briefly
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="gdb-command-reference">GDB Command Reference<a class="headerlink" href="#gdb-command-reference" title="Permanent link">&para;</a></h1>
+<p>The exhaustive reference for every <code>sparc-*</code> command
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
+adds: syntax, behavior, and examples. For a beginner-facing introduction
+and a walkthrough instead, see
+<a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</p>
+<p>Loading <code>debug/sparc.gdb</code> (<code>source debug/sparc.gdb</code>) adds every command
+below, organized into three groups.</p>
+<ul>
+<li><strong>Breakpoints</strong> stop execution at one of the four <code>debug_hook_*()</code>
+  points (see <a href="debug_support_internals.html">Debug Support Internals</a>).</li>
+<li><strong>Watchpoints</strong> stop when a value changes.</li>
+<li><strong>Probe/print</strong> commands read state without stopping anything, usable
+  once you're already stopped somewhere.</li>
+</ul>
+<hr />
+<h2 id="addresspc-syntax">Address/PC syntax<a class="headerlink" href="#addresspc-syntax" title="Permanent link">&para;</a></h2>
+<p>Every <code>pc=</code>/<code>addr=</code> argument takes a single value, one of three forms:</p>
+<table>
+<thead>
+<tr>
+<th>Form</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x2054</code></td>
+<td>exact match: <code>addr == 0x2054</code></td>
+</tr>
+<tr>
+<td><code>0x2000:0x2100</code></td>
+<td>half-open range: <code>addr &gt;= 0x2000 &amp;&amp; addr &lt; 0x2100</code></td>
+</tr>
+<tr>
+<td><code>0x2000/0xfffff000</code></td>
+<td>masked match: <code>(addr &amp; mask) == (base &amp; mask)</code></td>
+</tr>
+</tbody>
+</table>
+<p>In plain terms, specifying an address or a range of addresses works one
+of three ways:</p>
+<ul>
+<li><strong>A single address</strong>: <code>pc=0x2054</code> matches only that address.</li>
+<li><strong>A range, <code>lo:hi</code></strong>: <code>addr=0x2000:0x2100</code> matches any address from
+  <code>0x2000</code> up to (not including) <code>0x2100</code>.</li>
+<li><strong>A base and mask, <code>base/mask</code></strong>: <code>addr=0x2000/0xfffff000</code> matches any
+  address whose top 20 bits match <code>0x2000</code>'s, i.e. the aligned block
+  <code>0x2000:0x3000</code>. This is one single value (the <code>/</code> is part of it, not
+  a second option). The mask must be trailing zeros only (<code>0xfff...000</code>),
+  so it can only describe a power-of-2-sized, power-of-2-aligned block,
+  use <code>lo:hi</code> instead for anything else. Reach for this form specifically
+  when you need <code>sparc-watch-mem</code> to watch more than one word at once, a
+  real hardware watchpoint can only watch a power-of-2-aligned region, a
+  plain <code>lo:hi</code> range can't become one.</li>
+</ul>
+<p>Numbers can be written in whichever base is convenient, these all name
+the same address:</p>
+<ul>
+<li><strong>Hex</strong>: <code>pc=0x203c</code></li>
+<li><strong>Binary</strong>: <code>pc=0b10000000111100</code></li>
+<li><strong>Decimal</strong>: <code>pc=8252</code></li>
+</ul>
+<h2 id="register-name-syntax">Register-name syntax<a class="headerlink" href="#register-name-syntax" title="Permanent link">&para;</a></h2>
+<p>For convenience, register names can be specified in multiple ways, in
+line with SPARC assembly syntax itself:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Same as</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>g0</code>-<code>g7</code></td>
+<td><code>r0</code>-<code>r7</code></td>
+</tr>
+<tr>
+<td><code>o0</code>-<code>o7</code></td>
+<td><code>r8</code>-<code>r15</code></td>
+</tr>
+<tr>
+<td><code>l0</code>-<code>l7</code></td>
+<td><code>r16</code>-<code>r23</code></td>
+</tr>
+<tr>
+<td><code>i0</code>-<code>i7</code></td>
+<td><code>r24</code>-<code>r31</code></td>
+</tr>
+<tr>
+<td><code>pc</code></td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>npc</code></td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>y</code></td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>psr</code></td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>wim</code></td>
+<td><em>(none)</em></td>
+</tr>
+<tr>
+<td><code>tbr</code></td>
+<td><em>(none)</em></td>
+</tr>
+</tbody>
+</table>
+<h2 id="common-options">Common options<a class="headerlink" href="#common-options" title="Permanent link">&para;</a></h2>
+<h3 id="coreid"><code>coreid=</code><a class="headerlink" href="#coreid" title="Permanent link">&para;</a></h3>
+<p>Selects a specific core, for a model built with more than one. Defaults
+to core <code>0</code> when not given.</p>
+<p>Only relevant to commands that relate to a specific core's own state:
+setting a breakpoint, or reading or watching its registers. Commands
+that relate to memory instead, such as <code>sparc-print-mem addr=...</code>, don't
+take it. This model has one shared memory, not one per core, so there is
+nothing to select.</p>
+<p>On a breakpoint, omitting <code>coreid=</code> means any core can trigger it. On the
+register/probe commands, there's no "any core" option, one specific core
+must always be read from, so it defaults to <code>0</code> rather than leaving the
+question open.</p>
+<h3 id="kind"><code>kind=</code><a class="headerlink" href="#kind" title="Permanent link">&para;</a></h3>
+<p>Used by <code>sparc-break-mem</code> to filter which kind of memory reference to
+stop on. Always upper case, both when typed and when printed back (e.g.
+by <code>sparc-print-mem-access</code>):</p>
+<table>
+<thead>
+<tr>
+<th>Kind</th>
+<th>Memory reference</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>IFETCH</code></td>
+<td>fetching an instruction</td>
+</tr>
+<tr>
+<td><code>LOAD</code></td>
+<td>a plain load</td>
+</tr>
+<tr>
+<td><code>STORE</code></td>
+<td>a plain store</td>
+</tr>
+<tr>
+<td><code>ATOMIC</code></td>
+<td>an atomic load-store (<code>swap</code>, <code>ldstub</code>, ...)</td>
+</tr>
+<tr>
+<td><code>FLUSH</code></td>
+<td>an instruction-cache flush</td>
+</tr>
+</tbody>
+</table>
+<h3 id="type"><code>type=</code><a class="headerlink" href="#type" title="Permanent link">&para;</a></h3>
+<p>Used by <code>sparc-break-trap</code> to filter which trap cause to stop on. Omit
+it to stop on any cause:</p>
+<table>
+<thead>
+<tr>
+<th>Cause</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>reset_trap</code></td>
+</tr>
+<tr>
+<td><code>data_store_error</code></td>
+</tr>
+<tr>
+<td><code>instruction_access_error</code></td>
+</tr>
+<tr>
+<td><code>r_register_access_error</code></td>
+</tr>
+<tr>
+<td><code>instruction_access_exception</code></td>
+</tr>
+<tr>
+<td><code>privileged_instruction</code></td>
+</tr>
+<tr>
+<td><code>illegal_instruction</code></td>
+</tr>
+<tr>
+<td><code>fp_disabled</code></td>
+</tr>
+<tr>
+<td><code>cp_disabled</code></td>
+</tr>
+<tr>
+<td><code>unimplemented_FLUSH</code></td>
+</tr>
+<tr>
+<td><code>window_overflow</code></td>
+</tr>
+<tr>
+<td><code>window_underflow</code></td>
+</tr>
+<tr>
+<td><code>mem_address_not_aligned</code></td>
+</tr>
+<tr>
+<td><code>fp_exception</code></td>
+</tr>
+<tr>
+<td><code>cp_exception</code></td>
+</tr>
+<tr>
+<td><code>data_access_error</code></td>
+</tr>
+<tr>
+<td><code>data_access_exception</code></td>
+</tr>
+<tr>
+<td><code>tag_overflow</code></td>
+</tr>
+<tr>
+<td><code>division_by_zero</code></td>
+</tr>
+<tr>
+<td><code>trap_instruction</code></td>
+</tr>
+<tr>
+<td><code>external_interrupt</code></td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="breakpoints">Breakpoints<a class="headerlink" href="#breakpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Stops at</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-break</code></td>
+<td><code>pc=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_after_execute</code> (an instruction has fully executed, PC/nPC not yet advanced) when PC matches</td>
+</tr>
+<tr>
+<td><code>sparc-break-nth</code></td>
+<td><code>pc=&lt;addr-expr&gt; n=&lt;k&gt; [coreid=&lt;n&gt;]</code></td>
+<td>same, but only the k-th match actually stops (gdb's own <code>ignore</code> under the hood)</td>
+</tr>
+<tr>
+<td><code>sparc-break-trap</code></td>
+<td><code>[type=&lt;name&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_trap_raised</code>, optionally filtered to one cause (see "Common options" above)</td>
+</tr>
+<tr>
+<td><code>sparc-break-mae</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_mem_access</code> with <code>MAE</code> set (the access faulted), any kind, any address</td>
+</tr>
+<tr>
+<td><code>sparc-break-mem</code></td>
+<td><code>[kind=&lt;k&gt;] [addr=&lt;addr-expr&gt;] [data=&lt;hex&gt;] [mae] [coreid=&lt;n&gt;]</code> (<code>&lt;k&gt;</code> is one of the kinds in "Common options" above)</td>
+<td><code>debug_hook_mem_access</code>, filtered by any combination of kind/address/data (<code>word0</code>)/fault</td>
+</tr>
+<tr>
+<td><code>sparc-break-annulled</code></td>
+<td><code>[pc=&lt;addr-expr&gt;] [coreid=&lt;n&gt;]</code></td>
+<td><code>debug_hook_annulled</code> (a delay-slot instruction skipped by an untaken annulling branch), firing before PC/nPC update for the skip, so they're still the annulled instruction's own address and what it advances to</td>
+</tr>
+</tbody>
+</table>
+<p>For a rare event, <code>sparc-break-mae</code> is the simple, no-thought shortcut.
+For anything more specific (a particular kind/address that also faults),
+use <code>sparc-break-mem</code> with <code>mae</code> added.</p>
+<p>Omitting <code>type=</code> on <code>sparc-break-trap</code> stops at whatever cause is raised
+first, and that is always the reset trap. This model always asserts a
+reset trap at the very start of every run, before any of the program's
+own instructions execute, so a bare <code>sparc-break-trap</code> reliably catches
+that one first rather than whatever cause you actually meant to look
+for. Continue once to move past it and reach the next cause the program
+itself raises. There is no way yet to break on any cause except one in
+particular, filtering that one reset trap out. That kind of negated
+condition may be added in the future.</p>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>(gdb) sparc-break-nth pc=0x203c n=10
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>(gdb) sparc-break-trap type=illegal_instruction
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>(gdb) sparc-break-mae
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>(gdb) sparc-break-mem kind=LOAD addr=0x2000:0x2100
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>(gdb) sparc-break-mem kind=LOAD mae
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>(gdb) sparc-break-mem kind=IFETCH addr=0x2054
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>(gdb) sparc-break-mem kind=STORE data=0xdeadbeef
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>(gdb) sparc-break-annulled pc=0x2038
+</span></code></pre></div></p>
+<hr />
+<h2 id="watchpoints">Watchpoints<a class="headerlink" href="#watchpoints" title="Permanent link">&para;</a></h2>
+<p>Both are called "watchpoints" despite very different mechanisms
+underneath. From the user's side, both mean "tell me when this changes."</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Mechanism</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-watch-mem</code></td>
+<td><code>addr=&lt;addr-expr&gt; [coreid=&lt;n&gt;]</code></td>
+<td>true hardware watchpoint, firing the instant the value changes, wherever or whenever that happens (mid-instruction included). Large ranges may silently fall back to a slow software watchpoint if the host has no hardware debug register wide enough</td>
+</tr>
+<tr>
+<td><code>sparc-watch-reg</code></td>
+<td><code>&lt;reg&gt; [value=&lt;hex&gt;] [mask=&lt;hex&gt;] [persist] [coreid=&lt;n&gt;]</code></td>
+<td><strong>not</strong> a hardware watchpoint, see below</td>
+</tr>
+</tbody>
+</table>
+<p>This is deliberate: <code>sparc-watch-reg</code> is not a real watchpoint. A real
+one fires the instant the underlying storage changes, which for a
+register can be mid-instruction (e.g. window shuffling), before the
+value is architecturally committed. This instead checks <code>&lt;reg&gt;</code> once
+per instruction, after it has fully completed, the stable, retired
+value, comparing it against its value at the previous check:</p>
+<table>
+<thead>
+<tr>
+<th>Arguments given</th>
+<th>Fires</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><em>(none)</em></td>
+<td>on any change from the previous check</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code></td>
+<td>on each transition <em>into</em> a matching value (edge-triggered), not on every instruction that merely holds it</td>
+</tr>
+<tr>
+<td><code>value=</code>/<code>mask=</code> + <code>persist</code></td>
+<td>on <em>every</em> instruction the value/mask condition holds, not just the transition into it, a corner case, but a real one</td>
+</tr>
+</tbody>
+</table>
+<p>Edge-triggered here means "once per transition," not "once for the
+whole run." If the value leaves the match and later re-enters it, that
+counts as a new transition and fires again. A windowed register (<code>o0</code>,
+<code>l3</code>, and so on) can also appear to re-enter the same value across a
+<code>save</code>/<code>restore</code> even though nothing in the program explicitly wrote it
+again, since the physical storage a windowed name refers to rotates with
+the register window. Seeing a second stop at what looks like the same
+value is expected, not a bug.</p>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>(gdb) sparc-watch-reg cwp
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>(gdb) sparc-watch-reg o1 value=0x10000000 mask=0xf0000000
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>(gdb) sparc-watch-reg o1 value=0x1 persist
+</span></code></pre></div></p>
+<hr />
+<h2 id="probe-print">Probe / print<a class="headerlink" href="#probe-print" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Shows</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-print-regs</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>full register/PSR dump, works from any frame, not just inside a hook</td>
+</tr>
+<tr>
+<td><code>sparc-print-reg</code></td>
+<td><code>&lt;reg&gt; [coreid=&lt;n&gt;]</code></td>
+<td>one register's value, either naming scheme</td>
+</tr>
+<tr>
+<td><code>sparc-print-traps</code></td>
+<td><code>[coreid=&lt;n&gt;]</code></td>
+<td>trap cause, TBR, PC, and the ET/PS/S PSR bits</td>
+</tr>
+<tr>
+<td><code>sparc-print-annulled</code></td>
+<td><em>(none)</em></td>
+<td>pc/npc/raw instruction word of the annul currently stopped at (<code>debug_hook_annulled</code>), not decoded to a mnemonic (annulled instructions are deliberately never decoded by the model itself). Cross-check the pc against an objdump instead</td>
+</tr>
+<tr>
+<td><code>sparc-print-mem-access</code></td>
+<td><em>(none)</em></td>
+<td>while stopped in <code>debug_hook_mem_access</code>: that access's own <code>kind</code>, address, word0, word1, MAE, whatever memory reference just completed, even if no register was updated</td>
+</tr>
+<tr>
+<td><code>sparc-print-mem</code></td>
+<td><code>addr=&lt;addr-expr&gt;</code></td>
+<td>live memory content at <code>addr</code>, from anywhere, in hex, however many words the range covers (one, for an exact address)</td>
+</tr>
+</tbody>
+</table>
+<p>Examples:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>(gdb) sparc-print-regs
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>(gdb) sparc-print-reg o1
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>(gdb) sparc-print-reg r9
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>(gdb) sparc-print-traps
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>(gdb) sparc-print-annulled
+</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a>(gdb) sparc-print-mem-access
+</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a>kind=LOAD address=0xfffffe0 word0=0x1 word1=0x0 MAE=0
+</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a>(gdb) sparc-print-mem addr=0xfffffe0
+</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>(gdb) sparc-print-mem addr=0x2000:0x2020
+</span></code></pre></div></p>
+<hr />
+<h2 id="managing-breakpointswatchpoints">Managing breakpoints/watchpoints<a class="headerlink" href="#managing-breakpointswatchpoints" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-list</code></td>
+<td><em>(none)</em></td>
+<td>list every sparc-* breakpoint/watchpoint set so far, with the friendly label each was created with</td>
+</tr>
+<tr>
+<td><code>sparc-delete</code></td>
+<td><code>&lt;id&gt;</code></td>
+<td>remove one, by the id <code>sparc-list</code> shows</td>
+</tr>
+</tbody>
+</table>
+<p>Every command above prints a line when it creates a breakpoint/watchpoint,
+e.g. <code>[sparc #2] break pc=0x203c (gdb breakpoint #1)</code>. gdb's own <code>info
+breakpoints</code> shows the same entries, but only their raw translated
+condition string, which for these is rarely readable at a glance:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(gdb) sparc-list
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>id   gdb#   kind   hits   description
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>1    1      break  2      break pc=0x203c
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>2    2      watch  0      watch-mem addr=0xfffffe0
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(gdb) sparc-delete 1
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Deleted sparc #1 (break pc=0x203c)
+</span></code></pre></div></p>
+<hr />
+<h2 id="gdb-itself-briefly">GDB itself, briefly<a class="headerlink" href="#gdb-itself-briefly" title="Permanent link">&para;</a></h2>
+<p>A few native commands worth knowing, independent of anything above:</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>break LOCATION if COND</code></td>
+<td>conditional breakpoint in one line</td>
+</tr>
+<tr>
+<td><code>watch EXPR</code></td>
+<td>hardware watchpoint, breaks the instant <code>EXPR</code>'s value changes</td>
+</tr>
+<tr>
+<td><code>ignore N COUNT</code></td>
+<td>skip the next <code>COUNT</code> hits of breakpoint <code>N</code> silently, stopping on hit <code>COUNT+1</code>. <code>ignore N 9</code> means "stop on the 10th occurrence" (this is exactly what <code>sparc-break-nth</code> does internally)</td>
+</tr>
+<tr>
+<td><code>call EXPR</code></td>
+<td>invoke a real function/method in the debuggee, print its result</td>
+</tr>
+<tr>
+<td><code>continue</code> / <code>c</code></td>
+<td>resume until the next breakpoint/watchpoint</td>
+</tr>
+<tr>
+<td><code>next</code> / <code>step</code></td>
+<td>step one <em>host</em> C++ line (steps through driver code, not one simulated SPARC instruction, use a <code>sparc-break</code>+<code>continue</code> loop for that instead)</td>
+</tr>
+<tr>
+<td><code>bt</code></td>
+<td>backtrace</td>
+</tr>
+<tr>
+<td><code>delete N</code></td>
+<td>remove breakpoint/watchpoint <code>N</code></td>
+</tr>
+<tr>
+<td><code>quit</code></td>
+<td>exit</td>
+</tr>
+</tbody>
+</table>
+<p>Every <code>sparc-*</code> command above is built entirely out of these. They're
+intuitive names standing in for the underlying condition syntax and
+symbol names, not a replacement for knowing them. See
+<a href="debug_support_internals.html">Debug Support Internals</a> for the
+implementation.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

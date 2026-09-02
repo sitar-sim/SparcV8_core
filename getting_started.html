@@ -1,0 +1,1947 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="installation.html">
+      
+      
+        <link rel="next" href="writing_and_running_assembly_programs.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Getting Started - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#getting-started" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Getting Started
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="getting_started.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sparc-v8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SPARC V8
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A simple program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-sparc-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the SPARC models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building the SPARC models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the simulator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running the simulator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-the-existing-simple-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the existing simple test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observing-the-simulation-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observing the simulation log
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Observing the simulation log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#try-the-trace-viewer-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try the trace viewer here
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Try the trace viewer here">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the viewer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-a-validation-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running a validation suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#sparc-v8" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        SPARC V8
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#a-simple-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A simple program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#building-the-sparc-models" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Building the SPARC models
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Building the SPARC models">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#build-options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Build options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-the-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the simulator
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Running the simulator">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#running-the-existing-simple-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the existing simple test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#observing-the-simulation-log" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Observing the simulation log
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Observing the simulation log">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#try-the-trace-viewer-here" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Try the trace viewer here
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Try the trace viewer here">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#using-the-viewer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the viewer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-a-validation-suite" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running a validation suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#debugging" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Debugging
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whats-next" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's next
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="getting-started">Getting Started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h1>
+<p>This page assumes you've completed <a href="installation.html">Installation</a>. It
+walks through the whole toolchain hands-on: a simple test program,
+building both models, running the simulator against it, observing the
+resulting trace in the log viewer, running the full validation suite,
+and debugging with gdb.</p>
+<h2 id="sparc-v8">SPARC V8<a class="headerlink" href="#sparc-v8" title="Permanent link">&para;</a></h2>
+<p>SPARC V8 is the 32-bit RISC instruction set architecture this project
+models, standardized as ANSI/IEEE Std 1754-1994. See <a href="sparcv8_architecture.html">SPARC V8
+Architecture</a> for what makes it distinctive and
+a page-indexed guide to the authoritative manual, bundled in this
+repository.</p>
+<hr />
+<h2 id="a-simple-program">A simple program<a class="headerlink" href="#a-simple-program" title="Permanent link">&para;</a></h2>
+<p>Let's consider a simple assembly-level program: put two numbers in
+registers, and add them. It's already present at
+<code>validation/test_simple_ADD/test_simple_ADD.s</code>:</p>
+<div class="language-sparc highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">! test_simple_ADD.s</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">!</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">! The simplest possible SPARC V8 test program: add two numbers and put</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="c1">! the result in a register, then halt.</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a><span class="kp">.global</span> <span class="n">main</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nl">main</span><span class="p">:</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a><span class="nl">_start</span><span class="p">:</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="c1">! Disable traps. %g0 always reads as 0, so this writes 0 into</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>    <span class="c1">! every bit of %psr, including ET (trap-enable). A write to %psr</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="c1">! takes a couple of cycles to take effect, hence the nops after it.</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="k">wr</span> <span class="nv">%g0</span><span class="p">,</span> <span class="nv">%psr</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="k">nop</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    <span class="k">nop</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>    <span class="k">nop</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="c1">! The actual computation: %o0 = 5 + 7</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="k">mov</span> <span class="mi">5</span><span class="p">,</span> <span class="nv">%l0</span>      <span class="c1">! move 5 into register l0</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="k">mov</span> <span class="mi">7</span><span class="p">,</span> <span class="nv">%l1</span>      <span class="c1">! move 7 into register l1</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="k">add</span> <span class="nv">%l0</span><span class="p">,</span> <span class="nv">%l1</span><span class="p">,</span> <span class="nv">%o0</span>   <span class="c1">! o0 = l0 + l1 = 0xc (12)</span>
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>    <span class="c1">! Halt. Traps are disabled (ET=0, set above), so this `ta 0`</span>
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    <span class="c1">! is not taken as a trap: it forces the processor straight into</span>
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    <span class="c1">! error_mode instead, which every model in this repo recognizes as</span>
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    <span class="c1">! a deliberate, successful stop (not a bug).</span>
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    <span class="k">ta</span> <span class="mi">0</span>
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    <span class="k">nop</span>
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    <span class="k">nop</span>
+</span></code></pre></div>
+<p>The first step after writing a program like this is to convert it into
+machine code and load it into the simulated processor's memory. A memory
+image is already present too, at
+<code>validation/test_simple_ADD/test_simple_ADD.hex</code>, along with its
+disassembly at <code>validation/test_simple_ADD/test_simple_ADD.objdump</code>.
+We'll point the simulator straight at the <code>.hex</code> file.</p>
+<p>Later, to modify this test or write your own, you'll need to compile it
+into a memory image (<code>.hex</code>) yourself. See
+<a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+or <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
+<hr />
+<h2 id="building-the-sparc-models">Building the SPARC models<a class="headerlink" href="#building-the-sparc-models" title="Permanent link">&para;</a></h2>
+<p>The models under <code>model/</code> are available in several configurations, each
+in its own folder under <code>model/system_models/</code> (<code>core_only</code>, <code>core_mmu</code>,
+and more, see <a href="index.html#configurations">Configurations</a>). Each
+configuration's folder contains two testbenches, <code>cpp_model/</code> and
+<code>sitar_model/</code> (see <a href="index.html#models">Models</a>), each with its own
+<code>build.sh</code>. A build's resulting executable is written into that
+testbench's own <code>executable/</code> subfolder.</p>
+<p>To build a particular configuration, say <code>core_only</code>, from the repo
+root:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>./build.sh
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>./build.sh<span class="w"> </span>--logging
+</span></code></pre></div>
+<p>The first produces the plain, fast executable
+(<code>executable/sparc_sim_cpp_core_only</code>), used by <code>run_simple_test.sh</code>
+below and by the validation suite. The second, in addition, produces a
+<code>_logging</code>-suffixed executable
+(<code>executable/sparc_sim_cpp_core_only_logging</code>) that writes an
+instruction trace when run, used in "Observing the simulation log"
+below. Logging defaults to off (see "Build options" below), so
+building it explicitly is the only way to get a trace.</p>
+<p>Build the Sitar-timed model the same way, from the repo root:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>./build.sh
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>./build.sh<span class="w"> </span>--logging
+</span></code></pre></div>
+<p>In comparison to the C++ model, the Sitar model drives the exact same
+core through <a href="https://sitar-sim.github.io/sitar/">Sitar</a> instead of the
+plain functional loop, adding real per-opcode, interconnect, and memory
+timing.</p>
+<h3 id="build-options">Build options<a class="headerlink" href="#build-options" title="Permanent link">&para;</a></h3>
+<p>Both build scripts take the same options:</p>
+<ul>
+<li><strong><code>--logging</code> / <code>--no-logging</code></strong> (default: off)<br />
+    Whether the model writes an instruction trace when run, see
+    "Observing the simulation log" below.</li>
+<li><strong><code>--debug</code> / <code>--debug-o0</code> / <code>--no-debug</code></strong> (default: off)<br />
+    Whether to build with debug symbols, for examining a running model
+    with gdb, see <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</li>
+</ul>
+<p>Build each of the other configurations the same way, substituting its
+own folder:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_mmu/cpp_model
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>./build.sh
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>./build.sh<span class="w"> </span>--logging
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_mmu/sitar_model
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>./build.sh
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>./build.sh<span class="w"> </span>--logging
+</span></code></pre></div>
+<p><code>core_mmu_devices</code> and <code>core_l1cache_mmu_devices</code> are planned
+configurations, not yet buildable, see <a href="model_configurations.html">Model
+Configurations</a>.</p>
+<hr />
+<h2 id="running-the-simulator">Running the simulator<a class="headerlink" href="#running-the-simulator" title="Permanent link">&para;</a></h2>
+<p>The process is: first build a configuration (previous section), then
+run its simulator executable, pointing it at a hex file. A hex file is
+a memory image, the machine code for the program to run on the
+simulator.</p>
+<p>To run the C++ model against a memory image, from the repo root:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/cpp_model
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
+</span></code></pre></div>
+<p>Similarly, for the Sitar-timed model, from the repo root:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/core_only/sitar_model
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>./executable/sparc_sim_sitar_core_only<span class="w"> </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
+</span></code></pre></div>
+<p>The simulation executable expects the following arguments:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles] [--stats]
+</span></code></pre></div>
+<ul>
+<li><strong><code>hex_file</code></strong> (required)<br />
+    The memory image to run.</li>
+<li><strong><code>expected_results_file</code></strong> (optional)<br />
+    A file listing the expected final register values, see
+    <a href="writing_and_running_assembly_programs.html#format-for-the-expected-results-file">Format for the expected-results file</a>
+    for its format. If given, once the program halts, the final
+    processor state is checked against it and the executable prints a
+    PASS/FAIL verdict per check plus an OVERALL result, instead of the
+    detailed state.</li>
+<li><strong><code>max_cycles</code></strong> (optional)<br />
+    Caps how long the simulator runs before giving up, in case the
+    program never halts (a bug, or a genuine infinite loop). Defaults
+    to 1 million cycles. Pass a smaller number to fail fast on a quick
+    test, or a larger one for a program that legitimately needs more
+    cycles than that to finish.</li>
+<li><strong><code>--stats</code></strong> (optional, can appear anywhere among the arguments)<br />
+    Prints the model's own performance measures (core statistics, and,
+    where present, MMU and physical-memory statistics) once the run
+    finishes. Off by default. See <a href="performance_modeling.html#printing-the-performance-measures">Performance
+    Modeling</a>.</li>
+</ul>
+<p>For example, checking the same run against its expected-results file,
+with <code>--stats</code> added, back in <code>model/system_models/core_only/cpp_model</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.expected<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="w">    </span><span class="m">1000</span><span class="w"> </span>--stats
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>Core statistics:
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>  Instructions fetched             = 8
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  Loads                            = 0
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  ... (more counters, all 0 for this simple test)
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>PASS: o0 = 0xc
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>PASS: l0 = 0x5
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a>PASS: l1 = 0x7
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a>OVERALL: PASS (3 checks)
+</span></code></pre></div>
+<h3 id="running-the-existing-simple-test">Running the existing simple test<a class="headerlink" href="#running-the-existing-simple-test" title="Permanent link">&para;</a></h3>
+<p>The same check has a shortcut, <code>run_simple_test.sh</code>, bundled in every
+testbench folder. <code>cd</code> to the same level as the build script (the
+testbench folder, e.g. <code>model/system_models/core_only/cpp_model</code>) and
+run it directly:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./run_simple_test.sh
+</span></code></pre></div>
+<p>A fixed, minimal wrapper around the same hex-file-plus-expected-results
+check above, with <code>--stats</code> always on. Always against the plain,
+non-logging build, so it doesn't produce a <code>.log</code> file itself. For a
+simulation log of this same
+run, see "Observing the simulation log" below, which runs the
+<code>_logging</code> executable directly against the same hex file instead.</p>
+<hr />
+<h2 id="observing-the-simulation-log">Observing the simulation log<a class="headerlink" href="#observing-the-simulation-log" title="Permanent link">&para;</a></h2>
+<p>Run the <code>_logging</code> executable built earlier (see "Building the SPARC
+models" above), still in <code>model/system_models/core_only/cpp_model</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="w">    </span>../../../../validation/test_simple_ADD/test_simple_ADD.hex
+</span></code></pre></div>
+<p>A <code>--logging</code> build gets its own executable name (with a <code>_logging</code>
+suffix), so it coexists in <code>executable/</code> alongside the plain default
+build from the section above, rather than replacing it. Running it
+produces a <code>.log</code> file in the current directory, containing a detailed
+simulation trace showing the processor state at the end of each
+instruction cycle.</p>
+<p>The generated log file has the same name as the <code>.hex</code> file, but with a
+<code>.log</code> extension. Although it's a plain text file in tab-separated value
+(tsv) format, and can be viewed in any editor, this project provides a
+graphical trace visualizer to step through the execution and watch the
+processor state evolve.</p>
+<h3 id="try-the-trace-viewer-here">Try the trace viewer here<a class="headerlink" href="#try-the-trace-viewer-here" title="Permanent link">&para;</a></h3>
+<p><strong><a href="log_viewer/viewer.html?trace=test_simple_ADD.log">log viewer, preloaded with the trace for the test_simple_ADD example</a></strong>.</p>
+<p align="center">
+  <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
+    <img src="images/trace_viewer.png" alt="Screenshot of the trace viewer" title="Screenshot of the trace viewer" width="700">
+  </a>
+</p>
+
+<p>The viewer allows the user to simultaneously view:</p>
+<ul>
+<li>the simulation event trace (<code>.log</code>)</li>
+<li>the assembly code being run (<code>.objdump</code>)</li>
+<li>and the processor state at the end of each traced event, showing the register values.</li>
+</ul>
+<h4 id="using-the-viewer">Using the viewer<a class="headerlink" href="#using-the-viewer" title="Permanent link">&para;</a></h4>
+<ul>
+<li>Clicking on a line in the trace automatically highlights the
+  corresponding line in the disassembly and shows the processor state
+  for that event. The <code>up</code> and <code>down</code> arrow keys can be used to step
+  forwards and backwards through the execution trace.</li>
+<li>Register values that change at each step are highlighted.</li>
+<li>A search bar at the top lets you search for a specific PC or register
+  value in the event trace and jump to it. The <code>Next</code> and <code>Prev</code> buttons
+  step through multiple matches.</li>
+</ul>
+<p>Each row in the generated log records a sequence number, time, PC, event
+type, an event-specific detail, and the full processor state. The event
+types are:</p>
+<ul>
+<li><strong><code>RESET</code> then <code>TRAP_ENTER</code></strong><br />
+    At the very start of every run. The model always boots by taking an
+    implicit reset trap into the first instruction. You didn't write
+    this, it's automatic.</li>
+<li><strong><code>FETCH</code> then <code>EXECUTED</code>, one pair per instruction</strong><br />
+<code>FETCH</code> shows the opcode about to run, with the current-window
+    register state still as it was <em>before</em> this instruction. <code>EXECUTED</code>
+    (the very next row, same PC) shows that state <em>after</em>, with whatever
+    changed highlighted. Watch <code>%l0</code>/<code>%l1</code>/<code>%o0</code> fill in, on the
+    <code>EXECUTED</code> row of each <code>mov</code>/<code>mov</code>/<code>add</code> pair, as the sequence runs.</li>
+<li><strong><code>TRAP_RAISED</code> then <code>HALT</code></strong><br />
+    At the end. The final <code>ta 0</code> is executed with traps already disabled
+    (that's what the <code>wr %g0, %psr</code> at the top did), so it has no
+    handler to jump to. The processor forces itself into <code>error_mode</code>
+    instead. This is this project's halt convention, used by every test
+    program in the repository. It's what the executable's
+    <code>PROCESSOR STATE: ERROR</code> and <code>Simulation halted after N cycles.</code>
+    output means, and it's expected, not a bug.</li>
+</ul>
+<p>To view a different log file, open <code>log_viewer/viewer.html</code> directly in
+a browser, then click <strong>Load trace</strong> to pick the log file and
+<strong>Load objdump</strong> to pick its matching disassembly file.</p>
+<div class="admonition note">
+<p class="admonition-title">Viewing memory state</p>
+<p>The generated log and viewer don't currently track memory state,
+even though the trace may contain load/store event details.</p>
+<p>For examining or probing memory state during execution, see
+<a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>.</p>
+</div>
+<hr />
+<h2 id="running-a-validation-suite">Running a validation suite<a class="headerlink" href="#running-a-validation-suite" title="Permanent link">&para;</a></h2>
+<p>This project includes a large, well-curated suite of tests for
+functional validation of the models. Each test is a small program
+(assembly or C) paired with a description of its expected result. The
+tests, and the scripts to run them, are included in <code>validation/</code>.</p>
+<p>The suite contains:</p>
+<ul>
+<li><strong>Assembly tests</strong><br />
+    The <code>asm/</code> folder contains several hundred assembly tests, organized
+    into instruction-type clusters, each targeting one instruction (or a
+    small family of closely related ones).</li>
+<li><strong>C tests</strong><br />
+    The <code>C/</code> folder contains self-checking C programs, each computing
+    some integer or floating-point operation and comparing the result
+    against a known value.</li>
+<li><strong>A test runner</strong><br />
+<code>validation/run_tests.py</code> runs them all and reports a pass/fail
+    summary.</li>
+</ul>
+<p>It's worth running whenever you change the model itself, to check
+nothing broke. <code>validation/run_tests.py</code> drives each model's plain
+default build (no <code>--logging</code>, no <code>--debug</code>), the one already built in
+"Building the SPARC models" above. Some tests run long, and logging
+isn't needed here. Rebuild it if you've made changes since:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>model/system_models/core_only/cpp_model/build.sh
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>model/system_models/core_only/sitar_model/build.sh
+</span></code></pre></div>
+<p>Then run <code>validation/run_tests.py</code>, pointing it at a folder of tests.
+Example, a small subset first:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/misc/
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>&lt;passed&gt;/&lt;total&gt; tests passed
+</span></code></pre></div>
+<p>Point it at <code>validation</code> itself to run the entire suite instead of one
+folder:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>validation/run_tests.py<span class="w"> </span>validation
+</span></code></pre></div>
+<p>The script runs against <code>core_only</code> by default. Pass <code>--config
+core_mmu</code> to run it against another configuration instead. It also
+runs the C++ model by default. Pass <code>--sitar</code> to run the Sitar model
+instead. Add <code>-v</code> to show every check's result, not just failures:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
+</span></code></pre></div>
+<p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test, the
+full list of options, and how to add a new test to the suite.</p>
+<hr />
+<h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
+<p>Logging suits a small test program well, but a long-running one can
+produce a log file too large to comfortably read through. Even with
+logging selectively turned on and off, the exact condition or bug you're
+chasing can be hard to pin down or trace this way. This is where a
+debugger becomes useful: it lets you surgically track a specific change,
+or inspect state at a specific point or condition at runtime, without
+printing large volumes of log output.</p>
+<p>GNU's <code>gdb</code>, the standard debugger, is enough for this. Both models are,
+underneath everything else, plain host C++ programs, so <code>gdb</code> attaches
+to them directly, no cross-debugger or special protocol needed. Using it
+well does still need some familiarity with the model's own source, to
+know which variables hold the simulated architectural state.</p>
+<p>Build with <code>--debug</code> first:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--debug
+</span></code></pre></div>
+<p>To make this convenient, <code>debug/sparc.gdb</code> provides a large set of
+shortcut commands. For example, setting a breakpoint at a specific PC, a
+watchpoint on a memory location, or printing one register:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>(gdb) sparc-print-reg o0
+</span></code></pre></div>
+<p>See <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
+for the full command reference and a complete walkthrough.</p>
+<hr />
+<h2 id="whats-next">What's next<a class="headerlink" href="#whats-next" title="Permanent link">&para;</a></h2>
+<p>Write your own test program: <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+or <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

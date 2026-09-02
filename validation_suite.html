@@ -1,0 +1,1841 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="writing_and_running_c_programs.html">
+      
+      
+        <link rel="next" href="cross_compiler.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Validation Suite - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="stylesheets/extra.css">
+    
+    <script>__md_scope=new URL(".",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#validation-suite" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validation Suite
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href="." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="validation_suite.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-in-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's in a test
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s in a test">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-vprj-expected-results-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The .vprj expected-results format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-validation-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The validation script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The validation script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-test-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test collection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-an-asm-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding an asm test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-c-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a C test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-validation-suites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component validation suites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credits-validation-suite-of-the-ajit-sparc-v8-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credits: validation suite of the AJIT SPARC V8 processor
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#whats-in-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What's in a test
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="What&#39;s in a test">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-vprj-expected-results-format" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The .vprj expected-results format
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-validation-script" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The validation script
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The validation script">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-test-collection" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The test collection
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-an-asm-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding an asm test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#adding-a-c-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a C test
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#component-validation-suites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Component validation suites
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#credits-validation-suite-of-the-ajit-sparc-v8-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Credits: validation suite of the AJIT SPARC V8 processor
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="validation-suite">Validation Suite<a class="headerlink" href="#validation-suite" title="Permanent link">&para;</a></h1>
+<p>Validating a processor model can mean different things: functional
+(does each instruction do the right thing), timing or microarchitectural
+(does it take the right number of cycles, in the right order), or both.
+This project's suite, in <code>validation/</code>, is purely <strong>functional</strong>. There
+are no timing tests here. Both models drive the exact same <code>SparcCore</code> (see
+<a href="index.html#models">Models</a>), so this one suite validates both, and
+catches a regression in either.</p>
+<p>It checks the core's instruction-level behavior against the SPARC V8
+manual, in two ways:</p>
+<ul>
+<li><strong><code>validation/asm/</code></strong>, hand-written assembly, each test targeting one
+  instruction (or a small family of closely related ones) in isolation.</li>
+<li><strong><code>validation/C/</code></strong>, compiled from freestanding C, each test a small
+  self-validating program (a sort, an FFT, a checksum) exercising many
+  instructions together the way a real program would.</li>
+</ul>
+<p>It consists of two things: the tests themselves (see "What's in a test"
+below), and a script, <code>validation/run_tests.py</code>, that runs them all and
+prints a pass/fail summary (see "The validation script" below).</p>
+<p>This page covers how a test is put together, how to run the suite, and
+how to add a new one. For actually <em>writing</em> a test program (the trap
+table, the pass-fail convention, structuring a self-validating C test),
+see <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+and <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>.</p>
+<hr />
+<h2 id="whats-in-a-test">What's in a test<a class="headerlink" href="#whats-in-a-test" title="Permanent link">&para;</a></h2>
+<p>Every test is a matched set of files sharing one name, for example
+<code>ADD.s</code>, <code>ADD.hex</code>, <code>ADD.objdump</code>, <code>ADD.vprj</code>, and <code>ADD.expected</code>
+(<code>validation/asm/integer_alu/Arithmetic/Add/</code>). Only two of these are
+written by hand:</p>
+<ul>
+<li><strong><code>&lt;name&gt;.s</code> or <code>&lt;name&gt;.c</code></strong>, the source program.</li>
+<li><strong><code>&lt;name&gt;.vprj</code></strong>, its expected final state, in the human-friendly
+  format described below.</li>
+</ul>
+<p>The rest are derived automatically, not hand-written (though <code>.hex</code> and
+<code>.objdump</code> are still committed as build artifacts, see "The validation
+script" below for why):</p>
+<ul>
+<li><strong><code>&lt;name&gt;.hex</code></strong>, the memory image compiled from the source, loadable
+  directly by either model.</li>
+<li><strong><code>&lt;name&gt;.objdump</code></strong>, its disassembly plus full symbol table, useful
+  for finding an address to give gdb, see
+  <a href="examining_core_state_with_gdb.html#finding-addresses">Examining Core State at Runtime Using GDB</a>.</li>
+<li><strong><code>&lt;name&gt;.expected</code></strong>, the <code>.vprj</code>'s checks rewritten into the plain
+  format the checker executables themselves take as a direct
+  command-line argument, see
+  <a href="getting_started.html#running-the-simulator">Getting Started</a>.</li>
+</ul>
+<p>In short, <code>.vprj</code> is what you write, once, by hand. <code>.expected</code> is what
+<code>run_tests.py</code> generates from it, fresh, every time the test runs. It's
+never edited directly, and doesn't need to be committed to git.</p>
+<h3 id="the-vprj-expected-results-format">The <code>.vprj</code> expected-results format<a class="headerlink" href="#the-vprj-expected-results-format" title="Permanent link">&para;</a></h3>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SOURCES = ADD.s
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>RESULTS =
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>g1=0x00000080
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>o0=0x00000005
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>o2=0xFFFFFFFB
+</span></code></pre></div>
+<ul>
+<li><code>SOURCES</code> names the paired <code>.s</code>/<code>.c</code> file.</li>
+<li>Each <code>RESULTS</code> line is either a register check (<code>&lt;name&gt;=&lt;hex value&gt;</code>,
+  register mnemonics <code>g1</code>-<code>g7</code>, <code>o0</code>-<code>o7</code>, <code>l0</code>-<code>l7</code>, <code>i0</code>-<code>i7</code>,
+  <code>f0</code>-<code>f31</code>, <code>psr</code>, <code>fpsr</code>, <code>y</code>, <code>wim</code>, <code>tbr</code>, <code>pc</code>, <code>npc</code>,
+  <code>asr0</code>-<code>asr31</code>) or a memory check (<code>m[&lt;hex addr&gt;]=&lt;hex value&gt;</code>, a
+  word-aligned 32-bit read).</li>
+<li>Either kind of line accepts an optional trailing mask
+  (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
+  mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
+  for a real example distinguishing individual FSR bits.)</li>
+<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored.
+  <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
+</ul>
+<p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
+the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
+[mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
+<hr />
+<h2 id="the-validation-script">The validation script<a class="headerlink" href="#the-validation-script" title="Permanent link">&para;</a></h2>
+<p>A two-phase pipeline, so the existing suite can be run without a
+cross-compiler installed at all.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1"># phase 1 (needs the sparc-elf toolchain): assembles/compiles .s or .c</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1"># into .hex, only needed when you add or edit a test&#39;s source</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>validation/build_hex.py<span class="w"> </span>validation
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1"># phase 2: runs the already-built .hex against a model</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>validation/run_tests.py<span class="w"> </span>validation
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>[PASS] validation/asm/misc/save_restore/SAVE.vprj
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>&lt;passed&gt;/&lt;total&gt; tests passed
+</span></code></pre></div>
+<p>Since <code>.hex</code> files are committed to git, phase 2 alone is enough to run
+the existing suite. Phase 1 is only needed after adding or editing a
+<code>.s</code>/<code>.c</code> source, and also (re)generates that test's <code>.objdump</code>.</p>
+<p>You can point <code>run_tests.py</code> at any subset too, not just the
+<code>validation</code> root:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/floating_point
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>validation/run_tests.py<span class="w"> </span>validation/C
+</span></code></pre></div>
+<p>It recurses to find <code>.vprj</code> files, so nesting is free.</p>
+<h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--config NAME</code></td>
+<td>Which <code>system_models</code> configuration to run against, default <code>core_only</code>. E.g. <code>--config core_mmu</code> runs against <code>model/system_models/core_mmu/</code>'s own executables instead.</td>
+</tr>
+<tr>
+<td><code>--sitar</code></td>
+<td>Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+</tr>
+<tr>
+<td><code>--max-cycles N</code></td>
+<td>Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#building-the-sparc-models">Getting Started</a>.</td>
+</tr>
+<tr>
+<td><code>-v</code></td>
+<td>Show every check's result, not just failures.</td>
+</tr>
+</tbody>
+</table>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm/control_transfer<span class="w"> </span>--max-cycles<span class="w"> </span><span class="m">50000</span>
+</span></code></pre></div>
+<p><code>validation/clean.sh [folder]</code> removes generated build byproducts (<code>.o</code>,
+<code>.elf</code>, <code>.expected</code>) without touching <code>.hex</code>/<code>.s</code>/<code>.c</code>/<code>.vprj</code>/<code>.objdump</code>.</p>
+<hr />
+<h2 id="the-test-collection">The test collection<a class="headerlink" href="#the-test-collection" title="Permanent link">&para;</a></h2>
+<p>Two sub-suites, side by side under <code>validation/</code>, both using the same
+<code>.vprj</code> format and the same two-phase pipeline above.</p>
+<ul>
+<li><strong><code>asm/</code></strong><br />
+    Hand-written assembly tests, each targeting one instruction (or a
+    small family of closely related ones, such as every branch
+    condition) in isolation: integer ALU ops, control transfer
+    (branches, traps, call, jump, <code>rett</code>), loads and stores (including
+    atomic and coprocessor variants), and floating point. Organized into
+    category subfolders: <code>integer_alu/</code>, <code>floating_point/</code>,
+    <code>control_transfer/</code>, <code>data_transfer/</code>, <code>misc/</code>. <code>compiler/assemble.sh</code>
+    builds a test's <code>.s</code> into <code>.hex</code>/<code>.objdump</code>, called automatically by
+    <code>build_hex.py</code> above.</li>
+<li>
+<p><strong><code>C/</code></strong><br />
+    Self-validating bare-metal C mini-benchmarks, each compiled program
+    exercising a sequence of C-level operations together (loops, arrays,
+    structs, global variables) the way a real program would, rather than
+    one instruction in isolation. <code>compiler/compile_c.sh</code> builds a test's
+    <code>.c</code> the same way. Every test here follows the same shape: compute
+    something, compare it against a golden value computed once on the
+    host machine and hardcoded right there in the source, and report
+    pass (<code>1</code>) or fail (<code>0</code>) in <code>%o0</code>.
+    Its <code>.vprj</code> then only ever has to check <code>o0=1</code>, instead of
+    re-embedding the golden value a second time. See
+    <a href="writing_and_running_c_programs.html#structuring-a-test-program">Writing and Running C Programs</a>
+    for the full convention, and <code>array_sum/array_sum.c</code> for a worked
+    example.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>What it computes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>array_sum</code></td>
+<td>Sum of a small int array</td>
+</tr>
+<tr>
+<td><code>matrix_mul</code></td>
+<td>3x3 integer matrix multiply</td>
+</tr>
+<tr>
+<td><code>fft</code></td>
+<td>4-point integer radix-2 FFT</td>
+</tr>
+<tr>
+<td><code>root_finding</code></td>
+<td>Integer square root via Newton-Raphson</td>
+</tr>
+<tr>
+<td><code>integer_sort</code></td>
+<td>Bubble sort</td>
+</tr>
+<tr>
+<td><code>gcd</code></td>
+<td>Euclidean algorithm</td>
+</tr>
+<tr>
+<td><code>fibonacci</code></td>
+<td>Iterative Fibonacci</td>
+</tr>
+<tr>
+<td><code>prime_sieve</code></td>
+<td>Sieve of Eratosthenes</td>
+</tr>
+<tr>
+<td><code>checksum</code></td>
+<td>Byte-array checksum</td>
+</tr>
+<tr>
+<td><code>dot_product</code></td>
+<td>Integer vector dot product</td>
+</tr>
+</tbody>
+</table>
+</li>
+</ul>
+<p>Alongside them sits <code>test_simple_ADD/</code>, one more <code>.vprj</code> test, but its
+main job is as the small worked example used throughout the docs (every
+configuration's <code>run_simple_test.sh</code> reads the files here directly, and
+<code>log_viewer/</code> symlinks to the reference trace produced here, rather than
+keeping their own copies), see <code>validation/README.md</code>.</p>
+<hr />
+<h2 id="adding-an-asm-test">Adding an asm test<a class="headerlink" href="#adding-an-asm-test" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Pick an existing category folder under <code>validation/asm/</code>
+   (<code>integer_alu/</code>, <code>floating_point/</code>, <code>control_transfer/</code>,
+   <code>data_transfer/</code>, <code>misc/</code>), or add a new subfolder for a new, focused
+   group of tests.</li>
+<li>Write <code>&lt;name&gt;.s</code>. See
+   <a href="writing_and_running_assembly_programs.html">Writing and Running Assembly Programs</a>
+   for the full format: the required setup, the trap table, and the
+   pass-fail convention every test shares.</li>
+<li>Build and run it directly first, to find the actual final register
+   values, see
+   <a href="writing_and_running_assembly_programs.html#assembling-to-generate-a-memory-image-hex">Assembling to generate a memory image</a>
+   (<code>compiler/assemble.sh &lt;name&gt;.s</code>, then
+   <code>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only
+   &lt;name&gt;.hex</code> with no expected-results argument, prints the final state).</li>
+<li>Write <code>&lt;name&gt;.vprj</code>, naming <code>&lt;name&gt;.s</code> as its <code>SOURCES</code> and listing
+   the register (and, if needed, memory) values from step 3 that you
+   want checked, see the format above.</li>
+<li>Run <code>validation/build_hex.py &lt;folder&gt;</code> to (re)generate <code>&lt;name&gt;.hex</code>
+   and <code>&lt;name&gt;.objdump</code> through the suite's own tooling (<code>build_hex.py</code>
+   finds a folder's <code>.vprj</code> files and reads <code>SOURCES</code> to know what to
+   build, so this step needs the <code>.vprj</code> to already exist, from step 4).</li>
+<li>Run <code>validation/run_tests.py &lt;folder&gt;</code> to check it passes.</li>
+</ol>
+<p>No registration step anywhere else, <code>run_tests.py</code> and <code>build_hex.py</code>
+both recurse automatically.</p>
+<hr />
+<h2 id="adding-a-c-test">Adding a C test<a class="headerlink" href="#adding-a-c-test" title="Permanent link">&para;</a></h2>
+<ol>
+<li>Add a new folder under <code>validation/C/</code>, one per test.</li>
+<li>Write <code>&lt;name&gt;.c</code>, freestanding (no libc, see
+   <a href="writing_and_running_c_programs.html">Writing and Running C Programs</a>),
+   following the same self-validating shape as the existing benchmarks:
+   compute something, compare it against a golden value computed on the
+   host, and report pass (<code>1</code>) or fail (<code>0</code>) in <code>%o0</code>.</li>
+<li>Write <code>&lt;name&gt;.vprj</code>, naming <code>&lt;name&gt;.c</code> as its <code>SOURCES</code>. Since the
+   test already computed its own pass/fail, its <code>RESULTS</code> is almost
+   always just <code>o0=1</code>.</li>
+<li>Run <code>validation/build_hex.py &lt;folder&gt;</code> to generate <code>&lt;name&gt;.hex</code> and
+   <code>&lt;name&gt;.objdump</code> from it (picking <code>compiler/compile_c.sh</code>
+   automatically, based on the <code>.c</code> extension). As with an asm test,
+   this needs the <code>.vprj</code> to already exist, since <code>build_hex.py</code> reads
+   its <code>SOURCES</code> line to know what to build.</li>
+<li>Run <code>validation/run_tests.py &lt;folder&gt;</code> to check it passes.</li>
+</ol>
+<hr />
+<h2 id="component-validation-suites">Component validation suites<a class="headerlink" href="#component-validation-suites" title="Permanent link">&para;</a></h2>
+<p>The suite above is purely functional, and purely for the SPARC core
+itself: every opcode, exercised in isolation or as part of a larger C
+program. Alongside it, dedicated test suites validate individual
+components, each living in its own folder:</p>
+<ul>
+<li><strong><code>validation/C/mmu/</code></strong><br />
+    The MMU: register access, page-table walks, TLB hit/miss/fill,
+    faults, probe and flush, bypass. See <a href="model_components.html#mmu">Model
+    Components</a>.</li>
+<li><strong><code>validation/C/devices/</code></strong> (planned)<br />
+    The timer, interrupt controller, and serial device. See
+    <code>Plan_Devices_integration.md</code>.</li>
+<li><strong><code>validation/C/caches/</code></strong> (planned)<br />
+    The L1 instruction and data caches. See
+    <code>Plan_Caches_integration.md</code>.</li>
+</ul>
+<p>A component's tests only pass on a configuration that actually includes
+that component, e.g. the MMU suite needs <code>core_mmu</code> or a later
+configuration that also has an MMU, not <code>core_only</code>. See the README in
+each config's own folder, or the corresponding validation-suite folder,
+for which configurations a given component's tests run on.</p>
+<p>For example, to run the MMU validation suite on <code>core_mmu</code>, build that
+configuration first (see <a href="getting_started.html#building-the-sparc-models">Getting
+Started</a>):</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>model/system_models/core_mmu/cpp_model/build.sh
+</span></code></pre></div>
+<p>then run the suite against it, the same way as any other:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>validation/run_tests.py<span class="w"> </span>validation/C/mmu
+</span></code></pre></div>
+<p>This same suite runs unmodified on any other configuration that also
+includes an MMU, once one exists, such as <code>core_mmu_devices</code>.</p>
+<hr />
+<h2 id="credits-validation-suite-of-the-ajit-sparc-v8-processor">Credits: validation suite of the AJIT SPARC V8 processor<a class="headerlink" href="#credits-validation-suite-of-the-ajit-sparc-v8-processor" title="Permanent link">&para;</a></h2>
+<p>Most of <code>validation/asm/</code>'s tests, and the scripts that build and run
+this suite, are adapted from the <strong>AJIT processor project</strong> (IIT
+Bombay), specifically its <code>ajit32</code> instruction-level verification suite.
+Many more tests have since been added as part of this project (the
+quad-precision suite, the <code>validation/C/</code> benchmarks, and the MMU suite
+above, none of which exist in AJIT's own tests). Tests adapted directly
+from AJIT carry their original author credit inline, and are listed as
+such in <code>validation/asm/README.md</code> and <a href="authors.html">Authors</a>. Tests
+developed as part of this project are not AJIT-derived.</p>
+<p>A handful of specific, well-understood divergences between this model's
+behavior and AJIT's own reference results are documented, with
+side-by-side expected-vs-actual data, in <code>docs/compliance/README.md</code>,
+rather than silently patched or dropped. These are kept separate from
+the maintained suite (<code>docs/compliance/</code>, not <code>validation/</code>), since they
+represent understood implementation differences from AJIT's own
+hardware, not bugs in this model.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": ".", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
