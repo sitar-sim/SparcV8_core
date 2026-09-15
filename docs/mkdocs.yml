@@ -89,6 +89,11 @@ nav:
       - SPARC V8 Architecture: sparcv8_architecture.md
       - Model Configurations: model_configurations.md
       - Model Components: model_components.md
+      - Peripheral Devices:
+          - Overview: peripheral_devices.md
+          - Timer: peripheral_devices_timer.md
+          - Interrupt Controller: peripheral_devices_interrupt_controller.md
+          - Serial Device: peripheral_devices_serial_device.md
       - Model Components Reference: model_components_reference.md
       - Model Configuration Settings: model_configuration_settings.md
       - Performance Modeling: performance_modeling.md

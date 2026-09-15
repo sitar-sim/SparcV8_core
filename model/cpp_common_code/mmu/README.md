@@ -2,9 +2,11 @@
 
 The SPARC Reference MMU (Ref Appendix H in the SPARC V8 manual), ported
 from AJIT's `mmu/src/Mmu.c` (branch `marshal`) and rewritten as a C++
-class. See `Plan_MMU_integration.md` for the porting plan and
-`docs/compliance/README.md`'s Issue 4 for the one deliberate functional
-deviation from AJIT (atomic load-store permission checking).
+class. See [Model
+Components](https://sitar-sim.github.io/SparcV8_core/model_components.html#mmu)
+for what it implements, and `docs/compliance/README.md`'s Issue 4 for
+the one deliberate functional deviation from AJIT (atomic load-store
+permission checking).
 
 ## What's what
 
@@ -21,8 +23,7 @@ deviation from AJIT (atomic load-store permission checking).
   no-downstream-access-of-their-own step-primitives (`beginWalk()`,
   `recordWalkStep()`, `computeAndStageRMUpdate()`, ...) -- this is what
   lets `../../sitar_component_models/Mmu.sitar` (the Sitar timing
-  model, Ref `Plan_MMU_integration.md`'s "Sitar timing model" section)
-  independently duplicate the exact same step sequence, substituting a
+  model) independently duplicate the exact same step sequence, substituting a
   real, time-consuming `run phyMemReadProcedure;`/`phyMemWriteProcedure;`
   for each physical-access step instead of a plain (instantaneous)
   function call.
@@ -163,8 +164,7 @@ written, so they're reflected in current behavior, not open items):
   the always-cacheable control bit) even though Appendix H.3 says a
   disabled MMU implies all VAs are non-cacheable. This one *is* present
   in the model this was ported from, so it's being kept as-is rather
-  than fixed -- see `Plan_MMU_integration.md`'s "Deviations from spec"
-  item 6. Currently has no observable effect either way, since no cache
+  than fixed. Currently has no observable effect either way, since no cache
   exists yet to consume `cacheable`.
 
 One instruction-access-fault case (`fsr_iaccess_priority`) needed a

@@ -1079,6 +1079,175 @@
   
   
   
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peripheral Devices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Peripheral Devices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices_timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices_interrupt_controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interrupt Controller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices_serial_device.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serial Device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
     <li class="md-nav__item">
       <a href="model_components_reference.html" class="md-nav__link">
         
@@ -1549,14 +1718,7 @@ interconnections for each configuration, as well as the code
 structure.</p>
 <h3 id="configuration-core_only">Configuration: core_only<a class="headerlink" href="#configuration-core_only" title="Permanent link">&para;</a></h3>
 <h4 id="structure-diagram">Structure diagram<a class="headerlink" href="#structure-diagram" title="Permanent link">&para;</a></h4>
-<pre class="mermaid"><code>flowchart LR
-    subgraph TOP["Top (module)"]
-        subgraph Core["Core (module)"]
-            ST["sparcThread : SparcThread&lt;br/&gt;(procedure)"]
-            MM["mainMemory : VirtualMainMemory&lt;br/&gt;(procedure)"]
-            ST ---|"||"| MM
-        end
-    end</code></pre>
+<p><img src="images/core_only_structure.svg" alt="core_only structure diagram" title="core_only structure diagram"></p>
 <p>No net crossing anywhere. The core talks directly to memory over a
 procedure handshake, so zero delay communication is possible between
 the core and memory procedures. The "--||--" symbol indicates direct
@@ -1580,19 +1742,7 @@ instantiates which, and how many instances.</p>
 <hr />
 <h3 id="configuration-core_mmu">Configuration: core_mmu<a class="headerlink" href="#configuration-core_mmu" title="Permanent link">&para;</a></h3>
 <h4 id="structure-diagram_1">Structure diagram<a class="headerlink" href="#structure-diagram_1" title="Permanent link">&para;</a></h4>
-<pre class="mermaid"><code>flowchart LR
-    subgraph TOP["Top (module)"]
-        subgraph System["System (module)"]
-            subgraph Core["Core (module)"]
-                ST["sparcThread : SparcThread&lt;br/&gt;(procedure)"]
-                MMU["mmu : Mmu&lt;br/&gt;(procedure)"]
-                ST ---|"||"| MMU
-            end
-            PM["mainMemory : PhysicalMainMemory&lt;br/&gt;(module)"]
-            MMU --&gt;|requestNet| PM
-            PM --&gt;|responseNet| MMU
-        end
-    end</code></pre>
+<p><img src="images/core_mmu_structure.svg" alt="core_mmu structure diagram" title="core_mmu structure diagram"></p>
 <p>The core talks to the MMU over the same procedure handshake <code>core_only</code>
 uses. The MMU talks to physical memory over two nets, since
 <code>PhysicalMainMemory</code> is a module, not a procedure. Crossing a net costs
@@ -1631,11 +1781,10 @@ core.responseIn  <-responseNet--  mainMemory.responseOut
 <h2 id="configuration-core_mmu_devices-planned">Configuration: core_mmu_devices (planned)<a class="headerlink" href="#configuration-core_mmu_devices-planned" title="Permanent link">&para;</a></h2>
 <p>Adds a timer, an interrupt controller, and a serial device as further
 sibling submodules of <code>System</code>, each reached over its own net pair
-through a shared bus. See <code>Plan_Devices_integration.md</code>.</p>
+through a shared bus. See <a href="peripheral_devices.html">Peripheral Devices</a>.</p>
 <hr />
 <h2 id="configuration-core_l1cache_mmu_devices-planned">Configuration: core_l1cache_mmu_devices (planned)<a class="headerlink" href="#configuration-core_l1cache_mmu_devices-planned" title="Permanent link">&para;</a></h2>
-<p>Adds split instruction and data L1 caches between the core and the MMU.
-See <code>Plan_Caches_integration.md</code>.</p>
+<p>Adds split instruction and data L1 caches between the core and the MMU.</p>
 
 
 

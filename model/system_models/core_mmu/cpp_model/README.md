@@ -7,7 +7,9 @@ instead of talking to `MemCore` directly. The MMU's own downstream target
 is `MainMemory` (`../../../cpp_common_code/MainMemory.h`), reached
 through `PhysicalMemoryInterface` (see `../../../cpp_common_code/
 MemoryInterfaces.h`) -- not `MemCore` directly; this configuration has no
-cache or devices yet. See `Plan_MMU_integration.md`.
+cache or devices yet. See [Model
+Components](https://sitar-sim.github.io/SparcV8_core/model_components.html#mmu)
+for what the MMU implements.
 
 ## What's what
 
@@ -39,5 +41,6 @@ Commands below are relative to this directory.
 ```
 
 MMU statistics (`MmuStats::toString()`) are printed to stderr after every
-run, regardless of pass/fail, for now -- see `Plan_MMU_integration.md`'s
-"Proposed stats set".
+run, regardless of pass/fail, for now -- see [Performance
+Modeling](https://sitar-sim.github.io/SparcV8_core/performance_modeling.html#mmu)
+for what each one means.

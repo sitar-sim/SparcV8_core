@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="gdb_command_reference.html">
+        <link rel="prev" href="model_components.html">
       
       
-        <link rel="next" href="sparcv8_architecture.html">
+        <link rel="next" href="peripheral_devices_timer.html">
       
       
         
@@ -27,7 +27,7 @@
     
     
       
-        <title>Debug Support Internals - Sitar model of a SPARC V8 core</title>
+        <title>Overview - Sitar model of a SPARC V8 core</title>
       
     
     
@@ -80,7 +80,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#debug-support-internals" class="md-skip">
+        <a href="#peripheral-devices" class="md-skip">
           Skip to content
         </a>
       
@@ -116,7 +116,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Debug Support Internals
+              Overview
             
           </span>
         </div>
@@ -224,6 +224,8 @@
         <div class="md-main__inner md-grid">
           
             
+              
+                
               
               <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
                 <div class="md-sidebar__scrollwrap">
@@ -602,8 +604,6 @@
       
   
   
-    
-  
   
   
     
@@ -616,11 +616,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
         
           
           <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
@@ -641,7 +641,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -740,37 +740,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-        
-      
-      
-        <label class="md-nav__link md-nav__link--active" for="__toc">
-          
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Debug Support Internals
-  
-
-    
-  </span>
-  
-  
-
-          <span class="md-nav__icon md-icon"></span>
-        </label>
-      
-      <a href="debug_support_internals.html" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="debug_support_internals.html" class="md-nav__link">
         
   
   
@@ -786,70 +759,6 @@
   
 
       </a>
-      
-        
-
-<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
-  
-  
-  
-    
-  
-  
-    <label class="md-nav__title" for="__toc">
-      <span class="md-nav__icon md-icon"></span>
-      Table of contents
-    </label>
-    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
-      
-        <li class="md-nav__item">
-  <a href="#the-four-hook-points" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        The four hook points
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#build-modes-debug-vs-debug-o0" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Build modes: --debug vs. --debug-o0
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#debugregistry" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        DebugRegistry
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#reading-a-stdstring-back-from-the-debuggee" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Reading a std::string back from the debuggee
-      
-    </span>
-  </a>
-  
-</li>
-      
-    </ul>
-  
-</nav>
-      
     </li>
   
 
@@ -866,8 +775,10 @@
       
   
   
+    
   
   
+  
     
     
     
@@ -878,11 +789,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
         
           
           <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
@@ -903,7 +814,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1002,6 +913,8 @@
                 
   
   
+    
+  
   
   
     
@@ -1011,11 +924,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" checked>
         
           
           <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
@@ -1036,7 +949,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_5_4">
             <span class="md-nav__icon md-icon"></span>
             
@@ -1051,10 +964,37 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="peripheral_devices.html" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="peripheral_devices.html" class="md-nav__link md-nav__link--active">
         
   
   
@@ -1070,6 +1010,81 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#overview" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Overview
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#connection-diagram" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Connection diagram
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#device-address-map" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Device address map
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#interrupt-levels" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Interrupt levels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deviations-from-the-ajit-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deviations from the AJIT Processor
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -1409,7 +1424,9 @@
             
             
               
-              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" hidden>
                 <div class="md-sidebar__scrollwrap">
                   <div class="md-sidebar__inner">
                     
@@ -1428,10 +1445,10 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#the-four-hook-points" class="md-nav__link">
+  <a href="#overview" class="md-nav__link">
     <span class="md-ellipsis">
       
-        The four hook points
+        Overview
       
     </span>
   </a>
@@ -1439,10 +1456,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#build-modes-debug-vs-debug-o0" class="md-nav__link">
+  <a href="#connection-diagram" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Build modes: --debug vs. --debug-o0
+        Connection diagram
       
     </span>
   </a>
@@ -1450,10 +1467,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#debugregistry" class="md-nav__link">
+  <a href="#device-address-map" class="md-nav__link">
     <span class="md-ellipsis">
       
-        DebugRegistry
+        Device address map
       
     </span>
   </a>
@@ -1461,10 +1478,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#reading-a-stdstring-back-from-the-debuggee" class="md-nav__link">
+  <a href="#interrupt-levels" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Reading a std::string back from the debuggee
+        Interrupt levels
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#deviations-from-the-ajit-processor" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Deviations from the AJIT Processor
       
     </span>
   </a>
@@ -1485,123 +1513,163 @@
               <article class="md-content__inner md-typeset">
                 
                   
+  
+
 
 
   
   
 
 
-<h1 id="debug-support-internals">Debug Support Internals<a class="headerlink" href="#debug-support-internals" title="Permanent link">&para;</a></h1>
-<p><a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
-covers <em>using</em> gdb with this model. This page covers how that support is
-actually built: the four hook points every <code>sparc-*</code> breakpoint command
-ultimately rests on, why <code>--debug</code> stays at <code>-O3</code> instead of rebuilding
-everything at <code>-O0</code>, and how any command can reach a live <code>SparcCore</code>/
-<code>MemCore</code> from any stopped frame. Useful if you're extending
-<code>debug/sparc.gdb</code> itself, or just curious how it works.</p>
-<hr />
-<h2 id="the-four-hook-points">The four hook points<a class="headerlink" href="#the-four-hook-points" title="Permanent link">&para;</a></h2>
-<p>Four named, otherwise-empty functions declared in
-<code>model/cpp_common_code/DebugHooks.h</code> are called from the same points in
-the instruction loop that <code>CoreLogger</code> logs from:</p>
+<h1 id="peripheral-devices">Peripheral Devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h1>
+<h2 id="overview">Overview<a class="headerlink" href="#overview" title="Permanent link">&para;</a></h2>
+<p>The purpose of the peripheral devices modeled here is to include a bare
+minimum set of devices that make the model realistic, and sufficient
+to port a basic operating system on top of it.</p>
 <ul>
-<li><code>debug_hook_after_execute(core, op)</code>: an instruction has fully
-  executed (registers/memory/PSR all updated), but before PC/nPC advance
-  to the next instruction. Also fires for an instruction that raised a
-  trap partway through, matching <code>CoreLogger</code>'s own <code>EXECUTED</code> event.</li>
-<li><code>debug_hook_trap_raised(core)</code>: a trap has just been detected, before
-  <code>SparcCore::selectTrap()</code> clears the trap-cause flags or computes
-  <code>TBR</code>'s <code>tt</code> field, so those flags (not <code>TBR</code>) are what's actually
-  inspectable here.</li>
-<li><code>debug_hook_mem_access(core, kind, address, word0, word1)</code>: a memory
-  reference of the given <code>DebugMemAccessKind</code> (<code>IFETCH</code>/<code>LOAD</code>/<code>STORE</code>/
-  <code>ATOMIC</code>/<code>FLUSH</code>) has just completed. A sub-event within
-  <code>debug_hook_after_execute</code>'s instruction, not an alternative to it.</li>
-<li><code>debug_hook_annulled(core)</code>: a delay-slot instruction was skipped by
-  an untaken annulling branch, never fetched-for-real or decoded, so
-  there is no <code>Opcode</code> to pass. Fires before PC/nPC update for the skip.</li>
+<li><strong><a href="peripheral_devices_timer.html">Timer</a></strong><br />
+    A countdown timer, used for generating periodic interrupts, the
+    kind an OS uses for context switching.</li>
+<li><strong><a href="peripheral_devices_interrupt_controller.html">Interrupt Controller</a></strong><br />
+    Arbitrates and delivers hardware interrupts to the core.</li>
+<li><strong><a href="peripheral_devices_serial_device.html">Serial Device</a></strong><br />
+    A single device for I/O.</li>
 </ul>
-<p>Not every <code>CoreLogger</code> event needs one of these. A native gdb <code>watch</code> (a
-hardware watchpoint on a memory location or register) or a plain <code>break
-... if COND</code> already reaches "PC/register/memory reaches a value" just
-fine, no hook needed. What's left, and does need a hook, is state-machine
-<em>transitions</em> that aren't a single value changing, exactly the four
-above. Together they cover every way one iteration of the fetch-decode-
-execute loop can conclude.</p>
-<p>Each function exists purely so gdb has a stable place to break on <em>by
-name</em>, instead of a source file:line, which drifts every time the driver
-code is edited (and doesn't exist at all for the Sitar model, whose
-driver is generated C++). Nothing about them is gdb-specific: plain
-<code>-g</code>/DWARF info plus a <code>noinline</code> symbol works under any debugger, gdb is
-simply the one this repository documents and ships convenience commands
-for.</p>
-<p>Only real (and only then declared <code>noinline</code>, so the optimizer can't
-fold the empty body away and remove the breakpoint target) when built
-with <code>-DSPARC_DEBUG_HOOKS_ENABLED</code> (<code>--debug</code>/<code>--debug-o0</code>). Otherwise
-each is a plain empty inline function, calls to it compile away to
-nothing, the same zero-cost-when-unused principle as <code>CoreLogger</code>'s own
-logging gate.</p>
+<p>The register formats, addresses, and behavior documented here are
+credited to the <a href="https://github.com/adhuliya/ajit-toolchain/blob/marshal/docs/processor/ajit_processor_description.pdf">AJIT processor
+documentation</a>,
+Chapter 8, "Basic peripherals available for AJIT systems". The device
+models in this project are designed to be compatible with it, except
+for the deviations listed at the end of this page.</p>
 <hr />
-<h2 id="build-modes-debug-vs-debug-o0">Build modes: <code>--debug</code> vs. <code>--debug-o0</code><a class="headerlink" href="#build-modes-debug-vs-debug-o0" title="Permanent link">&para;</a></h2>
-<p><code>--debug</code> adds <code>-g</code> but deliberately <em>stays</em> at <code>-O3</code> otherwise. gdb's
-<code>call</code>/<code>print</code> of a live function is generally unreliable against
-optimized code (inlining and register allocation can make an argument or
-local unavailable, or the function itself gone entirely), but a handful
-of functions the <code>sparc-*</code> commands actually rely on calling this way are
-individually pinned to <code>-O0</code> in their own definitions, via
-<code>__attribute__((optimize("O0")))</code>:</p>
+<h2 id="connection-diagram">Connection diagram<a class="headerlink" href="#connection-diagram" title="Permanent link">&para;</a></h2>
+<p>A programmer's view of how the devices connect.</p>
+<p><img src="images/peripheral_devices_connections.svg" alt="Peripheral devices connection diagram" title="Peripheral devices connection diagram"></p>
+<p>Every device has device registers that can be read and written over
+the same shared address/data bus the core uses for main memory. Each
+device also has its own individual signal pins, unrelated to the bus:</p>
 <ul>
-<li><code>Registers::R_r()</code>, plus the six special-register accessors
-  <code>R_PC()</code>/<code>R_nPC()</code>/<code>R_Y()</code>/<code>R_PSR()</code>/<code>R_WIM()</code>/<code>R_TBR()</code></li>
-<li><code>CoreLogger::print_state()</code></li>
-<li><code>SparcCore::printTrap()</code></li>
-<li><code>MemCore::wordPtr()</code></li>
-<li><code>DebugRegistry::findCoreByID()</code>/<code>firstMemCore()</code></li>
+<li><strong>Timer</strong>: a <code>clock_in</code> input, and a <code>timer_int_out</code> output to the
+  Interrupt Controller.</li>
+<li><strong>Serial Device</strong>: <code>serial_in</code>/<code>serial_out</code> pins, and a
+  <code>serial_int_out</code> output to the Interrupt Controller.</li>
+<li><strong>Interrupt Controller</strong>: <code>timer_int_out</code>/<code>serial_int_out</code> inputs,
+  two further reserved inputs (<code>ipi_int_in</code>, for a future multi-core
+  extension, and <code>env_int_in</code>, for an external interrupt source not
+  modeled by any device here), and one <code>interrupt_level</code> output to the
+  core.</li>
 </ul>
-<p>So the rest of the simulator stays fast, and only these few pay the
-<code>-O0</code> cost, exactly the functions <code>sparc-print-regs</code>, <code>sparc-print-reg</code>,
-<code>sparc-print-traps</code>, <code>sparc-watch-reg</code>, and <code>sparc-print-mem</code> call into.
-Every one of the seven register accessors needs its own pin. They're
-equally trivial one-line getters, but the optimizer only keeps a
-standalone, callable copy of the ones it has a reason to, and nothing
-else in the simulator happens to call some of them directly. Without the
-attribute, gdb's inferior call to a fully inlined one fails outright.</p>
-<p>If you need to debug something <em>outside</em> the four hook points, an
-arbitrary breakpoint or single-step deep inside <code>SparcCore</code> itself,
-where <code>-O3</code>'s inlining and register allocation make local variables
-unreliable to inspect directly, use <code>--debug-o0</code> instead. It rebuilds
-the whole binary at <code>-O0</code>. It's slower, only worth it for that kind of
-deep dive, not everyday use.</p>
 <hr />
-<h2 id="debugregistry"><code>DebugRegistry</code><a class="headerlink" href="#debugregistry" title="Permanent link">&para;</a></h2>
-<p>Every <code>sparc-*</code> command is reachable from <em>any</em> stopped frame, in either
-model, without caring who constructed the <code>SparcCore</code>/<code>MemCore</code> or which
-frame it's lexically reachable from. <code>model/cpp_common_code/DebugRegistry.h</code>
-is what makes that possible: <code>SparcCore</code> and <code>MemCore</code> register
-themselves there, once, in their own constructors. This is why
-<code>coreid=</code> on the probe/print commands is a <strong>selector</strong> (an index into
-this registry). There's no "currently in scope" frame to fall back on,
-unlike the breakpoint commands, which read <code>core</code> directly out of the
-hook they're attached to and use <code>coreid=</code> only as a <strong>filter</strong> on top
-of that.</p>
+<h2 id="device-address-map">Device address map<a class="headerlink" href="#device-address-map" title="Permanent link">&para;</a></h2>
+<p>All addresses are doubleword-aligned. Both <code>lda</code>/<code>sta</code> with the MMU
+bypass ASI (<code>0x20</code>, see Appendix I of the SPARC V8 manual) and an
+ordinary translated access work, since device pages are identity
+mapped.</p>
+<table>
+<thead>
+<tr>
+<th>Device : Register</th>
+<th>Address</th>
+<th>Access type</th>
+<th>Instruction example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Interrupt Controller : Control</td>
+<td><code>0xFFFF3000</code></td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Timer : Control</td>
+<td><code>0xFFFF3100</code></td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Control</td>
+<td><code>0xFFFF3200</code></td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Baud limit / baud control</td>
+<td><code>0xFFFF320c</code></td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Tx</td>
+<td><code>0xFFFF3210</code></td>
+<td>byte (8-bit)</td>
+<td><code>stub %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Baud frequency</td>
+<td><code>0xFFFF3210</code> (shared with Tx, see note)</td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Rx</td>
+<td><code>0xFFFF3220</code></td>
+<td>byte (8-bit)</td>
+<td><code>ldub [%rd] 0x20, %rs</code></td>
+</tr>
+</tbody>
+</table>
+<p><code>%rd</code> holds the register's address, loaded with <code>set</code> beforehand.</p>
+<div class="admonition note">
+<p class="admonition-title">Tx and baud-frequency share an address</p>
+<p>The Serial Device's Tx register and its baud-frequency register
+are both mapped to <code>0xFFFF3210</code>. They are distinguished by access
+width, not address: a byte-width access (<code>stub</code>) writes a
+character to Tx, a word-width access (<code>sta</code>) writes the
+baud-frequency register. This is intentional sharing of an
+address, not an error. See the Serial Device page for the
+baud-rate register format.</p>
+</div>
 <hr />
-<h2 id="reading-a-stdstring-back-from-the-debuggee">Reading a <code>std::string</code> back from the debuggee<a class="headerlink" href="#reading-a-stdstring-back-from-the-debuggee" title="Permanent link">&para;</a></h2>
-<p><code>print_state()</code> and <code>printTrap()</code> both return a <code>std::string</code> by value.
-Reading that back from gdb needs care, twice over:</p>
-<ul>
-<li>gdb's own pretty-printer quotes and backslash-escapes embedded
-  newlines, and truncates past <code>print elements</code> (200 by default), wrong
-  for a multi-line dump. <code>debug/sparc.gdb</code> reads <code>.c_str()</code> directly
-  instead (see its <code>core_string()</code> helper).</li>
-<li>The returned <code>std::string</code> is a temporary living in the <em>inferior's</em>
-  own memory. A later, unrelated inferior call can reuse or clobber that
-  scratch space before a lazily-held <code>gdb.Value</code> ever gets read.
-  <code>core_string()</code> reads it out to a real Python string immediately,
-  before that can happen.</li>
-</ul>
-<p>See <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/sparc.gdb"><code>debug/sparc.gdb</code></a>
-for the implementation, and its own
-<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/debug/README.md">README</a>.</p>
+<h2 id="interrupt-levels">Interrupt levels<a class="headerlink" href="#interrupt-levels" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Source</th>
+<th>IRL</th>
+<th>Priority</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Timer</td>
+<td>10</td>
+<td>Highest</td>
+</tr>
+<tr>
+<td>IPI (reserved for a future multi-core extension)</td>
+<td>11</td>
+<td></td>
+</tr>
+<tr>
+<td>Serial</td>
+<td>12</td>
+<td></td>
+</tr>
+<tr>
+<td>Env (external, not modeled by any device here)</td>
+<td>14</td>
+<td>Lowest</td>
+</tr>
+</tbody>
+</table>
+<p>The per-core Interrupt Controller priority-encodes its active,
+unmasked sources by IRL: the lowest IRL number among them wins. See
+the Interrupt Controller page for the masking behavior.</p>
+<hr />
+<h2 id="deviations-from-the-ajit-processor">Deviations from the AJIT Processor<a class="headerlink" href="#deviations-from-the-ajit-processor" title="Permanent link">&para;</a></h2>
+<p>None yet. This section will be populated as deviations are introduced
+during implementation.</p>
 
 
 
@@ -1609,8 +1677,13 @@ for the implementation, and its own
 
 
 
+  
+  
 
 
+
+
+  
 
 
 

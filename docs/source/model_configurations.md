@@ -63,16 +63,7 @@ structure.
 
 #### Structure diagram
 
-```mermaid
-flowchart LR
-    subgraph TOP["Top (module)"]
-        subgraph Core["Core (module)"]
-            ST["sparcThread : SparcThread<br/>(procedure)"]
-            MM["mainMemory : VirtualMainMemory<br/>(procedure)"]
-            ST ---|"||"| MM
-        end
-    end
-```
+<img src="images/core_only_structure.svg" alt="core_only structure diagram" title="core_only structure diagram">
 
 No net crossing anywhere. The core talks directly to memory over a
 procedure handshake, so zero delay communication is possible between
@@ -103,21 +94,7 @@ instantiates which, and how many instances.
 
 #### Structure diagram
 
-```mermaid
-flowchart LR
-    subgraph TOP["Top (module)"]
-        subgraph System["System (module)"]
-            subgraph Core["Core (module)"]
-                ST["sparcThread : SparcThread<br/>(procedure)"]
-                MMU["mmu : Mmu<br/>(procedure)"]
-                ST ---|"||"| MMU
-            end
-            PM["mainMemory : PhysicalMainMemory<br/>(module)"]
-            MMU -->|requestNet| PM
-            PM -->|responseNet| MMU
-        end
-    end
-```
+<img src="images/core_mmu_structure.svg" alt="core_mmu structure diagram" title="core_mmu structure diagram">
 
 The core talks to the MMU over the same procedure handshake `core_only`
 uses. The MMU talks to physical memory over two nets, since
@@ -162,11 +139,10 @@ core.responseIn  <-responseNet--  mainMemory.responseOut
 
 Adds a timer, an interrupt controller, and a serial device as further
 sibling submodules of `System`, each reached over its own net pair
-through a shared bus. See `Plan_Devices_integration.md`.
+through a shared bus. See [Peripheral Devices](peripheral_devices.md).
 
 ---
 
 ## Configuration: core_l1cache_mmu_devices (planned)
 
 Adds split instruction and data L1 caches between the core and the MMU.
-See `Plan_Caches_integration.md`.

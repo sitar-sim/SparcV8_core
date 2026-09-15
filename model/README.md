@@ -1,8 +1,9 @@
 # model/
 
 Three top-level folders, mirroring a parts library plus the specific
-systems assembled from it (see `../Plan_SoC_Integration_Roadmap.md`'s
-"Model code organization" section for the full rationale):
+systems assembled from it (see [Model
+Configurations](https://sitar-sim.github.io/SparcV8_core/model_configurations.html)
+for the full rationale):
 
 - **`cpp_common_code/`** -- the reusable, timing-agnostic implementation:
   `SparcCore` (the SPARC V8 core itself) and `SparcStateMachine` (the

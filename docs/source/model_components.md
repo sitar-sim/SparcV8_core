@@ -110,13 +110,15 @@ depending on configuration:
 ## Caches (planned)
 
 Not yet implemented. Split instruction and data L1 caches are planned,
-sitting between the core (or the MMU) and main memory. See
-`Plan_Caches_integration.md`.
+sitting between the core (or the MMU) and main memory.
 
-## Devices (planned)
+## Peripheral Devices (planned)
 
-Not yet implemented. A timer, an interrupt controller, and a serial
-device are planned. See `Plan_Devices_integration.md`.
+Not yet implemented. A timer, a per-core interrupt controller, and a
+serial device are planned, a bare-minimum set sufficient to port a
+basic operating system, compatible with the AJIT processor's own
+devices. See [Peripheral Devices](peripheral_devices.md) for the
+register-level detail.
 
 ---
 

@@ -20,8 +20,9 @@ full design.
   branch. Exposes two ports, `requestOut`/`responseIn`, wired to `mmu`'s
   own two `PhysicalMainMemoryInterface` instances at init.
   `SparcThread.sitar` and `VirtualMainMemoryInterface.sitar` needed zero
-  changes to support any of this (Ref the "lego block" interface
-  contract, `Plan_SoC_Integration_Roadmap.md`).
+  changes to support any of this. See [Model
+  Configurations](https://sitar-sim.github.io/SparcV8_core/model_configurations.html)
+  for the block diagram.
 - **`src/sparc_sim.cpp`** -- the `-m` custom main, same shape as every
   other configuration's, except `MEM` checks in an expected-results file
   read `TOP->system.mainMemory.mem.readWord()` (physical memory,

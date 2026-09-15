@@ -256,10 +256,9 @@ components, each living in its own folder:
     Components](model_components.md#mmu).
 - **`validation/C/devices/`** (planned)  
     The timer, interrupt controller, and serial device. See
-    `Plan_Devices_integration.md`.
+    [Peripheral Devices](peripheral_devices.md).
 - **`validation/C/caches/`** (planned)  
-    The L1 instruction and data caches. See
-    `Plan_Caches_integration.md`.
+    The L1 instruction and data caches.
 
 A component's tests only pass on a configuration that actually includes
 that component, e.g. the MMU suite needs `core_mmu` or a later

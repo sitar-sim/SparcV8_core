@@ -38,6 +38,10 @@ hide:
 | [SPARC V8 Architecture](sparcv8_architecture.md) | A page-indexed guide into the bundled SPARC V8 manual PDF. |
 | [Model Configurations](model_configurations.md) | A block-diagram-level summary of each testbench configuration, current and planned. |
 | [Model Components](model_components.md) | Describes each component in detail: SparcCore, Mmu, Memory, Caches, and Devices. |
+| [Peripheral Devices](peripheral_devices.md) | Overview, connection diagram, address map, and interrupt levels for the peripherals below. |
+| [Timer](peripheral_devices_timer.md) | Register format, one-shot countdown behavior, and state machine. |
+| [Interrupt Controller](peripheral_devices_interrupt_controller.md) | Per-core IRC register format, interrupt sources, priority, and the planned multi-core extension. |
+| [Serial Device](peripheral_devices_serial_device.md) | UART register format, baud-rate calculation, and the Tx/Rx state machines. |
 | [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
 | [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
 | [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |

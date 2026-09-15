@@ -34,8 +34,10 @@ later an MMU or a cache).
   address, ASI, a word read, a masked doubleword write, an atomic
   read-modify-write) -- whatever a cpp_model configuration connects
   downstream implements this; neither `SparcCore` nor `SparcStateMachine`
-  know or care what that is. See `Plan_SoC_Integration_Roadmap.md`'s
-  "lego-block interface contract". `PhysicalMemoryInterface` is what sits
+  know or care what that is. See [Model
+  Configurations](https://sitar-sim.github.io/SparcV8_core/model_configurations.html)
+  for how each configuration chooses what sits downstream.
+  `PhysicalMemoryInterface` is what sits
   below an MMU instead (64-bit/36-bit-meaningful address, no ASI,
   doubleword-shaped transactions mimicking AJIT's own bus -- see that
   file's own comment for the citation).
