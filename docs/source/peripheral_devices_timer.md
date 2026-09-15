@@ -4,9 +4,9 @@ A simple countdown timer that operates only in one-shot mode. It has a
 `clock_in` input pin, a `timer_int_out` output pin to the [Interrupt
 Controller](peripheral_devices_interrupt_controller.md), and
 communicates with the core over the shared address/data bus through a
-single control register. See [Peripheral
-Devices](peripheral_devices.md) for the connection diagram and the
-full address map.
+single control register, accessed with word load/stores only. See
+[Peripheral Devices](peripheral_devices.md) for the connection diagram
+and the full address map.
 
 ## Control register
 

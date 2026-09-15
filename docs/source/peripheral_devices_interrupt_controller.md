@@ -3,7 +3,8 @@
 A per-core Interrupt Controller (IRC). Each core has its own instance:
 its own control register, its own state, and its own `interrupt_level`
 output pin to that core. It has four interrupt input pins, and
-communicates with the core over the shared address/data bus. See
+communicates with the core over the shared address/data bus through
+its control register, accessed with word load/stores only. See
 [Peripheral Devices](peripheral_devices.md) for the connection diagram
 and the full address map.
 

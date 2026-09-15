@@ -43,6 +43,7 @@ the address of each register.
 | `[2]` | `Rx_interrupt_enable` | If set, receiving a byte raises an interrupt. |
 | `[3]` | `Tx_full` (read-only) | Set once the CPU writes Tx, cleared once it is transmitted. |
 | `[4]` | `Rx_full` (read-only) | Set once a byte is received into Rx, cleared once the CPU reads it. |
+| `[5]` | `UART_reset` | Resets the UART. Present only in the newest of the source references consulted; three older ones mark this bit unused, so treat it as unconfirmed until cross-checked further. |
 
 ## Baud rate
 
@@ -75,6 +76,10 @@ receive, sharing the one control register above.
 
 A write of `Tx_en=0` from any state returns to `TX_DISABLED`.
 
+To send a byte: enable the transmitter, write the byte to the Tx
+register, then poll `Tx_full` until it clears before writing the next
+one (or disable the transmitter).
+
 <img src="images/serial_tx_fsm.svg" alt="Serial Tx state machine" title="Serial Tx state machine">
 
 ### Receive
@@ -92,5 +97,14 @@ A write of `Tx_en=0` from any state returns to `TX_DISABLED`.
 
 A write of `Rx_en=0` from any state clears `Rx_full` and the
 interrupt, and returns to `RX_DISABLED`.
+
+The receiver supports two usage modes, selected by `Rx_interrupt_enable`:
+
+- **Polling mode** (`Rx_interrupt_enable=0`): enable the receiver,
+  poll `Rx_full` until it sets, then read the Rx register (and
+  disable the receiver, or leave it enabled for the next byte).
+- **Interrupt mode** (`Rx_interrupt_enable=1`): enable the receiver,
+  wait for the interrupt, then read the Rx register (and disable the
+  receiver, or leave it enabled for the next byte).
 
 <img src="images/serial_rx_fsm.svg" alt="Serial Rx state machine" title="Serial Rx state machine">

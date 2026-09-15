@@ -1656,6 +1656,11 @@ silently targets a different register.</p>
 <td><code>Rx_full</code> (read-only)</td>
 <td>Set once a byte is received into Rx, cleared once the CPU reads it.</td>
 </tr>
+<tr>
+<td><code>[5]</code></td>
+<td><code>UART_reset</code></td>
+<td>Resets the UART. Present only in the newest of the source references consulted; three older ones mark this bit unused, so treat it as unconfirmed until cross-checked further.</td>
+</tr>
 </tbody>
 </table>
 <h2 id="baud-rate">Baud rate<a class="headerlink" href="#baud-rate" title="Permanent link">&para;</a></h2>
@@ -1682,6 +1687,9 @@ receive, sharing the one control register above.</p>
     device returns to <code>TX_ENABLED</code>.</li>
 </ul>
 <p>A write of <code>Tx_en=0</code> from any state returns to <code>TX_DISABLED</code>.</p>
+<p>To send a byte: enable the transmitter, write the byte to the Tx
+register, then poll <code>Tx_full</code> until it clears before writing the next
+one (or disable the transmitter).</p>
 <p><img src="images/serial_tx_fsm.svg" alt="Serial Tx state machine" title="Serial Tx state machine"></p>
 <h3 id="receive">Receive<a class="headerlink" href="#receive" title="Permanent link">&para;</a></h3>
 <ul>
@@ -1698,6 +1706,15 @@ receive, sharing the one control register above.</p>
 </ul>
 <p>A write of <code>Rx_en=0</code> from any state clears <code>Rx_full</code> and the
 interrupt, and returns to <code>RX_DISABLED</code>.</p>
+<p>The receiver supports two usage modes, selected by <code>Rx_interrupt_enable</code>:</p>
+<ul>
+<li><strong>Polling mode</strong> (<code>Rx_interrupt_enable=0</code>): enable the receiver,
+  poll <code>Rx_full</code> until it sets, then read the Rx register (and
+  disable the receiver, or leave it enabled for the next byte).</li>
+<li><strong>Interrupt mode</strong> (<code>Rx_interrupt_enable=1</code>): enable the receiver,
+  wait for the interrupt, then read the Rx register (and disable the
+  receiver, or leave it enabled for the next byte).</li>
+</ul>
 <p><img src="images/serial_rx_fsm.svg" alt="Serial Rx state machine" title="Serial Rx state machine"></p>
 
 
