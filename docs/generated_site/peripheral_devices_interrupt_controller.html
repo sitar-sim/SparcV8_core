@@ -1092,6 +1092,18 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slots
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Slots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#control-register" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1101,8 +1113,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#priority" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1112,8 +1124,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1123,12 +1135,28 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#a-future-multi-core-extension" class="md-nav__link">
+  <a href="#handling-an-interrupt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A future multi-core extension
+        Handling an interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inter-processor-interrupts-ipi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inter-processor interrupts (IPI)
       
     </span>
   </a>
@@ -1452,6 +1480,18 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Slots
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Slots">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
   <a href="#control-register" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1461,8 +1501,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#priority" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1472,8 +1512,8 @@
   </a>
   
 </li>
-      
-        <li class="md-nav__item">
+        
+          <li class="md-nav__item">
   <a href="#behavior" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1483,12 +1523,28 @@
   </a>
   
 </li>
+        
+      </ul>
+    </nav>
+  
+</li>
       
         <li class="md-nav__item">
-  <a href="#a-future-multi-core-extension" class="md-nav__link">
+  <a href="#handling-an-interrupt" class="md-nav__link">
     <span class="md-ellipsis">
       
-        A future multi-core extension
+        Handling an interrupt
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#inter-processor-interrupts-ipi" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inter-processor interrupts (IPI)
       
     </span>
   </a>
@@ -1516,59 +1572,67 @@
 
 
 <h1 id="interrupt-controller">Interrupt Controller<a class="headerlink" href="#interrupt-controller" title="Permanent link">&para;</a></h1>
-<p>A per-core Interrupt Controller (IRC). Each core has its own instance:
-its own control register, its own state, and its own <code>interrupt_level</code>
-output pin to that core. It has four interrupt input pins, and
-communicates with the core over the shared address/data bus through
-its control register, accessed with word load/stores only. See
+<p>A single, shared Interrupt Controller (IRC) routes the system's
+interrupt sources to the hardware threads of every core. It is AJIT's
+multi-thread interrupt controller. It has two parts:</p>
+<ul>
+<li>one <strong>slot</strong> per hardware thread, each with its own control
+  register, its own state, and its own <code>interrupt_level</code> output to that
+  thread;</li>
+<li>an <strong>inter-processor interrupt (IPI)</strong> block, which lets any thread
+  interrupt any other (or itself).</li>
+</ul>
+<p>All its registers are accessed with word loads and stores. See
 <a href="peripheral_devices.html">Peripheral Devices</a> for the connection diagram
 and the full address map.</p>
 <h2 id="interrupt-sources">Interrupt sources<a class="headerlink" href="#interrupt-sources" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
-<th>Pin</th>
 <th>Source</th>
 <th>IRL</th>
-<th>Status here</th>
+<th>Reaches</th>
 </tr>
 </thead>
 <tbody>
 <tr>
-<td><code>timer_int_out</code></td>
 <td><a href="peripheral_devices_timer.html">Timer</a></td>
 <td>10</td>
-<td>Modeled</td>
+<td>every slot (each slot's mask decides)</td>
 </tr>
 <tr>
-<td><code>ipi_int_in</code></td>
-<td>A future multi-core orchestrator</td>
+<td>IPI</td>
 <td>11</td>
-<td>Reserved, unconnected</td>
+<td>the destination slot only</td>
 </tr>
 <tr>
-<td><code>serial_int_out</code></td>
 <td><a href="peripheral_devices_serial_device.html">Serial Device</a></td>
 <td>12</td>
-<td>Modeled</td>
+<td>every slot (each slot's mask decides)</td>
 </tr>
 <tr>
-<td><code>env_int_in</code></td>
-<td>An external interrupt source, not modeled by any device here</td>
+<td>External (<code>env_int_in</code>)</td>
 <td>14</td>
-<td>Reserved, may be tied to zero or connected to a future external-interrupt-source model</td>
+<td>every slot (each slot's mask decides)</td>
 </tr>
 </tbody>
 </table>
-<h2 id="control-register">Control register<a class="headerlink" href="#control-register" title="Permanent link">&para;</a></h2>
-<p>The mask field's bit positions match each source's own IRL, the same
-convention used to encode the active-interrupt vector: masking a
-source is a plain bitwise AND between the two.</p>
+<p>The external input is reserved for a source outside this device set,
+such as an accelerator. It is not driven by any device here.</p>
+<h2 id="slots">Slots<a class="headerlink" href="#slots" title="Permanent link">&para;</a></h2>
+<p>There are 8 slots, enough for 4 cores with 2 hardware threads each. The
+slot for core <code>c</code>, thread <code>t</code> is number <code>2c + t</code>, and its control
+register is at <code>0xFFFF3000 + 4*(2c + t)</code>. A program finds its own core
+and thread with <code>rd %asr29</code>, which reads <code>(core &lt;&lt; 8) | thread</code> (in C,
+<code>ajit_get_core_and_thread_id()</code>). The single-core configurations here
+are core 0, thread 0, so they use slot 0 at <code>0xFFFF3000</code>.</p>
+<h3 id="control-register">Control register<a class="headerlink" href="#control-register" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
 <th>Bits</th>
 <th>Field</th>
+<th>Access</th>
 <th>Description</th>
 </tr>
 </thead>
@@ -1576,71 +1640,108 @@ source is a plain bitwise AND between the two.</p>
 <tr>
 <td><code>[0]</code></td>
 <td>Enable</td>
-<td>Writing 1 enables the IRC. Writing 0 disables it and clears <code>interrupt_level</code>.</td>
+<td>read/write</td>
+<td>1 enables this slot. Writing 0 disables it and drops its <code>interrupt_level</code>.</td>
 </tr>
 <tr>
-<td><code>[10]</code></td>
-<td>Timer mask</td>
-<td>If set, the Timer's interrupt is recognized.</td>
+<td><code>[15:1]</code></td>
+<td>Level mask</td>
+<td>read/write</td>
+<td>Bit <code>i</code> set: interrupt level <code>i</code> is delivered to this thread.</td>
 </tr>
 <tr>
-<td><code>[11]</code></td>
-<td>IPI mask</td>
-<td>Reserved. If set, a pending IPI is recognized (unused until a multi-core orchestrator exists).</td>
+<td><code>[30:16]</code></td>
+<td>Active sources</td>
+<td>read only</td>
+<td>Bit <code>15+i</code> is 1 while a source at level <code>i</code> is active, whether or not it is masked.</td>
 </tr>
 <tr>
-<td><code>[12]</code></td>
-<td>Serial mask</td>
-<td>If set, the Serial Device's interrupt is recognized.</td>
-</tr>
-<tr>
-<td><code>[14]</code></td>
-<td>Env mask</td>
-<td>If set, the Env pin's interrupt is recognized.</td>
-</tr>
-<tr>
-<td>all other bits</td>
-<td>Reserved</td>
-<td>Unused.</td>
+<td><code>[31]</code></td>
+<td>Interrupting</td>
+<td>read only</td>
+<td>1 while the slot is in <code>IRC_INTERRUPTING</code>.</td>
 </tr>
 </tbody>
 </table>
-<p>On a register read, the format above (excluding bit 0) is echoed back
-as the currently active, unmasked interrupt sources, not the mask
-itself, letting software distinguish "masked but idle" from "active."</p>
-<h2 id="priority">Priority<a class="headerlink" href="#priority" title="Permanent link">&para;</a></h2>
-<p>When more than one unmasked source is active at once, the IRC picks
-the lowest IRL number: <strong>Timer (10) &gt; IPI (11) &gt; Serial (12) &gt; Env
-(14)</strong>.</p>
-<h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
+<p>The mask bit positions equal each source's level, so masking a source
+is a bitwise AND. Writes to the read-only bits are ignored. The active
+sources field lets software see a source that is pending but masked,
+and is readable even while the slot is disabled.</p>
+<h3 id="priority">Priority<a class="headerlink" href="#priority" title="Permanent link">&para;</a></h3>
+<p>When more than one enabled level is active at once, the lowest level
+number wins: <strong>Timer (10) &gt; IPI (11) &gt; Serial (12) &gt; External (14)</strong>.</p>
+<h3 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h3>
+<p>Each slot runs its own state machine:</p>
 <ul>
 <li><strong><code>IRC_DISABLED</code></strong><br />
-    The reset state. <code>interrupt_level</code> is 0. A write of the enable bit
-    moves to <code>IRC_ENABLED</code>.</li>
+    The reset state. <code>interrupt_level</code> is 0. A write that sets the
+    enable bit moves to <code>IRC_ENABLED</code>.</li>
 <li><strong><code>IRC_ENABLED</code></strong><br />
-    Watches the four input pins. As soon as any unmasked source is
-    active, <code>interrupt_level</code> is set to that source's IRL (the
-    highest-priority one, if more than one is active at once), and the
-    IRC moves to <code>IRC_INTERRUPTING</code>.</li>
+    Watches the sources. As soon as any level enabled in the mask is
+    active, <code>interrupt_level</code> is set to that level (the
+    highest-priority one, if more than one), and the slot moves to
+    <code>IRC_INTERRUPTING</code>.</li>
 <li><strong><code>IRC_INTERRUPTING</code></strong><br />
-<code>interrupt_level</code> stays asserted until the CPU disables the IRC.</li>
+<code>interrupt_level</code> stays asserted, even if the source goes away,
+    until software clears the enable bit.</li>
 </ul>
-<p>A write that clears the enable bit, from any state, immediately clears
-<code>interrupt_level</code> and moves to <code>IRC_DISABLED</code>.</p>
+<p>A write that clears the enable bit, from any state, immediately drops
+<code>interrupt_level</code> and moves to <code>IRC_DISABLED</code>. A write that sets the
+enable bit while already enabled or interrupting only updates the mask.</p>
 <p><img src="images/irc_fsm.svg" alt="Interrupt Controller state machine" title="Interrupt Controller state machine"></p>
-<h2 id="a-future-multi-core-extension">A future multi-core extension<a class="headerlink" href="#a-future-multi-core-extension" title="Permanent link">&para;</a></h2>
-<p>This page describes a per-core IRC, sufficient on its own for a
-single-core system: the <code>ipi_int_in</code> pin is simply never driven, and
-the IRC works exactly as described above.</p>
-<p>A later multi-core extension is expected to add a separate, single
-shared orchestrator instance (not modeled here), responsible for
-chip-level interrupt mapping, masking, and control, and for the
-inter-processor-interrupt (IPI) mechanism itself. Its output would
-connect into each per-core IRC's <code>ipi_int_in</code> pin, the same way the Timer
-and Serial Device connect today, not replace or wrap the per-core IRC
-in any way. When that shared orchestrator is absent or disabled, each
-core's IRC continues to operate entirely on its own, exactly as
-described on this page.</p>
+<h2 id="handling-an-interrupt">Handling an interrupt<a class="headerlink" href="#handling-an-interrupt" title="Permanent link">&para;</a></h2>
+<p>The usual sequence, which AJIT's own bare-metal routines follow (and
+which <code>compiler/include/ajit_mt_irc.h</code> implements, see <a href="writing_and_running_c_programs.html">C
+Programs</a>):</p>
+<ol>
+<li>The interrupt trap for level <code>L</code> is taken.</li>
+<li>The handler disables its own slot, which drops <code>interrupt_level</code>.</li>
+<li>It clears the source (for example, disables the timer, or reads the
+   Serial device's Rx register).</li>
+<li>It enables its slot again. If another enabled source is still
+   active, the slot delivers it next.</li>
+</ol>
+<h2 id="inter-processor-interrupts-ipi">Inter-processor interrupts (IPI)<a class="headerlink" href="#inter-processor-interrupts-ipi" title="Permanent link">&para;</a></h2>
+<p>The IPI block is 19 words at <code>0xFFFF3080</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Offset</th>
+<th>Register</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>0x00</code></td>
+<td>IPI mask</td>
+<td>Bit <code>s</code>: IPIs to slot <code>s</code> are enabled.</td>
+</tr>
+<tr>
+<td><code>0x04</code></td>
+<td>IPI value</td>
+<td>Bit <code>s</code>: an IPI is pending for slot <code>s</code>.</td>
+</tr>
+<tr>
+<td><code>0x08</code> to <code>0x47</code></td>
+<td>Messages</td>
+<td>8 bytes per destination slot (slot <code>s</code> at <code>0x08 + 8s</code>), for software.</td>
+</tr>
+<tr>
+<td><code>0x48</code></td>
+<td>Lock</td>
+<td>A word for software to use as a lock.</td>
+</tr>
+</tbody>
+</table>
+<p>Slot <code>s</code> sees an IPI (level 11) while bit <code>s</code> is set in both the mask
+and the value. To interrupt another thread, a thread writes a message
+for it, then sets its bit in the value register (and in the mask, if
+not already set). The interrupted thread reads its message and clears
+its value bit. Locking around these steps, with the lock word or
+otherwise, is up to software, exactly as in AJIT. The routines in
+<code>compiler/include/ajit_ipi.h</code> (<code>__ajit_set_ipi_interrupt__()</code> and
+friends) do the register work.</p>
 
 
 

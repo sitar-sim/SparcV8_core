@@ -16,6 +16,8 @@ bool SparcStateMachine::run(unsigned long maxCycles)
 	{
 		runOneCycle();
 		cyclesExecuted++;
+		if (afterEachCycle)
+			afterEachCycle();
 	}
 	return halted;
 }
@@ -181,7 +183,7 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 		if (!core.trap)
 		{
 			uint32_t alignedAddr = core.address & (~0x7u);
-			VirtualMemoryRequest request{true, MemAccessType::LOAD, alignedAddr, core.addr_space, 0, 0, 0};
+			VirtualMemoryRequest request{true, MemAccessType::LOAD, alignedAddr, core.addr_space, 0, 0, core.loadWordMask(op)};
 			VirtualMemoryResponse response{false, 0, 0, false};
 			mem.access(request, response);
 			uint32_t word0 = response.readWord0;

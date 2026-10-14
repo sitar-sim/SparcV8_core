@@ -1472,7 +1472,7 @@
 
 
 <h1 id="timer">Timer<a class="headerlink" href="#timer" title="Permanent link">&para;</a></h1>
-<p>A simple countdown timer that operates only in one-shot mode. It has a
+<p>A simple timer that operates only in one-shot mode. It has a
 <code>clock_in</code> input pin, a <code>timer_int_out</code> output pin to the <a href="peripheral_devices_interrupt_controller.html">Interrupt
 Controller</a>, and
 communicates with the core over the shared address/data bus through a
@@ -1497,27 +1497,37 @@ and the full address map.</p>
 <tr>
 <td><code>[31:1]</code></td>
 <td><code>Timer_max_count</code></td>
-<td>The value the count decrements from, set on the same write that enables the timer.</td>
+<td>The number of ticks to count, set on the same write that enables the timer.</td>
 </tr>
 </tbody>
 </table>
+<p>A read of the Control register returns it as last written, the same as
+AJIT. The live count is not readable. Byte stores update only the bytes
+they select.</p>
 <h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
 <p>Software writes a maximum count into the control register and sets
-the enable bit in the same write. From that point, the timer
-decrements its count by one on every <code>clock_in</code> edge. When the count
-reaches zero, the timer asserts its interrupt output (IRL 10, see
-<a href="peripheral_devices.html#interrupt-levels">Peripheral Devices</a>) and
-stops counting. The interrupt output stays asserted until software
-explicitly disables the timer.</p>
+the enable bit in the same write. From that point, the timer counts
+<code>clock_in</code> edges, starting from 0. When the count reaches the maximum,
+the timer asserts its interrupt output (IRL 10, see <a href="peripheral_devices.html#interrupt-levels">Peripheral
+Devices</a>) and stops counting. A
+maximum count of 0 or 1 both fire on the first edge. The interrupt
+output stays asserted until software explicitly disables the timer.</p>
+<p>In the simulator, one <code>clock_in</code> edge is one core cycle by default. A
+divider makes it every <code>n</code> cycles instead (<code>--timer-tick-divider &lt;n&gt;</code>,
+or the <code>timerTickDivider</code> setting, see <a href="model_configuration_settings.html">Model Configuration
+Settings</a>). In hardware the timer may
+run off a different clock than the core, so timer counts here are
+model ticks, not hardware time.</p>
 <ul>
 <li><strong><code>TIMER_DISABLED</code></strong><br />
     The reset state. The interrupt output is 0. A write of
-    <code>Timer_en=1</code> loads the count with <code>Timer_max_count</code> and moves to
-    <code>TIMER_ENABLED</code>.</li>
+    <code>Timer_en=1</code> clears the count, captures <code>Timer_max_count</code>, and
+    moves to <code>TIMER_ENABLED</code>.</li>
 <li><strong><code>TIMER_ENABLED</code></strong><br />
-    Counts down. The interrupt output is 0. When the count reaches 0,
-    the interrupt output is asserted, and the timer moves to
-    <code>TIMER_INTERRUPTING</code>.</li>
+    Counts up. The interrupt output is 0. When the count reaches
+    <code>Timer_max_count</code>, the interrupt output is asserted, and the timer
+    moves to <code>TIMER_INTERRUPTING</code>. A further write of <code>Timer_en=1</code> does
+    not restart it.</li>
 <li><strong><code>TIMER_INTERRUPTING</code></strong><br />
     The timer stops counting. The interrupt output stays asserted
     until the CPU writes <code>Timer_en=0</code>, which clears it and returns the

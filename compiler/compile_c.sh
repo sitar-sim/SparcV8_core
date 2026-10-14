@@ -25,6 +25,14 @@
 # finding a symbol's simulated address without needing the toolchain
 # installed to run readelf/objdump directly against the (gitignored) .elf.
 #
+# Environment variable CRT0, if set, names a different startup file to
+# link instead of crt0.s (e.g. crt0_interrupts.s, for a program that
+# takes interrupts). A bare file name is looked up in this folder.
+# validation/build_hex.py sets it from a test's STARTUP line.
+#
+# compiler/include/ is on the include path, for the bare-metal headers
+# there (Ref compiler/include/, e.g. ajit_access_routines.h).
+#
 # Also compiles and links in freestanding_stubs.c (memcpy() -- see that
 # file for why a -nostdlib build needs it at all) alongside crt0.o.
 #
@@ -63,8 +71,14 @@ if [ ! -f "$STUBS_OBJ" ]; then
 	sparc-elf-as -Av8 -am "$SCRIPT_DIR/freestanding_stubs.s" -o "$STUBS_OBJ"
 fi
 
-sparc-elf-as -Av8 -am "$SCRIPT_DIR/crt0.s" -o "$PREFIX.crt0.o"
-sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib "$INPUT" -o "$PREFIX.s"
+CRT0_SOURCE="${CRT0:-crt0.s}"
+case "$CRT0_SOURCE" in
+	*/*) ;;
+	*) CRT0_SOURCE="$SCRIPT_DIR/$CRT0_SOURCE" ;;
+esac
+INCLUDE_DIR="$SCRIPT_DIR/include"
+sparc-elf-as -Av8 -am "$CRT0_SOURCE" -o "$PREFIX.crt0.o"
+sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib -I"$INCLUDE_DIR" "$INPUT" -o "$PREFIX.s"
 sparc-elf-as -Av8 -am "$PREFIX.s" -o "$PREFIX.o"
 sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e _start "$PREFIX.crt0.o" "$PREFIX.o" "$STUBS_OBJ" -o "$PREFIX.elf"
 sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data "$PREFIX.elf" \

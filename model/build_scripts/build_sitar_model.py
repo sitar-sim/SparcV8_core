@@ -31,7 +31,14 @@ directory name (the configuration's name), e.g. sparc_sim_sitar_core_only,
 with variant suffixes appended for --logging/--debug so multiple builds
 can coexist in the same executable/ folder.
 
-Requires the `sitar` CLI on PATH (see the separate sitar repo).
+Requires the `sitar` CLI on PATH (see the separate sitar repo), with its
+own -b/--build-dir option (see that repo's docs/docs_source/cli_reference.md).
+Every object file this script's `sitar compile` step produces is built
+into <config_folder>/build/<variant>/, one subdirectory per distinct
+--logging/--debug/--debug-o0 combination (e.g. build/obj,
+build/obj_logging, build/obj_debug, ...), so a build using one set of
+flags never links in an object file actually compiled under a
+different set.
 
 Links against libquadmath, needed by cpp_common_code/FloatingPointFunctions.h
 for quad-precision (128-bit) floating point support, via `sitar compile`'s
@@ -89,14 +96,21 @@ def main():
     executable_dir = os.path.join(config_dir, 'executable')
     main_file = os.path.join(src_dir, 'sparc_sim.cpp')
 
-    executable_name = 'sparc_sim_sitar_%s' % config_name
+    # Same suffix logic for both the executable name and this build's own
+    # object-file subdirectory, so the two stay obviously paired (e.g.
+    # sparc_sim_sitar_core_only_logging built from build/obj_logging/).
+    variant_suffix = ''
     if args.logging:
-        executable_name += '_logging'
+        variant_suffix += '_logging'
     if args.debug:
-        executable_name += '_debug'
+        variant_suffix += '_debug'
     if args.debug_o0:
-        executable_name += 'o0'
+        variant_suffix += 'o0'
+
+    executable_name = 'sparc_sim_sitar_%s%s' % (config_name, variant_suffix)
     executable = os.path.join(executable_dir, executable_name)
+
+    obj_dir = os.path.join(build_dir, 'obj' + variant_suffix)
 
     if not shutil.which('sitar'):
         print("error: `sitar` not found on PATH -- see the separate sitar repo")
@@ -105,9 +119,18 @@ def main():
     if os.path.isdir(output_dir):
         shutil.rmtree(output_dir)
     os.makedirs(output_dir)
+    if os.path.isdir(obj_dir):
+        shutil.rmtree(obj_dir)
+    os.makedirs(obj_dir)
     os.makedirs(executable_dir, exist_ok=True)
+    # Defensive only at this point: sitar compile -b (below) keeps every
+    # object file it produces inside obj_dir now, so nothing should land
+    # in these shared locations anymore. Left in place to also mop up
+    # anything a pre-existing build (from before -b was wired in here)
+    # left behind.
     stale_objects = (glob.glob(os.path.join(SITAR_COMPONENT_CODE_DIR, '*.o'))
                      + glob.glob(os.path.join(CPP_COMMON_CODE_DIR, '*.o'))
+                     + glob.glob(os.path.join(CPP_COMMON_CODE_DIR, '*', '*.o'))
                      + glob.glob(main_file[:-4] + '.o'))
     for stale_o in stale_objects:
         os.remove(stale_o)
@@ -134,6 +157,7 @@ def main():
     print("Compiling...")
     cmd = ['sitar', 'compile',
            '-o', executable,
+           '-b', obj_dir,
            '-d', output_dir,
            '-d', SITAR_COMPONENT_CODE_DIR]
     for d in common_code_dirs:

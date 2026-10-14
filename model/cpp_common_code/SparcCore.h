@@ -44,10 +44,21 @@ class SparcCore
 		uint32_t processorID;
 		uint32_t coreID;
 
-		inline void	setProcessorID(unsigned int id) { processorID=id;};// reg.W_ASR(29,id); };
+		uint32_t threadID; //hardware thread within this core, 0 until SMT is modeled
+
+		inline void	setProcessorID(unsigned int id) { processorID=id;};
 		uint32_t	getProcessorID(){return processorID;};
-		inline void 	setCoreID(unsigned int id) { coreID=id;}; //reg.W_ASR(30,id); };
+		inline void 	setCoreID(unsigned int id) { coreID=id;};
 		uint32_t	getCoreID(){return coreID;};
+		inline void	setThreadID(unsigned int id) { threadID=id;};
+		uint32_t	getThreadID(){return threadID;};
+
+		//ASR29 is hardwired, read-only: (core ID << 8) | thread ID, the
+		//same word AJIT software reads with `rd %asr29` to find its own
+		//core and thread (Ref AJIT's ajit_access_routines.c,
+		//ajit_get_core_and_thread_id()). Writes to ASR29 are ignored.
+		static const uint32_t ASR_CORE_THREAD_ID = 29;
+		uint32_t coreThreadIdWord() const { return (coreID << 8) | (threadID & 0xFFu); }
 		//----------------------------------------------------------
 
 
@@ -154,6 +165,17 @@ class SparcCore
 		//void execute_Load(Opcode op); 
 		
 		void execute_PreLoad(Opcode op);//calc address, addr_space and check for traps
+
+		//After execute_PreLoad(): which word(s) of the doubleword at
+		//(address & ~7) this load needs, as a byte mask (low nibble = the
+		//word at the lower address, high nibble = the upper one, Ref
+		//VirtualMemoryRequest.byteMask). 0xFF for a doubleword load.
+		uint32_t loadWordMask(Opcode op) const
+		{
+			if (isDoubleLoadInstruction(op))
+				return 0xFF;
+			return (address & 0x4u) ? 0xF0 : 0x0F;
+		}
 		void execute_PostLoad(Opcode op, uint32_t readWord0, uint32_t readWord1); //store fetched word in appropriate registers
 		
 		//void execute_Store(Opcode op);

@@ -25,13 +25,13 @@
   <text x="325" y="172" text-anchor="middle" font-size="12">write control_reg[0]=0 / int_out=0</text>
 
   <path d="M 528,165 C 528,220 528,245 525,283" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow2)"/>
-  <text x="590" y="215" text-anchor="middle" font-size="12">unmasked source active /</text>
+  <text x="590" y="215" text-anchor="middle" font-size="12">enabled level active /</text>
   <text x="590" y="230" text-anchor="middle" font-size="12">int_out = highest-priority</text>
-  <text x="590" y="245" text-anchor="middle" font-size="12">unmasked source's IRL</text>
+  <text x="590" y="245" text-anchor="middle" font-size="12">enabled level (lowest IRL)</text>
 
   <path d="M 430,310 C 300,270 200,220 155,163" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow2)"/>
   <text x="230" y="270" text-anchor="middle" font-size="12">write control_reg[0]=0 / int_out=0</text>
 
-  <text x="350" y="405" text-anchor="middle" font-size="13" fill="#555555">One per-core instance. See the Interrupt Controller page for the control</text>
-  <text x="350" y="422" text-anchor="middle" font-size="13" fill="#555555">register's per-source mask bits and priority-encoding details.</text>
+  <text x="350" y="405" text-anchor="middle" font-size="13" fill="#555555">One such state machine per hardware-thread slot. See the Interrupt Controller</text>
+  <text x="350" y="422" text-anchor="middle" font-size="13" fill="#555555">page for the control register's level mask and priority details.</text>
 </svg>

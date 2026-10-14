@@ -19,10 +19,10 @@ be **freestanding**: no `#include <stdio.h>`, no libc at all, just the C
 language itself plus whatever you implement by hand against the flat
 memory space `MemCore` provides.
 
-This is the same reason
-`model/system_models/core_only/cpp_model/src/sparc_sim.cpp`'s driver
-doesn't try to model a console. There's genuinely nothing on the other
-end of one yet.
+In the configurations with devices (`core_mmu_devices` and up), the
+[Serial Device](peripheral_devices_serial_device.md) is the console: a
+program writes characters to it, and the simulator prints them. See
+[Using the peripheral devices](#using-the-peripheral-devices) below.
 
 ---
 
@@ -128,6 +128,76 @@ Run it directly against the model the same way as an assembly test, see
 ```sh
 model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only your_program.hex
 ```
+
+---
+
+## Using the peripheral devices
+
+`compiler/include/` holds header-only routines for the devices, with
+the same file names, function names, and signatures as AJIT's own
+bare-metal access routines, so code written for AJIT compiles here
+unchanged. `compile_c.sh` puts that folder on the include path.
+
+| Header | Provides |
+|---|---|
+| `device_addresses.h` | Every device register address (`ADDR_TIMER_CONTROL_REGISTER`, ...) and interrupt level (`TIMER_IRL`, ...). |
+| `ajit_access_routines.h` | Physical (MMU-bypass) loads and stores, `ajit_get_core_and_thread_id()`, and the Timer and Serial routines, e.g. `__ajit_serial_putchar_via_bypass__()`, `__ajit_serial_getchar_via_bypass__()`, `__ajit_write_timer_control_register_via_bypass__()`. |
+| `ajit_mt_irc.h` | Interrupt Controller routines (`enableInterruptController()`, `writeInterruptControlRegister()`, ...) and interrupt dispatch (`ajit_set_interrupt_handler()`). |
+| `ajit_ipi.h` | Inter-processor interrupts (`__ajit_set_ipi_interrupt__()`, ...). |
+| `stdint.h` | `uint32_t` and friends, which the bundled compiler does not provide on its own. |
+
+Printing a message:
+
+```c
+#include "ajit_access_routines.h"
+
+int main(void)
+{
+    char message[] = "Hello from SPARC\n";
+    __ajit_serial_configure_via_bypass__(1, 0, 0);   //enable the transmitter
+    __ajit_serial_puts_via_bypass__(message, sizeof(message) - 1);
+    __asm__ volatile ("ta 0");
+    while (1) {}
+}
+```
+
+### Taking interrupts
+
+The default startup code, `crt0.s`, halts on every trap other than the
+final `ta 0`. A program that takes interrupts links
+`compiler/crt0_interrupts.s` instead, which also handles register
+window overflow and underflow, and sends every interrupt to
+`ajit_generic_interrupt_handler()` (in `ajit_mt_irc.h`). That function
+calls the handler registered for the interrupt's level:
+
+```c
+#include "ajit_access_routines.h"
+#include "ajit_mt_irc.h"
+
+volatile int ticks = 0;
+
+void timer_handler(void)
+{
+    ticks++;
+    __ajit_write_timer_control_register_via_bypass__(0);   //clear the source
+}
+
+int main(void)
+{
+    ajit_initialize_interrupt_handlers_to_null();
+    ajit_set_interrupt_handler(TIMER_IRL, timer_handler);
+    writeInterruptControlRegister(0, 0, (1 << TIMER_IRL) | 1);   //slot 0: enable, timer level
+    __ajit_write_timer_control_register_via_bypass__((1000 << 1) | 1);
+    while (ticks == 0) {}
+    __asm__ volatile ("ta 0");
+    while (1) {}
+}
+```
+
+Select the interrupt startup code with a `STARTUP` line in the test's
+`.vprj` (see below), or with `CRT0=crt0_interrupts.s compile_c.sh ...`
+on the command line. Handlers run with traps enabled but every
+maskable interrupt masked, so they do not nest.
 
 ---
 

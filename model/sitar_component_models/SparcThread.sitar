@@ -354,6 +354,7 @@ procedure SparcThread
 													$
 													memReadProcedure.request.address=core.address;
 													memReadProcedure.request.asi=core.addr_space;
+													memReadProcedure.request.byteMask=core.loadWordMask(opcode);
 													$;
 
 													run memReadProcedure;

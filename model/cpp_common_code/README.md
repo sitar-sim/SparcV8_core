@@ -55,6 +55,17 @@ later an MMU or a cache).
 - **`MainMemoryStats.h` / `.cpp`** -- functional counters for `MainMemory`
   (reads/writes/atomics, full vs. partial doubleword accesses), in the
   same spirit as `mmu/MmuStats.h`.
+- **`SystemAddressMap.h`** -- which physical target (main memory, the
+  peripheral devices, or nothing) a physical address belongs to. Shared
+  by `SystemBus` below and by the sitar_model's `SystemBridge` module, so
+  the two can never disagree.
+- **`SystemBus.h` / `.cpp`** -- the cpp_model's physical bus for a
+  configuration with devices (`core_mmu_devices`): implements
+  `PhysicalMemoryInterface`, routes each access to `MainMemory` or to
+  `devices/PeripheralDevicesCore` by address.
+- **`devices/`** -- the peripheral devices (Timer, Serial, Interrupt
+  Controller) and `PeripheralDevicesCore`, the shared set that holds
+  them. See `devices/README.md`.
 - **`SparcStateMachine.h` / `.cpp`** -- the reusable 0-delay
   fetch-decode-execute FSM every `cpp_model` configuration drives
   `SparcCore` through: `SparcStateMachine(core, mem)`, then

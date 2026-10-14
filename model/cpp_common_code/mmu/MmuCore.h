@@ -333,8 +333,13 @@ class MmuCore : public VirtualMemoryInterface
 		//-- safe because the caller (SparcStateMachine.cpp) always aligns
 		//to an 8-byte boundary first, and a doubleword access 8-byte-
 		//aligned can never cross a 4KB page boundary.
+		//loadWordMask (LOADs only): which word(s) of the doubleword the
+		//instruction needs, low nibble = word0, high nibble = word1 (Ref
+		//VirtualMemoryRequest.byteMask). Only those words are read
+		//downstream, so a device register with a read side effect next
+		//to the one actually loaded is never touched.
 		void handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
-		                       uint32_t& readWord0, uint32_t& readWord1, bool& mae);
+		                       uint32_t& readWord0, uint32_t& readWord1, bool& mae, uint8_t loadWordMask = 0xFF);
 		void handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae);
 		void handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
 		                         uint32_t& readWord0, uint32_t& readWord1, bool& mae);
@@ -363,7 +368,7 @@ class MmuCore : public VirtualMemoryInterface
 		//functionally harmless (idempotent instant read) but would
 		//double-charge every LOAD's fetch once this is a real timed
 		//transaction on the Sitar side.
-		void readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae);
+		void readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae, uint8_t byteMask = 0xFF);
 
 		//word0/word1/byte_mask: same doubleword-at-once shape
 		//writeMaskedDoubleWord() already receives at the virtual

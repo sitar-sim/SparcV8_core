@@ -86,6 +86,17 @@ Before running a test, `run_tests.py` parses this and normalizes it into
 the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
 [mask]` format, writing it to a `.expected` file alongside the test.
 
+Two optional lines, used by the device tests:
+
+- `STARTUP = crt0_interrupts.s`, before `RESULTS`, links that startup
+  file instead of `compiler/crt0.s` (C tests only).
+- `serial_out = "text"`, among the results, checks the exact bytes the
+  program sent out through the Serial device (C-style escapes such as
+  `\n` and `\x41` work). Only configurations with devices check it.
+
+A test's received serial input, if it needs any, is a file named after
+the test with the extension `.serial_in`, next to its `.hex`.
+
 ---
 
 ## The validation script
@@ -254,9 +265,13 @@ components, each living in its own folder:
     The MMU: register access, page-table walks, TLB hit/miss/fill,
     faults, probe and flush, bypass. See [Model
     Components](model_components.md#mmu).
-- **`validation/C/devices/`** (planned)  
-    The timer, interrupt controller, and serial device. See
-    [Peripheral Devices](peripheral_devices.md).
+- **`validation/C/devices/`**  
+    The timer, interrupt controller (including interrupt delivery to a
+    real trap handler, priority, masking, and IPIs), and serial device
+    (output, polled and interrupt-driven input). Needs
+    `core_mmu_devices`. See [Peripheral Devices](peripheral_devices.md).
+    On the sitar_model these tests need more cycles than the default
+    limit, so run them with `--max-cycles 5000000`.
 - **`validation/C/caches/`** (planned)  
     The L1 instruction and data caches.
 

@@ -609,6 +609,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#using-the-peripheral-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the peripheral devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the peripheral devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#taking-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Taking interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#adding-it-to-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1461,6 +1489,34 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#using-the-peripheral-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Using the peripheral devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Using the peripheral devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#taking-interrupts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Taking interrupts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#adding-it-to-the-validation-suite" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1507,10 +1563,10 @@ standard library to call into. <code>printf</code> has no console to write to.
 be <strong>freestanding</strong>: no <code>#include &lt;stdio.h&gt;</code>, no libc at all, just the C
 language itself plus whatever you implement by hand against the flat
 memory space <code>MemCore</code> provides.</p>
-<p>This is the same reason
-<code>model/system_models/core_only/cpp_model/src/sparc_sim.cpp</code>'s driver
-doesn't try to model a console. There's genuinely nothing on the other
-end of one yet.</p>
+<p>In the configurations with devices (<code>core_mmu_devices</code> and up), the
+<a href="peripheral_devices_serial_device.html">Serial Device</a> is the console: a
+program writes characters to it, and the simulator prints them. See
+<a href="#using-the-peripheral-devices">Using the peripheral devices</a> below.</p>
 <hr />
 <h2 id="structuring-a-test-program">Structuring a test program<a class="headerlink" href="#structuring-a-test-program" title="Permanent link">&para;</a></h2>
 <p>Write an ordinary, freestanding C <code>main()</code>. Every test in
@@ -1657,6 +1713,87 @@ function and global-variable addresses included. See
 <a href="writing_and_running_assembly_programs.html#running-a-test-program">Running a test program</a>:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only<span class="w"> </span>your_program.hex
 </span></code></pre></div>
+<hr />
+<h2 id="using-the-peripheral-devices">Using the peripheral devices<a class="headerlink" href="#using-the-peripheral-devices" title="Permanent link">&para;</a></h2>
+<p><code>compiler/include/</code> holds header-only routines for the devices, with
+the same file names, function names, and signatures as AJIT's own
+bare-metal access routines, so code written for AJIT compiles here
+unchanged. <code>compile_c.sh</code> puts that folder on the include path.</p>
+<table>
+<thead>
+<tr>
+<th>Header</th>
+<th>Provides</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>device_addresses.h</code></td>
+<td>Every device register address (<code>ADDR_TIMER_CONTROL_REGISTER</code>, ...) and interrupt level (<code>TIMER_IRL</code>, ...).</td>
+</tr>
+<tr>
+<td><code>ajit_access_routines.h</code></td>
+<td>Physical (MMU-bypass) loads and stores, <code>ajit_get_core_and_thread_id()</code>, and the Timer and Serial routines, e.g. <code>__ajit_serial_putchar_via_bypass__()</code>, <code>__ajit_serial_getchar_via_bypass__()</code>, <code>__ajit_write_timer_control_register_via_bypass__()</code>.</td>
+</tr>
+<tr>
+<td><code>ajit_mt_irc.h</code></td>
+<td>Interrupt Controller routines (<code>enableInterruptController()</code>, <code>writeInterruptControlRegister()</code>, ...) and interrupt dispatch (<code>ajit_set_interrupt_handler()</code>).</td>
+</tr>
+<tr>
+<td><code>ajit_ipi.h</code></td>
+<td>Inter-processor interrupts (<code>__ajit_set_ipi_interrupt__()</code>, ...).</td>
+</tr>
+<tr>
+<td><code>stdint.h</code></td>
+<td><code>uint32_t</code> and friends, which the bundled compiler does not provide on its own.</td>
+</tr>
+</tbody>
+</table>
+<p>Printing a message:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_access_routines.h&quot;</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="p">{</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="w">    </span><span class="kt">char</span><span class="w"> </span><span class="n">message</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="s">&quot;Hello from SPARC</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">;</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a><span class="w">    </span><span class="n">__ajit_serial_configure_via_bypass__</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">//enable the transmitter</span>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="w">    </span><span class="n">__ajit_serial_puts_via_bypass__</span><span class="p">(</span><span class="n">message</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">message</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;ta 0&quot;</span><span class="p">);</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<h3 id="taking-interrupts">Taking interrupts<a class="headerlink" href="#taking-interrupts" title="Permanent link">&para;</a></h3>
+<p>The default startup code, <code>crt0.s</code>, halts on every trap other than the
+final <code>ta 0</code>. A program that takes interrupts links
+<code>compiler/crt0_interrupts.s</code> instead, which also handles register
+window overflow and underflow, and sends every interrupt to
+<code>ajit_generic_interrupt_handler()</code> (in <code>ajit_mt_irc.h</code>). That function
+calls the handler registered for the interrupt's level:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_access_routines.h&quot;</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_mt_irc.h&quot;</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="k">volatile</span><span class="w"> </span><span class="kt">int</span><span class="w"> </span><span class="n">ticks</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">timer_handler</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a><span class="p">{</span>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="w">    </span><span class="n">ticks</span><span class="o">++</span><span class="p">;</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="w">    </span><span class="n">__ajit_write_timer_control_register_via_bypass__</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">//clear the source</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="p">}</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-6-13"><a id="__codelineno-6-13" name="__codelineno-6-13" href="#__codelineno-6-13"></a><span class="p">{</span>
+</span><span id="__span-6-14"><a id="__codelineno-6-14" name="__codelineno-6-14" href="#__codelineno-6-14"></a><span class="w">    </span><span class="n">ajit_initialize_interrupt_handlers_to_null</span><span class="p">();</span>
+</span><span id="__span-6-15"><a id="__codelineno-6-15" name="__codelineno-6-15" href="#__codelineno-6-15"></a><span class="w">    </span><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">TIMER_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">timer_handler</span><span class="p">);</span>
+</span><span id="__span-6-16"><a id="__codelineno-6-16" name="__codelineno-6-16" href="#__codelineno-6-16"></a><span class="w">    </span><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">TIMER_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span><span class="w">   </span><span class="c1">//slot 0: enable, timer level</span>
+</span><span id="__span-6-17"><a id="__codelineno-6-17" name="__codelineno-6-17" href="#__codelineno-6-17"></a><span class="w">    </span><span class="n">__ajit_write_timer_control_register_via_bypass__</span><span class="p">((</span><span class="mi">1000</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-6-18"><a id="__codelineno-6-18" name="__codelineno-6-18" href="#__codelineno-6-18"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="n">ticks</span><span class="w"> </span><span class="o">==</span><span class="w"> </span><span class="mi">0</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-6-19"><a id="__codelineno-6-19" name="__codelineno-6-19" href="#__codelineno-6-19"></a><span class="w">    </span><span class="n">__asm__</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="p">(</span><span class="s">&quot;ta 0&quot;</span><span class="p">);</span>
+</span><span id="__span-6-20"><a id="__codelineno-6-20" name="__codelineno-6-20" href="#__codelineno-6-20"></a><span class="w">    </span><span class="k">while</span><span class="w"> </span><span class="p">(</span><span class="mi">1</span><span class="p">)</span><span class="w"> </span><span class="p">{}</span>
+</span><span id="__span-6-21"><a id="__codelineno-6-21" name="__codelineno-6-21" href="#__codelineno-6-21"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Select the interrupt startup code with a <code>STARTUP</code> line in the test's
+<code>.vprj</code> (see below), or with <code>CRT0=crt0_interrupts.s compile_c.sh ...</code>
+on the command line. Handlers run with traps enabled but every
+maskable interrupt masked, so they do not nest.</p>
 <hr />
 <h2 id="adding-it-to-the-validation-suite">Adding it to the validation suite<a class="headerlink" href="#adding-it-to-the-validation-suite" title="Permanent link">&para;</a></h2>
 <p>Same two-phase pipeline as <code>validation/asm/</code>, see

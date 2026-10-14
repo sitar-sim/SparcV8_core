@@ -1531,7 +1531,8 @@ to port a basic operating system on top of it.</p>
     A countdown timer, used for generating periodic interrupts, the
     kind an OS uses for context switching.</li>
 <li><strong><a href="peripheral_devices_interrupt_controller.html">Interrupt Controller</a></strong><br />
-    Arbitrates and delivers hardware interrupts to the core.</li>
+    Routes hardware interrupts to the hardware threads of every core,
+    and lets threads interrupt each other (inter-processor interrupts).</li>
 <li><strong><a href="peripheral_devices_serial_device.html">Serial Device</a></strong><br />
     A single device for I/O.</li>
 </ul>
@@ -1545,26 +1546,30 @@ for the deviations listed at the end of this page.</p>
 <h2 id="connection-diagram">Connection diagram<a class="headerlink" href="#connection-diagram" title="Permanent link">&para;</a></h2>
 <p>A programmer's view of how the devices connect.</p>
 <p><img src="images/peripheral_devices_connections.svg" alt="Peripheral devices connection diagram" title="Peripheral devices connection diagram"></p>
-<p>Every device has device registers that can be read and written over
-the same shared address/data bus the core uses for main memory. Each
-device also has its own individual signal pins, unrelated to the bus:</p>
+<p>There is a single shared set of devices in the system, on the memory
+side of the MMU. Every device has registers that are read and written
+over the same physical bus the core uses for main memory, by physical
+address. In the Sitar model a bridge routes each access to main memory
+or to the devices (see <a href="model_configurations.html">Model Configurations</a>).
+Each device also has its own individual signal pins, unrelated to the
+bus:</p>
 <ul>
 <li><strong>Timer</strong>: a <code>clock_in</code> input, and a <code>timer_int_out</code> output to the
   Interrupt Controller.</li>
 <li><strong>Serial Device</strong>: <code>serial_in</code>/<code>serial_out</code> pins, and a
   <code>serial_int_out</code> output to the Interrupt Controller.</li>
 <li><strong>Interrupt Controller</strong>: <code>timer_int_out</code>/<code>serial_int_out</code> inputs,
-  two further reserved inputs (<code>ipi_int_in</code>, for a future multi-core
-  extension, and <code>env_int_in</code>, for an external interrupt source not
-  modeled by any device here), and one <code>interrupt_level</code> output to the
-  core.</li>
+  an external interrupt input (<code>env_int_in</code>, reserved for an external
+  source such as an accelerator), and one <code>interrupt_level</code> output per
+  hardware thread. Inter-processor interrupts are generated inside it,
+  from its own IPI registers.</li>
 </ul>
 <hr />
 <h2 id="device-address-map">Device address map<a class="headerlink" href="#device-address-map" title="Permanent link">&para;</a></h2>
-<p>All addresses are doubleword-aligned. Both <code>lda</code>/<code>sta</code> with the MMU
-bypass ASI (<code>0x20</code>, see Appendix I of the SPARC V8 manual) and an
-ordinary translated access work, since device pages are identity
-mapped.</p>
+<p>The addresses match AJIT's default device map, so software written for
+AJIT finds every device where it expects it. Reach them with the MMU
+bypass ASI (<code>0x20</code>, see Appendix I of the SPARC V8 manual), or with an
+ordinary translated access if the page is identity mapped.</p>
 <table>
 <thead>
 <tr>
@@ -1576,8 +1581,14 @@ mapped.</p>
 </thead>
 <tbody>
 <tr>
-<td>Interrupt Controller : Control</td>
-<td><code>0xFFFF3000</code></td>
+<td>Interrupt Controller : Control, thread (core c, thread t)</td>
+<td><code>0xFFFF3000 + 4*(2c+t)</code></td>
+<td>word (32-bit)</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Interrupt Controller : IPI registers</td>
+<td><code>0xFFFF3080</code> to <code>0xFFFF30CB</code></td>
 <td>word (32-bit)</td>
 <td><code>sta %rs, [%rd] 0x20</code></td>
 </tr>
@@ -1594,42 +1605,37 @@ mapped.</p>
 <td><code>sta %rs, [%rd] 0x20</code></td>
 </tr>
 <tr>
+<td>Serial : Tx</td>
+<td><code>0xFFFF3204</code></td>
+<td>byte (8-bit)</td>
+<td><code>stba %rs, [%rd] 0x20</code></td>
+</tr>
+<tr>
+<td>Serial : Rx</td>
+<td><code>0xFFFF3208</code></td>
+<td>byte (8-bit)</td>
+<td><code>lduba [%rd] 0x20, %rs</code></td>
+</tr>
+<tr>
 <td>Serial : Baud limit / baud control</td>
 <td><code>0xFFFF320c</code></td>
 <td>word (32-bit)</td>
 <td><code>sta %rs, [%rd] 0x20</code></td>
 </tr>
 <tr>
-<td>Serial : Tx</td>
-<td><code>0xFFFF3210</code></td>
-<td>byte (8-bit)</td>
-<td><code>stub %rs, [%rd] 0x20</code></td>
-</tr>
-<tr>
 <td>Serial : Baud frequency</td>
-<td><code>0xFFFF3210</code> (shared with Tx, see note)</td>
+<td><code>0xFFFF3210</code></td>
 <td>word (32-bit)</td>
 <td><code>sta %rs, [%rd] 0x20</code></td>
 </tr>
-<tr>
-<td>Serial : Rx</td>
-<td><code>0xFFFF3220</code></td>
-<td>byte (8-bit)</td>
-<td><code>ldub [%rd] 0x20, %rs</code></td>
-</tr>
 </tbody>
 </table>
-<p><code>%rd</code> holds the register's address, loaded with <code>set</code> beforehand.</p>
-<div class="admonition note">
-<p class="admonition-title">Tx and baud-frequency share an address</p>
-<p>The Serial Device's Tx register and its baud-frequency register
-are both mapped to <code>0xFFFF3210</code>. They are distinguished by access
-width, not address: a byte-width access (<code>stub</code>) writes a
-character to Tx, a word-width access (<code>sta</code>) writes the
-baud-frequency register. This is intentional sharing of an
-address, not an error. See the Serial Device page for the
-baud-rate register format.</p>
-</div>
+<p><code>%rd</code> holds the register's address, loaded with <code>set</code> beforehand. C
+programs can use the AJIT-compatible routines in <code>compiler/include/</code>
+instead (see <a href="writing_and_running_c_programs.html">C Programs</a>).</p>
+<p>An access to an address in the device window (<code>0xFFFF0000</code> and up)
+that no device decodes reads as 0 and ignores writes, with a warning
+from the simulator.</p>
 <hr />
 <h2 id="interrupt-levels">Interrupt levels<a class="headerlink" href="#interrupt-levels" title="Permanent link">&para;</a></h2>
 <table>
@@ -1647,7 +1653,7 @@ baud-rate register format.</p>
 <td>Highest</td>
 </tr>
 <tr>
-<td>IPI (reserved for a future multi-core extension)</td>
+<td>IPI (inter-processor interrupt)</td>
 <td>11</td>
 <td></td>
 </tr>
@@ -1657,19 +1663,42 @@ baud-rate register format.</p>
 <td></td>
 </tr>
 <tr>
-<td>Env (external, not modeled by any device here)</td>
+<td>Env (external, e.g. an accelerator)</td>
 <td>14</td>
 <td>Lowest</td>
 </tr>
 </tbody>
 </table>
-<p>The per-core Interrupt Controller priority-encodes its active,
-unmasked sources by IRL: the lowest IRL number among them wins. See
-the Interrupt Controller page for the masking behavior.</p>
+<p>For each hardware thread, the Interrupt Controller priority-encodes
+the active sources that thread's mask enables: the lowest IRL number
+among them wins. See the Interrupt Controller page for the details.</p>
 <hr />
 <h2 id="deviations-from-the-ajit-processor">Deviations from the AJIT Processor<a class="headerlink" href="#deviations-from-the-ajit-processor" title="Permanent link">&para;</a></h2>
-<p>None yet. This section will be populated as deviations are introduced
-during implementation.</p>
+<p>Differences from AJIT's own device models (in its multi-core C model,
+<code>devices/src/</code> in the ajit-toolchain repository), each small and
+deliberate:</p>
+<ul>
+<li><strong>Timer clock.</strong> AJIT's timer counts wall-clock time on the host.
+  Here it counts model ticks, one per core cycle by default (a
+  configurable divider). In hardware the timer may run off its own
+  clock, so timer counts are not hardware time.</li>
+<li><strong>IPI register decode.</strong> AJIT decodes the IPI word index from the low
+  6 address bits only, so its last three IPI words alias onto the first
+  three (the lock word lands on thread 0's message). Here all 19 words
+  are separate.</li>
+<li><strong>Serial baud registers and <code>UART_reset</code>.</strong> Present here (from the
+  AJIT processor description), absent from AJIT's C model. The baud
+  values are stored and read back but do not set the model's transmit
+  timing, which is its own knob.</li>
+<li><strong>Serial receive disable.</strong> Writing <code>Rx_en=0</code> disables the receiver
+  from any state here, as the AJIT processor description says. AJIT's C
+  model only does so while holding a received byte.</li>
+<li><strong>Serial transmit disable.</strong> Writing <code>Tx_en=0</code> while a byte is still
+  being transmitted finishes sending it first, so no program output is
+  lost.</li>
+<li><strong>Unmapped device addresses</strong> read as 0 and ignore writes, with a
+  warning, the same as AJIT's bridge does for any unmapped address.</li>
+</ul>
 
 
 

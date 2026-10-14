@@ -1,0 +1,140 @@
+//================================================================
+// module SystemBridge
+// Author: Neha Karanjkar
+//
+// The physical bus below the MMU, for configurations with more than one
+// physical target. Takes each request arriving from the core side,
+// decides from its physical address which target it is for (main memory
+// or the peripheral devices, Ref SystemAddressMap.h, the same table the
+// cpp_model's SystemBus uses), forwards it to that target, and returns
+// the target's response to the core side. Named after AJIT's "bridge",
+// which plays the same role.
+//
+// All six connections are ports, reached over nets declared one level
+// up (System.sitar). Requests and responses travel as the same packed
+// tokens PhysicalMainMemory already uses (Ref MemoryInterfaces.h's
+// TOKEN_REQ_WIDTH/TOKEN_RESP_WIDTH), so the bridge forwards a request
+// token unchanged and only unpacks it to read the address.
+//
+// One transaction at a time: a request is fully serviced, response and
+// all, before the next is accepted. A request pulled in phase 0 is
+// forwarded in phase 1 of the same cycle, so the bridge itself adds no
+// cycles beyond its own `delay` knob. Each net it crosses still costs
+// Sitar's unavoidable minimum of one cycle, so a memory access through
+// the bridge costs 2 cycles more than in core_mmu, where Core reaches
+// PhysicalMainMemory over a single pair of nets.
+//
+// An address that maps to nothing reads as 0 and ignores writes, with a
+// warning, exactly like SystemBus.
+//================================================================
+
+module SystemBridge
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	#include "SystemAddressMap.h"
+	$
+
+	//Core side
+	inport  coreRequestIn      : width TOKEN_REQ_WIDTH
+	outport coreResponseOut    : width TOKEN_RESP_WIDTH
+
+	//Target side
+	outport memoryRequestOut   : width TOKEN_REQ_WIDTH
+	inport  memoryResponseIn   : width TOKEN_RESP_WIDTH
+	outport devicesRequestOut  : width TOKEN_REQ_WIDTH
+	inport  devicesResponseIn  : width TOKEN_RESP_WIDTH
+
+	procedure getCoreRequest    : PullAToken<TOKEN_REQ_WIDTH>
+	procedure sendCoreResponse  : PushAToken<TOKEN_RESP_WIDTH>
+	procedure sendTargetRequest : PushAToken<TOKEN_REQ_WIDTH>
+	procedure getTargetResponse : PullAToken<TOKEN_RESP_WIDTH>
+
+	init
+	$
+	getCoreRequest.ptr   = &coreRequestIn;
+	sendCoreResponse.ptr = &coreResponseOut;
+	//sendTargetRequest/getTargetResponse are pointed at the right
+	//target's ports per request, in the behavior below.
+	$
+
+	decl
+	$
+	PhysicalMemoryRequest     request; //unpacked only to read the address
+	SystemAddressMap::Target  target;
+
+	//Cycles the bridge adds to every transaction, on the way back to the
+	//core side. Default 0.
+	uint32_t delay;
+
+	uint64_t memoryTransactions;
+	uint64_t deviceTransactions;
+	uint64_t unmappedTransactions;
+	$
+	init
+	$
+	request.valid           = false;
+	request.accessType      = PhysicalAccessType::READ;
+	request.lock            = false;
+	request.physicalAddress = 0;
+	request.data            = 0;
+	request.byteMask        = 0;
+	target = SystemAddressMap::Target::UNMAPPED;
+	delay  = 0;
+	memoryTransactions   = 0;
+	deviceTransactions   = 0;
+	unmappedTransactions = 0;
+	$
+
+	behavior
+
+	do
+		run getCoreRequest;
+
+		$
+		sitar::unpack(getCoreRequest.tok, request.accessType, request.lock,
+		              request.physicalAddress, request.data, request.byteMask);
+		target = SystemAddressMap::decode(request.physicalAddress);
+
+		if (target == SystemAddressMap::Target::MAIN_MEMORY)
+		{
+			sendTargetRequest.ptr = &memoryRequestOut;
+			getTargetResponse.ptr = &memoryResponseIn;
+			memoryTransactions++;
+		}
+		else if (target == SystemAddressMap::Target::PERIPHERAL_DEVICES)
+		{
+			sendTargetRequest.ptr = &devicesRequestOut;
+			getTargetResponse.ptr = &devicesResponseIn;
+			deviceTransactions++;
+		}
+		sendTargetRequest.tok = getCoreRequest.tok;
+		$;
+
+		if ($target == SystemAddressMap::Target::UNMAPPED$) then
+			$
+			unmappedTransactions++;
+			std::cerr << "\nWarning: SystemBridge: access to unmapped physical address 0x"
+			          << std::hex << request.physicalAddress << std::dec
+			          << (request.accessType == PhysicalAccessType::READ ? ", read as 0" : ", write ignored");
+			uint64_t noData = 0;
+			bool     noMae  = false;
+			sitar::pack(sendCoreResponse.tok, noData, noMae);
+			$;
+		else
+			run sendTargetRequest;
+			run getTargetResponse;
+			$ sendCoreResponse.tok = getTargetResponse.tok; $;
+		end if;
+
+		if ($delay > 0$) then
+			wait(delay, 0);
+		end if;
+
+		run sendCoreResponse;
+
+	while(1) end do;
+
+	end behavior
+end module

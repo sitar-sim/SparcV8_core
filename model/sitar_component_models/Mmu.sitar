@@ -195,7 +195,7 @@ procedure Mmu
 					if (not $tlbHit$) then
 						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
 						do
-							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? 0x0F : 0xF0; $;
 							run phyMemReadProcedure;
 							wait(pageTableWalkStepDelay, 0);
 							$
@@ -214,7 +214,7 @@ procedure Mmu
 					$ probeTargetLevel = (uint8_t)(3 - probeType); $;
 					$ mmu.beginWalk(request.address, mmu.currentContext()); $;
 					do
-						$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+						$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? 0x0F : 0xF0; $;
 						run phyMemReadProcedure;
 						wait(pageTableWalkStepDelay, 0);
 						$
@@ -253,7 +253,7 @@ procedure Mmu
 					if (not $tlbHit$) then
 						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
 						do
-							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? 0x0F : 0xF0; $;
 							run phyMemReadProcedure;
 							wait(pageTableWalkStepDelay, 0);
 							$
@@ -309,7 +309,10 @@ procedure Mmu
 					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
 					phyMemReadProcedure.request.lock            = false;
 					phyMemReadProcedure.request.data            = 0;
-					phyMemReadProcedure.request.byteMask        = 0;
+					//The word(s) actually wanted, Ref MmuCore.cpp's readPhysicalWord().
+					//A LOAD's word(s) as the core asked (0 = both), else the IFETCH word.
+					phyMemReadProcedure.request.byteMask        = isSecondWord ? (request.byteMask ? (uint8_t)request.byteMask : (uint8_t)0xFF)
+					                                                           : (((translatedPhysAddr & 0x4u)==0) ? 0x0F : 0xF0);
 					$;
 					run phyMemReadProcedure;
 					$
@@ -360,7 +363,7 @@ procedure Mmu
 					if (not $tlbHit$) then
 						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
 						do
-							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? 0x0F : 0xF0; $;
 							run phyMemReadProcedure;
 							wait(pageTableWalkStepDelay, 0);
 							$
@@ -444,7 +447,7 @@ procedure Mmu
 					if (not $tlbHit$) then
 						$ mmu.beginWalk(request.address, mmu.currentContext()); $;
 						do
-							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = 0; $;
+							$ phyMemReadProcedure.request.physicalAddress = mmu.walkCurPhyAddr() & ~0x7ULL; phyMemReadProcedure.request.lock = false; phyMemReadProcedure.request.data = 0; phyMemReadProcedure.request.byteMask = ((mmu.walkCurPhyAddr() & 0x4u)==0) ? 0x0F : 0xF0; $;
 							run phyMemReadProcedure;
 							wait(pageTableWalkStepDelay, 0);
 							$
@@ -498,7 +501,8 @@ procedure Mmu
 					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
 					phyMemReadProcedure.request.lock            = true;
 					phyMemReadProcedure.request.data            = 0;
-					phyMemReadProcedure.request.byteMask        = 0;
+					//The same bytes the write below modifies.
+					phyMemReadProcedure.request.byteMask        = (uint8_t)request.byteMask;
 					$;
 					run phyMemReadProcedure;
 					$

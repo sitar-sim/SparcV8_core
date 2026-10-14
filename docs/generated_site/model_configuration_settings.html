@@ -1216,6 +1216,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bus-and-devices-core_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus and devices (core_mmu_devices)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1475,6 +1486,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#bus-and-devices-core_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus and devices (core_mmu_devices)
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1565,7 +1587,8 @@ parameters apply to both.</p>
 </table>
 <h2 id="mmu-core_mmu-only">MMU (<code>core_mmu</code> only)<a class="headerlink" href="#mmu-core_mmu-only" title="Permanent link">&para;</a></h2>
 <p>These settings apply only to configurations that include an MMU,
-currently <code>core_mmu</code> (and, once built, <code>core_mmu_devices</code>).</p>
+currently <code>core_mmu</code> and <code>core_mmu_devices</code>. In <code>core_mmu_devices</code>
+each knob lives in that configuration's own <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a>.</p>
 <table>
 <thead>
 <tr>
@@ -1667,6 +1690,55 @@ currently <code>core_mmu</code> (and, once built, <code>core_mmu_devices</code>)
 <td>Timing</td>
 <td>Runtime</td>
 <td>The memory's own service time, shared by every requester. <code>VirtualMainMemory.delay</code> in <code>core_only</code>, <code>PhysicalMainMemory.delay</code> in <code>core_mmu</code>.<br><strong>Range:</strong> non-negative int.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bus-and-devices-core_mmu_devices">Bus and devices (<code>core_mmu_devices</code>)<a class="headerlink" href="#bus-and-devices-core_mmu_devices" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Where to modify</th>
+<th>Type</th>
+<th>Compile time or runtime</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong><code>bridge.delay</code></strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles the bridge adds to every physical transaction (memory and device alike), on top of the compulsory 1 cycle for each net crossed.<br><strong>Range:</strong> non-negative int.</td>
+</tr>
+<tr>
+<td><strong><code>devices.registerAccessDelay</code></strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles added to every device register access.<br><strong>Range:</strong> non-negative int.</td>
+</tr>
+<tr>
+<td><strong><code>timerTickDivider</code></strong></td>
+<td>sitar_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a> (<code>devices.devices.timerTickDivider</code>)<br>both models: <code>--timer-tick-divider &lt;n&gt;</code> on the command line</td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Core cycles per timer tick (the timer's <code>clock_in</code>). In the cpp_model a "cycle" is one instruction.<br><strong>Range:</strong> positive int, default 1.</td>
+</tr>
+<tr>
+<td><strong><code>txTicksPerByte</code></strong></td>
+<td>sitar_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a> (<code>devices.devices.serial.txTicksPerByte</code>)</td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles a transmitted byte keeps the Serial device's <code>Tx_full</code> set. 0 sends a byte within the store itself.<br><strong>Range:</strong> non-negative int, default 1.</td>
+</tr>
+<tr>
+<td><strong>Serial I/O</strong><br>(<code>--serial-in</code>, <code>--serial-out</code>, <code>--serial-pty</code>)</td>
+<td>command line, both models</td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Where received bytes come from and transmitted bytes go. See the <a href="peripheral_devices_serial_device.html#where-the-bytes-go-in-the-simulator">Serial Device</a> page.</td>
 </tr>
 </tbody>
 </table>

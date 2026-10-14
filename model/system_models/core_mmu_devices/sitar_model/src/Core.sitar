@@ -1,0 +1,130 @@
+
+//================================================================
+// module Core
+// Author: Neha Karanjkar
+//
+// Wrapper module for the SPARC V8 core with an MMU present, in a system
+// with peripheral devices. The same as core_mmu's own Core.sitar, plus
+// one more port, interruptLevelIn, and one more parallel branch that
+// polls it every cycle and copies the latest interrupt level into the
+// core. Exposes requestOut/responseIn so Mmu can reach the physical bus
+// (SystemBridge, a sibling module under System.sitar, reached over
+// nets), which routes each access to main memory or to the devices.
+//
+// sparcThread and mmu run as branches of one parallel block, so their
+// own handshake completes within a single phase. Each procedure owns
+// its own local request/response state. This module's only job is
+// wiring pointers together at init: sparcThread's 5 memory-interface
+// procedures point at mmu's request/response fields, and mmu's two
+// PhysicalMainMemoryInterface instances point at this module's own two
+// ports.
+//================================================================
+
+module Core
+
+	include
+	$
+	#include "SparcCore.h"
+	#include "MemoryInterfaces.h"
+	$
+
+	//Sparc Thread (contains the state machine and memory interface procedures)
+	procedure sparcThread : SparcThread
+
+	//The MMU all 5 of sparcThread's memory-interface procedures share.
+	procedure mmu : Mmu
+
+	//This module's own physical-side ports -- what Mmu's two
+	//PhysicalMainMemoryInterface instances (phyMemReadProcedure/
+	//phyMemWriteProcedure) actually push requests onto and pull
+	//responses from, once wired below. Connected to SystemBridge
+	//over nets declared one level up, in System.sitar (Ref that file's
+	//own header comment).
+	outport requestOut  : width TOKEN_REQ_WIDTH
+	inport  responseIn  : width TOKEN_RESP_WIDTH
+
+	//Interrupt level (IRL, one byte) for this core's thread, from the
+	//Interrupt Controller inside PeripheralDevices. A level, not an
+	//event: a token arrives only when the level changes, and the core
+	//keeps the last value received.
+	inport  interruptLevelIn : width 1
+
+	decl
+	$
+	token<1> interruptLevelToken;
+	$
+
+	init
+	$
+	sparcThread.ifetchProcedure.downstreamRequest           = &mmu.request;
+	sparcThread.ifetchProcedure.downstreamResponse          = &mmu.response;
+	sparcThread.memReadProcedure.downstreamRequest          = &mmu.request;
+	sparcThread.memReadProcedure.downstreamResponse         = &mmu.response;
+	sparcThread.memWriteProcedure.downstreamRequest         = &mmu.request;
+	sparcThread.memWriteProcedure.downstreamResponse        = &mmu.response;
+	sparcThread.atomicLoadStoreProcedure.downstreamRequest  = &mmu.request;
+	sparcThread.atomicLoadStoreProcedure.downstreamResponse = &mmu.response;
+	sparcThread.flushProcedure.downstreamRequest            = &mmu.request;
+	sparcThread.flushProcedure.downstreamResponse           = &mmu.response;
+
+	mmu.phyMemReadProcedure.reqPortPtr   = &requestOut;
+	mmu.phyMemReadProcedure.respPortPtr  = &responseIn;
+	mmu.phyMemWriteProcedure.reqPortPtr  = &requestOut;
+	mmu.phyMemWriteProcedure.respPortPtr = &responseIn;
+	$
+
+
+	behavior
+		[
+			// sparcThread's own procedure never returns -- it loops
+			// forever across RESET/EXECUTE/ERROR, by design (see the
+			// "Conventions" note in SparcThread.sitar) -- so this branch
+			// never completes either. That's fine: nothing here waits
+			// on it to.
+			run sparcThread;
+		||
+			// mmu is persistent -- this branch runs for the whole
+			// simulation, servicing requests until the monitor branch
+			// below calls `stop simulation`.
+			run mmu;
+		||
+			// Polls interruptLevelIn once per cycle, in phase 0, and drives
+			// any new level onto the core's IRL input pins (bp_IRL), where
+			// checkExternalTraps() samples it before the next instruction.
+			do
+				wait until (this_phase==0);
+				$
+				if (interruptLevelIn.pull(interruptLevelToken))
+				{
+					uint8_t level = 0;
+					sitar::unpack(interruptLevelToken, level);
+					sparcThread.core.reg.W_bp_IRL(level); //the core's IRL input pins
+				}
+				$;
+				wait(1,0);
+			while(1) end do;
+		||
+			// Watches for the core halting and stops the whole
+			// simulation once it does. Has to live out here, watching
+			// sparcThread.HALT.VALUE from outside, rather than as
+			// something sparcThread does itself when its own procedure
+			// returns -- see above, it never does. Still lives inside
+			// Core (not System) since nothing about it depends on
+			// the bus or devices -- `stop simulation` halts the entire
+			// simulation regardless of how deep the caller is nested.
+			wait until (sparcThread.HALT.VALUE);
+
+			// HALT.VALUE just became true in phase 0 of this same cycle
+			// (see SparcThread.sitar's ERROR branch); let phase 1 run
+			// its course too before tearing the simulation down, rather
+			// than stopping mid-cycle.
+			wait until (this_phase==1);
+
+			$
+			log<<endl<<"Core halted.";
+			log<<endl<<sparcThread.printInfo();
+			$;
+			stop simulation;
+		]
+	end behavior
+end module

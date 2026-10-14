@@ -57,6 +57,10 @@ inline std::string accessTypeToString(MemAccessType accessType)
 	}
 }
 
+//byteMask: for a STORE or ATOMIC_LS, the bytes written. For a LOAD, the
+//word(s) of the doubleword the instruction needs (0x0F, 0xF0, or 0xFF for
+//a doubleword load). Memory returns both words regardless, an MMU uses it
+//to read only those words below it. 0 means "not said": both words.
 struct VirtualMemoryRequest
 {
 	bool          valid;
@@ -89,7 +93,7 @@ struct PhysicalMemoryRequest
 	bool               lock;             //reserved, unused until multi-island arbitration exists
 	uint64_t           physicalAddress;  //36 bits meaningful, zero-padded
 	uint64_t           data;             //WRITE only
-	uint8_t            byteMask;         //WRITE only, one bit per byte of data
+	uint8_t            byteMask;         //one bit per byte of data: WRITE, the bytes written; READ, the bytes the requester needs (memory ignores it, a device uses it to avoid read side effects on registers not actually read)
 };
 
 struct PhysicalMemoryResponse

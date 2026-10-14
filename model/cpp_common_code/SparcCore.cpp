@@ -27,6 +27,7 @@ SparcCore::SparcCore()
 	//set processor and core ID to 0 by default
 	processorID = 0;
 	coreID = 0;
+	threadID = 0;
 
 	reg.W_ASR(31,0);
 	reg.W_ASR(30,0);
@@ -1770,7 +1771,7 @@ void SparcCore::execute_ReadStateReg(Opcode op)
 		switch(op)
 		{
 			case RDY :    {result=reg.R_Y();break;}
-			case RDASR :  {result=reg.R_ASR(reg.R_rs1()); break;}
+			case RDASR :  {result=(reg.R_rs1()==ASR_CORE_THREAD_ID) ? coreThreadIdWord() : reg.R_ASR(reg.R_rs1()); break;}
 			case RDPSR :  {result=reg.R_PSR(); break;}
 			case RDWIM :  {result=reg.R_WIM(); break;}
 			case RDTBR :  {result=reg.R_TBR(); break;}
@@ -1813,7 +1814,7 @@ void SparcCore::execute_WriteStateReg(Opcode op)
 					     trap = 1;
 					     illegal_instruction = 1;
 				     }
-				     else
+				     else if (rd != ASR_CORE_THREAD_ID) //ASR29 is read-only, Ref SparcCore.h
 				     {
 					     reg.W_ASR(rd,result);
 				     };

@@ -48,6 +48,19 @@ test's `main()` gets a working stack, enabled traps, and the same 256-entry
 trap table and pass/fail halt convention every `validation/asm/` test uses
 by hand.
 
+`crt0_interrupts.s` is an alternative startup file for programs that
+take interrupts: it also handles register-window overflow/underflow and
+sends every interrupt trap to `ajit_generic_interrupt_handler()`.
+Select it with `CRT0=crt0_interrupts.s compile_c.sh ...`, or a
+`STARTUP = crt0_interrupts.s` line in a test's `.vprj`.
+
+`include/` holds header-only bare-metal routines for the peripheral
+devices (`ajit_access_routines.h`, `ajit_mt_irc.h`, `ajit_ipi.h`,
+`device_addresses.h`), with the same names and signatures as AJIT's own
+access routines, plus a minimal `stdint.h` (GCC 4.4.3 does not provide
+one for a freestanding build). `compile_c.sh` puts it on the include
+path. See the C Programs page of the documentation.
+
 ## Platform support
 
 These are **32-bit x86 (i386) Linux binaries**. They run fine on a 64-bit

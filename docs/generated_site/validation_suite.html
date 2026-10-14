@@ -1703,6 +1703,16 @@ never edited directly, and doesn't need to be committed to git.</p>
 <p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
 the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
 [mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
+<p>Two optional lines, used by the device tests:</p>
+<ul>
+<li><code>STARTUP = crt0_interrupts.s</code>, before <code>RESULTS</code>, links that startup
+  file instead of <code>compiler/crt0.s</code> (C tests only).</li>
+<li><code>serial_out = "text"</code>, among the results, checks the exact bytes the
+  program sent out through the Serial device (C-style escapes such as
+  <code>\n</code> and <code>\x41</code> work). Only configurations with devices check it.</li>
+</ul>
+<p>A test's received serial input, if it needs any, is a file named after
+the test with the extension <code>.serial_in</code>, next to its <code>.hex</code>.</p>
 <hr />
 <h2 id="the-validation-script">The validation script<a class="headerlink" href="#the-validation-script" title="Permanent link">&para;</a></h2>
 <p>A two-phase pipeline, so the existing suite can be run without a
@@ -1905,9 +1915,13 @@ components, each living in its own folder:</p>
     The MMU: register access, page-table walks, TLB hit/miss/fill,
     faults, probe and flush, bypass. See <a href="model_components.html#mmu">Model
     Components</a>.</li>
-<li><strong><code>validation/C/devices/</code></strong> (planned)<br />
-    The timer, interrupt controller, and serial device. See
-    <a href="peripheral_devices.html">Peripheral Devices</a>.</li>
+<li><strong><code>validation/C/devices/</code></strong><br />
+    The timer, interrupt controller (including interrupt delivery to a
+    real trap handler, priority, masking, and IPIs), and serial device
+    (output, polled and interrupt-driven input). Needs
+    <code>core_mmu_devices</code>. See <a href="peripheral_devices.html">Peripheral Devices</a>.
+    On the sitar_model these tests need more cycles than the default
+    limit, so run them with <code>--max-cycles 5000000</code>.</li>
 <li><strong><code>validation/C/caches/</code></strong> (planned)<br />
     The L1 instruction and data caches.</li>
 </ul>

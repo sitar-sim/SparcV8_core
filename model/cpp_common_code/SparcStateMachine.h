@@ -25,6 +25,7 @@
 #include "MemoryInterfaces.h"
 #include "Opcodes.h"
 #include "DebugHooks.h"
+#include <functional>
 
 class SparcStateMachine
 {
@@ -37,6 +38,13 @@ class SparcStateMachine
 
 		bool          halted;          //true once the core has entered error_mode
 		unsigned long cyclesExecuted;
+
+		//Optional. Called once after every cycle, for a configuration's
+		//other clocked blocks (e.g. peripheral devices ticking, and their
+		//interrupt level being copied into the core for the next cycle).
+		//Unset by default, so configurations without such blocks run
+		//exactly as before.
+		std::function<void()> afterEachCycle;
 
 	private:
 		SparcCore& core;

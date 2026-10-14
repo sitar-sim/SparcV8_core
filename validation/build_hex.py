@@ -44,6 +44,12 @@ def build_one(vprj_path, env):
     if ext not in BUILD_SCRIPT_FOR_EXT:
         return False, "ERROR: don't know how to build a %r source (%s)" % (ext, source)
 
+    startup = vprj.parse_startup(vprj_path)
+    if startup:
+        if ext != '.c':
+            return False, "ERROR: STARTUP only applies to C tests (%s)" % source
+        env = dict(env, CRT0=startup)
+
     asm = subprocess.run([BUILD_SCRIPT_FOR_EXT[ext], source_path], capture_output=True, text=True, env=env)
     return asm.returncode == 0, asm.stdout + asm.stderr
 

@@ -12,6 +12,14 @@ REPO_ROOT     = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 TOOLCHAIN_BIN = os.path.join(REPO_ROOT, 'compiler', 'toolchain', 'bin')
 
 SOURCES_LINE_RE = re.compile(r'^SOURCES\s*=\s*(\S+)')
+# Optional: a startup file to link instead of compiler/crt0.s (C tests
+# only), e.g. `STARTUP = crt0_interrupts.s`.
+STARTUP_LINE_RE = re.compile(r'^STARTUP\s*=\s*(\S+)')
+# Optional RESULTS line: the exact bytes the program must have sent out
+# through the Serial device, as a double-quoted string with C-style
+# escapes (\n, \t, \\, \", \xHH). Only configurations with devices
+# check it.
+SERIAL_OUT_LINE_RE = re.compile(r'^serial_out\s*=\s*"((?:[^"\\]|\\.)*)"\s*$')
 MEM_LINE_RE     = re.compile(r'^m\[\s*([0-9A-Fa-fx]+)\s*\]\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
 REG_LINE_RE     = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
 ASI_LINE_RE     = re.compile(r'^asi\s*=', re.IGNORECASE)
@@ -24,6 +32,38 @@ def parse_hexlike(s):
     if s.lower().startswith('0x'):
         s = s[2:]
     return int(s, 16)
+
+
+def parse_startup(path):
+    """Returns the STARTUP file named in a .vprj, or None."""
+    with open(path) as f:
+        for line in f:
+            m = STARTUP_LINE_RE.match(line)
+            if m:
+                return m.group(1)
+    return None
+
+
+def decode_serial_string(s):
+    """C-style escapes in a serial_out string -> bytes."""
+    out = bytearray()
+    i = 0
+    simple = {'n': 10, 't': 9, 'r': 13, '0': 0, '\\': 92, '"': 34}
+    while i < len(s):
+        c = s[i]
+        if c == '\\' and i + 1 < len(s):
+            e = s[i + 1]
+            if e == 'x' and i + 3 < len(s):
+                out.append(int(s[i + 2:i + 4], 16))
+                i += 4
+                continue
+            if e in simple:
+                out.append(simple[e])
+                i += 2
+                continue
+        out.extend(c.encode('latin-1'))
+        i += 1
+    return bytes(out)
 
 
 def parse_vprj(path):
@@ -51,6 +91,11 @@ def parse_vprj(path):
         if not line or ASI_LINE_RE.match(line):
             continue  # blank, or an asi=... line (ignored: MemCore is a
                       # single flat address space, with no ASI distinction)
+        m = SERIAL_OUT_LINE_RE.match(line)
+        if m:
+            data = decode_serial_string(m.group(1))
+            normalized.append('SERIAL_OUT %s' % (data.hex() if data else '-'))
+            continue
         m = MEM_LINE_RE.match(line)
         if m:
             addr  = parse_hexlike(m.group(1))

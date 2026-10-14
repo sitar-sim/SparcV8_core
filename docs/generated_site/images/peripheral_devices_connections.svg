@@ -75,8 +75,8 @@
 
   <!-- ===== IRC inputs (reserved / optional) ===== -->
   <line class="wire dash" x1="500" y1="450" x2="500" y2="350"/>
-  <text class="sig" x="500" y="472">ipi_int_in</text>
-  <text class="note" x="500" y="490">(reserved)</text>
+  <text class="sig" x="500" y="472">IPI</text>
+  <text class="note" x="500" y="490">(internal)</text>
 
   <line class="wire dash" x1="620" y1="450" x2="620" y2="350"/>
   <text class="sig" x="620" y="472">env_int_in</text>
@@ -87,7 +87,7 @@
   <line class="wire" x1="630" y1="270" x2="630" y2="110"/>
   <line x1="621" y1="244" x2="639" y2="226" stroke="#000000" stroke-width="2"/>
   <text x="645" y="241" font-size="14">4</text>
-  <text x="642" y="150" font-size="16">interrupt_level</text>
+  <text x="642" y="150" font-size="16">interrupt_level per thread</text>
 
   <text x="555" y="545" text-anchor="middle" font-size="20" fill="#555555">Programmer's view of the devices.</text>
 </svg>

@@ -90,8 +90,10 @@ void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse&
 			                  response.readWord0, response.readWord1, response.mae);
 			break;
 		case MemAccessType::LOAD:
+			//A mask of 0 (a requester that does not say) reads both words.
 			handleReadAccess(request.address, request.asi, /*isInstructionFetch=*/false, /*readSecondWord=*/true,
-			                  response.readWord0, response.readWord1, response.mae);
+			                  response.readWord0, response.readWord1, response.mae,
+			                  request.byteMask ? (uint8_t) request.byteMask : (uint8_t) 0xFF);
 			break;
 		case MemAccessType::STORE:
 			handleWriteAccess(request.address, request.word0, request.word1, request.byteMask, request.asi, response.mae);
@@ -111,14 +113,14 @@ void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse&
 }
 
 void MmuCore::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
-                            uint32_t& readWord0, uint32_t& readWord1, bool& mae)
+                            uint32_t& readWord0, uint32_t& readWord1, bool& mae, uint8_t loadWordMask)
 {
 	mae = false;
 
 	if (!mmuIsPresent)
 	{
 		stats.bypassAccesses++;
-		if (readSecondWord) readPhysicalDoubleword(address, readWord0, readWord1, mae);
+		if (readSecondWord) readPhysicalDoubleword(address, readWord0, readWord1, mae, loadWordMask);
 		else readWord0 = readPhysicalWord(address, mae);
 		return;
 	}
@@ -161,8 +163,10 @@ void MmuCore::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructio
 	{
 		stats.bypassAccesses++;
 		log("MMU_BYPASS", "addr=" + std::to_string(address));
-		readWord0 = readPhysicalWord(address, mae);
-		if (readSecondWord) { bool mae1 = false; readWord1 = readPhysicalWord(address + 4, mae1); mae = mae || mae1; }
+		//One doubleword transaction for a LOAD, the same shape as the
+		//translated path below and as Mmu.sitar's.
+		if (readSecondWord) readPhysicalDoubleword(address, readWord0, readWord1, mae, loadWordMask);
+		else readWord0 = readPhysicalWord(address, mae);
 		return;
 	}
 
@@ -173,7 +177,7 @@ void MmuCore::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructio
 	uint64_t physAddr = 0; bool cacheable = false; uint8_t acc = 0;
 	bool ok = translate(address, asi, isInstructionFetch, /*isWrite=*/false, /*isAtomic=*/false, physAddr, cacheable, acc);
 	if (!ok) { mae = !noFaultSuppressesTrap(asi); return; }
-	if (readSecondWord) readPhysicalDoubleword(physAddr, readWord0, readWord1, mae);
+	if (readSecondWord) readPhysicalDoubleword(physAddr, readWord0, readWord1, mae, loadWordMask);
 	else readWord0 = readPhysicalWord(physAddr, mae);
 }
 
@@ -616,7 +620,12 @@ void MmuCore::writePageTableEntryToMemory(uint64_t physAddr, uint32_t value)
 uint32_t MmuCore::readPhysicalWord(uint64_t physAddr, bool& mae)
 {
 	uint64_t alignedAddr = physAddr & ~0x7ULL;
-	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, 0};
+	//The READ byte mask names the word actually wanted (low nibble =
+	//word0 at alignedAddr, high nibble = word1), so a device register
+	//with a read side effect is only touched when it is really read.
+	//Plain memory ignores it. Ref MemoryInterfaces.h.
+	uint8_t wordMask = ((physAddr & 0x4u) == 0) ? 0x0F : 0xF0;
+	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, wordMask};
 	PhysicalMemoryResponse response{false, 0, false};
 	downstream_.access(request, response);
 	mae = response.mae;
@@ -625,10 +634,10 @@ uint32_t MmuCore::readPhysicalWord(uint64_t physAddr, bool& mae)
 	return ((physAddr & 0x4u) == 0) ? word0 : word1;
 }
 
-void MmuCore::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae)
+void MmuCore::readPhysicalDoubleword(uint64_t physAddr, uint32_t& word0, uint32_t& word1, bool& mae, uint8_t byteMask)
 {
 	uint64_t alignedAddr = physAddr & ~0x7ULL;
-	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, 0};
+	PhysicalMemoryRequest request{true, PhysicalAccessType::READ, /*lock=*/false, alignedAddr, 0, byteMask};
 	PhysicalMemoryResponse response{false, 0, false};
 	downstream_.access(request, response);
 	mae = response.mae;
@@ -663,7 +672,8 @@ void MmuCore::atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, u
 	//Notes_multi_core_modeling.md's "Atomic load-store in a multi-core
 	//model" section: mimic AJIT's global-lock-by-core-id, not modeled
 	//yet, `lock` reserved for it).
-	PhysicalMemoryRequest readRequest{true, PhysicalAccessType::READ, /*lock=*/true, physAddr, 0, 0};
+	//The locked read names the same bytes the write will modify.
+	PhysicalMemoryRequest readRequest{true, PhysicalAccessType::READ, /*lock=*/true, physAddr, 0, (uint8_t) byte_mask};
 	PhysicalMemoryResponse readResponse{false, 0, false};
 	downstream_.access(readRequest, readResponse);
 

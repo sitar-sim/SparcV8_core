@@ -34,11 +34,9 @@ class Registers
 
 	//Ancillary
 	uint32_t ASR[32]; //Ancillary State Register
-	//***********************************************
-	//NOTE: in multiprocessor configuration, 
-	//	ASR[31] is hardwired to store core ID and
-	//	ASR[30] is hardwired to store processor ID 
-	//***********************************************
+	//NOTE: ASR[29] reads as the hardwired core/thread ID word, Ref
+	//SparcCore::coreThreadIdWord(). AJIT uses ASR[30]/ASR[31] for a
+	//64-bit cycle counter, not modeled yet.
 	
 	
 	//Floating Point (FU) registers

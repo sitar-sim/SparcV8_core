@@ -1164,6 +1164,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="core_mmu">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_mmu_devices
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1440,6 +1457,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="core_mmu">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#core_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_mmu_devices
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1653,11 +1687,62 @@ configuration that uses it.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="core_mmu_devices">core_mmu_devices<a class="headerlink" href="#core_mmu_devices" title="Permanent link">&para;</a></h3>
+<p>Every <code>core_mmu</code> design unit above appears here too, except that this
+configuration's own <code>System</code> and <code>Core</code> replace <code>core_mmu</code>'s, and three
+more join them.</p>
+<table>
+<thead>
+<tr>
+<th>Design unit</th>
+<th>File</th>
+<th>Scope</th>
+<th>Embedded C++ class</th>
+<th>Parent</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_mmu_devices</td>
+<td>None</td>
+<td><code>Top</code></td>
+<td>Assembles <code>Core</code>, <code>SystemBridge</code>, <code>PhysicalMainMemory</code>, and <code>PeripheralDevices</code>, connected by seven nets. Owns the consolidated latency-knob block for this configuration.</td>
+</tr>
+<tr>
+<td><strong>Core</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
+<td>core_mmu_devices</td>
+<td>None</td>
+<td><code>System</code> (1 instance: <code>core</code>)</td>
+<td><code>core_mmu</code>'s <code>Core</code>, plus an inport for the interrupt level and a branch that polls it every cycle and drives the core's IRL pins.</td>
+</tr>
+<tr>
+<td><strong>SystemBridge</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar"><code>SystemBridge.sitar</code></a></td>
+<td>common</td>
+<td>None (uses <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h"><code>SystemAddressMap.h</code></a>)</td>
+<td><code>System</code> (1 instance: <code>bridge</code>)</td>
+<td>The physical bus below the MMU. Routes each request to main memory or to the devices by address, one transaction at a time.</td>
+</tr>
+<tr>
+<td><strong>PeripheralDevices</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar"><code>PeripheralDevices.sitar</code></a></td>
+<td>common</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h"><code>PeripheralDevicesCore</code></a></td>
+<td><code>System</code> (1 instance: <code>devices</code>)</td>
+<td>The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p><strong>Module vs. procedure</strong><br />
-<code>Top</code>, <code>System</code>, <code>Core</code>, and <code>PhysicalMainMemory</code> are <code>module</code>s.
+<code>Top</code>, <code>System</code>, <code>Core</code>, <code>PhysicalMainMemory</code>, <code>SystemBridge</code>, and
+    <code>PeripheralDevices</code> are <code>module</code>s.
     Every other row above is a <code>procedure</code>. See the sibling <code>sitar</code>
     repo's own documentation for the general module/procedure
     distinction, and <code>System.sitar</code>'s own header comment for how it

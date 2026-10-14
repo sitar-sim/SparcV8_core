@@ -16,6 +16,11 @@ arrays, structs, global variables), rather than one instruction at a time
 - `checksum` -- byte-array checksum
 - `dot_product` -- integer vector dot product
 
+Two component suites live alongside them, each needing a configuration
+with that component: `mmu/` (the MMU, `core_mmu` and up) and `devices/`
+(Timer, Serial, Interrupt Controller, `core_mmu_devices` and up, see
+`devices/README.md`).
+
 Write an ordinary, freestanding `main()` (no libc, see
 `docs/writing_and_running_c_programs.md`). Each test computes something,
 compares it against a golden value computed once on the host machine and

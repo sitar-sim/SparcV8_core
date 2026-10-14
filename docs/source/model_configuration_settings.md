@@ -53,7 +53,8 @@ parameters apply to both.
 ## MMU (`core_mmu` only)
 
 These settings apply only to configurations that include an MMU,
-currently `core_mmu` (and, once built, `core_mmu_devices`).
+currently `core_mmu` and `core_mmu_devices`. In `core_mmu_devices`
+each knob lives in that configuration's own [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar).
 
 | Parameter | Where to modify | Type | Compile time or runtime | Description |
 |---|---|---|---|---|
@@ -73,6 +74,16 @@ currently `core_mmu` (and, once built, `core_mmu_devices`).
 | Parameter | Where to modify | Type | Compile time or runtime | Description |
 |---|---|---|---|---|
 | **`mainMemory.delay`** | core_only: [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar)<br>core_mmu: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar) | Timing | Runtime | The memory's own service time, shared by every requester. `VirtualMainMemory.delay` in `core_only`, `PhysicalMainMemory.delay` in `core_mmu`.<br>**Range:** non-negative int. |
+
+## Bus and devices (`core_mmu_devices`)
+
+| Parameter | Where to modify | Type | Compile time or runtime | Description |
+|---|---|---|---|---|
+| **`bridge.delay`** | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) | Timing | Runtime | Cycles the bridge adds to every physical transaction (memory and device alike), on top of the compulsory 1 cycle for each net crossed.<br>**Range:** non-negative int. |
+| **`devices.registerAccessDelay`** | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) | Timing | Runtime | Cycles added to every device register access.<br>**Range:** non-negative int. |
+| **`timerTickDivider`** | sitar_model: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) (`devices.devices.timerTickDivider`)<br>both models: `--timer-tick-divider <n>` on the command line | Structural | Runtime | Core cycles per timer tick (the timer's `clock_in`). In the cpp_model a "cycle" is one instruction.<br>**Range:** positive int, default 1. |
+| **`txTicksPerByte`** | sitar_model: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) (`devices.devices.serial.txTicksPerByte`) | Timing | Runtime | Cycles a transmitted byte keeps the Serial device's `Tx_full` set. 0 sends a byte within the store itself.<br>**Range:** non-negative int, default 1. |
+| **Serial I/O**<br>(`--serial-in`, `--serial-out`, `--serial-pty`) | command line, both models | Structural | Runtime | Where received bytes come from and transmitted bytes go. See the [Serial Device](peripheral_devices_serial_device.md#where-the-bytes-go-in-the-simulator) page. |
 
 See [Performance Modeling](performance_modeling.md) for how to confirm a
 change to any of the timing knobs above actually took effect, and for

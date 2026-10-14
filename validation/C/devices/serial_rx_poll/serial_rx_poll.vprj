@@ -1,0 +1,7 @@
+SOURCES = serial_rx_poll.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000007
+serial_out = "SPARC"

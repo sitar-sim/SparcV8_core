@@ -1,77 +1,110 @@
 # Interrupt Controller
 
-A per-core Interrupt Controller (IRC). Each core has its own instance:
-its own control register, its own state, and its own `interrupt_level`
-output pin to that core. It has four interrupt input pins, and
-communicates with the core over the shared address/data bus through
-its control register, accessed with word load/stores only. See
+A single, shared Interrupt Controller (IRC) routes the system's
+interrupt sources to the hardware threads of every core. It is AJIT's
+multi-thread interrupt controller. It has two parts:
+
+- one **slot** per hardware thread, each with its own control
+  register, its own state, and its own `interrupt_level` output to that
+  thread;
+- an **inter-processor interrupt (IPI)** block, which lets any thread
+  interrupt any other (or itself).
+
+All its registers are accessed with word loads and stores. See
 [Peripheral Devices](peripheral_devices.md) for the connection diagram
 and the full address map.
 
 ## Interrupt sources
 
-| Pin | Source | IRL | Status here |
-|---|---|---|---|
-| `timer_int_out` | [Timer](peripheral_devices_timer.md) | 10 | Modeled |
-| `ipi_int_in` | A future multi-core orchestrator | 11 | Reserved, unconnected |
-| `serial_int_out` | [Serial Device](peripheral_devices_serial_device.md) | 12 | Modeled |
-| `env_int_in` | An external interrupt source, not modeled by any device here | 14 | Reserved, may be tied to zero or connected to a future external-interrupt-source model |
-
-## Control register
-
-The mask field's bit positions match each source's own IRL, the same
-convention used to encode the active-interrupt vector: masking a
-source is a plain bitwise AND between the two.
-
-| Bits | Field | Description |
+| Source | IRL | Reaches |
 |---|---|---|
-| `[0]` | Enable | Writing 1 enables the IRC. Writing 0 disables it and clears `interrupt_level`. |
-| `[10]` | Timer mask | If set, the Timer's interrupt is recognized. |
-| `[11]` | IPI mask | Reserved. If set, a pending IPI is recognized (unused until a multi-core orchestrator exists). |
-| `[12]` | Serial mask | If set, the Serial Device's interrupt is recognized. |
-| `[14]` | Env mask | If set, the Env pin's interrupt is recognized. |
-| all other bits | Reserved | Unused. |
+| [Timer](peripheral_devices_timer.md) | 10 | every slot (each slot's mask decides) |
+| IPI | 11 | the destination slot only |
+| [Serial Device](peripheral_devices_serial_device.md) | 12 | every slot (each slot's mask decides) |
+| External (`env_int_in`) | 14 | every slot (each slot's mask decides) |
 
-On a register read, the format above (excluding bit 0) is echoed back
-as the currently active, unmasked interrupt sources, not the mask
-itself, letting software distinguish "masked but idle" from "active."
+The external input is reserved for a source outside this device set,
+such as an accelerator. It is not driven by any device here.
 
-## Priority
+## Slots
 
-When more than one unmasked source is active at once, the IRC picks
-the lowest IRL number: **Timer (10) > IPI (11) > Serial (12) > Env
-(14)**.
+There are 8 slots, enough for 4 cores with 2 hardware threads each. The
+slot for core `c`, thread `t` is number `2c + t`, and its control
+register is at `0xFFFF3000 + 4*(2c + t)`. A program finds its own core
+and thread with `rd %asr29`, which reads `(core << 8) | thread` (in C,
+`ajit_get_core_and_thread_id()`). The single-core configurations here
+are core 0, thread 0, so they use slot 0 at `0xFFFF3000`.
 
-## Behavior
+### Control register
+
+| Bits | Field | Access | Description |
+|---|---|---|---|
+| `[0]` | Enable | read/write | 1 enables this slot. Writing 0 disables it and drops its `interrupt_level`. |
+| `[15:1]` | Level mask | read/write | Bit `i` set: interrupt level `i` is delivered to this thread. |
+| `[30:16]` | Active sources | read only | Bit `15+i` is 1 while a source at level `i` is active, whether or not it is masked. |
+| `[31]` | Interrupting | read only | 1 while the slot is in `IRC_INTERRUPTING`. |
+
+The mask bit positions equal each source's level, so masking a source
+is a bitwise AND. Writes to the read-only bits are ignored. The active
+sources field lets software see a source that is pending but masked,
+and is readable even while the slot is disabled.
+
+### Priority
+
+When more than one enabled level is active at once, the lowest level
+number wins: **Timer (10) > IPI (11) > Serial (12) > External (14)**.
+
+### Behavior
+
+Each slot runs its own state machine:
 
 - **`IRC_DISABLED`**  
-    The reset state. `interrupt_level` is 0. A write of the enable bit
-    moves to `IRC_ENABLED`.
+    The reset state. `interrupt_level` is 0. A write that sets the
+    enable bit moves to `IRC_ENABLED`.
 - **`IRC_ENABLED`**  
-    Watches the four input pins. As soon as any unmasked source is
-    active, `interrupt_level` is set to that source's IRL (the
-    highest-priority one, if more than one is active at once), and the
-    IRC moves to `IRC_INTERRUPTING`.
+    Watches the sources. As soon as any level enabled in the mask is
+    active, `interrupt_level` is set to that level (the
+    highest-priority one, if more than one), and the slot moves to
+    `IRC_INTERRUPTING`.
 - **`IRC_INTERRUPTING`**  
-    `interrupt_level` stays asserted until the CPU disables the IRC.
+    `interrupt_level` stays asserted, even if the source goes away,
+    until software clears the enable bit.
 
-A write that clears the enable bit, from any state, immediately clears
-`interrupt_level` and moves to `IRC_DISABLED`.
+A write that clears the enable bit, from any state, immediately drops
+`interrupt_level` and moves to `IRC_DISABLED`. A write that sets the
+enable bit while already enabled or interrupting only updates the mask.
 
 <img src="images/irc_fsm.svg" alt="Interrupt Controller state machine" title="Interrupt Controller state machine">
 
-## A future multi-core extension
+## Handling an interrupt
 
-This page describes a per-core IRC, sufficient on its own for a
-single-core system: the `ipi_int_in` pin is simply never driven, and
-the IRC works exactly as described above.
+The usual sequence, which AJIT's own bare-metal routines follow (and
+which `compiler/include/ajit_mt_irc.h` implements, see [C
+Programs](writing_and_running_c_programs.md)):
 
-A later multi-core extension is expected to add a separate, single
-shared orchestrator instance (not modeled here), responsible for
-chip-level interrupt mapping, masking, and control, and for the
-inter-processor-interrupt (IPI) mechanism itself. Its output would
-connect into each per-core IRC's `ipi_int_in` pin, the same way the Timer
-and Serial Device connect today, not replace or wrap the per-core IRC
-in any way. When that shared orchestrator is absent or disabled, each
-core's IRC continues to operate entirely on its own, exactly as
-described on this page.
+1. The interrupt trap for level `L` is taken.
+2. The handler disables its own slot, which drops `interrupt_level`.
+3. It clears the source (for example, disables the timer, or reads the
+   Serial device's Rx register).
+4. It enables its slot again. If another enabled source is still
+   active, the slot delivers it next.
+
+## Inter-processor interrupts (IPI)
+
+The IPI block is 19 words at `0xFFFF3080`:
+
+| Offset | Register | Description |
+|---|---|---|
+| `0x00` | IPI mask | Bit `s`: IPIs to slot `s` are enabled. |
+| `0x04` | IPI value | Bit `s`: an IPI is pending for slot `s`. |
+| `0x08` to `0x47` | Messages | 8 bytes per destination slot (slot `s` at `0x08 + 8s`), for software. |
+| `0x48` | Lock | A word for software to use as a lock. |
+
+Slot `s` sees an IPI (level 11) while bit `s` is set in both the mask
+and the value. To interrupt another thread, a thread writes a message
+for it, then sets its bit in the value register (and in the mask, if
+not already set). The interrupted thread reads its message and clears
+its value bit. Locking around these steps, with the lock word or
+otherwise, is up to software, exactly as in AJIT. The routines in
+`compiler/include/ajit_ipi.h` (`__ajit_set_ipi_interrupt__()` and
+friends) do the register work.

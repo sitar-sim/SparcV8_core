@@ -15,8 +15,10 @@ This project provides several system configurations.
     Adds a Memory Management Unit (MMU) between the core and main
     memory. Every processor-generated virtual address is translated to
     a physical address before it reaches main memory.
-- **`core_mmu_devices`** (planned)  
-    Adds a timer, an interrupt controller, and a serial device.
+- **`core_mmu_devices`**  
+    Adds a timer, an interrupt controller, and a serial device, as one
+    shared set on the memory side of the MMU, reached by physical
+    address like main memory.
 - **`core_l1cache_mmu_devices`** (planned)  
     Adds split instruction and data L1 caches between the core and the
     MMU.
@@ -40,6 +42,8 @@ summarized here:
 | core_only | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_only/sitar_model/) | The core plus main memory. No MMU, devices, or caches. |
 | core_mmu | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/cpp_model/) | Adds an MMU between the core and main memory. |
 | core_mmu | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/sitar_model/) | Adds an MMU between the core and main memory. |
+| core_mmu_devices | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/cpp_model/) | Adds the peripheral devices below the MMU. |
+| core_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/) | Adds the peripheral devices below the MMU. |
 
 For each configuration, both the cpp and sitar models include the same
 components: `core_mmu`'s MMU, for example, is present in both its
@@ -135,11 +139,60 @@ core.responseIn  <-responseNet--  mainMemory.responseOut
 
 ---
 
-## Configuration: core_mmu_devices (planned)
+### Configuration: core_mmu_devices
 
-Adds a timer, an interrupt controller, and a serial device as further
-sibling submodules of `System`, each reached over its own net pair
-through a shared bus. See [Peripheral Devices](peripheral_devices.md).
+#### Structure diagram
+
+<img src="images/core_mmu_devices_structure.svg" alt="core_mmu_devices structure diagram" title="core_mmu_devices structure diagram">
+
+The core and its MMU are unchanged from `core_mmu`. Below the MMU sits
+a bridge, which reads the physical address of each access and sends it
+either to main memory or to the peripheral devices (Timer, Serial,
+Interrupt Controller). The devices are one shared set on the memory
+side, not part of the core, the same way the AJIT processor organizes
+them. That is what lets several cores share them later.
+
+Every arrow between modules is a net, and every net crossing costs at
+least one cycle. A memory access crosses four nets here (core to
+bridge to memory, and back), two more than in `core_mmu`. The
+Interrupt Controller sends its interrupt level to the core over its own
+net, as a level: a token arrives only when the level changes, and the
+core polls that net once per cycle. An interrupt therefore reaches the
+core one cycle after the Interrupt Controller raises it.
+
+The devices' behavior is the same C++ class in both models
+(`PeripheralDevicesCore`). The cpp_model ticks it once after every core
+cycle. The sitar_model's `PeripheralDevices` module ticks it once per
+simulated cycle. See [Peripheral Devices](peripheral_devices.md) for
+what the devices do.
+
+#### Model description
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/Core.sitar">Core</a> (module)
+      |    |
+      |    +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      |    |
+      |    +-- mmu : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
+      |
+      +-- bridge : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar">SystemBridge</a> (module)
+      |
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      |
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+
+core.requestOut          --coreRequestNet-->     bridge.coreRequestIn
+core.responseIn          <-coreResponseNet--     bridge.coreResponseOut
+bridge.memoryRequestOut  --memoryRequestNet-->   mainMemory.requestIn
+bridge.memoryResponseIn  <-memoryResponseNet--   mainMemory.responseOut
+bridge.devicesRequestOut --devicesRequestNet-->  devices.requestIn
+bridge.devicesResponseIn <-devicesResponseNet--  devices.responseOut
+devices.interruptLevelOut --interruptLevelNet--> core.interruptLevelIn
+</pre>
 
 ---
 

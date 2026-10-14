@@ -23,7 +23,7 @@
   <!-- DISABLED -> ENABLED -->
   <path d="M 225,115 C 320,105 380,105 425,113" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow)"/>
   <text x="325" y="90" text-anchor="middle" font-size="12">Timer_en==1 /</text>
-  <text x="325" y="105" text-anchor="middle" font-size="12">count=max_count, INT=0</text>
+  <text x="325" y="105" text-anchor="middle" font-size="12">count=0, INT=0</text>
 
   <!-- ENABLED -> DISABLED -->
   <path d="M 425,140 C 380,155 320,155 225,142" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow)"/>
@@ -31,11 +31,11 @@
 
   <!-- ENABLED self-loop (tick, count>0) -->
   <path d="M 480,80 C 470,30 570,30 560,80" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow)"/>
-  <text x="520" y="35" text-anchor="middle" font-size="12">tick, count&gt;0 / count=count-1</text>
+  <text x="520" y="35" text-anchor="middle" font-size="12">tick, count+1&lt;max_count / count=count+1</text>
 
   <!-- ENABLED -> INTERRUPTING -->
   <path d="M 528,165 C 528,220 528,245 525,283" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow)"/>
-  <text x="595" y="215" text-anchor="middle" font-size="12">tick, count==0 /</text>
+  <text x="595" y="215" text-anchor="middle" font-size="12">tick, count+1&gt;=max_count /</text>
   <text x="595" y="230" text-anchor="middle" font-size="12">INT=1</text>
 
   <!-- INTERRUPTING -> DISABLED -->

@@ -1186,6 +1186,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#where-the-bytes-go-in-the-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the bytes go in the simulator
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1541,6 +1552,17 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#where-the-bytes-go-in-the-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where the bytes go in the simulator
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1586,41 +1608,35 @@ here.</p>
 <tr>
 <td>Control</td>
 <td>32-bit</td>
-<td>word only (<code>ld</code>/<code>st</code>)</td>
+<td>word (<code>ld</code>/<code>st</code>)</td>
 </tr>
 <tr>
 <td>Tx</td>
 <td>8-bit</td>
-<td>byte only (<code>ldub</code>/<code>stub</code>)</td>
+<td>byte store (<code>stb</code>), write only</td>
 </tr>
 <tr>
 <td>Rx</td>
 <td>8-bit</td>
-<td>byte only (<code>ldub</code>/<code>stub</code>)</td>
+<td>byte load (<code>ldub</code>), read only</td>
 </tr>
 <tr>
 <td>Baud limit / baud control</td>
 <td>32-bit</td>
-<td>word only</td>
+<td>word</td>
 </tr>
 <tr>
 <td>Baud frequency</td>
 <td>32-bit</td>
-<td>word only, shares Tx's address (see note below)</td>
+<td>word</td>
 </tr>
 </tbody>
 </table>
 <p>See <a href="peripheral_devices.html#device-address-map">Peripheral Devices</a> for
 the address of each register.</p>
-<div class="admonition warning">
-<p class="admonition-title">Access width, not just address, must be respected</p>
-<p>The control register must be accessed with word load/stores. Tx
-and Rx must be accessed with byte load/stores. This is not just a
-style convention: the same address is a byte access to Tx or a
-word access to the baud-frequency register, discriminated purely
-by access width. Using the wrong width does not just fail, it
-silently targets a different register.</p>
-</div>
+<p>Each register has its own address. Tx and Rx are byte registers: a
+byte store to Tx's address sends that byte, and a byte load from Rx's
+address returns the received byte.</p>
 <h3 id="control-register-bit-fields">Control register bit-fields<a class="headerlink" href="#control-register-bit-fields" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -1659,7 +1675,7 @@ silently targets a different register.</p>
 <tr>
 <td><code>[5]</code></td>
 <td><code>UART_reset</code></td>
-<td>Resets the UART. Present only in the newest of the source references consulted; three older ones mark this bit unused, so treat it as unconfirmed until cross-checked further.</td>
+<td>Writing 1 resets both state machines to their reset state (a byte still being transmitted is dropped). Always reads 0. Present only in the newest of the AJIT references consulted, see the deviations list on the <a href="peripheral_devices.html#deviations-from-the-ajit-processor">Peripheral Devices</a> page.</td>
 </tr>
 </tbody>
 </table>
@@ -1671,6 +1687,10 @@ baud rate and the clock frequency:</p>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>baud_frequency = (16 x baud_rate) / gcd
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>baud_limit     = (clock_frequency / gcd) - baud_frequency
 </span></code></pre></div>
+<p>The model stores both registers and reads them back, but they do not
+set its transmit timing. How long a byte takes to transmit is the
+model's own <code>txTicksPerByte</code> setting (default 1 cycle, see <a href="model_configuration_settings.html">Model
+Configuration Settings</a>).</p>
 <h2 id="behavior">Behavior<a class="headerlink" href="#behavior" title="Permanent link">&para;</a></h2>
 <p>The device is modeled by two independent state machines, transmit and
 receive, sharing the one control register above.</p>
@@ -1684,9 +1704,11 @@ receive, sharing the one control register above.</p>
     device moves to <code>TX_TRANSMITTING</code>.</li>
 <li><strong><code>TX_TRANSMITTING</code></strong><br />
     Once the byte finishes transmitting, <code>Tx_full</code> is cleared and the
-    device returns to <code>TX_ENABLED</code>.</li>
+    device returns to <code>TX_ENABLED</code>. A Tx write while still transmitting
+    is dropped.</li>
 </ul>
-<p>A write of <code>Tx_en=0</code> from any state returns to <code>TX_DISABLED</code>.</p>
+<p>A write of <code>Tx_en=0</code> from any state returns to <code>TX_DISABLED</code>. If a byte
+is still being transmitted, it is sent first.</p>
 <p>To send a byte: enable the transmitter, write the byte to the Tx
 register, then poll <code>Tx_full</code> until it clears before writing the next
 one (or disable the transmitter).</p>
@@ -1705,7 +1727,8 @@ one (or disable the transmitter).</p>
     are cleared and the device returns to <code>RX_ENABLED</code>.</li>
 </ul>
 <p>A write of <code>Rx_en=0</code> from any state clears <code>Rx_full</code> and the
-interrupt, and returns to <code>RX_DISABLED</code>.</p>
+interrupt, and returns to <code>RX_DISABLED</code>. While the receiver is disabled
+or still holds an unread byte, incoming bytes wait, they are not lost.</p>
 <p>The receiver supports two usage modes, selected by <code>Rx_interrupt_enable</code>:</p>
 <ul>
 <li><strong>Polling mode</strong> (<code>Rx_interrupt_enable=0</code>): enable the receiver,
@@ -1716,6 +1739,36 @@ interrupt, and returns to <code>RX_DISABLED</code>.</p>
   receiver, or leave it enabled for the next byte).</li>
 </ul>
 <p><img src="images/serial_rx_fsm.svg" alt="Serial Rx state machine" title="Serial Rx state machine"></p>
+<h2 id="where-the-bytes-go-in-the-simulator">Where the bytes go in the simulator<a class="headerlink" href="#where-the-bytes-go-in-the-simulator" title="Permanent link">&para;</a></h2>
+<p>The serial device exists so a program can show output and take input.
+By default every transmitted byte is written straight to the
+simulator's own standard output, as the program sends it. Received
+bytes come from an input file. Every configuration with devices accepts:</p>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Effect</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--serial-in &lt;file&gt;</code></td>
+<td>Bytes received on <code>serial_in</code> come from this file, in order.</td>
+</tr>
+<tr>
+<td><code>--serial-out &lt;file&gt;</code></td>
+<td>Transmitted bytes go to this file instead of standard output.</td>
+</tr>
+<tr>
+<td><code>--serial-pty</code></td>
+<td>A pseudo-terminal carries both directions. The simulator prints its device name, attach any terminal program to it.</td>
+</tr>
+</tbody>
+</table>
+<p>Without <code>--serial-in</code>, a file next to the program's <code>.hex</code> with the
+same name and the extension <code>.serial_in</code> is used, if it exists. That is
+how a validation test carries its own input.</p>
 
 
 

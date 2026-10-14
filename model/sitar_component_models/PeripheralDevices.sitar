@@ -1,0 +1,133 @@
+//================================================================
+// module PeripheralDevices
+// Author: Neha Karanjkar
+//
+// The system's single shared set of peripheral devices (Timer, Serial,
+// Interrupt Controller), as a module on the physical bus. Embeds the
+// plain C++ PeripheralDevicesCore unchanged (field `devices`), which
+// already does all device behavior, pin wiring, and doubleword-to-
+// register adaptation, the same class the cpp_model uses (Ref
+// PeripheralDevicesCore.h). This module only adds timing and the
+// connections to the rest of the system. Named PeripheralDevices rather
+// than PeripheralDevicesCore so the module never shares a name with the
+// C++ class it embeds.
+//
+// A module, not a procedure, because the device set is shared by every
+// core, so it has to be reachable over nets (and, once there are several
+// cores, run in parallel with them).
+//
+// Two things happen concurrently, so the behavior is a parallel block:
+//   - the clock: devices.tick() once per cycle in phase 0, then, in
+//     phase 1, the interrupt level for the wired thread slot is pushed
+//     onto interruptLevelOut whenever it changes (a level, not an event:
+//     the receiver keeps the last value it pulled);
+//   - register accesses: one request at a time from requestIn, serviced
+//     through devices.access(), answered on responseOut after
+//     registerAccessDelay extra cycles (default 0).
+//
+// Each net crossing costs at least one cycle, so an interrupt reaches
+// the core one cycle after the device raises it. That is accepted
+// here, the same way device register accesses cost a net round trip.
+//================================================================
+
+module PeripheralDevices
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	#include "PeripheralDevicesCore.h"
+	#include "InterruptControllerCore.h"
+	$
+
+	inport  requestIn         : width TOKEN_REQ_WIDTH
+	outport responseOut       : width TOKEN_RESP_WIDTH
+
+	//The interrupt level (IRL, 0..15, one byte) for interruptSlot.
+	outport interruptLevelOut : width 1
+
+	procedure getRequest   : PullAToken<TOKEN_REQ_WIDTH>
+	procedure sendResponse : PushAToken<TOKEN_RESP_WIDTH>
+
+	init
+	$
+	getRequest.ptr   = &requestIn;
+	sendResponse.ptr = &responseOut;
+	$
+
+	decl
+	$
+	PeripheralDevicesCore devices;
+
+	PhysicalMemoryRequest  request;
+	PhysicalMemoryResponse response;
+
+	//Which Interrupt Controller slot drives interruptLevelOut
+	//(slot = 2*core_id + thread_id). Default: core 0, thread 0.
+	int interruptSlot;
+
+	//Cycles added to every register access, between servicing it and
+	//sending the response. Default 0.
+	uint32_t registerAccessDelay;
+
+	uint8_t   lastSentLevel;
+	token<1>  levelToken;
+	$
+	init
+	$
+	request.valid           = false;
+	request.accessType      = PhysicalAccessType::READ;
+	request.lock            = false;
+	request.physicalAddress = 0;
+	request.data            = 0;
+	request.byteMask        = 0;
+
+	response.valid    = false;
+	response.readData = 0;
+	response.mae      = false;
+
+	interruptSlot       = InterruptControllerCore::slotIndex(0, 0);
+	registerAccessDelay = 0;
+	lastSentLevel       = 0;
+	$
+
+	behavior
+	[
+		//The clock.
+		do
+			wait until (this_phase==0);
+			$ devices.tick(); $;
+
+			wait until (this_phase==1);
+			$
+			uint8_t level = (uint8_t) devices.interruptLevel(interruptSlot);
+			if (level != lastSentLevel)
+			{
+				sitar::pack(levelToken, level);
+				//If the net is still full, the push fails and is simply
+				//retried on the next cycle.
+				if (interruptLevelOut.push(levelToken))
+					lastSentLevel = level;
+			}
+			$;
+		while(1) end do;
+	||
+		//Register accesses.
+		do
+			run getRequest;
+
+			$
+			sitar::unpack(getRequest.tok, request.accessType, request.lock,
+			              request.physicalAddress, request.data, request.byteMask);
+			devices.access(request, response);
+			$;
+
+			if ($registerAccessDelay > 0$) then
+				wait(registerAccessDelay, 0);
+			end if;
+
+			$ sitar::pack(sendResponse.tok, response.readData, response.mae); $;
+			run sendResponse;
+		while(1) end do;
+	]
+	end behavior
+end module

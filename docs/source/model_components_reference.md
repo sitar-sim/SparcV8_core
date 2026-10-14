@@ -55,10 +55,25 @@ configuration that uses it.
 | **PushAToken** (procedure) | [`PushAToken.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar) | common | None | `PhysicalMainMemoryInterface` (1 instance: `sendPhyMemRequest`) and `PhysicalMainMemory` (1 instance: `sendResponse`) | Generic single-token producer, parameterized by width. Retry-pushes one token onto an outport until there's room. |
 | **PhysicalMainMemory** (module) | [`PhysicalMainMemory.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar) | common | [`MainMemory`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemory.h) | `System` (1 instance: `mainMemory`) | Persistent PM-shaped memory model wrapping `MainMemory`. `core_mmu`'s terminal memory node, below the MMU, reached over nets rather than a procedure handshake. |
 
+
+### core_mmu_devices
+
+Every `core_mmu` design unit above appears here too, except that this
+configuration's own `System` and `Core` replace `core_mmu`'s, and three
+more join them.
+
+| Design unit | File | Scope | Embedded C++ class | Parent | Description |
+|---|---|---|---|---|---|
+| **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) | core_mmu_devices | None | `Top` | Assembles `Core`, `SystemBridge`, `PhysicalMainMemory`, and `PeripheralDevices`, connected by seven nets. Owns the consolidated latency-knob block for this configuration. |
+| **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/Core.sitar) | core_mmu_devices | None | `System` (1 instance: `core`) | `core_mmu`'s `Core`, plus an inport for the interrupt level and a branch that polls it every cycle and drives the core's IRL pins. |
+| **SystemBridge** (module) | [`SystemBridge.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `bridge`) | The physical bus below the MMU. Routes each request to main memory or to the devices by address, one transaction at a time. |
+| **PeripheralDevices** (module) | [`PeripheralDevices.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar) | common | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | `System` (1 instance: `devices`) | The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core. |
+
 ## Notes
 
 - **Module vs. procedure**  
-    `Top`, `System`, `Core`, and `PhysicalMainMemory` are `module`s.
+    `Top`, `System`, `Core`, `PhysicalMainMemory`, `SystemBridge`, and
+    `PeripheralDevices` are `module`s.
     Every other row above is a `procedure`. See the sibling `sitar`
     repo's own documentation for the general module/procedure
     distinction, and `System.sitar`'s own header comment for how it
