@@ -11,6 +11,13 @@ SystemBus::SystemBus(MainMemory& mainMemory, PeripheralDevicesCore& peripheralDe
 {
 }
 
+void SystemBus::attachEngine(unsigned int i, PhysicalMemoryInterface* engine)
+{
+	if (engines_.size() <= i)
+		engines_.resize(i + 1, nullptr);
+	engines_[i] = engine;
+}
+
 void SystemBus::access(const PhysicalMemoryRequest& request, PhysicalMemoryResponse& response)
 {
 	switch (SystemAddressMap::decode(request.physicalAddress))
@@ -21,6 +28,16 @@ void SystemBus::access(const PhysicalMemoryRequest& request, PhysicalMemoryRespo
 		case SystemAddressMap::Target::PERIPHERAL_DEVICES:
 			peripheralDevices_.access(request, response);
 			break;
+		case SystemAddressMap::Target::APARA_ENGINE:
+		{
+			int e = SystemAddressMap::aparaEngineAt(request.physicalAddress);
+			if (e >= 0 && (unsigned int) e < engines_.size() && engines_[e])
+			{
+				engines_[e]->access(request, response);
+				break;
+			}
+		}
+		//fall through: no engine attached
 		case SystemAddressMap::Target::UNMAPPED:
 		default:
 			unmappedAccesses++;

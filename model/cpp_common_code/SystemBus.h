@@ -20,6 +20,7 @@
 #include "MemoryInterfaces.h"
 #include "MainMemory.h"
 #include "PeripheralDevicesCore.h"
+#include <vector>
 
 class SystemBus : public PhysicalMemoryInterface
 {
@@ -28,11 +29,15 @@ class SystemBus : public PhysicalMemoryInterface
 
 		void access(const PhysicalMemoryRequest& request, PhysicalMemoryResponse& response) override;
 
+		//APARA engine i's windows (Ref SystemAddressMap.h's AJIT_APARA layout).
+		void attachEngine(unsigned int i, PhysicalMemoryInterface* engine);
+
 		uint64_t unmappedAccesses;
 
 	private:
 		MainMemory&            mainMemory_;
 		PeripheralDevicesCore& peripheralDevices_;
+		std::vector<PhysicalMemoryInterface*> engines_;
 };
 
 #endif

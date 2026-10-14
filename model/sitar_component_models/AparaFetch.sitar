@@ -14,7 +14,9 @@
 //
 // A PC correction from WRITEBACK sets the thread's PC, trains the BTB,
 // drops the thread's bundles still in FETCH, and marks the next bundle
-// NEW_STREAM. A halt notification stops fetching for the thread.
+// NEW_STREAM. A halt notification stops fetching for the thread. In a
+// system, EXEC (carrying out the control unit's commands) starts and
+// resets threads (controlIn).
 //
 // Reads IMEM through `imem`, the AparaCore that EXEC owns (IMEM does not
 // change during a run, so the two modules never touch the same data).
@@ -34,6 +36,7 @@ module AparaFetch
 	outport toDecode     : width APARA_BUNDLE_TOKEN_BYTES
 	inport  correctionIn : width APARA_CORRECTION_TOKEN_BYTES
 	inport  haltIn       : width APARA_HALT_TOKEN_BYTES
+	inport  controlIn    : width APARA_FETCH_CONTROL_BYTES
 
 	decl
 	$
@@ -65,6 +68,7 @@ module AparaFetch
 	token<APARA_BUNDLE_TOKEN_BYTES>     bundleTok;
 	token<APARA_CORRECTION_TOKEN_BYTES> correctionTok;
 	token<APARA_HALT_TOKEN_BYTES>       haltTok;
+	token<APARA_FETCH_CONTROL_BYTES>    controlTok;
 
 	apara::AparaTimingStats stats;
 
@@ -101,6 +105,17 @@ module AparaFetch
 			sitar::unpack(haltTok, h);
 			dropThread(h.thread);
 			thread[h.thread].halted = true;
+		}
+		while (controlIn.pull(controlTok))
+		{
+			apara::FetchControl c;
+			sitar::unpack(controlTok, c);
+			unsigned int t = c.thread % apara::THREADS_PER_ENGINE;
+			dropThread(t);
+			if (c.start)
+				startThread(t, c.pc);
+			else
+				thread[t].active = false;
 		}
 	}
 

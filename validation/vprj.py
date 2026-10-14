@@ -34,6 +34,23 @@ def parse_hexlike(s):
     return int(s, 16)
 
 
+# An APARA engine program the C test loads (C tests only, any number of
+# lines), e.g. `MCODE = kernel.mcode`: build_hex.py writes it as
+# kernel.mcode.h (Ref compiler/apara/apara_obj_to_c.py) before compiling.
+MCODE_LINE_RE = re.compile(r'^MCODE\s*=\s*(\S+)')
+
+
+def parse_mcode(path):
+    """Returns the MCODE files named in a .vprj."""
+    found = []
+    with open(path) as f:
+        for line in f:
+            m = MCODE_LINE_RE.match(line)
+            if m:
+                found.append(m.group(1))
+    return found
+
+
 def parse_startup(path):
     """Returns the STARTUP file named in a .vprj, or None."""
     with open(path) as f:

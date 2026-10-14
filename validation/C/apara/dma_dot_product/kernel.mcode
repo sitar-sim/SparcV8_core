@@ -1,0 +1,20 @@
+// The dot product of two 32-element $i8 vectors in DMEM (at $r9 and
+// $r10), stored as a 64-bit word at $r9 + 504. ($r9: DMEM's window
+// address.)
+start:
+    ||
+        $ld ($i64) $r1 [$r9 + 0]   $ld ($i64) $r2 [$r9 + 8]
+        $ld ($i64) $r3 [$r9 + 16]  $ld ($i64) $r4 [$r9 + 24]
+    ;
+    ||
+        $ld ($i64) $r5 [$r10 + 0]   $ld ($i64) $r6 [$r10 + 8]
+        $ld ($i64) $r7 [$r10 + 16]  $ld ($i64) $r8 [$r10 + 24]
+    ;
+    ||
+        $dot $r20 ($vi8) $r1 $r5   $dot $r21 ($vi8) $r2 $r6
+        $dot $r22 ($vi8) $r3 $r7   $dot $r23 ($vi8) $r4 $r8
+    ;
+    || + $r24 ($i64) $r20 $r21   + $r25 ($i64) $r22 $r23 ;
+    || + $r26 ($i64) $r24 $r25 ;
+    || $st ($i64) [$r9 + 504] $r26 ;
+    || $halt ;

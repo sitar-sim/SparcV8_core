@@ -1,0 +1,5 @@
+// Count $r1 down to below 0, then stop.
+loop:
+    || ? ($i64) $r1 > --1 $goto loop ;
+done:
+    || $halt ;

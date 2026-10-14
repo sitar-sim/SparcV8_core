@@ -10,6 +10,12 @@
 //   exec -> regfile       results: REGFILE releases the bundle's locks
 //   regfile -> writeback  results, on to retire
 //   writeback -> fetch    PC correction, halt notification
+//   exec -> fetch         thread start and reset (in a system: the
+//                         control unit's commands, carried out by EXEC)
+//
+// In a system, exec's service, off-island and stop ports connect to the
+// engine's host side (AparaHost), from the module above (Ref
+// AparaExec.sitar's hostConnected).
 //
 // Every net crossing takes Sitar's one cycle, so a bundle spends at least
 // one cycle in each stage, as in the hardware's elastic pipeline.
@@ -39,6 +45,7 @@ module AparaEngine
 	net       regfileToWriteback : capacity 2 width APARA_RESULT_TOKEN_BYTES
 	net       correctionNet      : capacity 1 width APARA_CORRECTION_TOKEN_BYTES
 	net       haltNet            : capacity 1 width APARA_HALT_TOKEN_BYTES
+	net       fetchControlNet    : capacity 2 width APARA_FETCH_CONTROL_BYTES
 
 	fetch.toDecode       => fetchToDecode
 	decode.fromFetch     <= fetchToDecode
@@ -56,6 +63,8 @@ module AparaEngine
 	fetch.correctionIn   <= correctionNet
 	writeback.haltOut    => haltNet
 	fetch.haltIn         <= haltNet
+	exec.fetchControlOut => fetchControlNet
+	fetch.controlIn      <= fetchControlNet
 
 	decl
 	$

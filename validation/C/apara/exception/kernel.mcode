@@ -1,0 +1,4 @@
+// A divide by zero (the divide goes to slot 1).
+start:
+    || / $r3 ($i64) $r1 $r0 ;
+    || $halt ;

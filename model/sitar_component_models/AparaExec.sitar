@@ -6,13 +6,20 @@
 // section). Owns the engine's functional state: `core`, an AparaCore
 // (registers, RAS, ERROR, IMEM, DMEM of all four threads).
 //
-// A bundle runs functionally when it enters EXEC (core.step()), in each
-// thread's program order. Its time in EXEC is its latency: the slowest
-// of its instructions (DECODE's figure from the latency table), or its
-// memory phase if longer (LatencyTable::memoryCycles(): one access per
-// DMEM bank port, same-bank accesses one after another). DIV and FSQRT
-// share one divider that takes a bundle at a time: a bundle needing it
-// waits until it is free.
+// A bundle runs functionally when it enters EXEC, in each thread's
+// program order, from the words FETCH sent (AparaCore::makeBundle(); EXEC
+// never reads IMEM). Its time in EXEC is its latency: the slowest of its
+// instructions (DECODE's figure from the latency table), or its memory
+// phase if longer (LatencyTable::memoryCycles(): one access per DMEM bank
+// port, same-bank accesses one after another). DIV and FSQRT share one
+// divider that takes a bundle at a time.
+//
+// In a system (hostConnected), a bundle's off-island transactions go to
+// the host side (AparaHost) one at a time, in order with its local ones,
+// and the bundle stays in EXEC until the last answer is back; later
+// bundles of its thread wait behind it. Results leave in order, one per
+// cycle, except that a bundle waiting for the system does not hold back
+// the other threads' bundles.
 //
 // Skip rules (the microarch doc's EXEC states): a mispredicted bundle
 // puts its thread in MISPREDICTED, a halting bundle in HALTED; until a
@@ -20,10 +27,16 @@
 // bundles are skipped: not executed, but their results still go back to
 // REGFILE, which releases their locks.
 //
-// Knob: pipelined (default true): a new bundle enters every cycle and
-// results leave in order; false: EXEC holds one bundle until its
-// latency is over (the microarch doc's two descriptions, D4 in our
-// findings).
+// The service port (in a system): the host side's DMEM, register and
+// IMEM accesses and its thread commands, served in the order they come,
+// with an answer the next cycle. EXEC writes IMEM only in phase 0, and
+// FETCH reads it only in phase 1, so the two never touch it at once.
+// Starting or resetting a thread tells FETCH (fetchControlOut); a thread
+// stopping tells the host side (stopOut).
+//
+// Knob: pipelined (default true): a new bundle enters every cycle;
+// false: EXEC holds one bundle until it leaves (the microarch doc's two
+// descriptions, D4 in our findings).
 //================================================================
 
 module AparaExec
@@ -37,36 +50,146 @@ module AparaExec
 	inport  fromRegfile : width APARA_BUNDLE_TOKEN_BYTES
 	outport toRegfile   : width APARA_RESULT_TOKEN_BYTES
 
+	//In a system only (Ref hostConnected).
+	inport  serviceIn       : width APARA_SERVICE_REQUEST_BYTES
+	outport serviceOut      : width APARA_SERVICE_RESPONSE_BYTES
+	outport offIslandOut    : width APARA_OFF_ISLAND_REQUEST_BYTES
+	inport  offIslandIn     : width APARA_OFF_ISLAND_RESPONSE_BYTES
+	outport stopOut         : width APARA_STOP_NOTICE_BYTES
+	outport fetchControlOut : width APARA_FETCH_CONTROL_BYTES
+
 	decl
 	$
 	apara::AparaCore    core;
 	apara::LatencyTable latency;
 	bool pipelined;
+	bool hostConnected; //the six ports above are connected (set by the parent)
 
 	enum ExecState { EXEC_ACTIVE = 0, EXEC_HALTED = 1, EXEC_MISPREDICTED = 3 };
 	ExecState state[apara::THREADS_PER_ENGINE];
 
-	struct InFlight { uint64_t readyCycle; apara::ResultToken result; };
+	static const uint64_t NOT_READY = ~0ULL;
+	struct InFlight
+	{
+		uint64_t           readyCycle;
+		apara::ResultToken result;
+		bool               pending; //waiting for off-island answers
+		uint64_t           id;
+	};
 	std::deque<InFlight> inFlight;
+
+	//A thread's bundle in its memory phase (off-island transactions).
+	struct ThreadStep
+	{
+		bool         active;
+		uint64_t     startCycle;
+		unsigned int cycles;
+		uint32_t     predictedNextPc;
+		unsigned int nextTransaction;
+		bool         waiting; //an off-island request is out
+		uint64_t     entry;   //its inFlight entry's id
+	};
+	ThreadStep step[apara::THREADS_PER_ENGINE];
+	std::deque<apara::BundleToken> held[apara::THREADS_PER_ENGINE]; //later bundles of a thread with a step
+	uint64_t nextId;
+
 	uint64_t dividerFreeCycle;
 	uint64_t pcMismatches; //self-check: an executed bundle not at its thread's PC
 
-	token<APARA_BUNDLE_TOKEN_BYTES> bundleTok;
-	token<APARA_RESULT_TOKEN_BYTES> resultTok;
+	std::deque<apara::OffIslandRequest> offIslandQueue;
+	std::deque<apara::ServiceResponse>  serviceQueue;
+	std::deque<apara::StopNotice>       stopQueue;
+	std::deque<apara::FetchControl>     fetchControlQueue;
+
+	token<APARA_BUNDLE_TOKEN_BYTES>        bundleTok;
+	token<APARA_RESULT_TOKEN_BYTES>        resultTok;
+	token<APARA_SERVICE_REQUEST_BYTES>     serviceRequestTok;
+	token<APARA_SERVICE_RESPONSE_BYTES>    serviceResponseTok;
+	token<APARA_OFF_ISLAND_REQUEST_BYTES>  offIslandRequestTok;
+	token<APARA_OFF_ISLAND_RESPONSE_BYTES> offIslandResponseTok;
+	token<APARA_STOP_NOTICE_BYTES>         stopTok;
+	token<APARA_FETCH_CONTROL_BYTES>       fetchControlTok;
 
 	apara::AparaTimingStats stats;
 
 	public:
-	void accept(uint64_t now)
+	InFlight& entryOf(unsigned int t)
 	{
-		if (!pipelined && !inFlight.empty())
-			return;
-		if (!fromRegfile.pull(bundleTok))
-			return;
-		apara::BundleToken b;
-		sitar::unpack(bundleTok, b);
-		unsigned int t = b.thread % apara::THREADS_PER_ENGINE;
+		for (auto& e : inFlight)
+			if (e.id == step[t].entry)
+				return e;
+		assert(false);
+		return inFlight.front();
+	}
 
+	void stopped(unsigned int t)
+	{
+		if (!hostConnected)
+			return;
+		apara::StopNotice n;
+		std::memset(&n, 0, sizeof(n));
+		n.thread = (uint8_t) t;
+		n.error = core.thread(t).error;
+		n.pc = core.thread(t).pc;
+		stopQueue.push_back(n);
+	}
+
+	//The result of a step that has all its data: commit and finish.
+	void finishStep(unsigned int t, InFlight& f, uint64_t now, uint64_t startCycle, unsigned int cycles, uint32_t predictedNextPc)
+	{
+		apara::StepResult r = core.commitStep(t);
+		f.result.nextPc = r.nextPc;
+		if (r.bundle && r.bundle->valid && r.bundle->slot[0].isControl())
+			f.result.flags |= apara::RESULT_CONTROL;
+		if (r.halted)
+		{
+			f.result.flags |= apara::RESULT_HALT;
+			state[t] = EXEC_HALTED;
+			stopped(t);
+		}
+		else if (r.nextPc != predictedNextPc)
+		{
+			f.result.flags |= apara::RESULT_MISPREDICT;
+			state[t] = EXEC_MISPREDICTED;
+			stats.mispredicts++;
+		}
+		uint64_t ready = startCycle + cycles - 1;
+		f.readyCycle = ready > now ? ready : now;
+		f.pending = false;
+	}
+
+	//Go through thread t's transactions: local ones at once, the next
+	//off-island one out. Finishes the step when none is left.
+	void advanceStep(unsigned int t, uint64_t now)
+	{
+		ThreadStep& s = step[t];
+		while (s.nextTransaction < core.pendingTransactions(t))
+		{
+			const apara::DwordTransaction& x = core.transaction(t, s.nextTransaction);
+			if (!x.offIsland)
+			{
+				core.performLocal(t, s.nextTransaction++);
+				continue;
+			}
+			apara::OffIslandRequest q;
+			std::memset(&q, 0, sizeof(q));
+			q.address = x.address;
+			q.lanes = x.lanes;
+			q.store = x.store;
+			q.data = x.data;
+			q.thread = (uint8_t) t;
+			offIslandQueue.push_back(q);
+			s.waiting = true;
+			return;
+		}
+		s.active = false;
+		finishStep(t, entryOf(t), now, s.startCycle, s.cycles, s.predictedNextPc);
+	}
+
+	//Run (or skip) one bundle.
+	void startBundle(const apara::BundleToken& b, uint64_t now)
+	{
+		unsigned int t = b.thread % apara::THREADS_PER_ENGINE;
 		if (b.flags & apara::BUNDLE_NEW_THREAD)
 			state[t] = EXEC_ACTIVE;
 		else if (state[t] == EXEC_MISPREDICTED && (b.flags & apara::BUNDLE_NEW_STREAM))
@@ -78,69 +201,242 @@ module AparaExec
 		f.result.thread = (uint8_t) t;
 		f.result.size = b.size;
 		f.result.writeMask = b.writeMask;
+		f.pending = false;
+		f.id = nextId++;
 
 		if (state[t] != EXEC_ACTIVE || !core.thread(t).runnable())
 		{
 			f.result.flags = apara::RESULT_SKIPPED;
 			f.readyCycle = now; //passes straight through
 			stats.bundlesSkipped++;
+			pushInOrder(f);
+			return;
 		}
-		else
+		if (core.thread(t).pc != b.pc)
+			pcMismatches++;
+		uint64_t start = now;
+		if (b.usesDivider && dividerFreeCycle > now)
 		{
-			if (core.thread(t).pc != b.pc)
-				pcMismatches++;
-			uint64_t start = now;
-			if (b.usesDivider && dividerFreeCycle > now)
-			{
-				start = dividerFreeCycle;
-				stats.dividerStallCycles += start - now;
-			}
-			apara::StepResult r = core.step(t);
-			unsigned int cycles = b.latency;
-			unsigned int memory = latency.memoryCycles(r);
-			if (memory > cycles) cycles = memory;
-			stats.bankConflicts += apara::LatencyTable::sameBankExtras(r);
-			if (b.usesDivider)
-				dividerFreeCycle = start + cycles;
-			f.readyCycle = start + cycles - 1;
-
-			f.result.nextPc = r.nextPc;
-			if (r.bundle && r.bundle->valid && r.bundle->slot[0].isControl())
-				f.result.flags |= apara::RESULT_CONTROL;
-			if (r.halted)
-			{
-				f.result.flags |= apara::RESULT_HALT;
-				state[t] = EXEC_HALTED;
-			}
-			else if (r.nextPc != b.predictedNextPc)
-			{
-				f.result.flags |= apara::RESULT_MISPREDICT;
-				state[t] = EXEC_MISPREDICTED;
-				stats.mispredicts++;
-			}
-			stats.bundlesExecuted++;
-			stats.perThreadExecuted[t]++;
+			start = dividerFreeCycle;
+			stats.dividerStallCycles += start - now;
 		}
-		if (!inFlight.empty() && f.readyCycle < inFlight.back().readyCycle)
-			f.readyCycle = inFlight.back().readyCycle; //results leave in order
+		apara::Bundle bundle = apara::AparaCore::makeBundle(b.pc, b.word, b.size);
+		apara::StepResult r = core.beginStep(t, bundle);
+		unsigned int cycles = b.latency;
+		unsigned int memory = latency.memoryCycles(r);
+		if (memory > cycles) cycles = memory;
+		stats.bankConflicts += apara::LatencyTable::sameBankExtras(r);
+		if (b.usesDivider)
+			dividerFreeCycle = start + cycles;
+		stats.bundlesExecuted++;
+		stats.perThreadExecuted[t]++;
+
+		if (r.exception)
+		{
+			f.result.nextPc = r.nextPc;
+			f.result.flags |= apara::RESULT_HALT;
+			state[t] = EXEC_HALTED;
+			stopped(t);
+			f.readyCycle = start + cycles - 1;
+			pushInOrder(f);
+			return;
+		}
+		f.pending = true;
+		f.readyCycle = NOT_READY;
 		inFlight.push_back(f);
+		ThreadStep& s = step[t];
+		s.active = true;
+		s.startCycle = start;
+		s.cycles = cycles;
+		s.predictedNextPc = b.predictedNextPc;
+		s.nextTransaction = 0;
+		s.waiting = false;
+		s.entry = f.id;
+		advanceStep(t, now);
+		if (!step[t].active)
+			keepOrder(entryOf(t));
 	}
 
+	//Results leave in order: no result before the one ahead of it.
+	void keepOrder(InFlight& f)
+	{
+		uint64_t latest = 0;
+		for (auto& e : inFlight)
+		{
+			if (&e == &f) break;
+			if (!e.pending && e.readyCycle > latest) latest = e.readyCycle;
+		}
+		if (f.readyCycle < latest) f.readyCycle = latest;
+	}
+
+	void pushInOrder(InFlight f)
+	{
+		inFlight.push_back(f);
+		keepOrder(inFlight.back());
+	}
+
+	void serve(const apara::ServiceRequest& q)
+	{
+		apara::ServiceResponse a;
+		std::memset(&a, 0, sizeof(a));
+		a.tag = q.tag;
+		unsigned int t = q.thread % apara::THREADS_PER_ENGINE;
+		apara::FetchControl fc;
+		std::memset(&fc, 0, sizeof(fc));
+		fc.thread = (uint8_t) t;
+		switch (q.kind)
+		{
+			case apara::ServiceKind::DMEM_READ:
+				a.data = core.dmemDword((q.index % apara::DMEM_BYTES) >> 3);
+				break;
+			case apara::ServiceKind::DMEM_WRITE:
+			{
+				uint32_t i = (q.index % apara::DMEM_BYTES) >> 3;
+				uint64_t m = 0;
+				for (unsigned int k = 0; k < 8; k++)
+					if (q.lanes & (1u << k)) m |= 0xFFULL << (8 * k);
+				core.writeDmemDword(i, (core.dmemDword(i) & ~m) | (q.data & m));
+				break;
+			}
+			case apara::ServiceKind::REGISTER_READ:  a.data = core.readRegister(t, q.index); break;
+			case apara::ServiceKind::REGISTER_WRITE: core.writeRegister(t, q.index, q.data); break;
+			case apara::ServiceKind::IMEM_READ:      a.data = core.imemWord(q.index); break;
+			case apara::ServiceKind::IMEM_WRITE:     core.writeImemWord(q.index, (uint32_t) q.data); break;
+			case apara::ServiceKind::START_THREAD:
+				core.startThread(t, q.index);
+				state[t] = EXEC_HALTED; //skip what is left of an earlier run, until the NEW_THREAD bundle
+				fc.pc = q.index;
+				fc.start = 1;
+				fetchControlQueue.push_back(fc);
+				break;
+			case apara::ServiceKind::RESET_THREAD:
+				core.resetThread(t);
+				state[t] = EXEC_HALTED;
+				fetchControlQueue.push_back(fc);
+				break;
+			case apara::ServiceKind::STEP:
+				//One bundle, from IMEM, with only local data (Ref docs:
+				//sparc_apara's STEP command); the thread then stops again.
+				core.startThread(t, q.index);
+				core.step(t);
+				a.data = core.thread(t).pc;
+				core.thread(t).active = false;
+				break;
+			case apara::ServiceKind::RAS_STATE:
+				a.data = core.thread(t).ras.size();
+				a.extra = core.thread(t).ras.empty() ? 0 : core.thread(t).ras.back();
+				break;
+		}
+		serviceQueue.push_back(a);
+	}
+
+	//Phase 0.
+	void accept(uint64_t now)
+	{
+		if (hostConnected)
+		{
+			while (offIslandIn.pull(offIslandResponseTok))
+			{
+				apara::OffIslandResponse a;
+				sitar::unpack(offIslandResponseTok, a);
+				unsigned int t = a.thread % apara::THREADS_PER_ENGINE;
+				ThreadStep& s = step[t];
+				if (!s.active || !s.waiting)
+					continue;
+				core.completeTransaction(t, s.nextTransaction++, a.data);
+				s.waiting = false;
+				advanceStep(t, now);
+			}
+			while (serviceIn.pull(serviceRequestTok))
+			{
+				apara::ServiceRequest q;
+				sitar::unpack(serviceRequestTok, q);
+				serve(q);
+			}
+		}
+		//Bundles held behind a finished step.
+		for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+			while (!step[t].active && !held[t].empty())
+			{
+				apara::BundleToken b = held[t].front();
+				held[t].pop_front();
+				startBundle(b, now);
+			}
+		if (!pipelined && !inFlight.empty())
+			return;
+		if (!fromRegfile.pull(bundleTok))
+			return;
+		apara::BundleToken b;
+		sitar::unpack(bundleTok, b);
+		unsigned int t = b.thread % apara::THREADS_PER_ENGINE;
+		if (step[t].active)
+			held[t].push_back(b);
+		else
+			startBundle(b, now);
+	}
+
+	//Phase 1.
 	void send(uint64_t now)
 	{
-		if (inFlight.empty() || inFlight.front().readyCycle > now)
+		//The oldest result that may leave: skip bundles waiting for the
+		//system, and the later ones of their threads.
+		bool blocked[apara::THREADS_PER_ENGINE] = {false, false, false, false};
+		for (size_t i = 0; i < inFlight.size(); i++)
+		{
+			InFlight& e = inFlight[i];
+			unsigned int t = e.result.thread % apara::THREADS_PER_ENGINE;
+			if (e.pending || blocked[t])
+			{
+				blocked[t] = true;
+				continue;
+			}
+			if (e.readyCycle <= now)
+			{
+				sitar::pack(resultTok, e.result);
+				if (toRegfile.push(resultTok))
+					inFlight.erase(inFlight.begin() + i);
+			}
+			break;
+		}
+		if (!hostConnected)
 			return;
-		sitar::pack(resultTok, inFlight.front().result);
-		if (toRegfile.push(resultTok))
-			inFlight.pop_front();
+		while (!offIslandQueue.empty())
+		{
+			sitar::pack(offIslandRequestTok, offIslandQueue.front());
+			if (!offIslandOut.push(offIslandRequestTok)) break;
+			offIslandQueue.pop_front();
+		}
+		while (!serviceQueue.empty())
+		{
+			sitar::pack(serviceResponseTok, serviceQueue.front());
+			if (!serviceOut.push(serviceResponseTok)) break;
+			serviceQueue.pop_front();
+		}
+		while (!stopQueue.empty())
+		{
+			sitar::pack(stopTok, stopQueue.front());
+			if (!stopOut.push(stopTok)) break;
+			stopQueue.pop_front();
+		}
+		while (!fetchControlQueue.empty())
+		{
+			sitar::pack(fetchControlTok, fetchControlQueue.front());
+			if (!fetchControlOut.push(fetchControlTok)) break;
+			fetchControlQueue.pop_front();
+		}
 	}
 	$
 
 	init
 	$
 	pipelined = true;
+	hostConnected = false;
 	for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+	{
 		state[t] = EXEC_HALTED; //until the thread's first (NEW_THREAD) bundle
+		step[t] = ThreadStep{false, 0, 0, 0, 0, false, 0};
+	}
+	nextId = 0;
 	dividerFreeCycle = 0;
 	pcMismatches = 0;
 	$

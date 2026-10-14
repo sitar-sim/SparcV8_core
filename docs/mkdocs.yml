@@ -100,6 +100,7 @@ nav:
           - Assembly Language and Tools: apara/assembly_and_tools.md
           - Writing and Running Programs: apara/running.md
           - Timing Model: apara/timing_model.md
+          - The Engine in a System: apara/system.md
           - Deviations and Findings: apara/deviations.md
       - Model Components Reference: model_components_reference.md
       - Model Configuration Settings: model_configuration_settings.md

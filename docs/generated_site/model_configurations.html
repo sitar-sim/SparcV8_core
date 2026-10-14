@@ -1115,6 +1115,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configuration-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration: sparc_apara
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration: sparc_apara">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model description
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1502,6 +1530,34 @@
     
   
     Timing Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="apara/system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
   
 
     
@@ -2009,6 +2065,34 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configuration-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration: sparc_apara
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration: sparc_apara">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#model-description_5" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model description
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -2126,6 +2210,16 @@ summarized here:</p>
 <td>apara</td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/sitar_model/">sitar (timing model)</a></td>
 <td>One APARA engine on its own, with its pipeline's timing.</td>
+</tr>
+<tr>
+<td>sparc_apara</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/cpp_model/">cpp (functional model)</a></td>
+<td>core_l1cache_mmu_devices plus one APARA engine (Ref <a href="apara/system.html">The Engine in a System</a>).</td>
+</tr>
+<tr>
+<td>sparc_apara</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/sitar_model/">sitar (timing model)</a></td>
+<td>core_l1cache_mmu_devices plus one APARA engine, on a two-master bus.</td>
 </tr>
 </tbody>
 </table>
@@ -2350,6 +2444,25 @@ stage, joined by nets with the hardware's channel depths; see
 </tr>
 </tbody>
 </table>
+<hr />
+<h3 id="configuration-sparc_apara">Configuration: sparc_apara<a class="headerlink" href="#configuration-sparc_apara" title="Permanent link">&para;</a></h3>
+<p><code>core_l1cache_mmu_devices</code> plus one APARA engine. The engine's pipeline
+and its host side (control and DMA units) are modules beside the core,
+and the bus takes requests from both the core and the engine (Ref <a href="apara/system.html">The
+Engine in a System</a>).</p>
+<h4 id="model-description_5">Model description<a class="headerlink" href="#model-description_5" title="Permanent link">&para;</a></h4>
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Core.sitar">Core</a> (module: sparcThread, caches, mmu)
+      +-- interconnect : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar">SystemInterconnect</a>&lt;2&gt; (module)
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+      +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module: fetch, decode, regfile, exec, writeback)
+      +-- host : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar">AparaHost</a> (module)
+</pre>
 
 
 

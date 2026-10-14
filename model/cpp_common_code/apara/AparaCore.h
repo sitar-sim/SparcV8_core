@@ -50,6 +50,7 @@
 #include <string>
 #include <vector>
 #include <functional>
+#include <memory>
 #include "AparaInstruction.h"
 #include "AparaOperations.h"
 
@@ -73,9 +74,10 @@ namespace apara
 		//Standalone engine: every address aliases into DMEM, modulo its
 		//size (as the reference model does).
 		ALIAS_TO_LOCAL,
-		//Engine in a system: addresses below DMEM_BYTES and addresses in
-		//the engine's own DMEM window (Config::dmemWindowBase) are DMEM,
-		//all others go to the off-island port.
+		//Engine in a system: addresses in the engine's own DMEM window
+		//(Config::dmemWindowBase, 64 KB) are DMEM, all others go to the
+		//off-island port, as the hardware's isInEngineDataMem decides
+		//(so an engine program reaches its DMEM by the window's address).
 		SYSTEM_BUS
 	};
 
@@ -126,6 +128,22 @@ namespace apara
 		bool     offIsland = false;
 	};
 
+	//One 64-bit-word transaction of a bundle's memory phase (a 128- or
+	//256-bit transfer is 2 or 4 of them). Address: the word's byte
+	//address (a multiple of 8). Lanes: bit i for bits [8i+7:8i]. A store
+	//carries its data in place; a load's data arrives here.
+	struct DwordTransaction
+	{
+		uint8_t  slot      = 0;
+		uint8_t  part      = 0;     //which word of the slot's transfer
+		bool     store     = false;
+		bool     offIsland = false;
+		uint32_t address   = 0;
+		uint8_t  lanes     = 0;
+		uint64_t data      = 0;
+		bool     done      = false;
+	};
+
 	//What one step of a thread did.
 	struct StepResult
 	{
@@ -152,16 +170,47 @@ namespace apara
 
 		AparaCore();
 		explicit AparaCore(const Config& config);
+		~AparaCore();
+		AparaCore(const AparaCore&) = delete;
+		AparaCore& operator=(const AparaCore&) = delete;
 
 		void setOffIslandPort(OffIslandPort* port) { offIsland_ = port; }
+		//Before the run (e.g. a parent module setting up an engine for a system).
+		void setConfig(const Config& config) { config_ = config; }
 
 		//Reset all threads: inactive, PC 0, registers 0, RAS empty, ERROR 0.
 		void resetThreads();
 		//Start thread t at pc (clears halted and ERROR, keeps registers).
 		void startThread(unsigned int t, uint32_t pc);
+		//Stop thread t: inactive, PC 0, RAS empty, ERROR 0 (registers kept).
+		void resetThread(unsigned int t);
 
-		//Run one bundle on thread t.
+		//Run one bundle on thread t: beginStep(), every transaction (the
+		//off-island ones through the OffIslandPort), commitStep().
 		StepResult step(unsigned int t);
+
+		//The same in parts, for a timing model whose off-island accesses
+		//take time. beginStep() runs the read and execute phases of the
+		//bundle at the thread's PC (or the given bundle, which must be the
+		//one at the thread's PC): if it raises an exception, or the bundle
+		//has no memory access, the step is already complete (its result
+		//says so: `pendingTransactions` 0, and commitStep() needs no call
+		//when executed is false or exception is true). Otherwise the
+		//thread's transactions are performed in order: a local one with
+		//performLocal(), an off-island one by the caller, then
+		//completeTransaction(). Then commitStep() applies the results.
+		StepResult beginStep(unsigned int t);
+		StepResult beginStep(unsigned int t, const Bundle& bundle);
+		unsigned int pendingTransactions(unsigned int t) const;
+		const DwordTransaction& transaction(unsigned int t, unsigned int i) const;
+		void performLocal(unsigned int t, unsigned int i);
+		void completeTransaction(unsigned int t, unsigned int i, uint64_t loadData);
+		StepResult commitStep(unsigned int t);
+		bool stepPending(unsigned int t) const;
+
+		//A bundle from its words (n of them, from the PC), with the
+		//bundle rules checked: what fetching it from IMEM gives.
+		static Bundle makeBundle(uint32_t pc, const uint32_t* words, unsigned int n);
 		//Run one bundle on the next runnable thread in round-robin order.
 		StepResult tick();
 		bool anyRunnable() const;
@@ -185,6 +234,8 @@ namespace apara
 		private:
 		struct PendingWrite { uint8_t reg; uint64_t value; };
 		struct SlotWork;
+		struct PendingStep;
+		std::unique_ptr<PendingStep> pending_[THREADS_PER_ENGINE];
 
 		Config         config_;
 		ThreadState    threads_[THREADS_PER_ENGINE];
@@ -200,9 +251,11 @@ namespace apara
 		Bundle fetchBundle(uint32_t pc) const;
 		void   executeSlot(const ThreadState& ts, const Bundle& b, unsigned int s, SlotWork& w);
 
+		StepResult finishWithException(ThreadState& ts, StepResult res, uint32_t codes, bool rasError);
+
 		bool     isOffIsland(uint32_t address) const;
-		uint64_t readDword(uint32_t address, uint8_t laneMask);
-		void     writeDword(uint32_t address, uint8_t laneMask, uint64_t data);
+		uint64_t readLocal(uint32_t address) const { return dmem_[(address >> 3) % DMEM_DWORDS]; }
+		void     writeLocal(uint32_t address, uint8_t laneMask, uint64_t data);
 	};
 }
 

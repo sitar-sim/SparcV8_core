@@ -1,0 +1,397 @@
+//================================================================
+// module AparaHost
+// Author: Neha Karanjkar
+//
+// An APARA engine's host side in a system (sparc_apara): its control unit
+// (CCU, AparaControlCore) and DMA unit (AparaDmaCore), its slave port on
+// the system bus (the host's accesses to its three windows), and its
+// master port (the DMA's transfers, and EXEC's off-island accesses: the
+// microarch doc routes these through the DMA unit). Ref
+// docs/source/apara/system.md.
+//
+// Everything that touches the engine's state (DMEM, registers, IMEM,
+// starting and resetting threads) goes to EXEC, which owns it, over EXEC's
+// service port, with a tag saying who asked: the slave port (a DMEM
+// window access), the CCU (a command), or the DMA (a piece's DMEM side).
+// EXEC tells this module when a thread stops (stopIn).
+//
+// Every cycle, phase 0: take what arrived (service and bus answers, stop
+// notices, EXEC's off-island requests, one host request) and start what
+// can start (a CCU command, a DMA piece); phase 1: send. One CCU command
+// that needs EXEC, one DMA piece, one host request and one master
+// transaction are in progress at a time.
+//
+// Bus data: doublewords of two big-endian 32-bit words, the lower
+// address in the low half; DMEM's are big-endian doublewords (Ref
+// AparaSystemCore.h's busToDmem()).
+//================================================================
+
+module AparaHost
+
+	include
+	$
+	#include "AparaTiming.h"
+	#include "AparaControlCore.h"
+	#include "AparaDmaCore.h"
+	#include "AparaSystemCore.h"
+	#include "MemoryInterfaces.h"
+	#include "SystemAddressMap.h"
+	#include <deque>
+	$
+
+	inport  slaveRequestIn    : width TOKEN_REQ_WIDTH
+	outport slaveResponseOut  : width TOKEN_RESP_WIDTH
+	outport masterRequestOut  : width TOKEN_REQ_WIDTH
+	inport  masterResponseIn  : width TOKEN_RESP_WIDTH
+
+	outport serviceOut        : width APARA_SERVICE_REQUEST_BYTES
+	inport  serviceIn         : width APARA_SERVICE_RESPONSE_BYTES
+	inport  offIslandIn       : width APARA_OFF_ISLAND_REQUEST_BYTES
+	outport offIslandOut      : width APARA_OFF_ISLAND_RESPONSE_BYTES
+	inport  stopIn            : width APARA_STOP_NOTICE_BYTES
+
+	outport interruptOut      : width 1
+
+	decl
+	$
+	apara::AparaControlCore control;
+	apara::AparaDmaCore     dma;
+	uint64_t dmemBase, ccuBase, dmaBase;
+
+	enum Tag : uint8_t { TAG_SLAVE = 0, TAG_CCU = 1, TAG_DMA = 2, TAG_OFF_ISLAND = 3 };
+
+	//The host request in progress.
+	bool                  slaveBusy;
+	PhysicalMemoryRequest slaveRequest;
+	std::deque<PhysicalMemoryResponse> slaveResponses;
+
+	//The CCU command in progress (one at a time that needs EXEC).
+	bool ccuBusy;
+	apara::AparaControlCore::Request ccuRequest;
+	bool completionWaiting[apara::THREADS_PER_ENGINE];
+
+	//The DMA piece in progress.
+	enum DmaStage { DMA_IDLE, DMA_MASTER_READ, DMA_SERVICE_WRITE, DMA_SERVICE_READ, DMA_MASTER_WRITE };
+	DmaStage dmaStage;
+	apara::AparaDmaCore::Piece piece;
+
+	//Master transactions: one outstanding, the rest queued.
+	struct MasterJob { PhysicalMemoryRequest request; uint8_t tag; uint8_t thread; };
+	std::deque<MasterJob> masterQueue;
+	bool      masterOutstanding;
+	MasterJob masterCurrent;
+
+	std::deque<apara::ServiceRequest>    serviceQueue;
+	std::deque<apara::OffIslandResponse> offIslandResponses;
+	uint8_t lastInterrupt;
+
+	token<TOKEN_REQ_WIDTH>                 requestTok;
+	token<TOKEN_RESP_WIDTH>                responseTok;
+	token<APARA_SERVICE_REQUEST_BYTES>     serviceRequestTok;
+	token<APARA_SERVICE_RESPONSE_BYTES>    serviceResponseTok;
+	token<APARA_OFF_ISLAND_REQUEST_BYTES>  offIslandRequestTok;
+	token<APARA_OFF_ISLAND_RESPONSE_BYTES> offIslandResponseTok;
+	token<APARA_STOP_NOTICE_BYTES>         stopTok;
+	token<1>                               interruptTok;
+
+	public:
+	static bool in(uint64_t a, uint64_t base, uint64_t bytes) { return a >= base && a - base < bytes; }
+	static uint8_t busBit(unsigned int k) { return (uint8_t) (1u << (k < 4 ? 3 - k : 11 - k)); }
+
+	void service(apara::ServiceKind kind, uint8_t tag, unsigned int thread, uint32_t index, uint64_t data = 0, uint8_t lanes = 0)
+	{
+		apara::ServiceRequest q;
+		std::memset(&q, 0, sizeof(q));
+		q.kind = kind;
+		q.tag = tag;
+		q.thread = (uint8_t) thread;
+		q.index = index;
+		q.data = data;
+		q.lanes = lanes;
+		serviceQueue.push_back(q);
+	}
+
+	void master(bool read, uint64_t address, uint8_t busMask, uint64_t busData, uint8_t tag, uint8_t thread)
+	{
+		MasterJob j;
+		j.request = PhysicalMemoryRequest{true, read ? PhysicalAccessType::READ : PhysicalAccessType::WRITE,
+		                                  false, address, busData, busMask};
+		j.tag = tag;
+		j.thread = thread;
+		masterQueue.push_back(j);
+	}
+
+	void respondToSlave(uint64_t data)
+	{
+		slaveResponses.push_back(PhysicalMemoryResponse{true, data, false});
+		slaveBusy = false;
+	}
+
+	//A host request to the windows.
+	void takeSlaveRequest(uint64_t now)
+	{
+		uint64_t a = slaveRequest.physicalAddress & ~7ULL;
+		bool read = slaveRequest.accessType == PhysicalAccessType::READ;
+		uint8_t mask = slaveRequest.byteMask;
+		if (read && mask == 0) mask = 0xFF;
+		if (in(a, dmemBase, apara::DMEM_BYTES))
+		{
+			uint32_t offset = (uint32_t) (a - dmemBase);
+			if (read) service(apara::ServiceKind::DMEM_READ, TAG_SLAVE, 0, offset);
+			else      service(apara::ServiceKind::DMEM_WRITE, TAG_SLAVE, 0, offset, apara::busToDmem(slaveRequest.data),
+			                  apara::busMaskToDmemLanes(mask));
+			return; //answered when EXEC answers
+		}
+		bool ccu = in(a, ccuBase, SystemAddressMap::APARA_UNIT_BYTES);
+		bool dmaWindow = in(a, dmaBase, SystemAddressMap::APARA_UNIT_BYTES);
+		uint64_t data = 0;
+		for (unsigned int half = 0; half < 2 && (ccu || dmaWindow); half++)
+		{
+			uint8_t lanes = (mask >> (4 * half)) & 0xF;
+			if (!lanes) continue;
+			uint64_t off = a + 4 * half - (ccu ? ccuBase : dmaBase);
+			unsigned int unit = (unsigned int) ((off >> 5) & 3), reg = (unsigned int) ((off >> 2) & 7);
+			if (read)
+				data |= (uint64_t) (ccu ? control.readRegister(unit, reg) : dma.readRegister(unit, reg)) << (32 * half);
+			else if (ccu)
+				control.writeRegister(unit, reg, (uint32_t) (slaveRequest.data >> (32 * half)), lanes);
+			else
+				dma.writeRegister(unit, reg, (uint32_t) (slaveRequest.data >> (32 * half)), lanes, now);
+		}
+		respondToSlave(data);
+	}
+
+	//The next CCU command, if one is ready and none is in progress.
+	void runControl(uint64_t now)
+	{
+		for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+			if (completionWaiting[t] && control.completionReady(t))
+			{
+				control.finishCommand(t, apara::AparaControlCore::Result());
+				completionWaiting[t] = false;
+			}
+		while (!ccuBusy)
+		{
+			int t = control.commandReady();
+			if (t < 0)
+				return;
+			apara::AparaControlCore::Request q = control.beginCommand((unsigned int) t);
+			apara::AparaControlCore::Result r;
+			typedef apara::AparaControlCore C;
+			switch (q.command)
+			{
+				case C::READ_IMEM:      service(apara::ServiceKind::IMEM_READ, TAG_CCU, q.thread, q.r2); break;
+				case C::WRITE_IMEM:     service(apara::ServiceKind::IMEM_WRITE, TAG_CCU, q.thread, q.r2, q.r3); break;
+				case C::RESET_THREAD:   service(apara::ServiceKind::RESET_THREAD, TAG_CCU, q.thread, 0); break;
+				case C::RUN_THREAD:     service(apara::ServiceKind::START_THREAD, TAG_CCU, q.thread, q.r1); break;
+				case C::READ_REGISTER:  service(apara::ServiceKind::REGISTER_READ, TAG_CCU, q.thread, q.r2); break;
+				case C::WRITE_REGISTER: service(apara::ServiceKind::REGISTER_WRITE, TAG_CCU, q.thread, q.r2, ((uint64_t) q.r6 << 32) | q.r7); break;
+				case C::STEP:           service(apara::ServiceKind::STEP, TAG_CCU, q.thread, q.r1); break;
+				case C::READ_RAS_STATE: service(apara::ServiceKind::RAS_STATE, TAG_CCU, q.rasThread, 0); break;
+				case C::READ_TIMER:
+					r.cycles = now;
+					control.finishCommand(q.thread, r);
+					continue;
+				case C::COMPLETION:
+					if (control.completionWaits(q.thread) && !control.completionReady(q.thread))
+						completionWaiting[q.thread] = true;
+					else
+						control.finishCommand(q.thread, r);
+					continue;
+				default:
+					control.finishCommand(q.thread, r);
+					continue;
+			}
+			ccuRequest = q;
+			ccuBusy = true;
+		}
+	}
+
+	void startPiece()
+	{
+		if (dmaStage != DMA_IDLE || !dma.nextPiece(piece))
+			return;
+		uint8_t mask = 0;
+		for (unsigned int k = 0; k < piece.bytes; k++)
+			mask |= busBit((unsigned int) (piece.systemAddress & 7) + k);
+		if (piece.toDmem)
+		{
+			master(true, piece.systemAddress & ~7ULL, mask, 0, TAG_DMA, 0);
+			dmaStage = DMA_MASTER_READ;
+		}
+		else
+		{
+			service(apara::ServiceKind::DMEM_READ, TAG_DMA, 0, piece.dmemAddress & ~7u);
+			dmaStage = DMA_SERVICE_READ;
+		}
+	}
+
+	//The DMA piece's next step, given the data that just arrived.
+	void continuePiece(uint64_t data, uint64_t now)
+	{
+		unsigned int so = (unsigned int) (piece.systemAddress & 7), dO = piece.dmemAddress & 7;
+		if (dmaStage == DMA_MASTER_READ)
+		{
+			uint64_t sys = apara::busToDmem(data), out = 0;
+			uint8_t lanes = 0;
+			for (unsigned int k = 0; k < piece.bytes; k++)
+			{
+				uint64_t byte = (sys >> (56 - 8 * (so + k))) & 0xFF;
+				out |= byte << (56 - 8 * (dO + k));
+				lanes |= (uint8_t) (1u << (7 - (dO + k)));
+			}
+			service(apara::ServiceKind::DMEM_WRITE, TAG_DMA, 0, piece.dmemAddress & ~7u, out, lanes);
+			dmaStage = DMA_SERVICE_WRITE;
+		}
+		else if (dmaStage == DMA_SERVICE_READ)
+		{
+			uint64_t out = 0;
+			uint8_t mask = 0;
+			for (unsigned int k = 0; k < piece.bytes; k++)
+			{
+				uint64_t byte = (data >> (56 - 8 * (dO + k))) & 0xFF;
+				out |= byte << (56 - 8 * (so + k));
+				mask |= busBit(so + k);
+			}
+			master(false, piece.systemAddress & ~7ULL, mask, apara::busToDmem(out), TAG_DMA, 0);
+			dmaStage = DMA_MASTER_WRITE;
+		}
+		else //DMA_SERVICE_WRITE, DMA_MASTER_WRITE: the piece is done
+		{
+			dma.pieceDone(piece, now);
+			dmaStage = DMA_IDLE;
+		}
+	}
+
+	//Phase 0.
+	void receive(uint64_t now)
+	{
+		while (stopIn.pull(stopTok))
+		{
+			apara::StopNotice n;
+			sitar::unpack(stopTok, n);
+			control.threadStopped(n.thread, n.error, n.pc);
+		}
+		while (serviceIn.pull(serviceResponseTok))
+		{
+			apara::ServiceResponse a;
+			sitar::unpack(serviceResponseTok, a);
+			if (a.tag == TAG_SLAVE)
+				respondToSlave(slaveRequest.accessType == PhysicalAccessType::READ ? apara::busToDmem(a.data) : 0);
+			else if (a.tag == TAG_CCU)
+			{
+				apara::AparaControlCore::Result r;
+				r.imemWord = (uint32_t) a.data;
+				r.registerValue = a.data;
+				r.nextPc = (uint32_t) a.data;
+				r.rasDepth = (uint32_t) a.data;
+				r.rasTop = a.extra;
+				control.finishCommand(ccuRequest.thread, r);
+				ccuBusy = false;
+			}
+			else if (a.tag == TAG_DMA)
+				continuePiece(a.data, now);
+		}
+		if (masterOutstanding && masterResponseIn.pull(responseTok))
+		{
+			uint64_t data = 0;
+			bool mae = false;
+			sitar::unpack(responseTok, data, mae);
+			masterOutstanding = false;
+			if (masterCurrent.tag == TAG_DMA)
+				continuePiece(data, now);
+			else
+			{
+				apara::OffIslandResponse r;
+				std::memset(&r, 0, sizeof(r));
+				r.thread = masterCurrent.thread;
+				r.data = masterCurrent.request.accessType == PhysicalAccessType::READ ? apara::busToDmem(data) : 0;
+				offIslandResponses.push_back(r);
+			}
+		}
+		while (offIslandIn.pull(offIslandRequestTok))
+		{
+			apara::OffIslandRequest q;
+			sitar::unpack(offIslandRequestTok, q);
+			master(!q.store, q.address, apara::busMaskToDmemLanes(q.lanes), apara::busToDmem(q.data), TAG_OFF_ISLAND, q.thread);
+		}
+		if (!slaveBusy && slaveRequestIn.pull(requestTok))
+		{
+			sitar::unpack(requestTok, slaveRequest.accessType, slaveRequest.lock,
+			              slaveRequest.physicalAddress, slaveRequest.data, slaveRequest.byteMask);
+			slaveBusy = true;
+			takeSlaveRequest(now);
+		}
+		runControl(now);
+		startPiece();
+	}
+
+	//Phase 1.
+	void send()
+	{
+		while (!slaveResponses.empty())
+		{
+			sitar::pack(responseTok, slaveResponses.front().readData, slaveResponses.front().mae);
+			if (!slaveResponseOut.push(responseTok)) break;
+			slaveResponses.pop_front();
+		}
+		while (!serviceQueue.empty())
+		{
+			sitar::pack(serviceRequestTok, serviceQueue.front());
+			if (!serviceOut.push(serviceRequestTok)) break;
+			serviceQueue.pop_front();
+		}
+		if (!masterOutstanding && !masterQueue.empty())
+		{
+			const PhysicalMemoryRequest& q = masterQueue.front().request;
+			sitar::pack(requestTok, q.accessType, q.lock, q.physicalAddress, q.data, q.byteMask);
+			if (masterRequestOut.push(requestTok))
+			{
+				masterCurrent = masterQueue.front();
+				masterQueue.pop_front();
+				masterOutstanding = true;
+			}
+		}
+		while (!offIslandResponses.empty())
+		{
+			sitar::pack(offIslandResponseTok, offIslandResponses.front());
+			if (!offIslandOut.push(offIslandResponseTok)) break;
+			offIslandResponses.pop_front();
+		}
+		uint8_t level = (control.interrupt() || dma.interrupt()) ? 1 : 0;
+		if (level != lastInterrupt && interruptOut.getNet())
+		{
+			sitar::pack(interruptTok, level);
+			if (interruptOut.push(interruptTok))
+				lastInterrupt = level;
+		}
+	}
+	$
+
+	init
+	$
+	dmemBase = SystemAddressMap::aparaDmemBase(0, 0);
+	ccuBase  = SystemAddressMap::aparaCcuBase(0, 0);
+	dmaBase  = SystemAddressMap::aparaDmaBase(0, 0);
+	slaveBusy = false;
+	slaveRequest = PhysicalMemoryRequest{false, PhysicalAccessType::READ, false, 0, 0, 0};
+	ccuBusy = false;
+	std::memset(&ccuRequest, 0, sizeof(ccuRequest));
+	for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+		completionWaiting[t] = false;
+	dmaStage = DMA_IDLE;
+	std::memset(&piece, 0, sizeof(piece));
+	masterOutstanding = false;
+	std::memset(&masterCurrent, 0, sizeof(masterCurrent));
+	lastInterrupt = 0;
+	$
+
+	behavior
+	do
+		$ receive(current_time.cycle()); $;
+		wait(0, 1);
+		$ send(); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

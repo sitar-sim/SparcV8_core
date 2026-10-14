@@ -279,6 +279,14 @@ components, each living in its own folder:
     through the caches on that configuration, and with every ordinary
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the
     environment.
+- **`validation/C/apara/`**  
+    An APARA engine driven from the SPARC: its control unit (IMEM,
+    registers, running threads, completion by polling and by interrupt),
+    its DMA unit, its DMEM window, and its own accesses to main memory.
+    Needs `sparc_apara`; run with `--max-cycles 5000000` on the
+    sitar_model. See [The Engine in a System](apara/system.md). (The
+    engine on its own has its own suite, `validation/apara/`: Ref
+    [Writing and Running APARA Programs](apara/running.md).)
 
 A component's tests only pass on a configuration that actually includes
 that component, e.g. the MMU suite needs `core_mmu` or a later

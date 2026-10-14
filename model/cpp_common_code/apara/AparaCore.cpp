@@ -43,7 +43,19 @@ struct AparaCore::SlotWork
 	}
 };
 
+//A thread's bundle between beginStep() and commitStep().
+struct AparaCore::PendingStep
+{
+	Bundle           bundle;
+	SlotWork         work[BUNDLE_MAX_SLOTS];
+	StepResult       result;
+	DwordTransaction transaction[BUNDLE_MAX_SLOTS * 4];
+	unsigned int     count = 0;
+};
+
 AparaCore::AparaCore() : AparaCore(Config()) {}
+
+AparaCore::~AparaCore() {}
 
 AparaCore::AparaCore(const Config& config) : config_(config)
 {
@@ -51,6 +63,8 @@ AparaCore::AparaCore(const Config& config) : config_(config)
 	std::memset(dmem_, 0, sizeof(dmem_));
 	bundleCache_.resize(IMEM_WORDS);
 	bundleCached_.assign(IMEM_WORDS, false);
+	for (unsigned int t = 0; t < THREADS_PER_ENGINE; t++)
+		pending_[t].reset(new PendingStep());
 	resetThreads();
 }
 
@@ -66,6 +80,16 @@ void AparaCore::startThread(unsigned int t, uint32_t pc)
 	ThreadState& ts = threads_[t & 3];
 	ts.pc     = pc;
 	ts.active = true;
+	ts.halted = false;
+	ts.error  = 0;
+	ts.ras.clear();
+}
+
+void AparaCore::resetThread(unsigned int t)
+{
+	ThreadState& ts = threads_[t & 3];
+	ts.pc     = 0;
+	ts.active = false;
 	ts.halted = false;
 	ts.error  = 0;
 	ts.ras.clear();
@@ -94,30 +118,46 @@ void AparaCore::writeImemWord(uint32_t index, uint32_t word)
 
 Bundle AparaCore::fetchBundle(uint32_t pc) const
 {
+	if (pc >= IMEM_WORDS)
+	{
+		Bundle b;
+		b.pc = pc;
+		b.problem = "the PC is beyond IMEM";
+		return b;
+	}
+	//The words from the PC to the next start bit, a zero word, or the end
+	//of the 8-word line.
+	uint32_t words[BUNDLE_MAX_SLOTS];
+	unsigned int n = 0;
+	for (uint32_t a = pc; a < (pc & ~7u) + 8; a++)
+	{
+		uint32_t w = imemWord(a);
+		if (w == 0 || (a > pc && (w >> 31)))
+			break;
+		words[n++] = w;
+	}
+	return makeBundle(pc, words, n);
+}
+
+Bundle AparaCore::makeBundle(uint32_t pc, const uint32_t* words, unsigned int n)
+{
 	Bundle b;
 	b.pc = pc;
-	uint32_t line = pc & ~7u, offset = pc & 7u;
-	uint32_t first = imemWord(pc);
-	if (pc >= IMEM_WORDS)       { b.problem = "the PC is beyond IMEM"; return b; }
-	if (first == 0)             { b.problem = "no instruction at the PC"; return b; }
-	if (!(first >> 31))         { b.problem = "no bundle starts at the PC"; return b; }
+	if (n == 0)                    { b.problem = "no instruction at the PC"; return b; }
+	if (!(words[0] >> 31))         { b.problem = "no bundle starts at the PC"; return b; }
+	if (n > BUNDLE_MAX_SLOTS)      n = BUNDLE_MAX_SLOTS;
 
-	unsigned int n = 0, controls = 0;
+	unsigned int controls = 0;
 	bool full = false;
-	for (uint32_t i = offset; i < 8; i++)
+	for (unsigned int s = 0; s < n; s++)
 	{
-		uint32_t w = imemWord(line + i);
-		if (w == 0 || (i > offset && (w >> 31)))
-			break;
-		b.slot[n] = Instruction::decode(w);
-		const Instruction& in = b.slot[n];
-		unsigned int s = i - offset;
+		b.slot[s] = Instruction::decode(words[s]);
+		const Instruction& in = b.slot[s];
 		if ((in.isControl() && s != 0) || ((in.opcode == Opcode::DIV || in.opcode == Opcode::FSQRT) && s != 1)
 		    || (in.klass == InstructionClass::MEMORY && s < 4))
 			b.misplaced |= (uint8_t) (1u << s);
 		full = full || in.needsFullBundle();
-		controls += b.slot[n].isControl() ? 1 : 0;
-		n++;
+		controls += in.isControl() ? 1 : 0;
 	}
 	b.size = n;
 	//A bundle is padded to its capacity (Ref the reference's
@@ -308,9 +348,25 @@ void AparaCore::executeSlot(const ThreadState& ts, const Bundle& b, unsigned int
 	}
 }
 
-StepResult AparaCore::step(unsigned int t)
+StepResult AparaCore::finishWithException(ThreadState& ts, StepResult res, uint32_t codes, bool rasError)
+{
+	ts.error |= codes | (codes ? ERROR_EXCEPTION : 0) | (rasError ? ERROR_RAS : 0);
+	ts.halted = true;
+	res.exception = res.halted = true;
+	res.nextPc = ts.pc;
+	return res;
+}
+
+StepResult AparaCore::beginStep(unsigned int t)
+{
+	return beginStep(t, bundleAt(threads_[t & 3].pc));
+}
+
+StepResult AparaCore::beginStep(unsigned int t, const Bundle& bundle)
 {
 	ThreadState& ts = threads_[t & 3];
+	PendingStep& p = *pending_[t & 3];
+	p.count = 0;
 	StepResult res;
 	res.thread = t & 3;
 	if (!ts.runnable())
@@ -318,41 +374,29 @@ StepResult AparaCore::step(unsigned int t)
 
 	res.executed = true;
 	res.pc = ts.pc;
-	const Bundle& b = bundleAt(ts.pc);
+	p.bundle = bundle;
+	const Bundle& b = p.bundle;
 	res.bundle = &b;
-
 	if (!b.valid)
-	{
-		ts.error |= ERROR_EXCEPTION | (uint32_t) ExceptionCode::ILLEGAL;
-		ts.halted = true;
-		res.exception = res.halted = true;
-		res.nextPc = ts.pc;
-		return res;
-	}
+		return finishWithException(ts, res, (uint32_t) ExceptionCode::ILLEGAL, false);
 
 	//Read and execute (the registers do not change until the commit).
-	SlotWork work[BUNDLE_MAX_SLOTS];
 	uint32_t codes = 0;
 	bool rasError = false;
 	for (unsigned int s = 0; s < b.size; s++)
 	{
-		executeSlot(ts, b, s, work[s]);
-		codes |= (uint32_t) work[s].exception << (3 * s);
-		rasError = rasError || work[s].rasError;
+		p.work[s] = SlotWork();
+		executeSlot(ts, b, s, p.work[s]);
+		codes |= (uint32_t) p.work[s].exception << (3 * s);
+		rasError = rasError || p.work[s].rasError;
 	}
 	if (codes != 0 || rasError)
-	{
-		ts.error |= codes | (codes ? ERROR_EXCEPTION : 0) | (rasError ? ERROR_RAS : 0);
-		ts.halted = true;
-		res.exception = res.halted = true;
-		res.nextPc = ts.pc;
-		return res;
-	}
+		return finishWithException(ts, res, codes, rasError);
 
-	//Memory, in slot order.
+	//The memory phase's transactions, in slot order.
 	for (unsigned int s = 0; s < b.size; s++)
 	{
-		SlotWork& w = work[s];
+		const SlotWork& w = p.work[s];
 		if (!w.memory)
 			continue;
 		MemoryAccess& m = res.memoryAccess[res.memoryAccessCount++];
@@ -361,41 +405,100 @@ StepResult AparaCore::step(unsigned int t)
 		m.address = w.address;
 		m.bytes = (uint16_t) w.bytes;
 		m.offIsland = isOffIsland(w.address);
-
-		if (w.regs > 1) //128 and 256 bits: whole words
+		for (unsigned int k = 0; k < w.regs; k++)
 		{
-			for (unsigned int k = 0; k < w.regs; k++)
+			DwordTransaction& x = p.transaction[p.count++];
+			x = DwordTransaction();
+			x.slot = (uint8_t) s;
+			x.part = (uint8_t) k;
+			x.store = w.store;
+			if (w.regs > 1) //128 and 256 bits: whole words
 			{
-				if (w.store) writeDword(w.address + 8 * k, 0xFF, w.storeData[k]);
-				else         w.addWrite(w.rd + k, readDword(w.address + 8 * k, 0xFF));
+				x.address = (w.address & ~7u) + 8 * k;
+				x.lanes = 0xFF;
+				x.data = w.storeData[k];
 			}
-		}
-		else
-		{
-			//The transfer's place in its big-endian 64-bit word.
-			//Deviation: the reference picks the half of a 4-byte load by
-			//address bit 1 (its store uses bit 2, as here).
-			unsigned int shift = 8 * (8 - w.bytes - (w.address & 7));
-			uint8_t lanes = (uint8_t) (lowMask(w.bytes) << (shift / 8));
-			uint64_t valueMask = lowMask(8 * w.bytes);
-			if (w.store)
-				writeDword(w.address, lanes, (w.storeData[0] & valueMask) << shift);
 			else
 			{
-				uint64_t v = (readDword(w.address, lanes) >> shift) & valueMask;
+				//The transfer's place in its big-endian 64-bit word.
+				//Deviation: the reference picks the half of a 4-byte load by
+				//address bit 1 (its store uses bit 2, as here).
+				unsigned int shift = 8 * (8 - w.bytes - (w.address & 7));
+				x.address = w.address & ~7u;
+				x.lanes = (uint8_t) (lowMask(w.bytes) << (shift / 8));
+				x.data = (w.storeData[0] & lowMask(8 * w.bytes)) << shift;
+			}
+			x.offIsland = isOffIsland(x.address);
+		}
+	}
+	p.result = res;
+	p.result.bundle = &p.bundle;
+	return p.result;
+}
+
+unsigned int AparaCore::pendingTransactions(unsigned int t) const { return pending_[t & 3]->count; }
+bool AparaCore::stepPending(unsigned int t) const { return pending_[t & 3]->result.executed && !pending_[t & 3]->result.exception; }
+
+const DwordTransaction& AparaCore::transaction(unsigned int t, unsigned int i) const
+{
+	return pending_[t & 3]->transaction[i];
+}
+
+void AparaCore::performLocal(unsigned int t, unsigned int i)
+{
+	DwordTransaction& x = pending_[t & 3]->transaction[i];
+	if (x.store) writeLocal(x.address, x.lanes, x.data);
+	else         x.data = readLocal(x.address);
+	x.done = true;
+}
+
+void AparaCore::completeTransaction(unsigned int t, unsigned int i, uint64_t loadData)
+{
+	DwordTransaction& x = pending_[t & 3]->transaction[i];
+	if (!x.store) x.data = loadData;
+	x.done = true;
+}
+
+StepResult AparaCore::commitStep(unsigned int t)
+{
+	ThreadState& ts = threads_[t & 3];
+	PendingStep& p = *pending_[t & 3];
+	const Bundle& b = p.bundle;
+	StepResult res = p.result;
+	p.result = StepResult(); //no step pending any more
+
+	//Loaded values, and base increments, in slot order.
+	unsigned int k = 0;
+	for (unsigned int s = 0; s < b.size; s++)
+	{
+		SlotWork& w = p.work[s];
+		if (!w.memory)
+			continue;
+		for (unsigned int part = 0; part < w.regs; part++, k++)
+		{
+			if (w.store)
+				continue;
+			const DwordTransaction& x = p.transaction[k];
+			if (w.regs > 1)
+				w.addWrite(w.rd + part, x.data);
+			else
+			{
+				unsigned int shift = 8 * (8 - w.bytes - (w.address & 7));
+				uint64_t v = (x.data >> shift) & lowMask(8 * w.bytes);
 				w.addWrite(w.rd, w.signExtendLoad ? signExtend(v, 8 * w.bytes) : v);
 			}
 		}
 		if (w.incrementBase)
 			w.addWrite(w.rs2, w.nextRs2);
 	}
+	p.count = 0;
 
 	//Commit, in slot order.
 	uint32_t nextPc = b.pc + b.size;
 	bool halt = false;
 	for (unsigned int s = 0; s < b.size; s++)
 	{
-		const SlotWork& w = work[s];
+		const SlotWork& w = p.work[s];
 		for (unsigned int i = 0; i < w.writeCount; i++)
 			if (w.write[i].reg != 0)
 				ts.r[w.write[i].reg] = w.write[i].value;
@@ -406,6 +509,7 @@ StepResult AparaCore::step(unsigned int t)
 	}
 	res.redirect = nextPc != b.pc + b.size;
 	res.nextPc = nextPc;
+	res.bundle = &p.bundle;
 	ts.pc = nextPc;
 	ts.bundlesExecuted++;
 	if (halt)
@@ -415,6 +519,27 @@ StepResult AparaCore::step(unsigned int t)
 		res.halted = true;
 	}
 	return res;
+}
+
+StepResult AparaCore::step(unsigned int t)
+{
+	StepResult r = beginStep(t);
+	if (!r.executed || r.exception)
+		return r;
+	for (unsigned int i = 0; i < pendingTransactions(t); i++)
+	{
+		const DwordTransaction& x = transaction(t, i);
+		if (!x.offIsland)
+			performLocal(t, i);
+		else if (x.store)
+		{
+			if (offIsland_) offIsland_->writeDword(x.address, x.lanes, x.data);
+			completeTransaction(t, i, 0);
+		}
+		else
+			completeTransaction(t, i, offIsland_ ? offIsland_->readDword(x.address, x.lanes) : 0);
+	}
+	return commitStep(t);
 }
 
 StepResult AparaCore::tick()
@@ -439,24 +564,11 @@ bool AparaCore::isOffIsland(uint32_t address) const
 {
 	if (config_.offIslandMode == OffIslandMode::ALIAS_TO_LOCAL)
 		return false;
-	return address >= DMEM_BYTES && (address - config_.dmemWindowBase) >= DMEM_BYTES;
+	return (address - config_.dmemWindowBase) >= DMEM_BYTES;
 }
 
-uint64_t AparaCore::readDword(uint32_t address, uint8_t laneMask)
+void AparaCore::writeLocal(uint32_t address, uint8_t laneMask, uint64_t data)
 {
-	if (isOffIsland(address))
-		return offIsland_ ? offIsland_->readDword(address & ~7u, laneMask) : 0;
-	return dmem_[(address >> 3) % DMEM_DWORDS];
-}
-
-void AparaCore::writeDword(uint32_t address, uint8_t laneMask, uint64_t data)
-{
-	if (isOffIsland(address))
-	{
-		if (offIsland_)
-			offIsland_->writeDword(address & ~7u, laneMask, data);
-		return;
-	}
 	uint64_t mask = 0;
 	for (unsigned int i = 0; i < 8; i++)
 		if (laneMask & (1u << i))

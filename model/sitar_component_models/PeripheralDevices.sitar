@@ -44,6 +44,10 @@ module PeripheralDevices
 
 	//The interrupt level (IRL, 0..15, one byte) for interruptSlot.
 	outport interruptLevelOut : width 1
+	//The Interrupt Controller's external input (IRL 14), from an APARA
+	//engine in sparc_apara; optional: unconnected in the other
+	//configurations. A token carries the new level (0 or 1).
+	inport  externalInterruptIn : width 1
 
 	procedure getRequest   : PullAToken<TOKEN_REQ_WIDTH>
 	procedure sendResponse : PushAToken<TOKEN_RESP_WIDTH>
@@ -71,6 +75,7 @@ module PeripheralDevices
 
 	uint8_t   lastSentLevel;
 	token<1>  levelToken;
+	token<1>  externalToken;
 	$
 	init
 	$
@@ -95,7 +100,15 @@ module PeripheralDevices
 		//The clock.
 		do
 			wait until (this_phase==0);
-			$ devices.tick(); $;
+			$
+			if (externalInterruptIn.getNet() && externalInterruptIn.pull(externalToken))
+			{
+				uint8_t level = 0;
+				sitar::unpack(externalToken, level);
+				devices.externalInterruptIn = level != 0;
+			}
+			devices.tick();
+			$;
 
 			wait until (this_phase==1);
 			$

@@ -24,7 +24,7 @@ The engine's main traits, which these pages explain:
 | Configuration | What it is | Status |
 |---|---|---|
 | `apara` | one engine on its own; programs and data placed in its memories before the run | functional and timing models, tests, tools |
-| `sparc_apara` | a SPARC core (with caches, MMU and peripheral devices) and one engine | next |
+| `sparc_apara` | a SPARC core (with L1 caches, MMU and peripheral devices) and one engine: the SPARC loads and runs the engine's programs, and the engine's DMA and its own loads and stores reach the system's memory | functional and timing models, C routines, tests |
 
 The pages:
 
@@ -33,6 +33,8 @@ The pages:
   assembler and disassembler, the file formats.
 - [Writing and Running Programs](running.md): the simulators, the tests.
 - [Timing Model](timing_model.md): the pipeline and its timing rules.
+- [The Engine in a System](system.md): sparc_apara, the control and DMA
+  units, the SPARC-side routines.
 - [Deviations and Findings](deviations.md): where the model differs from
   the reference model, and the open questions.
 
@@ -43,5 +45,10 @@ The pages:
 | `model/cpp_common_code/apara/` | the engine in plain C++: `AparaCore` (state and execution), `AparaInstruction` (decoding), `AparaOperations` (the arithmetic), `AparaTypes` (number formats), `AparaFiles` and `AparaRun` (files and simulator runs), `AparaTiming` (latency table, BTB, pipeline tokens) |
 | `model/sitar_component_models/Apara*.sitar` | the pipeline: `AparaEngine` and its five stage modules |
 | `model/system_models/apara/` | the configuration: `cpp_model/` (`apara_sim_cpp`) and `sitar_model/` (`apara_sim_sitar`) |
+| `model/cpp_common_code/apara/` (system) | `AparaControlCore` (CCU), `AparaDmaCore` (DMA), `AparaSystemCore` (all three, for the cpp model) |
+| `model/sitar_component_models/AparaHost.sitar`, `SystemInterconnect.sitar` | the engine's host side and the two-master bus, in Sitar |
+| `model/system_models/sparc_apara/` | the configuration |
+| `compiler/include/apara_access_routines.h`, `compiler/apara/apara_obj_to_c.py` | SPARC-side routines; an engine program as a C array |
+| `validation/C/apara/` | the SPARC-side tests |
 | `compiler/apara/` | the assembler, disassembler, their library `mcode.py`, vim syntax |
 | `validation/apara/` | the tests and their runner |

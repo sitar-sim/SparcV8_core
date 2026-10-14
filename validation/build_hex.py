@@ -28,6 +28,7 @@ import vprj
 
 ASSEMBLE_SH  = os.path.join(vprj.REPO_ROOT, 'compiler', 'assemble.sh')
 COMPILE_C_SH = os.path.join(vprj.REPO_ROOT, 'compiler', 'compile_c.sh')
+OBJ_TO_C     = os.path.join(vprj.REPO_ROOT, 'compiler', 'apara', 'apara_obj_to_c.py')
 
 BUILD_SCRIPT_FOR_EXT = {
     '.s': ASSEMBLE_SH,
@@ -49,6 +50,14 @@ def build_one(vprj_path, env):
         if ext != '.c':
             return False, "ERROR: STARTUP only applies to C tests (%s)" % source
         env = dict(env, CRT0=startup)
+
+    for program in vprj.parse_mcode(vprj_path):
+        if ext != '.c':
+            return False, "ERROR: MCODE only applies to C tests (%s)" % source
+        gen = subprocess.run([sys.executable, OBJ_TO_C, os.path.join(test_dir, program)],
+                             capture_output=True, text=True)
+        if gen.returncode != 0:
+            return False, gen.stdout + gen.stderr
 
     asm = subprocess.run([BUILD_SCRIPT_FOR_EXT[ext], source_path], capture_output=True, text=True, env=env)
     return asm.returncode == 0, asm.stdout + asm.stderr

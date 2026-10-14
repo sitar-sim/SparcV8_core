@@ -49,6 +49,8 @@ summarized here:
 | core_l1cache_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/) | Adds split L1 caches between the core and the MMU. |
 | apara | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/cpp_model/) | One APARA engine on its own, no SPARC core (Ref [The APARA Engine](apara/index.md)). |
 | apara | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/sitar_model/) | One APARA engine on its own, with its pipeline's timing. |
+| sparc_apara | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/cpp_model/) | core_l1cache_mmu_devices plus one APARA engine (Ref [The Engine in a System](apara/system.md)). |
+| sparc_apara | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/sitar_model/) | core_l1cache_mmu_devices plus one APARA engine, on a two-master bus. |
 
 For each configuration, both the cpp and sitar models include the same
 components: `core_mmu`'s MMU, for example, is present in both its
@@ -276,3 +278,27 @@ stage, joined by nets with the hardware's channel depths; see
 | `execToRegfile` | 1 | EXEC's results back to REGFILE |
 | `regfileToWriteback` | 2 | REGFILE to WRITEBACK |
 | `correctionNet`, `haltNet` | 1 | WRITEBACK to FETCH |
+
+---
+
+### Configuration: sparc_apara
+
+`core_l1cache_mmu_devices` plus one APARA engine. The engine's pipeline
+and its host side (control and DMA units) are modules beside the core,
+and the bus takes requests from both the core and the engine (Ref [The
+Engine in a System](apara/system.md)).
+
+#### Model description
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Core.sitar">Core</a> (module: sparcThread, caches, mmu)
+      +-- interconnect : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar">SystemInterconnect</a>&lt;2&gt; (module)
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+      +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module: fetch, decode, regfile, exec, writeback)
+      +-- host : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar">AparaHost</a> (module)
+</pre>

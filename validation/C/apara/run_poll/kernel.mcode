@@ -1,0 +1,8 @@
+// $r3 = $r1 + $r2, also stored as a 64-bit word at DMEM byte 0x100
+// ($r9: DMEM's address, its window: an engine in a system reaches its
+// DMEM by the window's address).
+start:
+    || + $r3 ($i64) $r1 $r2 ;
+    || $st ($i64) [$r9 + 256] $r3 ;
+done:
+    || $halt ;

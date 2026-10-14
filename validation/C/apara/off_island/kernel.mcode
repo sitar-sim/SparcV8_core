@@ -1,0 +1,7 @@
+// Read the main-memory word at $r1, double it, write it to $r1 + 4:
+// addresses outside DMEM go off island, to the system.
+start:
+    || $ld ($i32) $r2 [$r1 + 0] ;
+    || + $r3 ($i64) $r2 $r2 ;
+    || $st ($i32) [$r1 + 4] $r3 ;
+    || $halt ;

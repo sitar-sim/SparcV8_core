@@ -87,6 +87,83 @@ namespace apara
 	#define APARA_HALT_TOKEN_BYTES 4
 
 	//------------------------------------------------------------------
+	//Tokens between the engine and its host-side units (AparaHost), in a
+	//system: EXEC owns the engine's state, so everything else reaches
+	//it through EXEC's service port.
+	//------------------------------------------------------------------
+
+	enum class ServiceKind : uint8_t
+	{
+		DMEM_READ, DMEM_WRITE,          //a DMEM word (address: byte offset; lanes, data: DMEM format)
+		REGISTER_READ, REGISTER_WRITE,  //thread register `index`
+		IMEM_READ, IMEM_WRITE,          //IMEM word `index`
+		START_THREAD, RESET_THREAD,     //start at `index` (the PC); reset
+		STEP,                           //one bundle at `index`; response: the next PC
+		RAS_STATE                       //response: data = depth, extra = top
+	};
+
+	struct ServiceRequest
+	{
+		uint64_t    data;
+		uint32_t    index;   //byte offset, register, IMEM index or PC
+		ServiceKind kind;
+		uint8_t     thread;
+		uint8_t     lanes;
+		uint8_t     tag;     //the requester's, returned in the response
+	};
+	#define APARA_SERVICE_REQUEST_BYTES 16
+
+	struct ServiceResponse
+	{
+		uint64_t data;
+		uint32_t extra;
+		uint8_t  tag;
+		uint8_t  padding[3];
+	};
+	#define APARA_SERVICE_RESPONSE_BYTES 16
+
+	//EXEC's off-island 64-bit-word transaction (Ref DwordTransaction), and
+	//its answer.
+	struct OffIslandRequest
+	{
+		uint64_t data;
+		uint32_t address;
+		uint8_t  lanes;    //DMEM format: bit i for bits [8i+7:8i]
+		uint8_t  store;
+		uint8_t  thread;
+		uint8_t  padding;
+	};
+	#define APARA_OFF_ISLAND_REQUEST_BYTES 16
+
+	struct OffIslandResponse
+	{
+		uint64_t data;
+		uint8_t  thread;
+		uint8_t  padding[7];
+	};
+	#define APARA_OFF_ISLAND_RESPONSE_BYTES 16
+
+	//EXEC to the host side: a thread stopped (its ERROR and PC).
+	struct StopNotice
+	{
+		uint32_t error;
+		uint32_t pc;
+		uint8_t  thread;
+		uint8_t  padding[3];
+	};
+	#define APARA_STOP_NOTICE_BYTES 12
+
+	//EXEC to FETCH: start a thread at pc, or stop fetching it.
+	struct FetchControl
+	{
+		uint32_t pc;
+		uint8_t  thread;
+		uint8_t  start;   //1 start, 0 reset
+		uint8_t  padding[2];
+	};
+	#define APARA_FETCH_CONTROL_BYTES 8
+
+	//------------------------------------------------------------------
 	//Latency table
 	//------------------------------------------------------------------
 

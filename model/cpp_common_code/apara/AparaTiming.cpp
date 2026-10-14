@@ -12,6 +12,12 @@ static_assert(sizeof(BundleToken)     == APARA_BUNDLE_TOKEN_BYTES,     "BundleTo
 static_assert(sizeof(ResultToken)     == APARA_RESULT_TOKEN_BYTES,     "ResultToken size");
 static_assert(sizeof(CorrectionToken) == APARA_CORRECTION_TOKEN_BYTES, "CorrectionToken size");
 static_assert(sizeof(HaltToken)       == APARA_HALT_TOKEN_BYTES,       "HaltToken size");
+static_assert(sizeof(ServiceRequest)    == APARA_SERVICE_REQUEST_BYTES,     "ServiceRequest size");
+static_assert(sizeof(ServiceResponse)   == APARA_SERVICE_RESPONSE_BYTES,    "ServiceResponse size");
+static_assert(sizeof(OffIslandRequest)  == APARA_OFF_ISLAND_REQUEST_BYTES,  "OffIslandRequest size");
+static_assert(sizeof(OffIslandResponse) == APARA_OFF_ISLAND_RESPONSE_BYTES, "OffIslandResponse size");
+static_assert(sizeof(StopNotice)        == APARA_STOP_NOTICE_BYTES,         "StopNotice size");
+static_assert(sizeof(FetchControl)      == APARA_FETCH_CONTROL_BYTES,       "FetchControl size");
 
 //----------------------------------------------------------------------
 //Latency table

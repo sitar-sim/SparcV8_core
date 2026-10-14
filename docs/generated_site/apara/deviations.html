@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="timing_model.html">
+        <link rel="prev" href="system.html">
       
       
         <link rel="next" href="../model_components_reference.html">
@@ -1271,6 +1271,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1372,6 +1400,17 @@
     <span class="md-ellipsis">
       
         Tools
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-engine-in-a-system-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine in a system (sparc_apara)
       
     </span>
   </a>
@@ -1716,6 +1755,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#the-engine-in-a-system-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine in a system (sparc_apara)
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1956,6 +2006,55 @@ designer. Tests that depend on a deviation are marked <code>//@ deviation</code>
 </tr>
 </tbody>
 </table>
+<h3 id="the-engine-in-a-system-sparc_apara">The engine in a system (sparc_apara)<a class="headerlink" href="#the-engine-in-a-system-sparc_apara" title="Permanent link">&para;</a></h3>
+<p>From the hardware's Aa sources (<code>cpu/ccu/ccu.aa</code>, <code>dma/control.aa</code>,
+<code>data_mem/*.aa</code>), which the reference model does not cover:</p>
+<table>
+<thead>
+<tr>
+<th>#</th>
+<th>Source</th>
+<th>This model</th>
+<th>Why</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>26</td>
+<td><code>dma/control.aa</code> uses control-word bit 3 as interrupt enable, as the error flag on completion, and (written) to clear the interrupt; a command with it set never starts</td>
+<td>flags [0] scheduled, [1] started, [2] completed, [3] interrupt enable, [4] error</td>
+<td>one meaning per bit</td>
+</tr>
+<tr>
+<td>27</td>
+<td>CCU.TXT calls command 7 "wait-on-complete"; <code>ccu.aa</code> polls (non-blocking), so its interrupt fires only if a poll finds the thread already stopped</td>
+<td>without interrupt enable, a poll; with it, the command waits for the stop, then interrupts</td>
+<td>an interrupt a program can wait for</td>
+</tr>
+<tr>
+<td>28</td>
+<td>command 8 (step) executes the instruction in R2 at PC R1</td>
+<td>one bundle from IMEM at R1, with local data only; R7 := the next PC</td>
+<td>debugging use</td>
+</tr>
+<tr>
+<td>29</td>
+<td>command 9 returns the RAS's 52-bit internal state</td>
+<td>R6 := depth, R7 := top</td>
+<td></td>
+</tr>
+<tr>
+<td>30</td>
+<td>(reset leaves registers to the hardware's reset)</td>
+<td>reset keeps the registers, clears PC, RAS and ERROR</td>
+<td>registers set before a run survive a reset</td>
+</tr>
+</tbody>
+</table>
+<p>The rule for local addresses follows the hardware (<code>isInEngineDataMem</code>):
+in a system only the engine's own DMEM window is local. The reference
+model aliases every address into DMEM; the standalone <code>apara</code>
+configuration keeps that behavior.</p>
 <h2 id="open-questions-in-the-sources">Open questions in the sources<a class="headerlink" href="#open-questions-in-the-sources" title="Permanent link">&para;</a></h2>
 <p>Carried by the model as explicit, documented choices (D1-D7 from the
 first review of the sources, then the findings since):</p>

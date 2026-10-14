@@ -57,6 +57,24 @@ designer. Tests that depend on a deviation are marked `//@ deviation` in
 | 24 | a blank line in an object file writes IMEM[0] = 0 | blank lines are ignored | |
 | 25 | `mcode_run`'s results check always exits 0 | exit status 1 on a mismatch | scripts can use it |
 
+### The engine in a system (sparc_apara)
+
+From the hardware's Aa sources (`cpu/ccu/ccu.aa`, `dma/control.aa`,
+`data_mem/*.aa`), which the reference model does not cover:
+
+| # | Source | This model | Why |
+|---|---|---|---|
+| 26 | `dma/control.aa` uses control-word bit 3 as interrupt enable, as the error flag on completion, and (written) to clear the interrupt; a command with it set never starts | flags [0] scheduled, [1] started, [2] completed, [3] interrupt enable, [4] error | one meaning per bit |
+| 27 | CCU.TXT calls command 7 "wait-on-complete"; `ccu.aa` polls (non-blocking), so its interrupt fires only if a poll finds the thread already stopped | without interrupt enable, a poll; with it, the command waits for the stop, then interrupts | an interrupt a program can wait for |
+| 28 | command 8 (step) executes the instruction in R2 at PC R1 | one bundle from IMEM at R1, with local data only; R7 := the next PC | debugging use |
+| 29 | command 9 returns the RAS's 52-bit internal state | R6 := depth, R7 := top | |
+| 30 | (reset leaves registers to the hardware's reset) | reset keeps the registers, clears PC, RAS and ERROR | registers set before a run survive a reset |
+
+The rule for local addresses follows the hardware (`isInEngineDataMem`):
+in a system only the engine's own DMEM window is local. The reference
+model aliases every address into DMEM; the standalone `apara`
+configuration keeps that behavior.
+
 ## Open questions in the sources
 
 Carried by the model as explicit, documented choices (D1-D7 from the

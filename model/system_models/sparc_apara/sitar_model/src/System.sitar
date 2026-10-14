@@ -1,0 +1,160 @@
+//================================================================
+// module System
+// Author: Neha Karanjkar
+//
+// The sparc_apara system: core_l1cache_mmu_devices' SPARC core, main
+// memory and peripheral devices, plus one APARA engine, on a bus with two
+// masters. Sibling modules, connected by nets:
+//
+//   core         : Core               the SPARC core with its L1 caches and MMU
+//   interconnect : SystemInterconnect the physical bus: masters core and engine host
+//   mainMemory   : PhysicalMainMemory main memory
+//   devices      : PeripheralDevices  Timer, Serial, Interrupt Controller
+//   engine       : AparaEngine        the APARA engine's pipeline (state in engine.exec)
+//   host         : AparaHost          the engine's control unit and DMA unit
+//
+//   core -> interconnect -> mainMemory, devices, or host (the engine's
+//                           windows: DMEM, CCU, DMA; SystemAddressMap's
+//                           AJIT_APARA layout)
+//   host -> interconnect -> mainMemory, ...  (DMA transfers, and the
+//                           engine's off-island loads and stores)
+//   host <-> engine.exec    service (DMEM, registers, IMEM, thread
+//                           commands), off-island accesses, stop notices
+//   host -> devices         the engine's interrupt (IRL 14)
+//   devices -> core         the interrupt level
+//
+// Every net crossing costs Sitar's one cycle. Owns the consolidated list
+// of every latency knob in this configuration.
+//================================================================
+
+module System
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	#include "AparaTiming.h"
+	#include "SystemAddressMap.h"
+	$
+
+	submodule core         : Core
+	submodule interconnect : SystemInterconnect<2>
+	submodule mainMemory   : PhysicalMainMemory
+	submodule devices      : PeripheralDevices
+	submodule engine       : AparaEngine
+	submodule host         : AparaHost
+
+	net coreRequestNet       : capacity 1 width TOKEN_REQ_WIDTH
+	net coreResponseNet      : capacity 1 width TOKEN_RESP_WIDTH
+	net hostRequestNet       : capacity 1 width TOKEN_REQ_WIDTH
+	net hostResponseNet      : capacity 1 width TOKEN_RESP_WIDTH
+	net memoryRequestNet     : capacity 1 width TOKEN_REQ_WIDTH
+	net memoryResponseNet    : capacity 1 width TOKEN_RESP_WIDTH
+	net devicesRequestNet    : capacity 1 width TOKEN_REQ_WIDTH
+	net devicesResponseNet   : capacity 1 width TOKEN_RESP_WIDTH
+	net engineRequestNet     : capacity 1 width TOKEN_REQ_WIDTH
+	net engineResponseNet    : capacity 1 width TOKEN_RESP_WIDTH
+	net interruptLevelNet    : capacity 1 width 1
+	net engineInterruptNet   : capacity 1 width 1
+
+	net serviceRequestNet    : capacity 2 width APARA_SERVICE_REQUEST_BYTES
+	net serviceResponseNet   : capacity 2 width APARA_SERVICE_RESPONSE_BYTES
+	net offIslandRequestNet  : capacity 2 width APARA_OFF_ISLAND_REQUEST_BYTES
+	net offIslandResponseNet : capacity 2 width APARA_OFF_ISLAND_RESPONSE_BYTES
+	net stopNet              : capacity 4 width APARA_STOP_NOTICE_BYTES
+
+	core.requestOut                    => coreRequestNet
+	interconnect.masterRequestIn[0]    <= coreRequestNet
+	interconnect.masterResponseOut[0]  => coreResponseNet
+	core.responseIn                    <= coreResponseNet
+
+	host.masterRequestOut              => hostRequestNet
+	interconnect.masterRequestIn[1]    <= hostRequestNet
+	interconnect.masterResponseOut[1]  => hostResponseNet
+	host.masterResponseIn              <= hostResponseNet
+
+	interconnect.memoryRequestOut      => memoryRequestNet
+	mainMemory.requestIn               <= memoryRequestNet
+	mainMemory.responseOut             => memoryResponseNet
+	interconnect.memoryResponseIn      <= memoryResponseNet
+
+	interconnect.devicesRequestOut     => devicesRequestNet
+	devices.requestIn                  <= devicesRequestNet
+	devices.responseOut                => devicesResponseNet
+	interconnect.devicesResponseIn     <= devicesResponseNet
+
+	interconnect.engineRequestOut      => engineRequestNet
+	host.slaveRequestIn                <= engineRequestNet
+	host.slaveResponseOut              => engineResponseNet
+	interconnect.engineResponseIn      <= engineResponseNet
+
+	devices.interruptLevelOut          => interruptLevelNet
+	core.interruptLevelIn              <= interruptLevelNet
+	host.interruptOut                  => engineInterruptNet
+	devices.externalInterruptIn        <= engineInterruptNet
+
+	host.serviceOut                    => serviceRequestNet
+	engine.exec.serviceIn              <= serviceRequestNet
+	engine.exec.serviceOut             => serviceResponseNet
+	host.serviceIn                     <= serviceResponseNet
+	engine.exec.offIslandOut           => offIslandRequestNet
+	host.offIslandIn                   <= offIslandRequestNet
+	host.offIslandOut                  => offIslandResponseNet
+	engine.exec.offIslandIn            <= offIslandResponseNet
+	engine.exec.stopOut                => stopNet
+	host.stopIn                        <= stopNet
+
+	init
+	$
+	//The engine in the system: its DMEM at its window (engine 0 of
+	//cluster 0), other addresses off island.
+	apara::AparaCore::Config engineConfig;
+	engineConfig.offIslandMode  = apara::OffIslandMode::SYSTEM_BUS;
+	engineConfig.dmemWindowBase = (uint32_t) SystemAddressMap::aparaDmemBase(0, 0);
+	engine.exec.core.setConfig(engineConfig);
+	engine.exec.hostConnected = true;
+
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted in its own owning procedure/module; the
+	// value set here runs afterward (Sitar's child-then-parent init
+	// order) and is the authoritative one for the simulation.
+	//---------------------------------------------------------
+	//SPARC core side: as in core_l1cache_mmu_devices.
+	core.sparcThread.ifetchProcedure.delay          = 0;
+	core.sparcThread.memReadProcedure.delay         = 0;
+	core.sparcThread.memWriteProcedure.delay        = 0;
+	core.sparcThread.atomicLoadStoreProcedure.delay = 0;
+	core.sparcThread.flushProcedure.delay           = 0;
+	core.caches.icacheHitDelay = 0;
+	core.caches.dcacheHitDelay = 0;
+	core.caches.fillDelay      = 0;
+	core.mmu.tlbLookupDelay         = 0;
+	core.mmu.pageTableWalkStepDelay = 0;
+	core.mmu.tlbFillDelay           = 0;
+	core.mmu.registerAccessDelay    = 0;
+	core.mmu.flushDelay             = 0;
+	core.mmu.phyMemReadProcedure.delay  = 0;
+	core.mmu.phyMemWriteProcedure.delay = 0;
+	//
+	//The bus, added to every transaction:
+	interconnect.delay = 0;
+	//
+	//Physical memory and the devices:
+	mainMemory.delay = 0;
+	devices.registerAccessDelay      = 0;
+	devices.devices.timerTickDivider = 1;
+	devices.devices.serial.txTicksPerByte = 1;
+	//
+	//The APARA engine (Ref docs/source/apara/timing_model.md; the
+	//per-instruction latencies are AparaTiming.h's LatencyTable):
+	engine.fetch.imemDelay = 0;
+	engine.exec.pipelined  = true;
+	engine.exec.latency.bankConflictCycles = 1;
+	engine.regfile.tokens  = 2;
+	//---------------------------------------------------------
+	$
+
+	//No behavior block: all submodules. Core's own halt-watcher branch
+	//calls `stop simulation` when sparcThread halts.
+end module

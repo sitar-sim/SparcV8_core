@@ -1,0 +1,141 @@
+//================================================================
+// module SystemInterconnect
+// Author: Neha Karanjkar
+//
+// The physical bus of a system with more than one master (sparc_apara:
+// the SPARC core's MMU and an APARA engine's host side): SystemBridge's
+// job, with masters taken in round-robin order. Routes each request by
+// SystemAddressMap::decode() to main memory, the peripheral devices or
+// the APARA engine's windows, one transaction at a time, and returns the
+// answer to the master that asked.
+//
+// An address that maps to nothing reads as 0 and ignores writes, with a
+// warning, as SystemBridge does.
+//
+// Knob: delay (default 0), cycles added to every transaction.
+//================================================================
+
+module SystemInterconnect
+
+	parameter int MASTERS = 2
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	#include "SystemAddressMap.h"
+	#include <iostream>
+	$
+
+	inport_array  masterRequestIn[MASTERS]   : width TOKEN_REQ_WIDTH
+	outport_array masterResponseOut[MASTERS] : width TOKEN_RESP_WIDTH
+	outport memoryRequestOut  : width TOKEN_REQ_WIDTH
+	inport  memoryResponseIn  : width TOKEN_RESP_WIDTH
+	outport devicesRequestOut : width TOKEN_REQ_WIDTH
+	inport  devicesResponseIn : width TOKEN_RESP_WIDTH
+	outport engineRequestOut  : width TOKEN_REQ_WIDTH
+	inport  engineResponseIn  : width TOKEN_RESP_WIDTH
+
+	decl
+	$
+	uint32_t delay;
+	uint64_t transactions[MASTERS];
+	uint64_t unmappedTransactions;
+
+	enum Stage { IDLE, FORWARD, WAIT_TARGET, DELAY, RESPOND };
+	Stage    stage;
+	unsigned int master;     //the transaction's master
+	unsigned int nextMaster; //round robin
+	SystemAddressMap::Target target;
+	uint64_t readyCycle;
+	token<TOKEN_REQ_WIDTH>  requestTok;
+	token<TOKEN_RESP_WIDTH> responseTok;
+
+	public:
+	outport<TOKEN_REQ_WIDTH>* targetRequest()
+	{
+		return target == SystemAddressMap::Target::MAIN_MEMORY ? &memoryRequestOut
+		     : target == SystemAddressMap::Target::PERIPHERAL_DEVICES ? &devicesRequestOut : &engineRequestOut;
+	}
+	inport<TOKEN_RESP_WIDTH>* targetResponse()
+	{
+		return target == SystemAddressMap::Target::MAIN_MEMORY ? &memoryResponseIn
+		     : target == SystemAddressMap::Target::PERIPHERAL_DEVICES ? &devicesResponseIn : &engineResponseIn;
+	}
+
+	//Phase 0.
+	void receive(uint64_t now)
+	{
+		if (stage == IDLE)
+		{
+			for (unsigned int i = 0; i < MASTERS; i++)
+			{
+				unsigned int m = (nextMaster + i) % MASTERS;
+				if (!masterRequestIn[m].getNet() || !masterRequestIn[m].pull(requestTok))
+					continue;
+				master = m;
+				nextMaster = (m + 1) % MASTERS;
+				transactions[m]++;
+				PhysicalAccessType accessType;
+				bool lock;
+				uint64_t address, data;
+				uint8_t byteMask;
+				sitar::unpack(requestTok, accessType, lock, address, data, byteMask);
+				target = SystemAddressMap::decode(address);
+				if (target == SystemAddressMap::Target::UNMAPPED)
+				{
+					unmappedTransactions++;
+					std::cerr << "\nWarning: SystemInterconnect: access to unmapped physical address 0x"
+					          << std::hex << address << std::dec
+					          << (accessType == PhysicalAccessType::READ ? ", read as 0" : ", write ignored");
+					uint64_t noData = 0;
+					bool noMae = false;
+					sitar::pack(responseTok, noData, noMae);
+					readyCycle = now + delay;
+					stage = DELAY;
+				}
+				else
+					stage = FORWARD;
+				break;
+			}
+		}
+		else if (stage == WAIT_TARGET && targetResponse()->pull(responseTok))
+		{
+			readyCycle = now + delay;
+			stage = DELAY;
+		}
+		if (stage == DELAY && now >= readyCycle)
+			stage = RESPOND;
+	}
+
+	//Phase 1.
+	void send()
+	{
+		if (stage == FORWARD && targetRequest()->push(requestTok))
+			stage = WAIT_TARGET;
+		else if (stage == RESPOND && masterResponseOut[master].push(responseTok))
+			stage = IDLE;
+	}
+	$
+
+	init
+	$
+	delay = 0;
+	for (unsigned int m = 0; m < MASTERS; m++)
+		transactions[m] = 0;
+	unmappedTransactions = 0;
+	stage = IDLE;
+	master = 0;
+	nextMaster = 0;
+	target = SystemAddressMap::Target::UNMAPPED;
+	readyCycle = 0;
+	$
+
+	behavior
+	do
+		$ receive(current_time.cycle()); $;
+		wait(0, 1);
+		$ send(); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

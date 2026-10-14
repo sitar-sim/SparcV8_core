@@ -1343,6 +1343,34 @@
   
   
     <li class="md-nav__item">
+      <a href="system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="deviations.html" class="md-nav__link">
         
   
@@ -1710,8 +1738,8 @@ reference model.</p>
 </tr>
 <tr>
 <td><code>sparc_apara</code></td>
-<td>a SPARC core (with caches, MMU and peripheral devices) and one engine</td>
-<td>next</td>
+<td>a SPARC core (with L1 caches, MMU and peripheral devices) and one engine: the SPARC loads and runs the engine's programs, and the engine's DMA and its own loads and stores reach the system's memory</td>
+<td>functional and timing models, C routines, tests</td>
 </tr>
 </tbody>
 </table>
@@ -1722,6 +1750,8 @@ reference model.</p>
   assembler and disassembler, the file formats.</li>
 <li><a href="running.html">Writing and Running Programs</a>: the simulators, the tests.</li>
 <li><a href="timing_model.html">Timing Model</a>: the pipeline and its timing rules.</li>
+<li><a href="system.html">The Engine in a System</a>: sparc_apara, the control and DMA
+  units, the SPARC-side routines.</li>
 <li><a href="deviations.html">Deviations and Findings</a>: where the model differs from
   the reference model, and the open questions.</li>
 </ul>
@@ -1745,6 +1775,26 @@ reference model.</p>
 <tr>
 <td><code>model/system_models/apara/</code></td>
 <td>the configuration: <code>cpp_model/</code> (<code>apara_sim_cpp</code>) and <code>sitar_model/</code> (<code>apara_sim_sitar</code>)</td>
+</tr>
+<tr>
+<td><code>model/cpp_common_code/apara/</code> (system)</td>
+<td><code>AparaControlCore</code> (CCU), <code>AparaDmaCore</code> (DMA), <code>AparaSystemCore</code> (all three, for the cpp model)</td>
+</tr>
+<tr>
+<td><code>model/sitar_component_models/AparaHost.sitar</code>, <code>SystemInterconnect.sitar</code></td>
+<td>the engine's host side and the two-master bus, in Sitar</td>
+</tr>
+<tr>
+<td><code>model/system_models/sparc_apara/</code></td>
+<td>the configuration</td>
+</tr>
+<tr>
+<td><code>compiler/include/apara_access_routines.h</code>, <code>compiler/apara/apara_obj_to_c.py</code></td>
+<td>SPARC-side routines; an engine program as a C array</td>
+</tr>
+<tr>
+<td><code>validation/C/apara/</code></td>
+<td>the SPARC-side tests</td>
 </tr>
 <tr>
 <td><code>compiler/apara/</code></td>
