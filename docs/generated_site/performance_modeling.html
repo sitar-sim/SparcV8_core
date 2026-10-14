@@ -1256,6 +1256,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#peripheral-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peripheral devices
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1504,6 +1526,28 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caches
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#peripheral-devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Peripheral devices
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1661,6 +1705,56 @@ statistics, then physical memory statistics.</p>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemoryStats.h"><code>MainMemoryStats</code></a></td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/cpp_model/">core_mmu/cpp</a>, <a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/sitar_model/">core_mmu/sitar</a></td>
 <td>The number of doubleword transactions reaching physical memory, broken down by read/write, whether a read was the locked half of an atomic pair, and whether a write touched all 8 bytes of the doubleword or only some of them.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="caches">Caches<a class="headerlink" href="#caches" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Performance measure</th>
+<th>Component</th>
+<th>Models/configs available in</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cache hits and misses</strong><br>(<code>read hits</code>, <code>read misses</code>, <code>write hits</code>, <code>write misses</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/">core_l1cache_mmu_devices/cpp</a>, <a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/">core_l1cache_mmu_devices/sitar</a></td>
+<td>Per cache, the lookups of cacheable-ASI accesses that hit or missed.</td>
+</tr>
+<tr>
+<td><strong>Line fills and uncached misses</strong><br>(<code>lines filled</code>, <code>uncached misses</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
+<td>same</td>
+<td>Lines installed, and read misses the MMU reported as not cacheable (which read just one doubleword).</td>
+</tr>
+<tr>
+<td><strong>Forwarded accesses and flushes</strong><br>(<code>forwarded</code>, <code>flushes</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
+<td>same</td>
+<td>Accesses with a non-cacheable ASI, passed straight to the MMU, and whole-cache flushes.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="peripheral-devices">Peripheral devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Performance measure</th>
+<th>Component</th>
+<th>Models/configs available in</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Device accesses</strong><br>(<code>timer</code>, <code>serial</code>, <code>interrupt controller</code>, <code>unmapped</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h"><code>PeripheralDevicesCore</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/cpp_model/">core_mmu_devices/cpp</a>, <a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/">core_mmu_devices/sitar</a>, and every configuration with devices</td>
+<td>Register accesses to each device (one per 32-bit register word touched), and accesses in the device window no device decodes.</td>
 </tr>
 </tbody>
 </table>

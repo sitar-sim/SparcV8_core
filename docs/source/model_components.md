@@ -107,18 +107,64 @@ depending on configuration:
 
 ---
 
-## Caches (planned)
+## Caches
 
-Not yet implemented. Split instruction and data L1 caches are planned,
-sitting between the core (or the MMU) and main memory.
+Split instruction and data L1 caches, between the core and the MMU, in
+`core_l1cache_mmu_devices`. Both are virtually indexed and virtually
+tagged (VIVT): they are looked up with the virtual address, before any
+translation, which is what lets them sit above the MMU. Their
+behavior follows the AJIT processor's own L1 caches:
 
-## Peripheral Devices (planned)
+- **Organization**  
+    64-byte lines. By default 512 lines (32 KB) per cache, direct mapped.
+    Both size and associativity are run-time options
+    (`--icache-lines`, `--icache-ways`, `--dcache-lines`,
+    `--dcache-ways`). Replacement is round-robin within a set. The MMU
+    context is part of every tag, so the same virtual address in two
+    contexts is two different lines.
+- **What is cached**  
+    Ordinary instruction and data accesses (ASIs 8 to B) to pages the MMU
+    says are cacheable. Everything else (MMU registers, the bypass ASIs)
+    goes straight to the MMU. Device registers are never cached.
+- **Reads**  
+    A hit is served by the cache, provided the page's access permissions
+    (kept with the line) allow it. A miss reads the whole line through
+    the MMU.
+- **Writes**  
+    Write-through: every store also goes to memory at once. A store miss
+    then brings the line into the cache (write-allocate). An atomic
+    load-store bypasses the cache, and updates a cached copy of its line.
+- **Flushes**  
+    Always of a whole cache: a store with ASI `0x10` to `0x14` flushes
+    both caches, `0x18` to `0x1C` the instruction cache, the `FLUSH`
+    instruction both, and a write to the MMU's registers (except the
+    context register) both.
+- **Not coherent**  
+    The caches do not see memory changed behind their back, for example
+    by a bypass store, so a program that does that must flush first (see
+    `validation/C/caches/stale_until_flush`). In particular,
+    self-modifying code must execute `FLUSH` before running the new
+    instructions, as the SPARC manual requires.
 
-Not yet implemented. A timer, a per-core interrupt controller, and a
-serial device are planned, a bare-minimum set sufficient to port a
-basic operating system, compatible with the AJIT processor's own
-devices. See [Peripheral Devices](peripheral_devices.md) for the
-register-level detail.
+The C++ class `L1CachesCore` (`model/cpp_common_code/cache/`) holds
+both caches and the whole policy, the same class in both models:
+
+- **cpp_model**  
+    Called directly between `SparcStateMachine` and the MMU, with zero
+    modeled latency.
+- **sitar_model**  
+    `L1Caches.sitar` runs the same steps, with each downstream access a
+    real, timed transaction with the MMU.
+
+## Peripheral Devices
+
+A Timer, a multi-thread Interrupt Controller, and a Serial device, one
+shared set on the memory side of the MMU, compatible with the AJIT
+processor's own devices. The C++ class `PeripheralDevicesCore`
+(`model/cpp_common_code/devices/`) holds all three, the same class in
+both models. In the sitar_model the `PeripheralDevices` module wraps it,
+reached through the `SystemBridge` over nets. See [Peripheral
+Devices](peripheral_devices.md) for the register-level detail.
 
 ---
 

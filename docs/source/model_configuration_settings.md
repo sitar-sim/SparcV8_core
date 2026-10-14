@@ -75,7 +75,16 @@ each knob lives in that configuration's own [`System.sitar`](https://github.com/
 |---|---|---|---|---|
 | **`mainMemory.delay`** | core_only: [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar)<br>core_mmu: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar) | Timing | Runtime | The memory's own service time, shared by every requester. `VirtualMainMemory.delay` in `core_only`, `PhysicalMainMemory.delay` in `core_mmu`.<br>**Range:** non-negative int. |
 
-## Bus and devices (`core_mmu_devices`)
+## Caches (`core_l1cache_mmu_devices`)
+
+| Parameter | Where to modify | Type | Compile time or runtime | Description |
+|---|---|---|---|---|
+| **Cache sizes**<br>(`--icache-lines`, `--icache-ways`, `--dcache-lines`, `--dcache-ways`) | command line, both models (defaults in [`CacheConfig.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/CacheConfig.h)) | Structural | Runtime | Each cache's number of 64-byte lines, and its associativity (1 = direct mapped).<br>**Range:** powers of two, ways no more than lines. Default 512 lines, 1 way. |
+| **`--always-cacheable`** | command line, both models (or `SPARC_ALWAYS_CACHEABLE=1` in the environment) | Structural | Runtime | Sets the MMU Control Register's "always cacheable" bit before the run, so ordinary accesses are cached with the MMU disabled. |
+| **`core.caches.icacheHitDelay`**, **`core.caches.dcacheHitDelay`** | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar) | Timing | Runtime | Cycles charged on an instruction or data cache hit (a data cache hit can be a read or a write).<br>**Range:** non-negative int, default 0. |
+| **`core.caches.fillDelay`** | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar) | Timing | Runtime | Cycles charged when a line is installed, on top of the line read itself.<br>**Range:** non-negative int, default 0. |
+
+## Bus and devices (`core_mmu_devices` and up)
 
 | Parameter | Where to modify | Type | Compile time or runtime | Description |
 |---|---|---|---|---|

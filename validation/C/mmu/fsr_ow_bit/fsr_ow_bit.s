@@ -195,13 +195,13 @@ main:
 	st	%g1, [%fp-40]
 	ld	[%fp-36], %g1
 	ld	[%fp-40], %g2
-! 118 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
+! 129 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	sethi	%hi(285212672), %g1
 	st	%g1, [%fp-32]
 	ld	[%fp-32], %g1
-! 112 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
+! 123 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-28]
@@ -238,7 +238,7 @@ main:
 	st	%g1, [%fp-16]
 	ld	[%fp-12], %g1
 	ld	[%fp-16], %g2
-! 118 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
+! 129 "validation/C/mmu/fsr_ow_bit/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1

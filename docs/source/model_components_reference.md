@@ -69,6 +69,18 @@ more join them.
 | **SystemBridge** (module) | [`SystemBridge.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `bridge`) | The physical bus below the MMU. Routes each request to main memory or to the devices by address, one transaction at a time. |
 | **PeripheralDevices** (module) | [`PeripheralDevices.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar) | common | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | `System` (1 instance: `devices`) | The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core. |
 
+### core_l1cache_mmu_devices
+
+Every `core_mmu_devices` design unit appears here too, except that this
+configuration's own `System` and `Core` replace those, and one more
+joins them.
+
+| Design unit | File | Scope | Embedded C++ class | Parent | Description |
+|---|---|---|---|---|---|
+| **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar) | core_l1cache_mmu_devices | None | `Top` | The same four modules and seven nets as `core_mmu_devices`, plus the cache knobs in the consolidated knob block. |
+| **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar) | core_l1cache_mmu_devices | None | `System` (1 instance: `core`) | `core_mmu_devices`' `Core`, with `caches` between `sparcThread` and `mmu`. |
+| **L1Caches** (procedure) | [`L1Caches.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar) | common | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | `Core` (1 instance: `caches`) | The split L1 caches. Serves `sparcThread`'s accesses, reaches `mmu` only on a miss or a forwarded access. |
+
 ## Notes
 
 - **Module vs. procedure**  

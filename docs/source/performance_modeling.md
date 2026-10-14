@@ -63,6 +63,20 @@ statistics, then physical memory statistics.
 |---|---|---|---|
 | **Physical memory accesses**<br>(`reads`, `maskedWrites`, `lockedReads`, `fullDoublewordAccesses`, `partialAccesses`) | [`MainMemoryStats`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemoryStats.h) | [core_mmu/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/cpp_model/), [core_mmu/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/sitar_model/) | The number of doubleword transactions reaching physical memory, broken down by read/write, whether a read was the locked half of an atomic pair, and whether a write touched all 8 bytes of the doubleword or only some of them. |
 
+### Caches
+
+| Performance measure | Component | Models/configs available in | Description |
+|---|---|---|---|
+| **Cache hits and misses**<br>(`read hits`, `read misses`, `write hits`, `write misses`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | [core_l1cache_mmu_devices/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/), [core_l1cache_mmu_devices/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/) | Per cache, the lookups of cacheable-ASI accesses that hit or missed. |
+| **Line fills and uncached misses**<br>(`lines filled`, `uncached misses`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | same | Lines installed, and read misses the MMU reported as not cacheable (which read just one doubleword). |
+| **Forwarded accesses and flushes**<br>(`forwarded`, `flushes`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | same | Accesses with a non-cacheable ASI, passed straight to the MMU, and whole-cache flushes. |
+
+### Peripheral devices
+
+| Performance measure | Component | Models/configs available in | Description |
+|---|---|---|---|
+| **Device accesses**<br>(`timer`, `serial`, `interrupt controller`, `unmapped`) | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | [core_mmu_devices/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/cpp_model/), [core_mmu_devices/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/), and every configuration with devices | Register accesses to each device (one per 32-bit register word touched), and accesses in the device window no device decodes. |
+
 In `core_only`, the core connects directly to virtual memory, so the
 Core memory references above already reflect every access actually
 served. In configurations with an MMU, a core-side access doesn't

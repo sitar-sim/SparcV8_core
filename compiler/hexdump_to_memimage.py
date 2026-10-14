@@ -11,7 +11,8 @@ MemCore::initializeMemory() (see model/cpp_common_code/MemCore.cpp).
 readelf always emits up to 4 words per line, but a section's length need
 not be a multiple of 16 bytes, so the last line of a section may have
 fewer than 4 -- those are zero-padded here (harmless, since MemCore
-initializes all of memory to 0 anyway). Section-header lines ("Hex dump
+initializes all of memory to 0 anyway). Likewise the last group itself may
+be shorter than 4 bytes, and is padded on its right (Ref main()). Section-header lines ("Hex dump
 of section ..."), blank lines, and readelf warnings (e.g. for a section
 that doesn't exist in this particular test program) are skipped.
 """
@@ -49,7 +50,11 @@ def main():
         addr, words = parsed
         while len(words) < 4:
             words.append('00000000')
-        words = [w.zfill(8) for w in words[:4]]
+        # readelf prints each group in memory order, so a short last group
+        # (a section ending mid-word) is that word's FIRST bytes: pad on the
+        # right, e.g. "05" -> "05000000" (byte 0x05 at the lowest address),
+        # never on the left.
+        words = [w.ljust(8, '0') for w in words[:4]]
         print('0x%08x %s %s %s %s' % (addr, words[0], words[1], words[2], words[3]))
 
 

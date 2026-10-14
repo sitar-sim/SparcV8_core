@@ -1,0 +1,136 @@
+//================================================================
+// procedure L1Caches
+// Author: Neha Karanjkar
+//
+// The Sitar timing model for a core's split L1 caches. Embeds the plain
+// C++ L1CachesCore (field `caches`), which holds both caches and the
+// whole access policy (Ref L1CachesCore.h), the same class the
+// cpp_model uses. Named L1Caches, not L1CachesCore, so the procedure
+// never shares a name with the class it embeds.
+//
+// Persistent, and sits where Mmu sits in core_mmu: SparcThread's 5
+// memory-interface procedures point at this procedure's request/
+// response, and this procedure in turn reaches Mmu through
+// downstreamRequest/downstreamResponse (pointers into mmu's own
+// request/response, wired by Core.sitar), with the same request/
+// response/valid handshake on both sides.
+//
+// Each access runs L1CachesCore's own step sequence:
+//   caches.begin(request, response);
+//   while caches.needsDownstream(): one real handshake with Mmu (taking
+//     whatever time Mmu and everything below it take), then
+//     caches.downstreamDone(...);
+// so a hit costs no downstream time at all, and a miss costs exactly
+// what the MMU's line read costs (translation plus 8 doubleword reads
+// below it). Nothing is computed after the fact.
+//
+// Latency knobs (all default 0): icacheHitDelay and dcacheHitDelay,
+// charged on a hit; fillDelay, charged when a line is installed.
+//================================================================
+
+procedure L1Caches
+
+	include
+	$
+	#include"L1CachesCore.h"
+	#include"MemoryInterfaces.h"
+	$
+
+	decl
+	$
+	UnusedVirtualMemory unusedDownstream;
+	L1CachesCore        caches{unusedDownstream};
+
+	//This procedure's own request/response, read/written directly by
+	//SparcThread's interface procedures (Ref Mmu.sitar's identical
+	//arrangement).
+	VirtualMemoryRequest  request;
+	VirtualMemoryResponse response;
+
+	//Mmu's request/response, wired by Core.sitar's init.
+	VirtualMemoryRequest*  downstreamRequest;
+	VirtualMemoryResponse* downstreamResponse;
+
+	//The MMU's reply to the current downstream access, copied out of the
+	//shared object before the handshake is closed.
+	VirtualMemoryResponse  downstreamReply;
+
+	uint32_t icacheHitDelay;
+	uint32_t dcacheHitDelay;
+	uint32_t fillDelay;
+	$
+	init
+	$
+	request.valid      = false;
+	request.accessType = MemAccessType::NO_ACCESS;
+	request.address    = 0;
+	request.asi        = 0;
+	request.word0      = 0;
+	request.word1      = 0;
+	request.byteMask   = 0;
+	response = VirtualMemoryResponse{};
+	downstreamReply = VirtualMemoryResponse{};
+
+	downstreamRequest  = NULL;
+	downstreamResponse = NULL;
+
+	icacheHitDelay = 0;
+	dcacheHitDelay = 0;
+	fillDelay      = 0;
+	$
+
+	behavior
+
+	$
+	assert(downstreamRequest);
+	assert(downstreamResponse);
+	$;
+
+	do
+		wait until (this_phase==0 and $request.valid$);
+
+		$ caches.begin(request, response); $;
+
+		if ($caches.needsDownstream()$) then
+			do
+				wait until (this_phase==0 and not($downstreamRequest->valid$));
+				$
+				const VirtualMemoryRequest& d = caches.downstreamRequest();
+				downstreamRequest->accessType = d.accessType;
+				downstreamRequest->address    = d.address;
+				downstreamRequest->asi        = d.asi;
+				downstreamRequest->word0      = d.word0;
+				downstreamRequest->word1      = d.word1;
+				downstreamRequest->byteMask   = d.byteMask;
+				downstreamRequest->valid      = true;
+				$;
+
+				wait until (this_phase==0 and $downstreamResponse->valid$);
+
+				$
+				downstreamReply = *downstreamResponse;
+				downstreamRequest->valid  = false;
+				downstreamResponse->valid = false;
+				caches.downstreamDone(downstreamReply);
+				$;
+			while ($caches.needsDownstream()$) end do;
+		end if;
+
+		if ($caches.lastAccessWasInstructionHit()$) then
+			wait(icacheHitDelay, 0);
+		end if;
+		if ($caches.lastAccessWasDataHit()$) then
+			wait(dcacheHitDelay, 0);
+		end if;
+		if ($caches.lastAccessInstalledLine()$) then
+			wait(fillDelay, 0);
+		end if;
+
+		$ response.valid = true; $;
+
+		wait until (this_phase==0 and not($response.valid$));
+
+	while(1) end do;
+
+	end behavior
+end procedure

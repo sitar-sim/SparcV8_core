@@ -19,9 +19,10 @@ This project provides several system configurations.
     Adds a timer, an interrupt controller, and a serial device, as one
     shared set on the memory side of the MMU, reached by physical
     address like main memory.
-- **`core_l1cache_mmu_devices`** (planned)  
+- **`core_l1cache_mmu_devices`**  
     Adds split instruction and data L1 caches between the core and the
-    MMU.
+    MMU. VIVT, write-through, and compatible with the AJIT processor's
+    own L1 caches.
 
 For each configuration, there exist two implementations:
 
@@ -44,6 +45,8 @@ summarized here:
 | core_mmu | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu/sitar_model/) | Adds an MMU between the core and main memory. |
 | core_mmu_devices | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/cpp_model/) | Adds the peripheral devices below the MMU. |
 | core_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/) | Adds the peripheral devices below the MMU. |
+| core_l1cache_mmu_devices | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/) | Adds split L1 caches between the core and the MMU. |
+| core_l1cache_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/) | Adds split L1 caches between the core and the MMU. |
 
 For each configuration, both the cpp and sitar models include the same
 components: `core_mmu`'s MMU, for example, is present in both its
@@ -196,6 +199,45 @@ devices.interruptLevelOut --interruptLevelNet--> core.interruptLevelIn
 
 ---
 
-## Configuration: core_l1cache_mmu_devices (planned)
+### Configuration: core_l1cache_mmu_devices
 
-Adds split instruction and data L1 caches between the core and the MMU.
+#### Structure diagram
+
+<img src="images/core_l1cache_mmu_devices_structure.svg" alt="core_l1cache_mmu_devices structure diagram" title="core_l1cache_mmu_devices structure diagram">
+
+The same system as `core_mmu_devices`, with one more procedure inside
+`Core`: the split L1 caches, between `sparcThread` and `mmu`. All three
+are procedures of the one `Core` module, so a cache hit completes with
+no net crossing and no added delay (unless a hit-latency knob is set).
+A miss reads the whole 64-byte line through the MMU, which costs the
+MMU's translation plus eight doubleword transactions through the
+bridge. See [Model Components](model_components.md#caches) for what the
+caches do.
+
+Nothing is cached while the MMU is disabled, unless the MMU Control
+Register's "always cacheable" bit is set (as in AJIT). A program can set
+it itself, or the simulator can, with `--always-cacheable`.
+
+#### Model description
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar">Core</a> (module)
+      |    |
+      |    +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      |    |
+      |    +-- caches : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar">L1Caches</a> (procedure)
+      |    |
+      |    +-- mmu : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
+      |
+      +-- bridge : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar">SystemBridge</a> (module)
+      |
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      |
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+</pre>
+
+The nets are the same seven as in `core_mmu_devices`.

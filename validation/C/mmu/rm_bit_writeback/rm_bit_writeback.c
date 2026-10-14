@@ -6,7 +6,10 @@
 // leave them set (not corrupted). The PTE lives in an ordinary static
 // array (l3_table, in the identity-mapped code region), so its raw bit
 // pattern can be read directly with a plain C array access, both before
-// and after each translated access to the test page itself.
+// and after each translated access to the test page itself. The PTE is
+// read back with a physical (bypass) load, not a plain array access, so
+// the test also holds with a non-coherent L1 data cache, which may still
+// hold the PTE as it was before the MMU updated it in memory.
 //
 // Uses an ordinary level-3 (4KB) leaf, reached via a full 3-level walk
 // -- the common case, and the level Table H-1 associates with R/M
@@ -37,21 +40,21 @@ int main(void)
     setup_safe_l1_table(l1_table, make_ptd(l2_table));
     enable_mmu_with_l1_table(context_table, l1_table);
 
-    pte = l3_table[l3_index];
+    pte = load_word_physical(&l3_table[l3_index]);
     ok_initial = (PTE_R(pte) == 0 && PTE_M(pte) == 0) ? 1 : 0;
 
     (void) *((volatile unsigned int*) va); // LOAD
-    pte = l3_table[l3_index];
+    pte = load_word_physical(&l3_table[l3_index]);
     ok_after_load = (PTE_R(pte) == 1 && PTE_M(pte) == 0) ? 1 : 0;
 
     *((volatile unsigned int*) va) = 0xCAFEF00Du; // STORE
-    pte = l3_table[l3_index];
+    pte = load_word_physical(&l3_table[l3_index]);
     ok_after_store = (PTE_R(pte) == 1 && PTE_M(pte) == 1) ? 1 : 0;
 
     // Further accesses must leave both bits set, not reset or corrupt them.
     (void) *((volatile unsigned int*) va);
     *((volatile unsigned int*) va) = 0xCAFEF00Eu;
-    pte = l3_table[l3_index];
+    pte = load_word_physical(&l3_table[l3_index]);
     ok_repeat = (PTE_R(pte) == 1 && PTE_M(pte) == 1) ? 1 : 0;
 
     pass = ok_initial && ok_after_load && ok_after_store && ok_repeat;

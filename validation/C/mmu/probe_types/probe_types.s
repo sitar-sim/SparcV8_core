@@ -212,7 +212,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-128]
 	ld	[%fp-128], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-124]
@@ -235,7 +235,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-112]
 	ld	[%fp-112], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-108]
@@ -256,7 +256,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-96]
 	ld	[%fp-96], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-92]
@@ -279,7 +279,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-80]
 	ld	[%fp-80], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-76]
@@ -316,7 +316,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-56]
 	ld	[%fp-56], %g1
-! 130 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 141 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	ld	[%fp-300], %g1
@@ -329,7 +329,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-44]
 	ld	[%fp-44], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-40]
@@ -356,7 +356,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-28]
 	ld	[%fp-28], %g1
-! 130 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 141 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	ld	[%fp-300], %g1
@@ -370,7 +370,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-16]
 	ld	[%fp-16], %g1
-! 124 "validation/C/mmu/probe_types/../mmu_common.h" 1
+! 135 "validation/C/mmu/probe_types/../mmu_common.h" 1
 	lda [%g1] 0x03, %g1
 ! 0 "" 2
 	st	%g1, [%fp-12]

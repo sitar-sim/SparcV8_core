@@ -96,6 +96,17 @@ static inline __attribute__((always_inline)) void store_word_mmureg(unsigned int
     __asm__ __volatile__("sta %0, [%1] 0x04" : : "r"(value), "r"(addr));
 }
 
+// A physical (MMU-bypass, ASI 0x20) load. Reads memory itself, never a
+// cached copy: what a test needs to see a page-table entry the MMU itself
+// just updated, since a non-coherent L1 data cache (a configuration with
+// caches) may still hold the old value at that entry's virtual address.
+static inline __attribute__((always_inline)) unsigned int load_word_physical(unsigned int* addr)
+{
+    unsigned int value;
+    __asm__ __volatile__("lda [%1] 0x20, %0" : "=r"(value) : "r"(addr) : "memory");
+    return value;
+}
+
 // Explicit user-data-space (ASI 0x0A -- Ref Table I-1: 0x08=User
 // Instruction, 0x09=Supervisor Instruction, 0x0A=User Data, 0x0B=
 // Supervisor Data) access, distinct from an ordinary C pointer

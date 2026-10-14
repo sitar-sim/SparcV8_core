@@ -1,0 +1,6 @@
+SOURCES = device_never_cached.c
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000003

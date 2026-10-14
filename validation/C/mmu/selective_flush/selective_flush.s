@@ -311,7 +311,7 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-4]
 	ld	[%fp-4], %g1
-! 130 "validation/C/mmu/selective_flush/../mmu_common.h" 1
+! 141 "validation/C/mmu/selective_flush/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
@@ -380,14 +380,14 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-156]
 	ld	[%fp-160], %g1
-! 81 "validation/C/mmu/selective_flush/selective_flush.c" 1
+! 95 "validation/C/mmu/selective_flush/selective_flush.c" 1
 	mov %g1, %o0
 ! 0 "" 2
 	ld	[%fp-156], %g1
-! 82 "validation/C/mmu/selective_flush/selective_flush.c" 1
+! 96 "validation/C/mmu/selective_flush/selective_flush.c" 1
 	mov %g1, %o1
 ! 0 "" 2
-! 83 "validation/C/mmu/selective_flush/selective_flush.c" 1
+! 97 "validation/C/mmu/selective_flush/selective_flush.c" 1
 	ta 0
 ! 0 "" 2
 .LL18:

@@ -74,6 +74,10 @@ procedure Mmu
 	//private member instead (walkResultPte_ etc, Ref MmuCore.h) -- this is
 	//purely about sequencing this procedure's own dispatch.
 	bool     isSecondWord;        //LOAD (two words) vs IFETCH (one)
+	bool     isLineRead;          //READ_LINE: an L1 cache's line fill
+	bool     isInstructionAccess; //IFETCH, or a READ_LINE with an instruction ASI
+	uint32_t lineDword;           //READ_LINE: next doubleword of the line to read
+	bool     moreLineDwords;
 	bool     tlbHit;
 	bool     continueWalk;
 	bool     faulted;
@@ -81,7 +85,7 @@ procedure Mmu
 	bool     needsFinalDataAccess;
 	bool     translationOk;
 	uint64_t translatedPhysAddr;
-	bool     translatedCacheable;  //not yet consumed downstream (no cache block yet) -- computed for parity with translate()
+	bool     translatedCacheable;  //consumed by READ_LINE (L1 cache fills)
 	uint8_t  translatedAcc;        //ditto
 
 	uint8_t  probeType;
@@ -160,16 +164,28 @@ procedure Mmu
 		response.readWord0 = 0;
 		response.readWord1 = 0;
 		response.mae       = false;
+		response.cacheable = false;
+		response.acc       = 0;
 		needsFinalDataAccess = false;
 		translationOk        = false;
 		$;
 
 		//=================================================================
-		// IFETCH / LOAD -- Ref MmuCore.cpp's handleReadAccess()
+		// IFETCH / LOAD / READ_LINE -- Ref MmuCore.cpp's handleReadAccess()
+		// and handleReadLine()
 		//=================================================================
-		if (request.accessType==MemAccessType::IFETCH or request.accessType==MemAccessType::LOAD) then
+		if (request.accessType==MemAccessType::IFETCH or request.accessType==MemAccessType::LOAD or request.accessType==MemAccessType::READ_LINE) then
 
-			$ isSecondWord = (request.accessType==MemAccessType::LOAD); $;
+			$
+			isSecondWord = (request.accessType==MemAccessType::LOAD);
+			isLineRead   = (request.accessType==MemAccessType::READ_LINE);
+			isInstructionAccess = (request.accessType==MemAccessType::IFETCH) or
+			                      (isLineRead and (request.asi==ASI_USER_INSTRUCTION or request.asi==ASI_SUPERVISOR_INSTRUCTION));
+			//Untranslated defaults, overwritten by commitTranslation() below
+			//for a translated access (Ref MmuCore::handleReadLine()).
+			translatedCacheable = mmu.mmuIsPresent ? mmu.untranslatedCacheable(request.asi) : false;
+			translatedAcc       = 3;
+			$;
 
 			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
 				$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
@@ -264,7 +280,7 @@ procedure Mmu
 						while (continueWalk) end do;
 					end if;
 
-					$ faulted = mmu.checkAndRecordFault(request.asi, false, false, request.accessType==MemAccessType::IFETCH, request.address); $;
+					$ faulted = mmu.checkAndRecordFault(request.asi, false, false, isInstructionAccess, request.address); $;
 
 					if (faulted) then
 						$ needsFinalDataAccess = true; translationOk = false; $;
@@ -297,32 +313,87 @@ procedure Mmu
 			end if;
 			end if;
 
-			if (needsFinalDataAccess) then
+			if (needsFinalDataAccess and isLineRead) then
+				//READ_LINE: the whole line if cacheable, else only the
+				//doubleword containing the address -- Ref
+				//MmuCore::handleReadLine().
 				if (translationOk) then
-					//translatedPhysAddr need only be word-aligned here
-					//(an IFETCH, or bypass carrying an IFETCH's address,
-					//is never doubleword-aligned in general) -- round
-					//down before the request, matching
-					//MmuCore.cpp's readPhysicalWord()/readPhysicalDoubleword()
-					//doing exactly this internally.
 					$
-					phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
-					phyMemReadProcedure.request.lock            = false;
-					phyMemReadProcedure.request.data            = 0;
-					//The word(s) actually wanted, Ref MmuCore.cpp's readPhysicalWord().
-					//A LOAD's word(s) as the core asked (0 = both), else the IFETCH word.
-					phyMemReadProcedure.request.byteMask        = isSecondWord ? (request.byteMask ? (uint8_t)request.byteMask : (uint8_t)0xFF)
-					                                                           : (((translatedPhysAddr & 0x4u)==0) ? 0x0F : 0xF0);
+					translatedCacheable = translatedCacheable and MmuCore::isCacheableTarget(translatedPhysAddr);
+					response.cacheable = translatedCacheable;
+					response.acc       = translatedAcc;
+					for (unsigned int i = 0; i < CACHE_LINE_DOUBLEWORDS; i++) response.line[i] = 0;
+					lineDword = 0;
 					$;
-					run phyMemReadProcedure;
+					if (translatedCacheable) then
+						do
+							$
+							phyMemReadProcedure.request.physicalAddress = (translatedPhysAddr & ~((uint64_t)CACHE_LINE_BYTES - 1)) + 8 * lineDword;
+							phyMemReadProcedure.request.lock            = false;
+							phyMemReadProcedure.request.data            = 0;
+							phyMemReadProcedure.request.byteMask        = 0xFF;
+							$;
+							run phyMemReadProcedure;
+							$
+							response.line[lineDword] = phyMemReadProcedure.response.readData;
+							response.mae = response.mae or phyMemReadProcedure.response.mae;
+							lineDword++;
+							moreLineDwords = (lineDword < CACHE_LINE_DOUBLEWORDS) and not response.mae;
+							$;
+						while (moreLineDwords) end do;
+					else
+					if ($request.byteMask != 0$) then
+						//Not cacheable: only the bytes wanted (an empty mask,
+						//an L1 write-allocate, reads nothing at all).
+						$
+						phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+						phyMemReadProcedure.request.lock            = false;
+						phyMemReadProcedure.request.data            = 0;
+						phyMemReadProcedure.request.byteMask        = (uint8_t)request.byteMask;
+						$;
+						run phyMemReadProcedure;
+						$
+						response.line[(translatedPhysAddr >> 3) & (CACHE_LINE_DOUBLEWORDS - 1)] = phyMemReadProcedure.response.readData;
+						response.mae = phyMemReadProcedure.response.mae;
+						$;
+					end if;
+					end if;
 					$
-					uint64_t d = phyMemReadProcedure.response.readData;
-					if (isSecondWord) { response.readWord0 = (uint32_t)(d & 0xFFFFFFFFu); response.readWord1 = (uint32_t)(d >> 32); }
-					else response.readWord0 = ((translatedPhysAddr & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
-					response.mae = phyMemReadProcedure.response.mae;
+					uint64_t d = response.line[(translatedPhysAddr >> 3) & (CACHE_LINE_DOUBLEWORDS - 1)];
+					response.readWord0 = (uint32_t)(d & 0xFFFFFFFFu);
+					response.readWord1 = (uint32_t)(d >> 32);
 					$;
 				else
 					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
+				end if;
+			else
+				if (needsFinalDataAccess) then
+					if (translationOk) then
+						//translatedPhysAddr need only be word-aligned here
+						//(an IFETCH, or bypass carrying an IFETCH's address,
+						//is never doubleword-aligned in general) -- round
+						//down before the request, matching
+						//MmuCore.cpp's readPhysicalWord()/readPhysicalDoubleword()
+						//doing exactly this internally.
+						$
+						phyMemReadProcedure.request.physicalAddress = translatedPhysAddr & ~0x7ULL;
+						phyMemReadProcedure.request.lock            = false;
+						phyMemReadProcedure.request.data            = 0;
+						//The word(s) actually wanted, Ref MmuCore.cpp's readPhysicalWord().
+						//A LOAD's word(s) as the core asked (0 = both), else the IFETCH word.
+						phyMemReadProcedure.request.byteMask        = isSecondWord ? (request.byteMask ? (uint8_t)request.byteMask : (uint8_t)0xFF)
+						                                                           : (((translatedPhysAddr & 0x4u)==0) ? 0x0F : 0xF0);
+						$;
+						run phyMemReadProcedure;
+						$
+						uint64_t d = phyMemReadProcedure.response.readData;
+						if (isSecondWord) { response.readWord0 = (uint32_t)(d & 0xFFFFFFFFu); response.readWord1 = (uint32_t)(d >> 32); }
+						else response.readWord0 = ((translatedPhysAddr & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32);
+						response.mae = phyMemReadProcedure.response.mae;
+						$;
+					else
+						$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
+					end if;
 				end if;
 			end if;
 
@@ -332,6 +403,9 @@ procedure Mmu
 		// STORE -- Ref MmuCore.cpp's handleWriteAccess()
 		//=================================================================
 		if (request.accessType==MemAccessType::STORE) then
+			//Untranslated default, overwritten by commitTranslation() for a
+			//translated store (Ref MmuCore.cpp's STORE case).
+			$ translatedCacheable = mmu.mmuIsPresent ? mmu.untranslatedCacheable(request.asi) : false; $;
 
 			if ($!mmu.mmuIsPresent or asiMmuPassThrough((uint8_t)request.asi)$) then
 				$ mmu.stats.bypassAccesses++; translatedPhysAddr = request.address; translationOk = true; needsFinalDataAccess = true; $;
@@ -421,7 +495,10 @@ procedure Mmu
 					phyMemWriteProcedure.request.lock     = false;
 					$;
 					run phyMemWriteProcedure;
-					$ response.mae = phyMemWriteProcedure.response.mae; $;
+					$
+					response.mae = phyMemWriteProcedure.response.mae;
+					response.cacheable = translatedCacheable and MmuCore::isCacheableTarget(translatedPhysAddr) and not response.mae;
+					$;
 				else
 					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
 				end if;

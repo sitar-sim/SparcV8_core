@@ -1,0 +1,18 @@
+#!/bin/bash
+# Runs this configuration's default build (no --logging/--debug) against
+# the bundled test_simple_ADD example (validation/test_simple_ADD/, the
+# canonical copy, not a local one). Build first with ./build.sh. Doesn't
+# exercise the MMU itself (test_simple_ADD sets up no page tables and
+# never enables the MMU), just confirms the MMU-in-the-loop, disabled,
+# pass-through path works -- see validation/C/mmu/ for real translation
+# coverage, validation/C/devices/ for the devices, and validation/C/caches/
+# for the caches.
+set -e
+DIR="$(cd "$(dirname "$0")" && pwd)"
+TEST_DIR="$DIR/../../../../validation/test_simple_ADD"
+EXE="$DIR/executable/sparc_sim_cpp_core_l1cache_mmu_devices"
+if [ ! -x "$EXE" ]; then
+	echo "error: $EXE not found -- run ./build.sh first"
+	exit 1
+fi
+"$EXE" "$TEST_DIR/test_simple_ADD.hex" "$TEST_DIR/test_simple_ADD.expected" --stats

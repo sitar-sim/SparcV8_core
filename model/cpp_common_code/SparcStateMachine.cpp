@@ -239,11 +239,13 @@ void SparcStateMachine::executeCurrentInstruction(Opcode op)
 	}
 	else if (op == FLUSH)
 	{
-		//MemCore is a flat array with no instruction cache to invalidate, so
-		//this standalone (no-timing) driver has nothing further to convey the
-		//flush to -- computing the address is enough to keep decode/register
-		//behavior faithful to the manual (Ref Appendix B.32).
+		//Conveyed downstream like any other memory instruction, the same as
+		//SparcThread.sitar's flushProcedure does: an L1 cache acts on it
+		//(Ref L1CachesCore.h), MemCore and the MMU treat it as a no-op.
 		core.execute_PreFlush(op);
+		VirtualMemoryRequest request{true, MemAccessType::FLUSH, core.address, core.addr_space, 0, 0, 0};
+		VirtualMemoryResponse response{};
+		mem.access(request, response);
 		core.stats.flushes++;
 		core.logger.log_generic(cyclesExecuted, "FLUSH", "");
 		debug_hook_mem_access(core, DebugMemAccessKind::FLUSH, core.address, 0, 0);

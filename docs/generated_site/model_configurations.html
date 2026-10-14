@@ -1048,19 +1048,47 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configuration-core_l1cache_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration: core_l1cache_mmu_devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration: core_l1cache_mmu_devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure-diagram_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model description
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-core_l1cache_mmu_devices-planned" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration: core_l1cache_mmu_devices (planned)
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1661,19 +1689,47 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#configuration-core_l1cache_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Configuration: core_l1cache_mmu_devices
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Configuration: core_l1cache_mmu_devices">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#structure-diagram_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Structure diagram
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#model-description_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Model description
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
 </li>
-      
-        <li class="md-nav__item">
-  <a href="#configuration-core_l1cache_mmu_devices-planned" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Configuration: core_l1cache_mmu_devices (planned)
-      
-    </span>
-  </a>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1714,9 +1770,10 @@
     Adds a timer, an interrupt controller, and a serial device, as one
     shared set on the memory side of the MMU, reached by physical
     address like main memory.</li>
-<li><strong><code>core_l1cache_mmu_devices</code></strong> (planned)<br />
+<li><strong><code>core_l1cache_mmu_devices</code></strong><br />
     Adds split instruction and data L1 caches between the core and the
-    MMU.</li>
+    MMU. VIVT, write-through, and compatible with the AJIT processor's
+    own L1 caches.</li>
 </ul>
 <p>For each configuration, there exist two implementations:</p>
 <ul>
@@ -1768,6 +1825,16 @@ summarized here:</p>
 <td>core_mmu_devices</td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/">sitar (timing model)</a></td>
 <td>Adds the peripheral devices below the MMU.</td>
+</tr>
+<tr>
+<td>core_l1cache_mmu_devices</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/">cpp (functional model)</a></td>
+<td>Adds split L1 caches between the core and the MMU.</td>
+</tr>
+<tr>
+<td>core_l1cache_mmu_devices</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/">sitar (timing model)</a></td>
+<td>Adds split L1 caches between the core and the MMU.</td>
 </tr>
 </tbody>
 </table>
@@ -1895,8 +1962,42 @@ devices.interruptLevelOut --interruptLevelNet--> core.interruptLevelIn
 </pre>
 
 <hr />
-<h2 id="configuration-core_l1cache_mmu_devices-planned">Configuration: core_l1cache_mmu_devices (planned)<a class="headerlink" href="#configuration-core_l1cache_mmu_devices-planned" title="Permanent link">&para;</a></h2>
-<p>Adds split instruction and data L1 caches between the core and the MMU.</p>
+<h3 id="configuration-core_l1cache_mmu_devices">Configuration: core_l1cache_mmu_devices<a class="headerlink" href="#configuration-core_l1cache_mmu_devices" title="Permanent link">&para;</a></h3>
+<h4 id="structure-diagram_3">Structure diagram<a class="headerlink" href="#structure-diagram_3" title="Permanent link">&para;</a></h4>
+<p><img src="images/core_l1cache_mmu_devices_structure.svg" alt="core_l1cache_mmu_devices structure diagram" title="core_l1cache_mmu_devices structure diagram"></p>
+<p>The same system as <code>core_mmu_devices</code>, with one more procedure inside
+<code>Core</code>: the split L1 caches, between <code>sparcThread</code> and <code>mmu</code>. All three
+are procedures of the one <code>Core</code> module, so a cache hit completes with
+no net crossing and no added delay (unless a hit-latency knob is set).
+A miss reads the whole 64-byte line through the MMU, which costs the
+MMU's translation plus eight doubleword transactions through the
+bridge. See <a href="model_components.html#caches">Model Components</a> for what the
+caches do.</p>
+<p>Nothing is cached while the MMU is disabled, unless the MMU Control
+Register's "always cacheable" bit is set (as in AJIT). A program can set
+it itself, or the simulator can, with <code>--always-cacheable</code>.</p>
+<h4 id="model-description_3">Model description<a class="headerlink" href="#model-description_3" title="Permanent link">&para;</a></h4>
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar">Core</a> (module)
+      |    |
+      |    +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      |    |
+      |    +-- caches : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar">L1Caches</a> (procedure)
+      |    |
+      |    +-- mmu : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
+      |
+      +-- bridge : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar">SystemBridge</a> (module)
+      |
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      |
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+</pre>
+
+<p>The nets are the same seven as in <code>core_mmu_devices</code>.</p>
 
 
 

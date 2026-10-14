@@ -164,6 +164,25 @@ class MmuCore : public VirtualMemoryInterface
 		//otherwise set mae=true.
 		bool noFaultSuppressesTrap(uint32_t asi) const;
 
+		//READ_LINE, an L1 cache's line fill (Ref AJIT's MMU_READ_LINE in
+		//Mmu.c): translates `request.address` exactly as a LOAD/IFETCH
+		//would (instruction or data by ASI), then reads the whole 64-byte
+		//line if the result is cacheable, else only the doubleword
+		//containing the address (with the requester's byte mask, so a
+		//device register's read side effect stays exact, and nothing at
+		//all if that mask is empty, as for an L1 write-allocate). Fills
+		//response.line/cacheable/acc. An access is only cacheable if its
+		//physical address is main memory (Ref SystemAddressMap.h): device
+		//registers are never cached. Public for Mmu.sitar's sake, which
+		//replicates the same steps with timed accesses.
+		void handleReadLine(const VirtualMemoryRequest& request, VirtualMemoryResponse& response);
+
+		//Cacheability of an untranslated (MMU absent or disabled, or
+		//pass-through ASI) access, and of any access by physical target,
+		//shared by handleReadLine() and Mmu.sitar.
+		bool untranslatedCacheable(uint32_t asi) const;
+		static bool isCacheableTarget(uint64_t physAddr);
+
 		//Starts a page-table walk for (va, context): computes the L1/L2/
 		//L3 index bits and the level-0 (context-table) physical address,
 		//ready for the first fetch of walkCurPhyAddr().
@@ -242,6 +261,7 @@ class MmuCore : public VirtualMemoryInterface
 		void writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint32_t byteMask);
 
 	private:
+		bool lastStoreCacheable_ = false; //set by handleWriteAccess(), Ref access()'s STORE case
 		PhysicalMemoryInterface& downstream_;
 		int threadId_;
 		Tlb tlb_;
@@ -341,6 +361,7 @@ class MmuCore : public VirtualMemoryInterface
 		void handleReadAccess(uint32_t address, uint32_t asi, bool isInstructionFetch, bool readSecondWord,
 		                       uint32_t& readWord0, uint32_t& readWord1, bool& mae, uint8_t loadWordMask = 0xFF);
 		void handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae);
+
 		void handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
 		                         uint32_t& readWord0, uint32_t& readWord1, bool& mae);
 

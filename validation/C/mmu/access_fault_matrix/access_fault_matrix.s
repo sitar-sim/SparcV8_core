@@ -174,13 +174,13 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-260]
 	ld	[%fp-260], %g1
-! 130 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 141 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
 	st	%g1, [%fp-256]
 	ld	[%fp-256], %g1
-! 112 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 123 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-252]
@@ -207,7 +207,7 @@ main:
 	st	%g1, [%fp-240]
 	ld	[%fp-236], %g1
 	ld	[%fp-240], %g2
-! 118 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 129 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1
@@ -276,13 +276,13 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-204]
 	ld	[%fp-204], %g1
-! 130 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 141 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
 	st	%g1, [%fp-200]
 	ld	[%fp-200], %g1
-! 112 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 123 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-196]
@@ -309,7 +309,7 @@ main:
 	st	%g1, [%fp-184]
 	ld	[%fp-180], %g1
 	ld	[%fp-184], %g2
-! 118 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 129 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1
@@ -366,13 +366,13 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-148]
 	ld	[%fp-148], %g1
-! 130 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 141 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
 	st	%g1, [%fp-144]
 	ld	[%fp-144], %g1
-! 112 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 123 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-140]
@@ -399,7 +399,7 @@ main:
 	st	%g1, [%fp-128]
 	ld	[%fp-124], %g1
 	ld	[%fp-128], %g2
-! 118 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 129 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1
@@ -468,13 +468,13 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-92]
 	ld	[%fp-92], %g1
-! 130 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 141 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
 	st	%g1, [%fp-88]
 	ld	[%fp-88], %g1
-! 112 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 123 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-84]
@@ -513,7 +513,7 @@ main:
 	st	%g1, [%fp-72]
 	ld	[%fp-68], %g1
 	ld	[%fp-72], %g2
-! 118 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 129 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1
@@ -582,13 +582,13 @@ main:
 	or	%g2, %g1, %g1
 	st	%g1, [%fp-36]
 	ld	[%fp-36], %g1
-! 130 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 141 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g0, [%g1] 0x03
 ! 0 "" 2
 	sethi	%hi(268435456), %g1
 	st	%g1, [%fp-32]
 	ld	[%fp-32], %g1
-! 112 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 123 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	lda [%g1] 0x0a, %g1
 ! 0 "" 2
 	st	%g1, [%fp-28]
@@ -627,7 +627,7 @@ main:
 	st	%g1, [%fp-16]
 	ld	[%fp-12], %g1
 	ld	[%fp-16], %g2
-! 118 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
+! 129 "validation/C/mmu/access_fault_matrix/../mmu_common.h" 1
 	sta %g1, [%g2] 0x0a
 ! 0 "" 2
 	mov	768, %g1

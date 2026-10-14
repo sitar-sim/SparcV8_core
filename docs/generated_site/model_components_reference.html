@@ -1178,6 +1178,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#core_l1cache_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_l1cache_mmu_devices
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1471,6 +1482,17 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#core_l1cache_mmu_devices" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        core_l1cache_mmu_devices
+      
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1734,6 +1756,48 @@ more join them.</p>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h"><code>PeripheralDevicesCore</code></a></td>
 <td><code>System</code> (1 instance: <code>devices</code>)</td>
 <td>The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="core_l1cache_mmu_devices">core_l1cache_mmu_devices<a class="headerlink" href="#core_l1cache_mmu_devices" title="Permanent link">&para;</a></h3>
+<p>Every <code>core_mmu_devices</code> design unit appears here too, except that this
+configuration's own <code>System</code> and <code>Core</code> replace those, and one more
+joins them.</p>
+<table>
+<thead>
+<tr>
+<th>Design unit</th>
+<th>File</th>
+<th>Scope</th>
+<th>Embedded C++ class</th>
+<th>Parent</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_l1cache_mmu_devices</td>
+<td>None</td>
+<td><code>Top</code></td>
+<td>The same four modules and seven nets as <code>core_mmu_devices</code>, plus the cache knobs in the consolidated knob block.</td>
+</tr>
+<tr>
+<td><strong>Core</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
+<td>core_l1cache_mmu_devices</td>
+<td>None</td>
+<td><code>System</code> (1 instance: <code>core</code>)</td>
+<td><code>core_mmu_devices</code>' <code>Core</code>, with <code>caches</code> between <code>sparcThread</code> and <code>mmu</code>.</td>
+</tr>
+<tr>
+<td><strong>L1Caches</strong> (procedure)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar"><code>L1Caches.sitar</code></a></td>
+<td>common</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
+<td><code>Core</code> (1 instance: <code>caches</code>)</td>
+<td>The split L1 caches. Serves <code>sparcThread</code>'s accesses, reaches <code>mmu</code> only on a miss or a forwarded access.</td>
 </tr>
 </tbody>
 </table>

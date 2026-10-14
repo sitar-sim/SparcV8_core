@@ -63,6 +63,8 @@ later an MMU or a cache).
   configuration with devices (`core_mmu_devices`): implements
   `PhysicalMemoryInterface`, routes each access to `MainMemory` or to
   `devices/PeripheralDevicesCore` by address.
+- **`cache/`** -- the split L1 caches (`L1CachesCore`, `CacheArray`).
+  See `cache/README.md`.
 - **`devices/`** -- the peripheral devices (Timer, Serial, Interrupt
   Controller) and `PeripheralDevicesCore`, the shared set that holds
   them. See `devices/README.md`.

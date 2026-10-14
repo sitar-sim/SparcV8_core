@@ -979,10 +979,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caches-planned" class="md-nav__link">
+  <a href="#caches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Caches (planned)
+        Caches
       
     </span>
   </a>
@@ -990,10 +990,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#peripheral-devices-planned" class="md-nav__link">
+  <a href="#peripheral-devices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Peripheral Devices (planned)
+        Peripheral Devices
       
     </span>
   </a>
@@ -1472,10 +1472,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caches-planned" class="md-nav__link">
+  <a href="#caches" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Caches (planned)
+        Caches
       
     </span>
   </a>
@@ -1483,10 +1483,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#peripheral-devices-planned" class="md-nav__link">
+  <a href="#peripheral-devices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Peripheral Devices (planned)
+        Peripheral Devices
       
     </span>
   </a>
@@ -1612,15 +1612,62 @@ depending on configuration:</p>
     module, reached over nets rather than a procedure handshake.</li>
 </ul>
 <hr />
-<h2 id="caches-planned">Caches (planned)<a class="headerlink" href="#caches-planned" title="Permanent link">&para;</a></h2>
-<p>Not yet implemented. Split instruction and data L1 caches are planned,
-sitting between the core (or the MMU) and main memory.</p>
-<h2 id="peripheral-devices-planned">Peripheral Devices (planned)<a class="headerlink" href="#peripheral-devices-planned" title="Permanent link">&para;</a></h2>
-<p>Not yet implemented. A timer, a per-core interrupt controller, and a
-serial device are planned, a bare-minimum set sufficient to port a
-basic operating system, compatible with the AJIT processor's own
-devices. See <a href="peripheral_devices.html">Peripheral Devices</a> for the
-register-level detail.</p>
+<h2 id="caches">Caches<a class="headerlink" href="#caches" title="Permanent link">&para;</a></h2>
+<p>Split instruction and data L1 caches, between the core and the MMU, in
+<code>core_l1cache_mmu_devices</code>. Both are virtually indexed and virtually
+tagged (VIVT): they are looked up with the virtual address, before any
+translation, which is what lets them sit above the MMU. Their
+behavior follows the AJIT processor's own L1 caches:</p>
+<ul>
+<li><strong>Organization</strong><br />
+    64-byte lines. By default 512 lines (32 KB) per cache, direct mapped.
+    Both size and associativity are run-time options
+    (<code>--icache-lines</code>, <code>--icache-ways</code>, <code>--dcache-lines</code>,
+    <code>--dcache-ways</code>). Replacement is round-robin within a set. The MMU
+    context is part of every tag, so the same virtual address in two
+    contexts is two different lines.</li>
+<li><strong>What is cached</strong><br />
+    Ordinary instruction and data accesses (ASIs 8 to B) to pages the MMU
+    says are cacheable. Everything else (MMU registers, the bypass ASIs)
+    goes straight to the MMU. Device registers are never cached.</li>
+<li><strong>Reads</strong><br />
+    A hit is served by the cache, provided the page's access permissions
+    (kept with the line) allow it. A miss reads the whole line through
+    the MMU.</li>
+<li><strong>Writes</strong><br />
+    Write-through: every store also goes to memory at once. A store miss
+    then brings the line into the cache (write-allocate). An atomic
+    load-store bypasses the cache, and updates a cached copy of its line.</li>
+<li><strong>Flushes</strong><br />
+    Always of a whole cache: a store with ASI <code>0x10</code> to <code>0x14</code> flushes
+    both caches, <code>0x18</code> to <code>0x1C</code> the instruction cache, the <code>FLUSH</code>
+    instruction both, and a write to the MMU's registers (except the
+    context register) both.</li>
+<li><strong>Not coherent</strong><br />
+    The caches do not see memory changed behind their back, for example
+    by a bypass store, so a program that does that must flush first (see
+    <code>validation/C/caches/stale_until_flush</code>). In particular,
+    self-modifying code must execute <code>FLUSH</code> before running the new
+    instructions, as the SPARC manual requires.</li>
+</ul>
+<p>The C++ class <code>L1CachesCore</code> (<code>model/cpp_common_code/cache/</code>) holds
+both caches and the whole policy, the same class in both models:</p>
+<ul>
+<li><strong>cpp_model</strong><br />
+    Called directly between <code>SparcStateMachine</code> and the MMU, with zero
+    modeled latency.</li>
+<li><strong>sitar_model</strong><br />
+<code>L1Caches.sitar</code> runs the same steps, with each downstream access a
+    real, timed transaction with the MMU.</li>
+</ul>
+<h2 id="peripheral-devices">Peripheral Devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h2>
+<p>A Timer, a multi-thread Interrupt Controller, and a Serial device, one
+shared set on the memory side of the MMU, compatible with the AJIT
+processor's own devices. The C++ class <code>PeripheralDevicesCore</code>
+(<code>model/cpp_common_code/devices/</code>) holds all three, the same class in
+both models. In the sitar_model the <code>PeripheralDevices</code> module wraps it,
+reached through the <code>SystemBridge</code> over nets. See <a href="peripheral_devices.html">Peripheral
+Devices</a> for the register-level detail.</p>
 <hr />
 <p>All component-wise timing configurations are listed in <a href="model_configuration_settings.html">Model
 Configuration Settings</a>.</p>

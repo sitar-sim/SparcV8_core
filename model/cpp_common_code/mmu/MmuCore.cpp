@@ -1,6 +1,7 @@
 //MmuCore.cpp
 
 #include "MmuCore.h"
+#include "SystemAddressMap.h"
 #include "Addresses.h"
 #include "../AsiValues.h"
 #include "../BitManipulation.h"
@@ -97,10 +98,18 @@ void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse&
 			break;
 		case MemAccessType::STORE:
 			handleWriteAccess(request.address, request.word0, request.word1, request.byteMask, request.asi, response.mae);
+			//Whether the stored-to line may be cached, for an L1 cache's
+			//write-allocate: false unless the store was an ordinary,
+			//successful access to cacheable main memory (Ref AJIT's
+			//Dcache.c, first_is_not_cacheable).
+			response.cacheable = lastStoreCacheable_ && !response.mae;
 			break;
 		case MemAccessType::ATOMIC_LS:
 			handleAtomicAccess(request.address, request.word0, request.word1, request.byteMask, request.asi,
 			                    response.readWord0, response.readWord1, response.mae);
+			break;
+		case MemAccessType::READ_LINE:
+			handleReadLine(request, response);
 			break;
 		case MemAccessType::FLUSH:
 		case MemAccessType::NO_ACCESS:
@@ -181,9 +190,77 @@ void MmuCore::handleReadAccess(uint32_t address, uint32_t asi, bool isInstructio
 	else readWord0 = readPhysicalWord(physAddr, mae);
 }
 
+bool MmuCore::untranslatedCacheable(uint32_t asi) const
+{
+	//AJIT: cacheable = (always-cacheable bit set) && !pass-through ASI,
+	//when the access is not translated (Ref Mmu.c, and
+	//Plan_MMU_integration.md's deviation 6).
+	return !asiMmuPassThrough((uint8_t) asi) && alwaysCacheable();
+}
+
+bool MmuCore::isCacheableTarget(uint64_t physAddr)
+{
+	return SystemAddressMap::decode(physAddr) == SystemAddressMap::Target::MAIN_MEMORY;
+}
+
+void MmuCore::handleReadLine(const VirtualMemoryRequest& request, VirtualMemoryResponse& response)
+{
+	response.mae       = false;
+	response.cacheable = false;
+	response.acc       = 0;
+	for (unsigned int i = 0; i < CACHE_LINE_DOUBLEWORDS; i++)
+		response.line[i] = 0;
+
+	uint32_t asi = request.asi;
+	bool isInstructionFetch = (asi == ASI_USER_INSTRUCTION || asi == ASI_SUPERVISOR_INSTRUCTION);
+
+	uint64_t physAddr = request.address;
+	bool cacheable = false;
+	uint8_t acc = 3; //untranslated: no page, every access allowed
+
+	if (!mmuIsPresent || asiMmuPassThrough((uint8_t) asi) || !mmuEnabled())
+	{
+		stats.bypassAccesses++;
+		cacheable = mmuIsPresent ? untranslatedCacheable(asi) : false;
+	}
+	else
+	{
+		bool ok = translate(request.address, asi, isInstructionFetch, /*isWrite=*/false, /*isAtomic=*/false,
+		                    physAddr, cacheable, acc);
+		if (!ok) { response.mae = !noFaultSuppressesTrap(asi); return; }
+	}
+
+	cacheable = cacheable && isCacheableTarget(physAddr);
+	response.cacheable = cacheable;
+	response.acc       = acc;
+
+	unsigned int offset = (physAddr >> 3) & (CACHE_LINE_DOUBLEWORDS - 1);
+	if (cacheable)
+	{
+		uint64_t lineBase = physAddr & ~((uint64_t) CACHE_LINE_BYTES - 1);
+		for (unsigned int i = 0; i < CACHE_LINE_DOUBLEWORDS && !response.mae; i++)
+		{
+			uint32_t w0 = 0, w1 = 0;
+			readPhysicalDoubleword(lineBase + 8 * i, w0, w1, response.mae, 0xFF);
+			response.line[i] = ((uint64_t) w1 << 32) | w0;
+		}
+	}
+	else if (request.byteMask != 0)
+	{
+		//Not cacheable: only the doubleword (the bytes) actually wanted.
+		//An empty mask (an L1 write-allocate) reads nothing at all.
+		uint32_t w0 = 0, w1 = 0;
+		readPhysicalDoubleword(physAddr, w0, w1, response.mae, (uint8_t) request.byteMask);
+		response.line[offset] = ((uint64_t) w1 << 32) | w0;
+	}
+	response.readWord0 = (uint32_t) (response.line[offset] & 0xFFFFFFFFu);
+	response.readWord1 = (uint32_t) (response.line[offset] >> 32);
+}
+
 void MmuCore::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi, bool& mae)
 {
 	mae = false;
+	lastStoreCacheable_ = false;
 
 	if (!mmuIsPresent)
 	{
@@ -228,6 +305,7 @@ void MmuCore::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1
 	bool ok = translate(address, asi, /*isInstructionFetch=*/false, /*isWrite=*/true, /*isAtomic=*/false, physAddr, cacheable, acc);
 	if (!ok) { mae = !noFaultSuppressesTrap(asi); return; }
 	writePhysicalMaskedDoubleWord(physAddr, word0, word1, byte_mask, mae);
+	lastStoreCacheable_ = cacheable && isCacheableTarget(physAddr);
 }
 
 void MmuCore::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,

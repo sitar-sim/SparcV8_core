@@ -1,0 +1,126 @@
+//================================================================
+// module System
+// Author: Neha Karanjkar
+//
+// Assembles four sibling modules, connected by nets:
+//
+//   core        : Core               the SPARC V8 core with its L1 caches and MMU
+//   bridge      : SystemBridge       the physical bus below the MMU
+//   mainMemory  : PhysicalMainMemory main memory
+//   devices     : PeripheralDevices  Timer, Serial, Interrupt Controller
+//
+//   core.requestOut    -> bridge -> mainMemory or devices (by address)
+//   core.responseIn    <- bridge <- mainMemory or devices
+//   devices.interruptLevelOut -> core.interruptLevelIn
+//
+// The devices are a single shared set on the memory side, reached by
+// physical address like any other target, not part of Core. That is
+// what lets several cores share them later.
+//
+// Every net crossing costs Sitar's unavoidable minimum of one cycle.
+// A memory access that misses in the caches (or bypasses them) crosses
+// four nets (core to bridge, bridge to memory, and back). A cache hit
+// crosses none. An
+// interrupt reaches the core one cycle after the Interrupt Controller
+// raises it.
+//
+// Owns the single consolidated, commented list of every latency knob in
+// this configuration.
+//================================================================
+
+module System
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	$
+
+	submodule core       : Core
+	submodule bridge     : SystemBridge
+	submodule mainMemory : PhysicalMainMemory
+	submodule devices    : PeripheralDevices
+
+	net coreRequestNet     : capacity 1 width TOKEN_REQ_WIDTH
+	net coreResponseNet    : capacity 1 width TOKEN_RESP_WIDTH
+	net memoryRequestNet   : capacity 1 width TOKEN_REQ_WIDTH
+	net memoryResponseNet  : capacity 1 width TOKEN_RESP_WIDTH
+	net devicesRequestNet  : capacity 1 width TOKEN_REQ_WIDTH
+	net devicesResponseNet : capacity 1 width TOKEN_RESP_WIDTH
+	net interruptLevelNet  : capacity 1 width 1
+
+	core.requestOut          => coreRequestNet
+	bridge.coreRequestIn     <= coreRequestNet
+	bridge.coreResponseOut   => coreResponseNet
+	core.responseIn          <= coreResponseNet
+
+	bridge.memoryRequestOut  => memoryRequestNet
+	mainMemory.requestIn     <= memoryRequestNet
+	mainMemory.responseOut   => memoryResponseNet
+	bridge.memoryResponseIn  <= memoryResponseNet
+
+	bridge.devicesRequestOut => devicesRequestNet
+	devices.requestIn        <= devicesRequestNet
+	devices.responseOut      => devicesResponseNet
+	bridge.devicesResponseIn <= devicesResponseNet
+
+	devices.interruptLevelOut => interruptLevelNet
+	core.interruptLevelIn     <= interruptLevelNet
+
+	init
+	$
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted in its own owning procedure/module; the
+	// value set here runs afterward (Sitar's child-then-parent init
+	// order) and is the authoritative one for the simulation.
+	//---------------------------------------------------------
+	//Opcode-wise latency: compile-time, see OpcodeLatencies.h
+	//(DEFAULT_PER_OPCODE_DELAY / OPCODE_LATENCY_OVERRIDES) -- not
+	//settable here.
+	//
+	//Core-side interconnect latency (memory-interface delay: cycles
+	//beyond 0-delay procedure-call semantics, per access type):
+	core.sparcThread.ifetchProcedure.delay          = 0; //ifetch
+	core.sparcThread.memReadProcedure.delay         = 0; //load
+	core.sparcThread.memWriteProcedure.delay        = 0; //store
+	core.sparcThread.atomicLoadStoreProcedure.delay = 0; //atomic load-store
+	core.sparcThread.flushProcedure.delay           = 0; //flush
+	//
+	//L1 caches (Ref L1Caches.sitar). Their sizes are run-time options of
+	//sparc_sim (--icache-lines/--icache-ways/--dcache-lines/--dcache-ways),
+	//not timing knobs:
+	core.caches.icacheHitDelay = 0; //charged on an instruction cache hit
+	core.caches.dcacheHitDelay = 0; //charged on a data cache hit
+	core.caches.fillDelay      = 0; //charged when a line is installed
+	//
+	//MMU-related (all charged only on the paths described -- Ref
+	//Mmu.sitar's own comment on each field):
+	core.mmu.tlbLookupDelay         = 0; //TLB tag-compare cost, charged whether hit or miss
+	core.mmu.pageTableWalkStepDelay = 0; //walker control overhead, once per page-table level visited
+	core.mmu.tlbFillDelay           = 0; //cost of inserting a resolved entry into the TLB, on a fresh miss only
+	core.mmu.registerAccessDelay    = 0; //MMU control/context/FSR/FAR register read or write (ASI 4)
+	core.mmu.flushDelay             = 0; //TLB invalidate (ASI 3 write) -- no memory access, write-through TLB
+	//
+	//MMU-to-bridge interconnect latency (additive with every net's own
+	//unavoidable >=1 cycle -- Ref this file's own header comment):
+	core.mmu.phyMemReadProcedure.delay  = 0;
+	core.mmu.phyMemWriteProcedure.delay = 0;
+	//
+	//Bridge latency, added to every physical transaction:
+	bridge.delay = 0;
+	//
+	//Physical memory service latency:
+	mainMemory.delay = 0;
+	//
+	//Peripheral devices:
+	devices.registerAccessDelay      = 0; //added to every device register access
+	devices.devices.timerTickDivider = 1; //cycles per timer tick (not a latency: the timer's clock)
+	devices.devices.serial.txTicksPerByte = 1; //cycles a transmitted byte keeps Tx_full set
+	//---------------------------------------------------------
+	$
+
+	//No behavior block: all four are submodules, which the kernel
+	//schedules automatically every phase. Core's own halt-watcher branch
+	//calls `stop simulation` when sparcThread halts.
+end module

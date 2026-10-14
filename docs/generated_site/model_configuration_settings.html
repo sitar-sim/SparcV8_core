@@ -1217,10 +1217,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bus-and-devices-core_mmu_devices" class="md-nav__link">
+  <a href="#caches-core_l1cache_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bus and devices (core_mmu_devices)
+        Caches (core_l1cache_mmu_devices)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-and-devices-core_mmu_devices-and-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus and devices (core_mmu_devices and up)
       
     </span>
   </a>
@@ -1487,10 +1498,21 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#bus-and-devices-core_mmu_devices" class="md-nav__link">
+  <a href="#caches-core_l1cache_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Bus and devices (core_mmu_devices)
+        Caches (core_l1cache_mmu_devices)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bus-and-devices-core_mmu_devices-and-up" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bus and devices (core_mmu_devices and up)
       
     </span>
   </a>
@@ -1693,7 +1715,49 @@ each knob lives in that configuration's own <a href="https://github.com/sitar-si
 </tr>
 </tbody>
 </table>
-<h2 id="bus-and-devices-core_mmu_devices">Bus and devices (<code>core_mmu_devices</code>)<a class="headerlink" href="#bus-and-devices-core_mmu_devices" title="Permanent link">&para;</a></h2>
+<h2 id="caches-core_l1cache_mmu_devices">Caches (<code>core_l1cache_mmu_devices</code>)<a class="headerlink" href="#caches-core_l1cache_mmu_devices" title="Permanent link">&para;</a></h2>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Where to modify</th>
+<th>Type</th>
+<th>Compile time or runtime</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Cache sizes</strong><br>(<code>--icache-lines</code>, <code>--icache-ways</code>, <code>--dcache-lines</code>, <code>--dcache-ways</code>)</td>
+<td>command line, both models (defaults in <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/CacheConfig.h"><code>CacheConfig.h</code></a>)</td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Each cache's number of 64-byte lines, and its associativity (1 = direct mapped).<br><strong>Range:</strong> powers of two, ways no more than lines. Default 512 lines, 1 way.</td>
+</tr>
+<tr>
+<td><strong><code>--always-cacheable</code></strong></td>
+<td>command line, both models (or <code>SPARC_ALWAYS_CACHEABLE=1</code> in the environment)</td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Sets the MMU Control Register's "always cacheable" bit before the run, so ordinary accesses are cached with the MMU disabled.</td>
+</tr>
+<tr>
+<td><strong><code>core.caches.icacheHitDelay</code></strong>, <strong><code>core.caches.dcacheHitDelay</code></strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles charged on an instruction or data cache hit (a data cache hit can be a read or a write).<br><strong>Range:</strong> non-negative int, default 0.</td>
+</tr>
+<tr>
+<td><strong><code>core.caches.fillDelay</code></strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles charged when a line is installed, on top of the line read itself.<br><strong>Range:</strong> non-negative int, default 0.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="bus-and-devices-core_mmu_devices-and-up">Bus and devices (<code>core_mmu_devices</code> and up)<a class="headerlink" href="#bus-and-devices-core_mmu_devices-and-up" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>

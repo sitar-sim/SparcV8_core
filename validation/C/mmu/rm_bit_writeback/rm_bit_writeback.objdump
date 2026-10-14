@@ -2567,28 +2567,28 @@ Disassembly of section .text:
     1ffc:	01 00 00 00 	nop 
 
 00002000 <main>:
-    2000:	9d e3 bf 10 	save  %sp, -240, %sp
+    2000:	9d e3 be f0 	save  %sp, -272, %sp
     2004:	03 04 00 00 	sethi  %hi(0x10000000), %g1
-    2008:	c2 27 bf 70 	st  %g1, [ %fp + -144 ]
-    200c:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
+    2008:	c2 27 bf 50 	st  %g1, [ %fp + -176 ]
+    200c:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
     2010:	83 30 60 12 	srl  %g1, 0x12, %g1
     2014:	82 08 60 3f 	and  %g1, 0x3f, %g1
-    2018:	c2 27 bf 74 	st  %g1, [ %fp + -140 ]
-    201c:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
+    2018:	c2 27 bf 54 	st  %g1, [ %fp + -172 ]
+    201c:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
     2020:	83 30 60 0c 	srl  %g1, 0xc, %g1
     2024:	82 08 60 3f 	and  %g1, 0x3f, %g1
-    2028:	c2 27 bf 78 	st  %g1, [ %fp + -136 ]
-    202c:	c8 07 bf 78 	ld  [ %fp + -136 ], %g4
+    2028:	c2 27 bf 58 	st  %g1, [ %fp + -168 ]
+    202c:	c8 07 bf 58 	ld  [ %fp + -168 ], %g4
     2030:	03 00 40 00 	sethi  %hi(0x1000000), %g1
-    2034:	c2 27 bf a0 	st  %g1, [ %fp + -96 ]
+    2034:	c2 27 bf 80 	st  %g1, [ %fp + -128 ]
     2038:	82 10 20 03 	mov  3, %g1
-    203c:	c2 27 bf 9c 	st  %g1, [ %fp + -100 ]
+    203c:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
     2040:	82 10 20 01 	mov  1, %g1
-    2044:	c2 27 bf 98 	st  %g1, [ %fp + -104 ]
-    2048:	c2 07 bf a0 	ld  [ %fp + -96 ], %g1
+    2044:	c2 27 bf 78 	st  %g1, [ %fp + -136 ]
+    2048:	c2 07 bf 80 	ld  [ %fp + -128 ], %g1
     204c:	83 30 60 0c 	srl  %g1, 0xc, %g1
     2050:	85 28 60 08 	sll  %g1, 8, %g2
-    2054:	c2 07 bf 98 	ld  [ %fp + -104 ], %g1
+    2054:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
     2058:	80 a0 60 00 	cmp  %g1, 0
     205c:	02 80 00 05 	be  2070 <main+0x70>
     2060:	01 00 00 00 	nop 
@@ -2597,7 +2597,7 @@ Disassembly of section .text:
     206c:	01 00 00 00 	nop 
     2070:	82 10 20 00 	clr  %g1	! 0 <_start>
     2074:	84 10 80 01 	or  %g2, %g1, %g2
-    2078:	c2 07 bf 9c 	ld  [ %fp + -100 ], %g1
+    2078:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
     207c:	83 28 60 02 	sll  %g1, 2, %g1
     2080:	82 10 80 01 	or  %g2, %g1, %g1
     2084:	82 10 60 02 	or  %g1, 2, %g1
@@ -2606,13 +2606,13 @@ Disassembly of section .text:
     2090:	84 10 60 00 	mov  %g1, %g2	! 3400 <l3_table>
     2094:	83 29 20 02 	sll  %g4, 2, %g1
     2098:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    209c:	c2 07 bf 74 	ld  [ %fp + -140 ], %g1
+    209c:	c2 07 bf 54 	ld  [ %fp + -172 ], %g1
     20a0:	05 00 00 0d 	sethi  %hi(0x3400), %g2
     20a4:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l3_table>
-    20a8:	c4 27 bf a4 	st  %g2, [ %fp + -92 ]
-    20ac:	c4 07 bf a4 	ld  [ %fp + -92 ], %g2
-    20b0:	c4 27 bf a8 	st  %g2, [ %fp + -88 ]
-    20b4:	c4 07 bf a8 	ld  [ %fp + -88 ], %g2
+    20a8:	c4 27 bf 84 	st  %g2, [ %fp + -124 ]
+    20ac:	c4 07 bf 84 	ld  [ %fp + -124 ], %g2
+    20b0:	c4 27 bf 88 	st  %g2, [ %fp + -120 ]
+    20b4:	c4 07 bf 88 	ld  [ %fp + -120 ], %g2
     20b8:	85 30 a0 06 	srl  %g2, 6, %g2
     20bc:	85 28 a0 02 	sll  %g2, 2, %g2
     20c0:	84 10 a0 01 	or  %g2, 1, %g2
@@ -2623,41 +2623,41 @@ Disassembly of section .text:
     20d4:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
     20d8:	03 00 00 0c 	sethi  %hi(0x3000), %g1
     20dc:	82 10 60 00 	mov  %g1, %g1	! 3000 <l2_table>
-    20e0:	c2 27 bf ac 	st  %g1, [ %fp + -84 ]
-    20e4:	c2 07 bf ac 	ld  [ %fp + -84 ], %g1
-    20e8:	c2 27 bf b0 	st  %g1, [ %fp + -80 ]
-    20ec:	c2 07 bf b0 	ld  [ %fp + -80 ], %g1
+    20e0:	c2 27 bf 8c 	st  %g1, [ %fp + -116 ]
+    20e4:	c2 07 bf 8c 	ld  [ %fp + -116 ], %g1
+    20e8:	c2 27 bf 90 	st  %g1, [ %fp + -112 ]
+    20ec:	c2 07 bf 90 	ld  [ %fp + -112 ], %g1
     20f0:	83 30 60 06 	srl  %g1, 6, %g1
     20f4:	83 28 60 02 	sll  %g1, 2, %g1
     20f8:	82 10 60 01 	or  %g1, 1, %g1
     20fc:	05 00 00 0b 	sethi  %hi(0x2c00), %g2
     2100:	84 10 a0 00 	mov  %g2, %g2	! 2c00 <l1_table>
-    2104:	c4 27 bf b8 	st  %g2, [ %fp + -72 ]
-    2108:	c2 27 bf b4 	st  %g1, [ %fp + -76 ]
-    210c:	c0 27 bf bc 	clr  [ %fp + -68 ]
+    2104:	c4 27 bf 98 	st  %g2, [ %fp + -104 ]
+    2108:	c2 27 bf 94 	st  %g1, [ %fp + -108 ]
+    210c:	c0 27 bf 9c 	clr  [ %fp + -100 ]
     2110:	10 80 00 0a 	b  2138 <main+0x138>
     2114:	01 00 00 00 	nop 
-    2118:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
+    2118:	c2 07 bf 9c 	ld  [ %fp + -100 ], %g1
     211c:	83 28 60 02 	sll  %g1, 2, %g1
-    2120:	c4 07 bf b8 	ld  [ %fp + -72 ], %g2
+    2120:	c4 07 bf 98 	ld  [ %fp + -104 ], %g2
     2124:	82 00 80 01 	add  %g2, %g1, %g1
     2128:	c0 20 40 00 	clr  [ %g1 ]
-    212c:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
+    212c:	c2 07 bf 9c 	ld  [ %fp + -100 ], %g1
     2130:	82 00 60 01 	inc  %g1
-    2134:	c2 27 bf bc 	st  %g1, [ %fp + -68 ]
-    2138:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
+    2134:	c2 27 bf 9c 	st  %g1, [ %fp + -100 ]
+    2138:	c2 07 bf 9c 	ld  [ %fp + -100 ], %g1
     213c:	80 a0 60 ff 	cmp  %g1, 0xff
     2140:	04 bf ff f6 	ble  2118 <main+0x118>
     2144:	01 00 00 00 	nop 
-    2148:	c0 27 bf c8 	clr  [ %fp + -56 ]
+    2148:	c0 27 bf a8 	clr  [ %fp + -88 ]
     214c:	82 10 20 03 	mov  3, %g1
-    2150:	c2 27 bf c4 	st  %g1, [ %fp + -60 ]
+    2150:	c2 27 bf a4 	st  %g1, [ %fp + -92 ]
     2154:	82 10 20 01 	mov  1, %g1
-    2158:	c2 27 bf c0 	st  %g1, [ %fp + -64 ]
-    215c:	c2 07 bf c8 	ld  [ %fp + -56 ], %g1
+    2158:	c2 27 bf a0 	st  %g1, [ %fp + -96 ]
+    215c:	c2 07 bf a8 	ld  [ %fp + -88 ], %g1
     2160:	83 30 60 0c 	srl  %g1, 0xc, %g1
     2164:	85 28 60 08 	sll  %g1, 8, %g2
-    2168:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2168:	c2 07 bf a0 	ld  [ %fp + -96 ], %g1
     216c:	80 a0 60 00 	cmp  %g1, 0
     2170:	02 80 00 05 	be  2184 <main+0x184>
     2174:	01 00 00 00 	nop 
@@ -2666,25 +2666,25 @@ Disassembly of section .text:
     2180:	01 00 00 00 	nop 
     2184:	82 10 20 00 	clr  %g1	! 0 <_start>
     2188:	84 10 80 01 	or  %g2, %g1, %g2
-    218c:	c2 07 bf c4 	ld  [ %fp + -60 ], %g1
+    218c:	c2 07 bf a4 	ld  [ %fp + -92 ], %g1
     2190:	83 28 60 02 	sll  %g1, 2, %g1
     2194:	82 10 80 01 	or  %g2, %g1, %g1
     2198:	82 10 60 02 	or  %g1, 2, %g1
     219c:	84 10 00 01 	mov  %g1, %g2
-    21a0:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
+    21a0:	c2 07 bf 98 	ld  [ %fp + -104 ], %g1
     21a4:	c4 20 40 00 	st  %g2, [ %g1 ]
-    21a8:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
+    21a8:	c2 07 bf 98 	ld  [ %fp + -104 ], %g1
     21ac:	84 00 60 3c 	add  %g1, 0x3c, %g2
     21b0:	03 03 c0 00 	sethi  %hi(0xf000000), %g1
-    21b4:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
+    21b4:	c2 27 bf b4 	st  %g1, [ %fp + -76 ]
     21b8:	82 10 20 03 	mov  3, %g1
-    21bc:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    21bc:	c2 27 bf b0 	st  %g1, [ %fp + -80 ]
     21c0:	82 10 20 01 	mov  1, %g1
-    21c4:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
-    21c8:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
+    21c4:	c2 27 bf ac 	st  %g1, [ %fp + -84 ]
+    21c8:	c2 07 bf b4 	ld  [ %fp + -76 ], %g1
     21cc:	83 30 60 0c 	srl  %g1, 0xc, %g1
     21d0:	87 28 60 08 	sll  %g1, 8, %g3
-    21d4:	c2 07 bf cc 	ld  [ %fp + -52 ], %g1
+    21d4:	c2 07 bf ac 	ld  [ %fp + -84 ], %g1
     21d8:	80 a0 60 00 	cmp  %g1, 0
     21dc:	02 80 00 05 	be  21f0 <main+0x1f0>
     21e0:	01 00 00 00 	nop 
@@ -2693,222 +2693,242 @@ Disassembly of section .text:
     21ec:	01 00 00 00 	nop 
     21f0:	82 10 20 00 	clr  %g1	! 0 <_start>
     21f4:	86 10 c0 01 	or  %g3, %g1, %g3
-    21f8:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    21f8:	c2 07 bf b0 	ld  [ %fp + -80 ], %g1
     21fc:	83 28 60 02 	sll  %g1, 2, %g1
     2200:	82 10 c0 01 	or  %g3, %g1, %g1
     2204:	82 10 60 02 	or  %g1, 2, %g1
     2208:	c2 20 80 00 	st  %g1, [ %g2 ]
-    220c:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
+    220c:	c2 07 bf 98 	ld  [ %fp + -104 ], %g1
     2210:	82 00 60 40 	add  %g1, 0x40, %g1
-    2214:	c4 07 bf b4 	ld  [ %fp + -76 ], %g2
+    2214:	c4 07 bf 94 	ld  [ %fp + -108 ], %g2
     2218:	c4 20 40 00 	st  %g2, [ %g1 ]
     221c:	03 00 00 0a 	sethi  %hi(0x2800), %g1
     2220:	82 10 60 00 	mov  %g1, %g1	! 2800 <context_table>
-    2224:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
+    2224:	c2 27 bf bc 	st  %g1, [ %fp + -68 ]
     2228:	03 00 00 0b 	sethi  %hi(0x2c00), %g1
     222c:	82 10 60 00 	mov  %g1, %g1	! 2c00 <l1_table>
-    2230:	c2 27 bf d8 	st  %g1, [ %fp + -40 ]
-    2234:	c2 07 bf d8 	ld  [ %fp + -40 ], %g1
-    2238:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
-    223c:	c2 07 bf e0 	ld  [ %fp + -32 ], %g1
-    2240:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
-    2244:	c2 07 bf e4 	ld  [ %fp + -28 ], %g1
+    2230:	c2 27 bf b8 	st  %g1, [ %fp + -72 ]
+    2234:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
+    2238:	c2 27 bf c0 	st  %g1, [ %fp + -64 ]
+    223c:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2240:	c2 27 bf c4 	st  %g1, [ %fp + -60 ]
+    2244:	c2 07 bf c4 	ld  [ %fp + -60 ], %g1
     2248:	83 30 60 06 	srl  %g1, 6, %g1
     224c:	83 28 60 02 	sll  %g1, 2, %g1
     2250:	82 10 60 01 	or  %g1, 1, %g1
     2254:	84 10 00 01 	mov  %g1, %g2
-    2258:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    2258:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
     225c:	c4 20 40 00 	st  %g2, [ %g1 ]
-    2260:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
-    2264:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
-    2268:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
-    226c:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    2270:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    2260:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
+    2264:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2268:	c2 07 bf c8 	ld  [ %fp + -56 ], %g1
+    226c:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    2270:	c2 07 bf cc 	ld  [ %fp + -52 ], %g1
     2274:	83 30 60 06 	srl  %g1, 6, %g1
     2278:	83 28 60 02 	sll  %g1, 2, %g1
     227c:	82 10 60 01 	or  %g1, 1, %g1
-    2280:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2280:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
     2284:	82 10 21 00 	mov  0x100, %g1
-    2288:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
-    228c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    2290:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
+    2288:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    228c:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
+    2290:	c4 07 bf d0 	ld  [ %fp + -48 ], %g2
     2294:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
     2298:	82 10 20 01 	mov  1, %g1
-    229c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    22a0:	c0 27 bf f8 	clr  [ %fp + -8 ]
-    22a4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    22a8:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
+    229c:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
+    22a0:	c0 27 bf d8 	clr  [ %fp + -40 ]
+    22a4:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    22a8:	c4 07 bf d8 	ld  [ %fp + -40 ], %g2
     22ac:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
-    22b0:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    22b4:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    22b8:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l3_table>
-    22bc:	83 28 60 02 	sll  %g1, 2, %g1
-    22c0:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
-    22c4:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
-    22c8:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    22cc:	82 08 60 20 	and  %g1, 0x20, %g1
-    22d0:	80 a0 60 00 	cmp  %g1, 0
-    22d4:	12 80 00 0a 	bne  22fc <main+0x2fc>
-    22d8:	01 00 00 00 	nop 
-    22dc:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    22e0:	82 08 60 40 	and  %g1, 0x40, %g1
+    22b0:	c2 07 bf 58 	ld  [ %fp + -168 ], %g1
+    22b4:	85 28 60 02 	sll  %g1, 2, %g2
+    22b8:	03 00 00 0d 	sethi  %hi(0x3400), %g1
+    22bc:	82 10 60 00 	mov  %g1, %g1	! 3400 <l3_table>
+    22c0:	82 00 80 01 	add  %g2, %g1, %g1
+    22c4:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
+    22c8:	c2 07 bf e0 	ld  [ %fp + -32 ], %g1
+    22cc:	c2 80 44 00 	lda  [ %g1 ] #ASI_SCRATCHPAD, %g1
+    22d0:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
+    22d4:	c2 07 bf e4 	ld  [ %fp + -28 ], %g1
+    22d8:	c2 27 bf 5c 	st  %g1, [ %fp + -164 ]
+    22dc:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    22e0:	82 08 60 20 	and  %g1, 0x20, %g1
     22e4:	80 a0 60 00 	cmp  %g1, 0
-    22e8:	12 80 00 05 	bne  22fc <main+0x2fc>
+    22e8:	12 80 00 0a 	bne  2310 <main+0x310>
     22ec:	01 00 00 00 	nop 
-    22f0:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    22f4:	10 80 00 03 	b  2300 <main+0x300>
-    22f8:	01 00 00 00 	nop 
-    22fc:	82 10 20 00 	clr  %g1	! 0 <_start>
-    2300:	c2 27 bf 80 	st  %g1, [ %fp + -128 ]
-    2304:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
-    2308:	c2 00 40 00 	ld  [ %g1 ], %g1
-    230c:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    2310:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    2314:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l3_table>
-    2318:	83 28 60 02 	sll  %g1, 2, %g1
-    231c:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
-    2320:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
-    2324:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    2328:	82 08 60 20 	and  %g1, 0x20, %g1
-    232c:	80 a0 60 00 	cmp  %g1, 0
-    2330:	02 80 00 0a 	be  2358 <main+0x358>
-    2334:	01 00 00 00 	nop 
-    2338:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    233c:	82 08 60 40 	and  %g1, 0x40, %g1
-    2340:	80 a0 60 00 	cmp  %g1, 0
-    2344:	12 80 00 05 	bne  2358 <main+0x358>
-    2348:	01 00 00 00 	nop 
-    234c:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    2350:	10 80 00 03 	b  235c <main+0x35c>
-    2354:	01 00 00 00 	nop 
-    2358:	82 10 20 00 	clr  %g1	! 0 <_start>
-    235c:	c2 27 bf 84 	st  %g1, [ %fp + -124 ]
-    2360:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
-    2364:	05 32 bf bc 	sethi  %hi(0xcafef000), %g2
-    2368:	84 10 a0 0d 	or  %g2, 0xd, %g2	! cafef00d <l3_table+0xcafebc0d>
-    236c:	c4 20 40 00 	st  %g2, [ %g1 ]
-    2370:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    2374:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    2378:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l3_table>
-    237c:	83 28 60 02 	sll  %g1, 2, %g1
-    2380:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
-    2384:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
-    2388:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    238c:	82 08 60 20 	and  %g1, 0x20, %g1
-    2390:	80 a0 60 00 	cmp  %g1, 0
-    2394:	02 80 00 0a 	be  23bc <main+0x3bc>
-    2398:	01 00 00 00 	nop 
-    239c:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    23a0:	82 08 60 40 	and  %g1, 0x40, %g1
-    23a4:	80 a0 60 00 	cmp  %g1, 0
-    23a8:	02 80 00 05 	be  23bc <main+0x3bc>
-    23ac:	01 00 00 00 	nop 
-    23b0:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    23b4:	10 80 00 03 	b  23c0 <main+0x3c0>
-    23b8:	01 00 00 00 	nop 
-    23bc:	82 10 20 00 	clr  %g1	! 0 <_start>
-    23c0:	c2 27 bf 88 	st  %g1, [ %fp + -120 ]
-    23c4:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
-    23c8:	c2 00 40 00 	ld  [ %g1 ], %g1
-    23cc:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
-    23d0:	05 32 bf bc 	sethi  %hi(0xcafef000), %g2
-    23d4:	84 10 a0 0e 	or  %g2, 0xe, %g2	! cafef00e <l3_table+0xcafebc0e>
-    23d8:	c4 20 40 00 	st  %g2, [ %g1 ]
-    23dc:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    23e0:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    23e4:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l3_table>
-    23e8:	83 28 60 02 	sll  %g1, 2, %g1
-    23ec:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
-    23f0:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
-    23f4:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    23f8:	82 08 60 20 	and  %g1, 0x20, %g1
-    23fc:	80 a0 60 00 	cmp  %g1, 0
-    2400:	02 80 00 0a 	be  2428 <main+0x428>
-    2404:	01 00 00 00 	nop 
-    2408:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    240c:	82 08 60 40 	and  %g1, 0x40, %g1
-    2410:	80 a0 60 00 	cmp  %g1, 0
-    2414:	02 80 00 05 	be  2428 <main+0x428>
-    2418:	01 00 00 00 	nop 
-    241c:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    2420:	10 80 00 03 	b  242c <main+0x42c>
-    2424:	01 00 00 00 	nop 
-    2428:	82 10 20 00 	clr  %g1	! 0 <_start>
-    242c:	c2 27 bf 8c 	st  %g1, [ %fp + -116 ]
-    2430:	c2 07 bf 80 	ld  [ %fp + -128 ], %g1
-    2434:	80 a0 60 00 	cmp  %g1, 0
-    2438:	02 80 00 11 	be  247c <main+0x47c>
-    243c:	01 00 00 00 	nop 
-    2440:	c2 07 bf 84 	ld  [ %fp + -124 ], %g1
-    2444:	80 a0 60 00 	cmp  %g1, 0
-    2448:	02 80 00 0d 	be  247c <main+0x47c>
-    244c:	01 00 00 00 	nop 
-    2450:	c2 07 bf 88 	ld  [ %fp + -120 ], %g1
-    2454:	80 a0 60 00 	cmp  %g1, 0
-    2458:	02 80 00 09 	be  247c <main+0x47c>
-    245c:	01 00 00 00 	nop 
-    2460:	c2 07 bf 8c 	ld  [ %fp + -116 ], %g1
-    2464:	80 a0 60 00 	cmp  %g1, 0
-    2468:	02 80 00 05 	be  247c <main+0x47c>
-    246c:	01 00 00 00 	nop 
-    2470:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    2474:	10 80 00 03 	b  2480 <main+0x480>
-    2478:	01 00 00 00 	nop 
-    247c:	82 10 20 00 	clr  %g1	! 0 <_start>
-    2480:	c2 27 bf 90 	st  %g1, [ %fp + -112 ]
-    2484:	c2 07 bf 84 	ld  [ %fp + -124 ], %g1
-    2488:	82 00 40 01 	add  %g1, %g1, %g1
-    248c:	84 10 00 01 	mov  %g1, %g2
-    2490:	c2 07 bf 80 	ld  [ %fp + -128 ], %g1
-    2494:	84 10 80 01 	or  %g2, %g1, %g2
-    2498:	c2 07 bf 88 	ld  [ %fp + -120 ], %g1
-    249c:	83 28 60 02 	sll  %g1, 2, %g1
-    24a0:	84 10 80 01 	or  %g2, %g1, %g2
-    24a4:	c2 07 bf 8c 	ld  [ %fp + -116 ], %g1
-    24a8:	83 28 60 03 	sll  %g1, 3, %g1
-    24ac:	82 10 80 01 	or  %g2, %g1, %g1
-    24b0:	c2 27 bf 94 	st  %g1, [ %fp + -108 ]
-    24b4:	c2 07 bf 90 	ld  [ %fp + -112 ], %g1
-    24b8:	90 10 00 01 	mov  %g1, %o0
-    24bc:	c2 07 bf 94 	ld  [ %fp + -108 ], %g1
-    24c0:	92 10 00 01 	mov  %g1, %o1
-    24c4:	91 d0 20 00 	ta  0
-    24c8:	10 80 00 00 	b  24c8 <main+0x4c8>
-    24cc:	01 00 00 00 	nop 
+    22f0:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    22f4:	82 08 60 40 	and  %g1, 0x40, %g1
+    22f8:	80 a0 60 00 	cmp  %g1, 0
+    22fc:	12 80 00 05 	bne  2310 <main+0x310>
+    2300:	01 00 00 00 	nop 
+    2304:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    2308:	10 80 00 03 	b  2314 <main+0x314>
+    230c:	01 00 00 00 	nop 
+    2310:	82 10 20 00 	clr  %g1	! 0 <_start>
+    2314:	c2 27 bf 60 	st  %g1, [ %fp + -160 ]
+    2318:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
+    231c:	c2 00 40 00 	ld  [ %g1 ], %g1
+    2320:	c2 07 bf 58 	ld  [ %fp + -168 ], %g1
+    2324:	85 28 60 02 	sll  %g1, 2, %g2
+    2328:	03 00 00 0d 	sethi  %hi(0x3400), %g1
+    232c:	82 10 60 00 	mov  %g1, %g1	! 3400 <l3_table>
+    2330:	82 00 80 01 	add  %g2, %g1, %g1
+    2334:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
+    2338:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    233c:	c2 80 44 00 	lda  [ %g1 ] #ASI_SCRATCHPAD, %g1
+    2340:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    2344:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    2348:	c2 27 bf 5c 	st  %g1, [ %fp + -164 ]
+    234c:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    2350:	82 08 60 20 	and  %g1, 0x20, %g1
+    2354:	80 a0 60 00 	cmp  %g1, 0
+    2358:	02 80 00 0a 	be  2380 <main+0x380>
+    235c:	01 00 00 00 	nop 
+    2360:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    2364:	82 08 60 40 	and  %g1, 0x40, %g1
+    2368:	80 a0 60 00 	cmp  %g1, 0
+    236c:	12 80 00 05 	bne  2380 <main+0x380>
+    2370:	01 00 00 00 	nop 
+    2374:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    2378:	10 80 00 03 	b  2384 <main+0x384>
+    237c:	01 00 00 00 	nop 
+    2380:	82 10 20 00 	clr  %g1	! 0 <_start>
+    2384:	c2 27 bf 64 	st  %g1, [ %fp + -156 ]
+    2388:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
+    238c:	05 32 bf bc 	sethi  %hi(0xcafef000), %g2
+    2390:	84 10 a0 0d 	or  %g2, 0xd, %g2	! cafef00d <l3_table+0xcafebc0d>
+    2394:	c4 20 40 00 	st  %g2, [ %g1 ]
+    2398:	c2 07 bf 58 	ld  [ %fp + -168 ], %g1
+    239c:	85 28 60 02 	sll  %g1, 2, %g2
+    23a0:	03 00 00 0d 	sethi  %hi(0x3400), %g1
+    23a4:	82 10 60 00 	mov  %g1, %g1	! 3400 <l3_table>
+    23a8:	82 00 80 01 	add  %g2, %g1, %g1
+    23ac:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    23b0:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    23b4:	c2 80 44 00 	lda  [ %g1 ] #ASI_SCRATCHPAD, %g1
+    23b8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    23bc:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    23c0:	c2 27 bf 5c 	st  %g1, [ %fp + -164 ]
+    23c4:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    23c8:	82 08 60 20 	and  %g1, 0x20, %g1
+    23cc:	80 a0 60 00 	cmp  %g1, 0
+    23d0:	02 80 00 0a 	be  23f8 <main+0x3f8>
+    23d4:	01 00 00 00 	nop 
+    23d8:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    23dc:	82 08 60 40 	and  %g1, 0x40, %g1
+    23e0:	80 a0 60 00 	cmp  %g1, 0
+    23e4:	02 80 00 05 	be  23f8 <main+0x3f8>
+    23e8:	01 00 00 00 	nop 
+    23ec:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    23f0:	10 80 00 03 	b  23fc <main+0x3fc>
+    23f4:	01 00 00 00 	nop 
+    23f8:	82 10 20 00 	clr  %g1	! 0 <_start>
+    23fc:	c2 27 bf 68 	st  %g1, [ %fp + -152 ]
+    2400:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
+    2404:	c2 00 40 00 	ld  [ %g1 ], %g1
+    2408:	c2 07 bf 50 	ld  [ %fp + -176 ], %g1
+    240c:	05 32 bf bc 	sethi  %hi(0xcafef000), %g2
+    2410:	84 10 a0 0e 	or  %g2, 0xe, %g2	! cafef00e <l3_table+0xcafebc0e>
+    2414:	c4 20 40 00 	st  %g2, [ %g1 ]
+    2418:	c2 07 bf 58 	ld  [ %fp + -168 ], %g1
+    241c:	85 28 60 02 	sll  %g1, 2, %g2
+    2420:	03 00 00 0d 	sethi  %hi(0x3400), %g1
+    2424:	82 10 60 00 	mov  %g1, %g1	! 3400 <l3_table>
+    2428:	82 00 80 01 	add  %g2, %g1, %g1
+    242c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    2430:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    2434:	c2 80 44 00 	lda  [ %g1 ] #ASI_SCRATCHPAD, %g1
+    2438:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    243c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2440:	c2 27 bf 5c 	st  %g1, [ %fp + -164 ]
+    2444:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    2448:	82 08 60 20 	and  %g1, 0x20, %g1
+    244c:	80 a0 60 00 	cmp  %g1, 0
+    2450:	02 80 00 0a 	be  2478 <main+0x478>
+    2454:	01 00 00 00 	nop 
+    2458:	c2 07 bf 5c 	ld  [ %fp + -164 ], %g1
+    245c:	82 08 60 40 	and  %g1, 0x40, %g1
+    2460:	80 a0 60 00 	cmp  %g1, 0
+    2464:	02 80 00 05 	be  2478 <main+0x478>
+    2468:	01 00 00 00 	nop 
+    246c:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    2470:	10 80 00 03 	b  247c <main+0x47c>
+    2474:	01 00 00 00 	nop 
+    2478:	82 10 20 00 	clr  %g1	! 0 <_start>
+    247c:	c2 27 bf 6c 	st  %g1, [ %fp + -148 ]
+    2480:	c2 07 bf 60 	ld  [ %fp + -160 ], %g1
+    2484:	80 a0 60 00 	cmp  %g1, 0
+    2488:	02 80 00 11 	be  24cc <main+0x4cc>
+    248c:	01 00 00 00 	nop 
+    2490:	c2 07 bf 64 	ld  [ %fp + -156 ], %g1
+    2494:	80 a0 60 00 	cmp  %g1, 0
+    2498:	02 80 00 0d 	be  24cc <main+0x4cc>
+    249c:	01 00 00 00 	nop 
+    24a0:	c2 07 bf 68 	ld  [ %fp + -152 ], %g1
+    24a4:	80 a0 60 00 	cmp  %g1, 0
+    24a8:	02 80 00 09 	be  24cc <main+0x4cc>
+    24ac:	01 00 00 00 	nop 
+    24b0:	c2 07 bf 6c 	ld  [ %fp + -148 ], %g1
+    24b4:	80 a0 60 00 	cmp  %g1, 0
+    24b8:	02 80 00 05 	be  24cc <main+0x4cc>
+    24bc:	01 00 00 00 	nop 
+    24c0:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    24c4:	10 80 00 03 	b  24d0 <main+0x4d0>
+    24c8:	01 00 00 00 	nop 
+    24cc:	82 10 20 00 	clr  %g1	! 0 <_start>
+    24d0:	c2 27 bf 70 	st  %g1, [ %fp + -144 ]
+    24d4:	c2 07 bf 64 	ld  [ %fp + -156 ], %g1
+    24d8:	82 00 40 01 	add  %g1, %g1, %g1
+    24dc:	84 10 00 01 	mov  %g1, %g2
+    24e0:	c2 07 bf 60 	ld  [ %fp + -160 ], %g1
+    24e4:	84 10 80 01 	or  %g2, %g1, %g2
+    24e8:	c2 07 bf 68 	ld  [ %fp + -152 ], %g1
+    24ec:	83 28 60 02 	sll  %g1, 2, %g1
+    24f0:	84 10 80 01 	or  %g2, %g1, %g2
+    24f4:	c2 07 bf 6c 	ld  [ %fp + -148 ], %g1
+    24f8:	83 28 60 03 	sll  %g1, 3, %g1
+    24fc:	82 10 80 01 	or  %g2, %g1, %g1
+    2500:	c2 27 bf 74 	st  %g1, [ %fp + -140 ]
+    2504:	c2 07 bf 70 	ld  [ %fp + -144 ], %g1
+    2508:	90 10 00 01 	mov  %g1, %o0
+    250c:	c2 07 bf 74 	ld  [ %fp + -140 ], %g1
+    2510:	92 10 00 01 	mov  %g1, %o1
+    2514:	91 d0 20 00 	ta  0
+    2518:	10 80 00 00 	b  2518 <main+0x518>
+    251c:	01 00 00 00 	nop 
 
-000024d0 <memcpy>:
-    24d0:	9d e3 bf 90 	save  %sp, -112, %sp
-    24d4:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    24d8:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    24dc:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    24e0:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    24e4:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    24e8:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    24ec:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    24f0:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    24f4:	10 80 00 0d 	b  2528 <memcpy+0x58>
-    24f8:	01 00 00 00 	nop 
-    24fc:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    2500:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2504:	82 00 80 01 	add  %g2, %g1, %g1
-    2508:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
-    250c:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    2510:	84 00 c0 02 	add  %g3, %g2, %g2
-    2514:	c4 08 80 00 	ldub  [ %g2 ], %g2
-    2518:	c4 28 40 00 	stb  %g2, [ %g1 ]
-    251c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2520:	82 00 60 01 	inc  %g1
-    2524:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    2528:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    252c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    2530:	80 a0 80 01 	cmp  %g2, %g1
-    2534:	0a bf ff f2 	bcs  24fc <memcpy+0x2c>
-    2538:	01 00 00 00 	nop 
-    253c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    2540:	b0 10 00 01 	mov  %g1, %i0
-    2544:	81 e8 00 00 	restore 
-    2548:	81 c3 e0 08 	retl 
-    254c:	01 00 00 00 	nop 
+00002520 <memcpy>:
+    2520:	9d e3 bf 90 	save  %sp, -112, %sp
+    2524:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    2528:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    252c:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    2530:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    2534:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2538:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    253c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    2540:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    2544:	10 80 00 0d 	b  2578 <memcpy+0x58>
+    2548:	01 00 00 00 	nop 
+    254c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    2550:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2554:	82 00 80 01 	add  %g2, %g1, %g1
+    2558:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    255c:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    2560:	84 00 c0 02 	add  %g3, %g2, %g2
+    2564:	c4 08 80 00 	ldub  [ %g2 ], %g2
+    2568:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    256c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2570:	82 00 60 01 	inc  %g1
+    2574:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    2578:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    257c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    2580:	80 a0 80 01 	cmp  %g2, %g1
+    2584:	0a bf ff f2 	bcs  254c <memcpy+0x2c>
+    2588:	01 00 00 00 	nop 
+    258c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    2590:	b0 10 00 01 	mov  %g1, %i0
+    2594:	81 e8 00 00 	restore 
+    2598:	81 c3 e0 08 	retl 
+    259c:	01 00 00 00 	nop 
 
 Symbol table:
 
@@ -3183,6 +3203,6 @@ Symbol table '.symtab' contains 271 entries:
    265: 00003000   256 OBJECT  LOCAL  DEFAULT    2 l2_table
    266: 00003400   256 OBJECT  LOCAL  DEFAULT    2 l3_table
    267: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
-   268: 000024d0   128 FUNC    GLOBAL DEFAULT    1 memcpy
+   268: 00002520   128 FUNC    GLOBAL DEFAULT    1 memcpy
    269: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   270: 00002000  1232 FUNC    GLOBAL DEFAULT    1 main
+   270: 00002000  1312 FUNC    GLOBAL DEFAULT    1 main

@@ -40,8 +40,13 @@ enum class MemAccessType : uint32_t
 	STORE     = 2,
 	IFETCH    = 3,
 	ATOMIC_LS = 4,
-	FLUSH     = 5
+	FLUSH     = 5,
+	READ_LINE = 6  //a cache line fill, from an L1 cache to the MMU (Ref VirtualMemoryResponse.line)
 };
+
+//Bytes per L1 cache line, as in AJIT: 8 doublewords.
+const unsigned int CACHE_LINE_BYTES     = 64;
+const unsigned int CACHE_LINE_DOUBLEWORDS = CACHE_LINE_BYTES / 8;
 
 inline std::string accessTypeToString(MemAccessType accessType)
 {
@@ -53,6 +58,7 @@ inline std::string accessTypeToString(MemAccessType accessType)
 		case MemAccessType::IFETCH:    return "IFETCH";
 		case MemAccessType::ATOMIC_LS: return "ATOMIC_LS";
 		case MemAccessType::FLUSH:     return "FLUSH";
+		case MemAccessType::READ_LINE: return "READ_LINE";
 		default:                       return "INVALID";
 	}
 }
@@ -72,12 +78,20 @@ struct VirtualMemoryRequest
 	uint32_t      byteMask;
 };
 
+//For a READ_LINE only (Ref MemAccessType::READ_LINE): line[] holds the
+//line's doublewords if `cacheable`, else only line[(address >> 3) & 7],
+//the one doubleword actually read (also in readWord0/readWord1). acc is
+//the page's ACC field (Ref Appendix H), for the cache's own permission
+//check on later hits. Every other access type leaves these untouched.
 struct VirtualMemoryResponse
 {
 	bool     valid;
 	uint32_t readWord0;
 	uint32_t readWord1;
 	bool     mae;
+	uint64_t line[CACHE_LINE_DOUBLEWORDS];
+	bool     cacheable;
+	uint8_t  acc;
 };
 
 enum class PhysicalAccessType : uint32_t

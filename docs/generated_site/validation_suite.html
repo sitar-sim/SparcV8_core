@@ -1922,8 +1922,13 @@ components, each living in its own folder:</p>
     <code>core_mmu_devices</code>. See <a href="peripheral_devices.html">Peripheral Devices</a>.
     On the sitar_model these tests need more cycles than the default
     limit, so run them with <code>--max-cycles 5000000</code>.</li>
-<li><strong><code>validation/C/caches/</code></strong> (planned)<br />
-    The L1 instruction and data caches.</li>
+<li><strong><code>validation/C/caches/</code></strong><br />
+    The L1 caches: write-through, staleness until a flush (they are not
+    coherent), device registers never cached, atomics on a cached line.
+    Needs <code>core_l1cache_mmu_devices</code>. The whole suite above also runs
+    through the caches on that configuration, and with every ordinary
+    access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the
+    environment.</li>
 </ul>
 <p>A component's tests only pass on a configuration that actually includes
 that component, e.g. the MMU suite needs <code>core_mmu</code> or a later
