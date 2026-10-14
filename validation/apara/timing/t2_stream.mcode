@@ -1,0 +1,24 @@
+// Timing: full rate. 16 one-slot bundles and a $halt: FETCH sends one
+// bundle per cycle across IMEM lines, and with two REGFILE tokens
+// (returned two cycles after issue) nothing stalls. The $halt is fetched
+// in cycle 16 and leaves WRITEBACK in cycle 21: 22 cycles.
+//
+//@ cycles: 22
+//@ expect: 0 pc 0x11
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $null ;
+    || $halt ;

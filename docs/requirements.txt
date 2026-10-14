@@ -6,11 +6,12 @@ pymdown-extensions==10.20.1
 Pygments==2.19.2
 
 # Custom Pygments lexers that provide syntax highlighting for Sitar code
-# blocks (```sitar ... ```) and SPARC V8 assembly code blocks
-# (```sparc ... ```). Vendored into this repo (see
-# sitar_pygments_lexer/README.md and sparc_pygments_lexer/README.md) so
+# blocks (```sitar ... ```), SPARC V8 assembly code blocks
+# (```sparc ... ```) and APARA mcode blocks (```mcode ... ```). Vendored
+# into this repo (see the README.md in each lexer's folder) so
 # this file is self-contained. Paths are relative to this requirements
 # file -- install from the docs/ directory:
 #     pip install -r requirements.txt
 -e ./sitar_pygments_lexer
 -e ./sparc_pygments_lexer
+-e ./mcode_pygments_lexer

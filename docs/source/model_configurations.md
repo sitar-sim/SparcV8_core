@@ -47,6 +47,8 @@ summarized here:
 | core_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/) | Adds the peripheral devices below the MMU. |
 | core_l1cache_mmu_devices | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/) | Adds split L1 caches between the core and the MMU. |
 | core_l1cache_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/) | Adds split L1 caches between the core and the MMU. |
+| apara | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/cpp_model/) | One APARA engine on its own, no SPARC core (Ref [The APARA Engine](apara/index.md)). |
+| apara | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/sitar_model/) | One APARA engine on its own, with its pipeline's timing. |
 
 For each configuration, both the cpp and sitar models include the same
 components: `core_mmu`'s MMU, for example, is present in both its
@@ -241,3 +243,36 @@ it itself, or the simulator can, with `--always-cacheable`.
 </pre>
 
 The nets are the same seven as in `core_mmu_devices`.
+
+---
+
+### Configuration: apara
+
+One APARA engine, standalone: its program and data are placed straight
+into its memories before the run (Ref [Writing and Running APARA
+Programs](apara/running.md)). The engine's pipeline is one module per
+stage, joined by nets with the hardware's channel depths; see
+[APARA Timing Model](apara/timing_model.md) for what each does.
+
+#### Model description
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/apara/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module)
+      |
+      +-- fetch     : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaFetch.sitar">AparaFetch</a> (module)
+      +-- decode    : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaDecode.sitar">AparaDecode</a> (module)
+      +-- regfile   : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaRegfile.sitar">AparaRegfile</a> (module)
+      +-- exec      : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaExec.sitar">AparaExec</a> (module)
+      +-- writeback : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaWriteback.sitar">AparaWriteback</a> (module)
+</pre>
+
+| Net | Capacity | From, to |
+|---|---|---|
+| `fetchToDecode` | 2 | FETCH to DECODE |
+| `decodeToRegfile[0..3]` | 2 | DECODE to REGFILE, one per thread |
+| `regfileToExec` | 2 | REGFILE to EXEC |
+| `execToRegfile` | 1 | EXEC's results back to REGFILE |
+| `regfileToWriteback` | 2 | REGFILE to WRITEBACK |
+| `correctionNet`, `haltNet` | 1 | WRITEBACK to FETCH |

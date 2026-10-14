@@ -1,0 +1,156 @@
+//================================================================
+// module AparaExec
+// Author: Neha Karanjkar
+//
+// The APARA engine's EXEC stage (Ref the APARA microarch doc's EXEC
+// section). Owns the engine's functional state: `core`, an AparaCore
+// (registers, RAS, ERROR, IMEM, DMEM of all four threads).
+//
+// A bundle runs functionally when it enters EXEC (core.step()), in each
+// thread's program order. Its time in EXEC is its latency: the slowest
+// of its instructions (DECODE's figure from the latency table), or its
+// memory phase if longer (LatencyTable::memoryCycles(): one access per
+// DMEM bank port, same-bank accesses one after another). DIV and FSQRT
+// share one divider that takes a bundle at a time: a bundle needing it
+// waits until it is free.
+//
+// Skip rules (the microarch doc's EXEC states): a mispredicted bundle
+// puts its thread in MISPREDICTED, a halting bundle in HALTED; until a
+// bundle marked NEW_STREAM (or NEW_THREAD) arrives, the thread's
+// bundles are skipped: not executed, but their results still go back to
+// REGFILE, which releases their locks.
+//
+// Knob: pipelined (default true): a new bundle enters every cycle and
+// results leave in order; false: EXEC holds one bundle until its
+// latency is over (the microarch doc's two descriptions, D4 in our
+// findings).
+//================================================================
+
+module AparaExec
+
+	include
+	$
+	#include "AparaTiming.h"
+	#include <deque>
+	$
+
+	inport  fromRegfile : width APARA_BUNDLE_TOKEN_BYTES
+	outport toRegfile   : width APARA_RESULT_TOKEN_BYTES
+
+	decl
+	$
+	apara::AparaCore    core;
+	apara::LatencyTable latency;
+	bool pipelined;
+
+	enum ExecState { EXEC_ACTIVE = 0, EXEC_HALTED = 1, EXEC_MISPREDICTED = 3 };
+	ExecState state[apara::THREADS_PER_ENGINE];
+
+	struct InFlight { uint64_t readyCycle; apara::ResultToken result; };
+	std::deque<InFlight> inFlight;
+	uint64_t dividerFreeCycle;
+	uint64_t pcMismatches; //self-check: an executed bundle not at its thread's PC
+
+	token<APARA_BUNDLE_TOKEN_BYTES> bundleTok;
+	token<APARA_RESULT_TOKEN_BYTES> resultTok;
+
+	apara::AparaTimingStats stats;
+
+	public:
+	void accept(uint64_t now)
+	{
+		if (!pipelined && !inFlight.empty())
+			return;
+		if (!fromRegfile.pull(bundleTok))
+			return;
+		apara::BundleToken b;
+		sitar::unpack(bundleTok, b);
+		unsigned int t = b.thread % apara::THREADS_PER_ENGINE;
+
+		if (b.flags & apara::BUNDLE_NEW_THREAD)
+			state[t] = EXEC_ACTIVE;
+		else if (state[t] == EXEC_MISPREDICTED && (b.flags & apara::BUNDLE_NEW_STREAM))
+			state[t] = EXEC_ACTIVE;
+
+		InFlight f;
+		std::memset(&f.result, 0, sizeof(f.result));
+		f.result.pc = b.pc;
+		f.result.thread = (uint8_t) t;
+		f.result.size = b.size;
+		f.result.writeMask = b.writeMask;
+
+		if (state[t] != EXEC_ACTIVE || !core.thread(t).runnable())
+		{
+			f.result.flags = apara::RESULT_SKIPPED;
+			f.readyCycle = now; //passes straight through
+			stats.bundlesSkipped++;
+		}
+		else
+		{
+			if (core.thread(t).pc != b.pc)
+				pcMismatches++;
+			uint64_t start = now;
+			if (b.usesDivider && dividerFreeCycle > now)
+			{
+				start = dividerFreeCycle;
+				stats.dividerStallCycles += start - now;
+			}
+			apara::StepResult r = core.step(t);
+			unsigned int cycles = b.latency;
+			unsigned int memory = latency.memoryCycles(r);
+			if (memory > cycles) cycles = memory;
+			stats.bankConflicts += apara::LatencyTable::sameBankExtras(r);
+			if (b.usesDivider)
+				dividerFreeCycle = start + cycles;
+			f.readyCycle = start + cycles - 1;
+
+			f.result.nextPc = r.nextPc;
+			if (r.bundle && r.bundle->valid && r.bundle->slot[0].isControl())
+				f.result.flags |= apara::RESULT_CONTROL;
+			if (r.halted)
+			{
+				f.result.flags |= apara::RESULT_HALT;
+				state[t] = EXEC_HALTED;
+			}
+			else if (r.nextPc != b.predictedNextPc)
+			{
+				f.result.flags |= apara::RESULT_MISPREDICT;
+				state[t] = EXEC_MISPREDICTED;
+				stats.mispredicts++;
+			}
+			stats.bundlesExecuted++;
+			stats.perThreadExecuted[t]++;
+		}
+		if (!inFlight.empty() && f.readyCycle < inFlight.back().readyCycle)
+			f.readyCycle = inFlight.back().readyCycle; //results leave in order
+		inFlight.push_back(f);
+	}
+
+	void send(uint64_t now)
+	{
+		if (inFlight.empty() || inFlight.front().readyCycle > now)
+			return;
+		sitar::pack(resultTok, inFlight.front().result);
+		if (toRegfile.push(resultTok))
+			inFlight.pop_front();
+	}
+	$
+
+	init
+	$
+	pipelined = true;
+	for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+		state[t] = EXEC_HALTED; //until the thread's first (NEW_THREAD) bundle
+	dividerFreeCycle = 0;
+	pcMismatches = 0;
+	$
+
+	behavior
+	do
+		$ accept(current_time.cycle()); $;
+		wait(0, 1);
+		$ send(current_time.cycle()); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

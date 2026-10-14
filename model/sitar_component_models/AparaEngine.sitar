@@ -1,0 +1,85 @@
+//================================================================
+// module AparaEngine
+// Author: Neha Karanjkar
+//
+// One APARA engine's thread execution unit: the five pipeline stages,
+// each a module, joined by nets with the channel depths of the
+// hardware's teu.hsys (Ref the APARA microarch doc's channel table):
+//
+//   fetch -> decode -> regfile (one channel per thread) -> exec
+//   exec -> regfile       results: REGFILE releases the bundle's locks
+//   regfile -> writeback  results, on to retire
+//   writeback -> fetch    PC correction, halt notification
+//
+// Every net crossing takes Sitar's one cycle, so a bundle spends at least
+// one cycle in each stage, as in the hardware's elastic pipeline.
+//
+// The functional engine state is exec.core (Ref AparaExec.sitar); fetch
+// reads IMEM from it and decode uses exec's latency table, both only
+// read during a run.
+//================================================================
+
+module AparaEngine
+
+	include
+	$
+	#include "AparaTiming.h"
+	$
+
+	submodule fetch     : AparaFetch
+	submodule decode    : AparaDecode
+	submodule regfile   : AparaRegfile
+	submodule exec      : AparaExec
+	submodule writeback : AparaWriteback
+
+	net       fetchToDecode      : capacity 2 width APARA_BUNDLE_TOKEN_BYTES
+	net_array decodeToRegfile[4] : capacity 2 width APARA_BUNDLE_TOKEN_BYTES
+	net       regfileToExec      : capacity 2 width APARA_BUNDLE_TOKEN_BYTES
+	net       execToRegfile      : capacity 1 width APARA_RESULT_TOKEN_BYTES
+	net       regfileToWriteback : capacity 2 width APARA_RESULT_TOKEN_BYTES
+	net       correctionNet      : capacity 1 width APARA_CORRECTION_TOKEN_BYTES
+	net       haltNet            : capacity 1 width APARA_HALT_TOKEN_BYTES
+
+	fetch.toDecode       => fetchToDecode
+	decode.fromFetch     <= fetchToDecode
+	for i in 0 to 3
+		decode.toRegfile[i]  => decodeToRegfile[i]
+		regfile.fromDecode[i] <= decodeToRegfile[i]
+	end for
+	regfile.toExec       => regfileToExec
+	exec.fromRegfile     <= regfileToExec
+	exec.toRegfile       => execToRegfile
+	regfile.fromExec     <= execToRegfile
+	regfile.toWriteback  => regfileToWriteback
+	writeback.fromRegfile <= regfileToWriteback
+	writeback.correctionOut => correctionNet
+	fetch.correctionIn   <= correctionNet
+	writeback.haltOut    => haltNet
+	fetch.haltIn         <= haltNet
+
+	decl
+	$
+	public:
+	//Start thread t at pc: in the functional state and in FETCH.
+	void startThread(unsigned int t, uint32_t pc)
+	{
+		exec.core.startThread(t, pc);
+		fetch.startThread(t, pc);
+	}
+
+	apara::AparaTimingStats stats() const
+	{
+		apara::AparaTimingStats s;
+		s.add(fetch.stats);
+		s.add(regfile.stats);
+		s.add(exec.stats);
+		return s;
+	}
+	$
+
+	init
+	$
+	fetch.imem = &exec.core;
+	decode.latency = &exec.latency;
+	$
+end module

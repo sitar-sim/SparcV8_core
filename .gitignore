@@ -60,3 +60,6 @@ __pycache__/
 # MkDocs (docs/.venv/); docs/generated_site/ IS committed, not ignored
 .venv/
 **/*.egg-info/
+
+# APARA test runner output (validation/apara/run_tests.py)
+/validation/apara/build/

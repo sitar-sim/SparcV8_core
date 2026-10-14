@@ -1,0 +1,52 @@
+// $cast between integer types (scalar, and vector one width step up or
+// down), $pack, $set and $slice.
+//
+//@ reg: 0 $r1 0xf0
+//@ reg: 0 $r4 0x12345678abcdef80
+//@ reg: 0 $r7 0x0102ff04050607f8
+//@ expect: 0 reg $r2 0xfffffffffffffff0
+//@ expect: 0 reg $r3 0xf0
+//@ expect: 0 reg $r5 0x80
+//@ expect: 0 reg $r8 0x00010002ffff0004
+//@ expect: 0 reg $r9 0x000500060007fff8
+//@ expect: 0 reg $r10 0x0102ff04050607f8
+//@ expect: 0 reg $r11 0xbeef000000
+//@ expect: 0 reg $r16 0x11223344
+//@ expect: 0 reg $r17 0x0011002200330044
+//@ expect: 0 reg $r18 0x0000001100000022
+//@ expect: 0 reg $r19 0x0000003300000044
+//@ expect: 0 reg $r20 0x22
+//@ expect: 0 reg $r21 0x4
+
+casts:
+    ||
+        $cast ($i64) $r2 ($i8)  $r1          // sign-extended: -16
+        $cast ($i64) $r3 ($u8)  $r1          // zero-extended
+        $cast ($i8)  $r5 ($i32) $r4          // truncated: 0x80
+        $cast ($vi16) $r8 ($vi8) $r7         // widen: writes $r8 and $r9
+    ;
+narrow:
+    ||
+        $cast ($vi8) $r10 ($vi16) $r8        // narrow: reads $r8 and $r9
+        $set $r11 3 _hbeef                   // 0xbeef << 24
+        $set $r12 0 _h11
+        $set $r13 0 _h22
+        $set $r14 0 _h33
+        $set $r15 0 _h44
+        $null
+        $null
+    ;
+pack:
+    ||
+        $pack 32  $r16 8  $r12               // low bytes of $r12..$r15
+        $pack 64  $r17 16 $r12
+        $pack 128 $r18 32 $r12               // writes $r18 and $r19
+        $null
+    ;
+slice:
+    ||
+        $slice $r20 47 32 $r17
+        $slice $r21 7 4 $r17
+    ;
+done:
+    || $halt ;

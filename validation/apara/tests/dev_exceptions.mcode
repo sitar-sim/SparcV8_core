@@ -1,0 +1,33 @@
+// Exceptions stop a thread (this model's addition; the reference model
+// reports them and continues). The faulting bundle changes nothing: the
+// thread halts at its PC with ERROR = 0x01000000 | (code << 3*slot):
+// codes 1 integer divide by zero, 2 float divide by zero, 3 float NaN,
+// 5 negative square root, 6 unaligned address, 7 illegal instruction or
+// bundle. A return-address stack error sets ERROR bit 26 instead.
+//
+//@ deviation: exceptions
+//@ threads: 0x0 0x8 0x10 0x18
+//@ reg: 0 $r1 7
+//@ reg: 3 $r1 0x3f800000
+//@ expect: 0 error 0x1000008
+//@ expect: 0 pc 0x0
+//@ expect: 0 reg $r3 0x0
+//@ expect: 1 error 0x1006000
+//@ expect: 1 pc 0x8
+//@ expect: 2 error 0x4000000
+//@ expect: 2 pc 0x10
+//@ expect: 3 error 0x1000010
+//@ expect: 3 pc 0x18
+
+    ||                                   // 0x0: divide (lane 1) by zero
+        / $r3 ($i64) $r1 $r0
+    ;
+    ||                                   // 0x8: an 8-byte load (lane 4) at 4
+        $ld ($i64) $r2 [$r0 + 4]
+    ;
+    ||                                   // 0x10: return with nothing to return to
+        $return
+    ;
+    ||                                   // 0x18: 1.0 / 0.0
+        / $r3 ($f32) $r1 $r0
+    ;

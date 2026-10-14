@@ -94,7 +94,10 @@ def main():
     build_dir = os.path.join(config_dir, 'build')          # scratch, gitignored
     output_dir = os.path.join(build_dir, 'Output')          # translated .sitar -> .cpp/.h
     executable_dir = os.path.join(config_dir, 'executable')
-    main_file = os.path.join(src_dir, 'sparc_sim.cpp')
+    # A configuration that is not a SPARC simulator (e.g. apara) names its
+    # own entry point and executable in its build.sh, through the
+    # environment: MAIN_FILE=<file in src/> EXECUTABLE_BASENAME=<name>.
+    main_file = os.path.join(src_dir, os.environ.get('MAIN_FILE', 'sparc_sim.cpp'))
 
     # Same suffix logic for both the executable name and this build's own
     # object-file subdirectory, so the two stay obviously paired (e.g.
@@ -107,7 +110,8 @@ def main():
     if args.debug_o0:
         variant_suffix += 'o0'
 
-    executable_name = 'sparc_sim_sitar_%s%s' % (config_name, variant_suffix)
+    executable_name = '%s%s' % (os.environ.get('EXECUTABLE_BASENAME', 'sparc_sim_sitar_' + config_name),
+                                 variant_suffix)
     executable = os.path.join(executable_dir, executable_name)
 
     obj_dir = os.path.join(build_dir, 'obj' + variant_suffix)

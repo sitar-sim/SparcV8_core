@@ -1,0 +1,201 @@
+//================================================================
+// module AparaFetch
+// Author: Neha Karanjkar
+//
+// The APARA engine's FETCH stage (Ref docs/source/apara/timing_model.md and
+// the APARA microarch doc's FETCH section).
+//
+// Owns the fetch PC of each thread and the branch target buffer. Picks
+// a started, not halted thread in round-robin order, reads the 8-word
+// IMEM line holding its PC, and sends the line's bundles to DECODE one
+// per cycle, in PC order, before it picks another thread. A bundle's
+// predicted next PC comes from the BTB (a predicted jump also ends the
+// line) or is the next bundle.
+//
+// A PC correction from WRITEBACK sets the thread's PC, trains the BTB,
+// drops the thread's bundles still in FETCH, and marks the next bundle
+// NEW_STREAM. A halt notification stops fetching for the thread.
+//
+// Reads IMEM through `imem`, the AparaCore that EXEC owns (IMEM does not
+// change during a run, so the two modules never touch the same data).
+//
+// Knob: imemDelay (default 0), cycles between picking a thread and its
+// line being available (0: the IMEM read overlaps the previous line's
+// issue).
+//================================================================
+
+module AparaFetch
+
+	include
+	$
+	#include "AparaTiming.h"
+	$
+
+	outport toDecode     : width APARA_BUNDLE_TOKEN_BYTES
+	inport  correctionIn : width APARA_CORRECTION_TOKEN_BYTES
+	inport  haltIn       : width APARA_HALT_TOKEN_BYTES
+
+	decl
+	$
+	const apara::AparaCore*   imem;
+	apara::BranchTargetBuffer btb;
+	uint32_t imemDelay;
+
+	struct ThreadFetch
+	{
+		bool     active;
+		bool     halted;
+		uint32_t pc;
+		uint8_t  pendingFlags; //flags for the thread's next bundle
+	};
+	ThreadFetch thread[apara::THREADS_PER_ENGINE];
+	unsigned int nextThread;
+
+	//The line being sequentialized.
+	bool         lineValid;
+	unsigned int lineThread;
+	uint32_t     lineBase;
+	uint32_t     linePc;
+	uint32_t     lineWait;
+
+	//A bundle that could not be sent (DECODE's input was full).
+	bool               havePending;
+	apara::BundleToken pending;
+
+	token<APARA_BUNDLE_TOKEN_BYTES>     bundleTok;
+	token<APARA_CORRECTION_TOKEN_BYTES> correctionTok;
+	token<APARA_HALT_TOKEN_BYTES>       haltTok;
+
+	apara::AparaTimingStats stats;
+
+	public:
+	void startThread(unsigned int t, uint32_t pc)
+	{
+		thread[t].active = true;
+		thread[t].halted = false;
+		thread[t].pc = pc;
+		thread[t].pendingFlags = apara::BUNDLE_NEW_THREAD;
+	}
+
+	//Drop what FETCH still holds of thread t.
+	void dropThread(unsigned int t)
+	{
+		if (lineValid && lineThread == t) lineValid = false;
+		if (havePending && pending.thread == t) havePending = false;
+	}
+
+	void receive()
+	{
+		while (correctionIn.pull(correctionTok))
+		{
+			apara::CorrectionToken c;
+			sitar::unpack(correctionTok, c);
+			dropThread(c.thread);
+			thread[c.thread].pc = c.correctPc;
+			thread[c.thread].pendingFlags |= apara::BUNDLE_NEW_STREAM;
+			btb.train(c.bundlePc, c.taken, c.correctPc);
+		}
+		while (haltIn.pull(haltTok))
+		{
+			apara::HaltToken h;
+			sitar::unpack(haltTok, h);
+			dropThread(h.thread);
+			thread[h.thread].halted = true;
+		}
+	}
+
+	//The next bundle of the current line, into `pending`.
+	void makeBundle()
+	{
+		ThreadFetch& tf = thread[lineThread];
+		apara::BundleToken& b = pending;
+		std::memset(&b, 0, sizeof(b));
+		b.pc = linePc;
+		b.thread = (uint8_t) lineThread;
+		b.flags = tf.pendingFlags;
+		tf.pendingFlags = 0;
+		//The bundle: from the PC to the next start bit, a zero word or the
+		//line's end. (An invalid bundle goes on as one slot; EXEC raises
+		//its exception.)
+		unsigned int n = 0;
+		for (uint32_t a = linePc; a < lineBase + 8; a++)
+		{
+			uint32_t w = imem->imemWord(a);
+			if (w == 0 || (a > linePc && (w >> 31)))
+				break;
+			b.word[n++] = w;
+		}
+		b.size = (uint8_t) (n == 0 ? 1 : n);
+		uint32_t target;
+		bool jump = btb.predict(linePc, target);
+		b.predictedNextPc = jump ? target : linePc + b.size;
+		if (jump) stats.btbPredictions++;
+		stats.bundlesFetched++;
+
+		tf.pc = b.predictedNextPc;
+		linePc = b.predictedNextPc;
+		if (jump || (linePc & ~7u) != lineBase)
+			lineValid = false;
+		havePending = true;
+	}
+
+	void send()
+	{
+		if (!havePending)
+		{
+			if (!lineValid)
+			{
+				unsigned int t, i;
+				for (i = 0; i < apara::THREADS_PER_ENGINE; i++)
+				{
+					t = (nextThread + i) % apara::THREADS_PER_ENGINE;
+					if (thread[t].active && !thread[t].halted)
+						break;
+				}
+				if (i == apara::THREADS_PER_ENGINE)
+					return;
+				nextThread = (t + 1) % apara::THREADS_PER_ENGINE;
+				lineValid  = true;
+				lineThread = t;
+				linePc     = thread[t].pc;
+				lineBase   = linePc & ~7u;
+				lineWait   = imemDelay;
+			}
+			if (lineWait > 0)
+			{
+				lineWait--;
+				return;
+			}
+			makeBundle();
+		}
+		sitar::pack(bundleTok, pending);
+		if (toDecode.push(bundleTok))
+			havePending = false;
+	}
+	$
+
+	init
+	$
+	imem = NULL;
+	imemDelay = 0;
+	for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+		thread[t] = ThreadFetch{false, false, 0, 0};
+	nextThread = 0;
+	lineValid = false;
+	lineThread = 0;
+	lineBase = linePc = 0;
+	lineWait = 0;
+	havePending = false;
+	std::memset(&pending, 0, sizeof(pending));
+	$
+
+	behavior
+	$ assert(imem); $;
+	do
+		$ receive(); $;
+		wait(0, 1);
+		$ send(); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

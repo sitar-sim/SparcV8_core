@@ -1,0 +1,12 @@
+// Timing: the shared divider. Each divide takes 10 cycles and the two
+// share one unit: the first runs in cycles 3-12, the second waits for
+// it and runs in 13-22. The $halt leaves EXEC behind it (cycle 23) and
+// WRITEBACK in cycle 25: 26 cycles.
+//
+//@ cycles: 26
+//@ reg: 0 $r1 7
+//@ expect: 0 reg $r2 0x1
+//@ expect: 0 reg $r3 0x1
+    || / $r2 ($i64) $r1 $r1 ;
+    || / $r3 ($i64) $r1 $r1 ;
+    || $halt ;

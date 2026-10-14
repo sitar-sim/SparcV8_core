@@ -1,0 +1,9 @@
+// Timing: as t4_raw.mcode, without the dependence. The second bundle
+// issues in cycle 3 (EXEC 4-5, leaving in 6, after the f32 add's result
+// in 5); the $halt waits for a token (both are taken) until the add's
+// result returns one in cycle 6, and leaves WRITEBACK in 9: 10 cycles.
+//
+//@ cycles: 10
+    || + $r1 ($f32) $r2 $r3 ;
+    || + $r4 ($i64) $r5 1 ;
+    || $halt ;

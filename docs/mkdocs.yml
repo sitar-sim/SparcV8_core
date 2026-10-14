@@ -94,6 +94,13 @@ nav:
           - Timer: peripheral_devices_timer.md
           - Interrupt Controller: peripheral_devices_interrupt_controller.md
           - Serial Device: peripheral_devices_serial_device.md
+      - The APARA Engine:
+          - Overview: apara/index.md
+          - Instruction Set: apara/isa.md
+          - Assembly Language and Tools: apara/assembly_and_tools.md
+          - Writing and Running Programs: apara/running.md
+          - Timing Model: apara/timing_model.md
+          - Deviations and Findings: apara/deviations.md
       - Model Components Reference: model_components_reference.md
       - Model Configuration Settings: model_configuration_settings.md
       - Performance Modeling: performance_modeling.md

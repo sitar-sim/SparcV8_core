@@ -1,0 +1,135 @@
+//================================================================
+// module AparaRegfile
+// Author: Neha Karanjkar
+//
+// The APARA engine's REGFILE stage (Ref the APARA microarch doc's
+// REGFILE section). Holds one bundle per thread, taken from the
+// thread's channel from DECODE. A bundle may go on to EXEC when none of
+// the registers it reads or writes is locked; it then locks the
+// registers it writes. A round-robin picker sends at most one bundle per
+// cycle, and only while a token is free: at most `tokens` (default 2)
+// bundles are in EXEC at any time.
+//
+// EXEC's results come back here (as in the hardware, where REGFILE reads
+// EXEC's result channel): each one releases its bundle's locks and its
+// token, before that cycle's checks, and goes on to WRITEBACK.
+//
+// (The functional register file is AparaCore's, in EXEC: bundles run
+// there in program order, and the locks make every later reader of a
+// register wait until the writer has passed WRITEBACK.)
+//================================================================
+
+module AparaRegfile
+
+	include
+	$
+	#include "AparaTiming.h"
+	#include <deque>
+	$
+
+	inport_array fromDecode[4] : width APARA_BUNDLE_TOKEN_BYTES
+	outport      toExec        : width APARA_BUNDLE_TOKEN_BYTES
+	inport       fromExec      : width APARA_RESULT_TOKEN_BYTES
+	outport      toWriteback   : width APARA_RESULT_TOKEN_BYTES
+
+	decl
+	$
+	uint32_t locks[apara::THREADS_PER_ENGINE];
+	bool               slotValid[apara::THREADS_PER_ENGINE];
+	apara::BundleToken slot[apara::THREADS_PER_ENGINE];
+	unsigned int tokens;
+	unsigned int nextThread;
+	int          selected; //this cycle's pick, -1 if none
+
+	std::deque<apara::ResultToken> toRetire; //results not yet passed to WRITEBACK
+
+	token<APARA_BUNDLE_TOKEN_BYTES> bundleTok;
+	token<APARA_RESULT_TOKEN_BYTES> resultTok;
+
+	apara::AparaTimingStats stats;
+
+	public:
+	void receiveAndPick()
+	{
+		while (fromExec.pull(resultTok))
+		{
+			apara::ResultToken r;
+			sitar::unpack(resultTok, r);
+			locks[r.thread % apara::THREADS_PER_ENGINE] &= ~r.writeMask;
+			tokens++;
+			toRetire.push_back(r);
+		}
+		for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+			if (!slotValid[t] && fromDecode[t].pull(bundleTok))
+			{
+				sitar::unpack(bundleTok, slot[t]);
+				slotValid[t] = true;
+			}
+		selected = -1;
+		bool lockStall = false;
+		for (unsigned int i = 0; i < apara::THREADS_PER_ENGINE; i++)
+		{
+			unsigned int t = (nextThread + i) % apara::THREADS_PER_ENGINE;
+			if (!slotValid[t])
+				continue;
+			if ((slot[t].readMask | slot[t].writeMask) & locks[t])
+			{
+				lockStall = true;
+				continue;
+			}
+			if (tokens == 0)
+			{
+				stats.tokenStallCycles++;
+				break;
+			}
+			selected = (int) t;
+			break;
+		}
+		if (lockStall && selected < 0)
+			stats.lockStallCycles++;
+	}
+
+	void send()
+	{
+		if (!toRetire.empty())
+		{
+			sitar::pack(resultTok, toRetire.front());
+			if (toWriteback.push(resultTok))
+				toRetire.pop_front();
+		}
+		if (selected < 0)
+			return;
+		unsigned int t = (unsigned int) selected;
+		sitar::pack(bundleTok, slot[t]);
+		if (toExec.push(bundleTok))
+		{
+			locks[t] |= slot[t].writeMask;
+			tokens--;
+			slotValid[t] = false;
+			nextThread = (t + 1) % apara::THREADS_PER_ENGINE;
+		}
+	}
+	$
+
+	init
+	$
+	for (unsigned int t = 0; t < apara::THREADS_PER_ENGINE; t++)
+	{
+		locks[t] = 0;
+		slotValid[t] = false;
+		std::memset(&slot[t], 0, sizeof(slot[t]));
+	}
+	tokens = 2;
+	nextThread = 0;
+	selected = -1;
+	$
+
+	behavior
+	do
+		$ receiveAndPick(); $;
+		wait(0, 1);
+		$ send(); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

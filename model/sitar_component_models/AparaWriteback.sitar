@@ -1,0 +1,105 @@
+//================================================================
+// module AparaWriteback
+// Author: Neha Karanjkar
+//
+// The APARA engine's WRITEBACK (retire) stage. For each bundle's result,
+// passed on by REGFILE (which has already released its locks): sends
+// FETCH a PC correction if EXEC found the bundle mispredicted, or a halt
+// notification if its thread stopped. One result per cycle.
+//
+// Counts retired (executed) bundles and halted threads; `lastRetireCycle`
+// is the cycle the last executed bundle left the pipeline.
+//================================================================
+
+module AparaWriteback
+
+	include
+	$
+	#include "AparaTiming.h"
+	$
+
+	inport  fromRegfile   : width APARA_RESULT_TOKEN_BYTES
+	outport correctionOut : width APARA_CORRECTION_TOKEN_BYTES
+	outport haltOut       : width APARA_HALT_TOKEN_BYTES
+
+	decl
+	$
+	bool               havePending;
+	apara::ResultToken pending;
+	bool correctionSent, haltSent;
+
+	uint64_t     retired;
+	uint64_t     lastRetireCycle;
+	unsigned int haltedThreads;
+
+	token<APARA_RESULT_TOKEN_BYTES>     resultTok;
+	token<APARA_CORRECTION_TOKEN_BYTES> correctionTok;
+	token<APARA_HALT_TOKEN_BYTES>       haltTok;
+
+	public:
+	void send(uint64_t now)
+	{
+		if (!havePending)
+			return;
+		const apara::ResultToken& r = pending;
+		if (!correctionSent && (r.flags & apara::RESULT_MISPREDICT))
+		{
+			apara::CorrectionToken c;
+			std::memset(&c, 0, sizeof(c));
+			c.bundlePc = r.pc;
+			c.correctPc = r.nextPc;
+			c.thread = r.thread;
+			c.taken = r.nextPc != r.pc + r.size;
+			sitar::pack(correctionTok, c);
+			correctionSent = correctionOut.push(correctionTok);
+		}
+		if (!haltSent && (r.flags & apara::RESULT_HALT))
+		{
+			apara::HaltToken h;
+			std::memset(&h, 0, sizeof(h));
+			h.thread = r.thread;
+			sitar::pack(haltTok, h);
+			haltSent = haltOut.push(haltTok);
+		}
+		bool done = (correctionSent || !(r.flags & apara::RESULT_MISPREDICT))
+		            && (haltSent || !(r.flags & apara::RESULT_HALT));
+		if (done)
+		{
+			havePending = false;
+			if (!(r.flags & apara::RESULT_SKIPPED))
+			{
+				retired++;
+				lastRetireCycle = now;
+			}
+			if (r.flags & apara::RESULT_HALT)
+				haltedThreads++;
+		}
+	}
+	$
+
+	init
+	$
+	havePending = false;
+	std::memset(&pending, 0, sizeof(pending));
+	correctionSent = haltSent = false;
+	retired = 0;
+	lastRetireCycle = 0;
+	haltedThreads = 0;
+	$
+
+	behavior
+	do
+		$
+		if (!havePending && fromRegfile.pull(resultTok))
+		{
+			sitar::unpack(resultTok, pending);
+			havePending = true;
+			correctionSent = haltSent = false;
+		}
+		$;
+		wait(0, 1);
+		$ send(current_time.cycle()); $;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

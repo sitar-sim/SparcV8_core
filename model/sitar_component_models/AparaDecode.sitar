@@ -1,0 +1,81 @@
+//================================================================
+// module AparaDecode
+// Author: Neha Karanjkar
+//
+// The APARA engine's DECODE stage: stateless. Decodes each bundle from
+// FETCH (the registers it reads and writes, its EXEC latency from the
+// latency table, whether it uses the shared divider) and passes it on
+// the channel of its thread to REGFILE. One bundle per cycle; it holds
+// a bundle while that thread's channel is full.
+//================================================================
+
+module AparaDecode
+
+	include
+	$
+	#include "AparaTiming.h"
+	$
+
+	inport        fromFetch    : width APARA_BUNDLE_TOKEN_BYTES
+	outport_array toRegfile[4] : width APARA_BUNDLE_TOKEN_BYTES
+
+	decl
+	$
+	const apara::LatencyTable* latency;
+
+	bool               havePending;
+	apara::BundleToken pending;
+	token<APARA_BUNDLE_TOKEN_BYTES> tok;
+
+	public:
+	void decode(apara::BundleToken& b)
+	{
+		apara::Instruction slots[apara::BUNDLE_MAX_SLOTS];
+		b.readMask = b.writeMask = 0;
+		b.usesDivider = 0;
+		unsigned int n = b.size <= apara::BUNDLE_MAX_SLOTS ? b.size : apara::BUNDLE_MAX_SLOTS;
+		for (unsigned int s = 0; s < n; s++)
+		{
+			slots[s] = apara::Instruction::decode(b.word[s]);
+			if (!slots[s].valid)
+				continue;
+			b.readMask  |= slots[s].readMask();
+			b.writeMask |= slots[s].writeMask();
+			if (slots[s].opcode == apara::Opcode::DIV || slots[s].opcode == apara::Opcode::FSQRT)
+				b.usesDivider = 1;
+		}
+		b.latency = (uint8_t) latency->bundleCycles(slots, n);
+	}
+	$
+
+	init
+	$
+	latency = NULL;
+	havePending = false;
+	std::memset(&pending, 0, sizeof(pending));
+	$
+
+	behavior
+	$ assert(latency); $;
+	do
+		$
+		if (!havePending && fromFetch.pull(tok))
+		{
+			sitar::unpack(tok, pending);
+			decode(pending);
+			havePending = true;
+		}
+		$;
+		wait(0, 1);
+		$
+		if (havePending)
+		{
+			sitar::pack(tok, pending);
+			if (toRegfile[pending.thread % apara::THREADS_PER_ENGINE].push(tok))
+				havePending = false;
+		}
+		$;
+		wait(0, 1);
+	while (1) end do;
+	end behavior
+end module

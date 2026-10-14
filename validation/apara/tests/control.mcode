@@ -1,0 +1,63 @@
+// Branches, calls and returns. A branch tests a register against 0 and
+// may add an increment to it (the test uses the value before the
+// increment); its target is relative to the branch's own address. A
+// call pushes the address of the next bundle on the return-address
+// stack.
+//
+//@ reg: 0 $r1 5
+//@ reg: 0 $r3 0xbfc00000
+//@ reg: 0 $r4 0x8000
+//@ expect: 0 reg $r1 0xffffffffffffffff
+//@ expect: 0 reg $r2 0xf
+//@ expect: 0 reg $r5 0x1
+//@ expect: 0 reg $r6 0x0
+//@ expect: 0 reg $r7 0x1
+//@ expect: 0 reg $r8 0x2
+//@ expect: 0 reg $r9 0x1
+//@ expect: 0 reg $r10 0x10
+//@ expect: 0 reg $r11 0x1
+
+loop:
+    ||
+        ? ($i64) $r1 > --1 $goto loop        // 5 passes with $r1 > 0, then one more
+        + $r2 ($i64) $r2 $r1                 // 5+4+3+2+1+0
+    ;
+float_test:
+    ||
+        ? ($f32) $r3 < $goto negative        // -1.5 < 0
+    ;
+    ||
+        + $r6 ($i64) $r0 1                   // skipped
+    ;
+negative:
+    ||
+        + $r5 ($i64) $r0 1
+        ? ($i16) $r4 < $goto narrow_negative // 0x8000 as an $i16 is negative
+    ;
+    ||
+        $halt                                // not reached
+    ;
+narrow_negative:
+    ||
+        $call function                       // label form
+        + $r10 ($i64) $r0 16                 // function (0x48) - the call below (0x38)
+    ;
+    ||
+        + $r7 ($i64) $r0 1                   // after the first return
+    ;
+by_register:
+    ||
+        $call $r10                           // register form: relative to this call
+    ;
+    ||
+        + $r9 ($i64) $r0 1
+    ;
+    ||
+        $halt
+    ;
+function:
+    ||
+        + $r8 ($i64) $r8 1                   // counts the calls
+        + $r11 ($i64) $r0 1
+        $return
+    ;

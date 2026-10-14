@@ -1,0 +1,8 @@
+// Timing: EXEC latency. An f32 add takes 3 cycles in EXEC (cycles 3-5).
+// The $halt behind it enters EXEC in cycle 4 but results leave in order,
+// one per cycle: the add's in cycle 5, the halt's in 6; WRITEBACK in 8:
+// 9 cycles.
+//
+//@ cycles: 9
+    || + $r1 ($f32) $r2 $r3 ;
+    || $halt ;

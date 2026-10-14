@@ -1,0 +1,49 @@
+//================================================================
+// module Top
+// Author: Neha Karanjkar
+//
+// The apara configuration's Sitar top level: one standalone APARA engine
+// (AparaEngine), with its program and data placed straight into its
+// IMEM and DMEM by apara_sim.cpp before the run.
+//
+// Stops the simulation once every started thread has stopped (its
+// halting bundle has left WRITEBACK).
+//
+// Owns the consolidated list of the timing knobs. The per-instruction
+// latencies are a run-time option of apara_sim (--latency-file, Ref
+// AparaTiming.h's LatencyTable for the entries and their defaults).
+//================================================================
+
+module Top
+
+	include
+	$
+	#include "AparaTiming.h"
+	$
+
+	submodule engine : AparaEngine
+
+	decl
+	$
+	unsigned int startedThreads;
+	$
+
+	init
+	$
+	startedThreads = 0; //set by apara_sim.cpp
+
+	//---------------------------------------------------------
+	// Timing knobs (each also defaulted in its own module)
+	//---------------------------------------------------------
+	engine.fetch.imemDelay = 0;          //cycles from a thread pick to its IMEM line
+	engine.exec.pipelined  = true;       //EXEC takes a new bundle every cycle (false: holds one)
+	engine.exec.latency.bankConflictCycles = 1; //per extra same-bank access in a bundle
+	engine.regfile.tokens  = 2;          //bundles allowed in EXEC (issued, result not yet back at REGFILE)
+	//---------------------------------------------------------
+	$
+
+	behavior
+	wait until (this_phase == 1 and $startedThreads > 0 && engine.writeback.haltedThreads >= startedThreads$);
+	stop simulation;
+	end behavior
+end module

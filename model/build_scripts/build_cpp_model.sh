@@ -107,7 +107,9 @@ for d in "$CPP_COMMON_CODE_DIR"/*/; do
 done
 CONFIG_SOURCES="$SRC_DIR"/*.cpp
 
-EXECUTABLE_NAME="sparc_sim_cpp_${CONFIG_NAME}"
+# A configuration whose executable is not a SPARC simulator (e.g. apara)
+# names it in its own build.sh: EXECUTABLE_BASENAME=<name> exec ...
+EXECUTABLE_NAME="${EXECUTABLE_BASENAME:-sparc_sim_cpp_${CONFIG_NAME}}"
 [ "$LOGGING" = "1" ] && EXECUTABLE_NAME="${EXECUTABLE_NAME}_logging"
 [ "$DEBUG" = "1" ] && EXECUTABLE_NAME="${EXECUTABLE_NAME}_debug"
 [ "$DEBUG_O0" = "1" ] && EXECUTABLE_NAME="${EXECUTABLE_NAME}o0"

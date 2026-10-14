@@ -1,0 +1,10 @@
+// Timing: a read-after-write stall. The second bundle reads $r1, which
+// the f32 add locks from its issue (cycle 2) until its result is back at
+// REGFILE (cycle 6): it issues in cycle 6 and, an $i64 add, takes 2
+// cycles in EXEC (7-8). The $halt issues in 7, leaves EXEC behind it in
+// cycle 9 and WRITEBACK in 11: 12 cycles (Ref t5_independent.mcode: 10).
+//
+//@ cycles: 12
+    || + $r1 ($f32) $r2 $r3 ;
+    || + $r4 ($i64) $r1 1 ;
+    || $halt ;
