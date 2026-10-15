@@ -1448,10 +1448,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mmu-core_mmu-only" class="md-nav__link">
+  <a href="#mmu-core_mmu-and-later" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MMU (core_mmu only)
+        MMU (core_mmu and later)
       
     </span>
   </a>
@@ -1470,10 +1470,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caches-core_l1cache_mmu_devices" class="md-nav__link">
+  <a href="#caches-core_l1cache_mmu_devices-and-sparc_apara" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Caches (core_l1cache_mmu_devices)
+        Caches (core_l1cache_mmu_devices and sparc_apara)
       
     </span>
   </a>
@@ -1485,6 +1485,17 @@
     <span class="md-ellipsis">
       
         Bus and devices (core_mmu_devices and up)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apara-engine-apara-and-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APARA engine (apara and sparc_apara)
       
     </span>
   </a>
@@ -1729,10 +1740,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#mmu-core_mmu-only" class="md-nav__link">
+  <a href="#mmu-core_mmu-and-later" class="md-nav__link">
     <span class="md-ellipsis">
       
-        MMU (core_mmu only)
+        MMU (core_mmu and later)
       
     </span>
   </a>
@@ -1751,10 +1762,10 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#caches-core_l1cache_mmu_devices" class="md-nav__link">
+  <a href="#caches-core_l1cache_mmu_devices-and-sparc_apara" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Caches (core_l1cache_mmu_devices)
+        Caches (core_l1cache_mmu_devices and sparc_apara)
       
     </span>
   </a>
@@ -1766,6 +1777,17 @@
     <span class="md-ellipsis">
       
         Bus and devices (core_mmu_devices and up)
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apara-engine-apara-and-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APARA engine (apara and sparc_apara)
       
     </span>
   </a>
@@ -1801,7 +1823,7 @@ long it would actually take on real hardware. The Sitar models
 (<code>sitar_model/</code>) additionally offer component-wise latency modeling:
 independent, configurable delay values for opcode execution, each
 memory-access channel, and, where present, the MMU and its interconnect
-to physical memory.</p>
+to physical memory, the caches, the devices, and the APARA engine.</p>
 <p>Some of the settings below are <strong>structural</strong>: they change what the
 model <em>does</em>, e.g. how many TLB entries exist. Others are <strong>timing</strong>:
 they change how long something takes, with no effect on the functional
@@ -1818,7 +1840,7 @@ code.</p>
 configuration, alongside the wiring that connects the pieces they
 belong to: <code>Core.sitar</code>'s own <code>init</code> block for <code>core_only</code>, or
 <code>System.sitar</code>'s for <code>core_mmu</code> and any later configuration assembled
-the same way. Structural knobs each live in their own compile-time
+the same way (and <code>Top.sitar</code>'s for <code>apara</code>, which has no <code>System</code>). Structural knobs each live in their own compile-time
 header instead, listed individually below.</p>
 <hr />
 <p><strong>The timing parameters below apply only to the Sitar-timed models
@@ -1846,7 +1868,7 @@ parameters apply to both.</p>
 </tr>
 <tr>
 <td><strong>Memory-interface delay</strong><br>(<code>ifetchProcedure.delay</code>, <code>memReadProcedure.delay</code>, <code>memWriteProcedure.delay</code>, <code>atomicLoadStoreProcedure.delay</code>, <code>flushProcedure.delay</code>)</td>
-<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu and later: that configuration's own <code>System.sitar</code>, e.g. <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
 <td>One independent delay per access type (ifetch, load, store, atomic, flush), charged on the requester side, after the response is available. Models core-side interconnect/cache latency between <code>SparcThread</code> and whatever it talks to next (<code>VirtualMainMemory</code> in <code>core_only</code>, the MMU in <code>core_mmu</code>).<br><strong>Range:</strong> non-negative int, per field.</td>
@@ -1856,14 +1878,16 @@ parameters apply to both.</p>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MultiThreadingConfig.h"><code>MultiThreadingConfig.h</code></a></td>
 <td>Structural</td>
 <td>Compile time</td>
-<td>Hardware threads (SMT) per core. <strong>Not yet implemented.</strong> The current model has no hyperthreading, 1 thread per core.</td>
+<td>Hardware threads (SMT) per core: how many independent threads, each with its own registers, trap state, and MMU registers, every core models. <strong>Only 1 is supported so far</strong>: every configuration models one thread per core. The multithreaded configurations will allow 1, 2, or 4.<br><strong>Range:</strong> 1.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="mmu-core_mmu-only">MMU (<code>core_mmu</code> only)<a class="headerlink" href="#mmu-core_mmu-only" title="Permanent link">&para;</a></h2>
-<p>These settings apply only to configurations that include an MMU,
-currently <code>core_mmu</code> and <code>core_mmu_devices</code>. In <code>core_mmu_devices</code>
-each knob lives in that configuration's own <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a>.</p>
+<h2 id="mmu-core_mmu-and-later">MMU (<code>core_mmu</code> and later)<a class="headerlink" href="#mmu-core_mmu-and-later" title="Permanent link">&para;</a></h2>
+<p>These settings apply only to configurations that include an MMU:
+<code>core_mmu</code>, <code>core_mmu_devices</code>, <code>core_l1cache_mmu_devices</code>, and
+<code>sparc_apara</code>. In each of them, the runtime knobs below live in that
+configuration's own <code>System.sitar</code> (the links below are to
+<code>core_mmu</code>'s).</p>
 <table>
 <thead>
 <tr>
@@ -1961,14 +1985,14 @@ each knob lives in that configuration's own <a href="https://github.com/sitar-si
 <tbody>
 <tr>
 <td><strong><code>mainMemory.delay</code></strong></td>
-<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>core_only: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_only/sitar_model/src/Core.sitar"><code>Core.sitar</code></a><br>core_mmu and later: that configuration's own <code>System.sitar</code>, e.g. <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
 <td>Runtime</td>
-<td>The memory's own service time, shared by every requester. <code>VirtualMainMemory.delay</code> in <code>core_only</code>, <code>PhysicalMainMemory.delay</code> in <code>core_mmu</code>.<br><strong>Range:</strong> non-negative int.</td>
+<td>The memory's own service time, shared by every requester. <code>VirtualMainMemory.delay</code> in <code>core_only</code>, <code>PhysicalMainMemory.delay</code> in <code>core_mmu</code> and later.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 </tbody>
 </table>
-<h2 id="caches-core_l1cache_mmu_devices">Caches (<code>core_l1cache_mmu_devices</code>)<a class="headerlink" href="#caches-core_l1cache_mmu_devices" title="Permanent link">&para;</a></h2>
+<h2 id="caches-core_l1cache_mmu_devices-and-sparc_apara">Caches (<code>core_l1cache_mmu_devices</code> and <code>sparc_apara</code>)<a class="headerlink" href="#caches-core_l1cache_mmu_devices-and-sparc_apara" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
 <tr>
@@ -2030,6 +2054,13 @@ each knob lives in that configuration's own <a href="https://github.com/sitar-si
 <td>Cycles the bridge adds to every physical transaction (memory and device alike), on top of the compulsory 1 cycle for each net crossed.<br><strong>Range:</strong> non-negative int.</td>
 </tr>
 <tr>
+<td><strong><code>interconnect.delay</code></strong></td>
+<td><code>sparc_apara</code>'s <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>The same as <code>bridge.delay</code>, for <code>sparc_apara</code>'s two-master interconnect, which replaces the bridge there. Charged to every transaction, from the core or from the APARA engine.<br><strong>Range:</strong> non-negative int.</td>
+</tr>
+<tr>
 <td><strong><code>devices.registerAccessDelay</code></strong></td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>
@@ -2056,6 +2087,59 @@ each knob lives in that configuration's own <a href="https://github.com/sitar-si
 <td>Structural</td>
 <td>Runtime</td>
 <td>Where received bytes come from and transmitted bytes go. See the <a href="peripheral_devices_serial_device.html#where-the-bytes-go-in-the-simulator">Serial Device</a> page.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="apara-engine-apara-and-sparc_apara">APARA engine (<code>apara</code> and <code>sparc_apara</code>)<a class="headerlink" href="#apara-engine-apara-and-sparc_apara" title="Permanent link">&para;</a></h2>
+<p>The engine's own settings. Each runtime knob is set in one place per
+configuration: <code>Top.sitar</code> in <code>apara</code>, <code>System.sitar</code> in <code>sparc_apara</code>.
+See <a href="apara/timing_model.html">APARA Timing Model</a> for what each one
+models.</p>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Where to modify</th>
+<th>Type</th>
+<th>Compile time or runtime</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Instruction latencies</strong><br>(the latency table)</td>
+<td>defaults in <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaTiming.h"><code>AparaTiming.h</code></a> (<code>LatencyTable</code>)<br>apara: <code>--latency-file &lt;file&gt;</code> on the command line</td>
+<td>Timing</td>
+<td>apara: Runtime<br>sparc_apara: Compile time</td>
+<td>Cycles a bundle spends in EXEC for each class of instruction (integer add, f32 multiply, divide, ...). A bundle takes its slowest instruction's figure. See <a href="apara/timing_model.html#timing-rules">APARA Timing Model</a> for the table and the file format.<br><strong>Range:</strong> positive int, per entry.</td>
+</tr>
+<tr>
+<td><strong><code>engine.fetch.imemDelay</code></strong></td>
+<td>apara: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/apara/sitar_model/src/Top.sitar"><code>Top.sitar</code></a><br>sparc_apara: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles between FETCH picking a thread and that thread's line of instructions arriving from IMEM.<br><strong>Range:</strong> non-negative int, default 0.</td>
+</tr>
+<tr>
+<td><strong><code>engine.exec.pipelined</code></strong></td>
+<td>same</td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Whether EXEC is internally pipelined (takes a new bundle every cycle), or holds one bundle for its whole latency.<br><strong>Range:</strong> true/false, default true.</td>
+</tr>
+<tr>
+<td><strong><code>engine.exec.latency.bankConflictCycles</code></strong></td>
+<td>same</td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>Cycles added for each extra access, in one bundle, to the same bank of data memory.<br><strong>Range:</strong> non-negative int, default 1.</td>
+</tr>
+<tr>
+<td><strong><code>engine.regfile.tokens</code></strong></td>
+<td>same</td>
+<td>Timing</td>
+<td>Runtime</td>
+<td>How many bundles may be in EXEC at once.<br><strong>Range:</strong> positive int, default 2.</td>
 </tr>
 </tbody>
 </table>

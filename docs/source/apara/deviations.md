@@ -1,21 +1,35 @@
 # APARA: Deviations and Findings
 
-The model is our own implementation of the APARA engine. Its sources, in
-order of authority for us: the microarchitecture document (timing and
-structure), the ISA document (`engine_isp/isa/isa.txt`), and the reference
-model McodeMachine with its tools (`mcode_align`, `mcode_assemble`,
-`mcode_run`). For every program the reference tools handle correctly the
-model gives the same results: the same object file from the assembler,
-and the same final state (PC, registers, DMEM) from a run, checked on
-every valid program of the APARA repository and on our own tests
-(Ref [Writing and Running Programs](running.md)).
+This project's APARA model is its own implementation of the engine,
+written from the engine's documents and checked against APARA's
+reference model. Its sources, in order of authority:
 
-This page lists where the model differs from the reference model, why,
-and the open questions in the sources, for review with the APARA's
-designer. Tests that depend on a deviation are marked `//@ deviation` in
-`validation/apara/tests/` (`dev_*.mcode`).
+1. **The microarchitecture document**, for the engine's structure and
+   timing.
+2. **The ISA document** (`engine_isp/isa/isa.txt` in the APARA
+   repository), for what each instruction does.
+3. **The reference model**, McodeMachine, with its tools (`mcode_align`,
+   `mcode_assemble`, `mcode_run`).
+
+For every program the reference tools handle correctly, the model gives
+the same results: the assembler writes the same object file, and a run
+reaches the same final state (PC, registers, DMEM). This was checked on
+every valid program of the APARA repository, and on this project's own
+tests (see [Writing and Running Programs](running.md#running-the-tests)).
+
+This page lists where the model deliberately differs from the reference
+model, and why, followed by the open questions in the sources, which
+are to be reviewed with APARA's designers. Every test that depends on a
+deviation is marked with a `//@ deviation` line, and they are collected
+in `validation/apara/tests/` as `dev_*.mcode`.
+
+---
 
 ## Deviations from the reference model
+
+Each row gives what the reference model does, what this model does
+instead, and why. Most are fixes of defects in the reference model,
+where it contradicts the ISA document or its own intent.
 
 ### Semantics
 
@@ -70,15 +84,18 @@ From the hardware's Aa sources (`cpu/ccu/ccu.aa`, `dma/control.aa`,
 | 29 | command 9 returns the RAS's 52-bit internal state | R6 := depth, R7 := top | |
 | 30 | (reset leaves registers to the hardware's reset) | reset keeps the registers, clears PC, RAS and ERROR | registers set before a run survive a reset |
 
-The rule for local addresses follows the hardware (`isInEngineDataMem`):
-in a system only the engine's own DMEM window is local. The reference
-model aliases every address into DMEM; the standalone `apara`
-configuration keeps that behavior.
+Which addresses are local also follows the hardware: in a system, only
+the engine's own DMEM window is local, and every other address goes out
+to the system. The reference model aliases every address into DMEM, and
+the standalone `apara` configuration keeps that behavior.
+
+---
 
 ## Open questions in the sources
 
-Carried by the model as explicit, documented choices (D1-D7 from the
-first review of the sources, then the findings since):
+Where the sources disagree or are silent, the model makes an explicit
+choice, listed here. D1 to D7 come from the first review of the
+sources, the rest from the findings since.
 
 - **D1, opcode numbering from 0x16.** The Aa_model's `parameters.aa` and
   `OperatorClassification.txt` disagree. The model uses the assembler's

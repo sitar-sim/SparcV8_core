@@ -1000,6 +1000,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#system-bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apara-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APARA Engine
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1746,6 +1768,28 @@
   
 </li>
       
+        <li class="md-nav__item">
+  <a href="#system-bus" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        System bus
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#apara-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        APARA Engine
+      
+    </span>
+  </a>
+  
+</li>
+      
     </ul>
   
 </nav>
@@ -1768,7 +1812,8 @@
 
 <h1 id="model-components">Model Components<a class="headerlink" href="#model-components" title="Permanent link">&para;</a></h1>
 <p>This section describes the main components in the model, such as the
-SparcCore, Mmu, Memory, Caches, and Devices, in detail. For a listing
+SparcCore, Mmu, Memory, Caches, Devices, the system bus, and the APARA
+engine, in detail. For a listing
 of each component's model see <a href="model_components_reference.html">Model Components
 Reference</a>.</p>
 <hr />
@@ -1861,7 +1906,7 @@ depending on configuration:</p>
 </li>
 <li><strong>sitar_model</strong><br />
 <code>VirtualMainMemory</code> (<code>core_only</code>) or <code>PhysicalMainMemory</code>
-    (<code>core_mmu</code>) wraps it with Sitar timing. <code>PhysicalMainMemory</code> is a
+    (<code>core_mmu</code> and every later configuration) wraps it with Sitar timing. <code>PhysicalMainMemory</code> is a
     module, reached over nets rather than a procedure handshake.</li>
 </ul>
 <hr />
@@ -1913,6 +1958,7 @@ both caches and the whole policy, the same class in both models:</p>
 <code>L1Caches.sitar</code> runs the same steps, with each downstream access a
     real, timed transaction with the MMU.</li>
 </ul>
+<hr />
 <h2 id="peripheral-devices">Peripheral Devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h2>
 <p>A Timer, a multi-thread Interrupt Controller, and a Serial device, one
 shared set on the memory side of the MMU, compatible with the AJIT
@@ -1921,6 +1967,47 @@ processor's own devices. The C++ class <code>PeripheralDevicesCore</code>
 both models. In the sitar_model the <code>PeripheralDevices</code> module wraps it,
 reached through the <code>SystemBridge</code> over nets. See <a href="peripheral_devices.html">Peripheral
 Devices</a> for the register-level detail.</p>
+<hr />
+<h2 id="system-bus">System bus<a class="headerlink" href="#system-bus" title="Permanent link">&para;</a></h2>
+<p>From <code>core_mmu_devices</code> on, more than one thing sits below the MMU, so
+a bus routes each physical access by its address: to main memory, to
+the devices, or (in <code>sparc_apara</code>) to the APARA engine. Which address
+belongs to which target is defined once, in <code>SystemAddressMap.h</code>, and
+shared by both models, so the two can never disagree.</p>
+<ul>
+<li><strong>cpp_model</strong><br />
+<code>SystemBus</code>, a plain C++ class, called directly, with zero modeled
+    latency.</li>
+<li><strong>sitar_model</strong><br />
+<code>SystemBridge</code>, a module with one master (the core), carries one
+    transaction at a time. <code>sparc_apara</code> uses <code>SystemInterconnect</code>
+    instead, the same bus with several masters (the core and the APARA
+    engine's host side), served round robin.</li>
+</ul>
+<hr />
+<h2 id="apara-engine">APARA Engine<a class="headerlink" href="#apara-engine" title="Permanent link">&para;</a></h2>
+<p>A four-threaded vector compute engine, with its own instruction and
+data memories, designed to work alongside a SPARC processor as an
+accelerator. It is modeled in the <code>apara</code> configuration on its own and
+in <code>sparc_apara</code> next to the SPARC core. See <a href="apara/index.html">The APARA
+Engine</a> for the engine itself.</p>
+<p>The C++ class <code>AparaCore</code> (<code>model/cpp_common_code/apara/</code>) holds the
+engine's state and executes its instructions, the same class in both
+models, like <code>SparcCore</code> for the SPARC. In <code>sparc_apara</code> two more
+classes model the engine's host side, its control unit and its DMA
+unit.</p>
+<ul>
+<li><strong>cpp_model</strong><br />
+    Runs the engine one bundle (a group of instructions executed
+    together) at a time, with zero modeled latency. In <code>sparc_apara</code>, the
+    engine runs one bundle and its DMA unit moves up to 8 bytes after
+    every SPARC instruction.</li>
+<li><strong>sitar_model</strong><br />
+<code>AparaEngine</code> models the engine's five-stage pipeline, one module per
+    stage, with the hardware's timing rules (see <a href="apara/timing_model.html">APARA Timing
+    Model</a>). In <code>sparc_apara</code>, <code>AparaHost</code> models
+    the control and DMA units, beside the core on the system bus.</li>
+</ul>
 <hr />
 <p>All component-wise timing configurations are listed in <a href="model_configuration_settings.html">Model
 Configuration Settings</a>.</p>

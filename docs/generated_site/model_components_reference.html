@@ -1417,10 +1417,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="core_mmu">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1430,8 +1429,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#core_l1cache_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1441,9 +1440,26 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apara
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sparc_apara
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1721,10 +1737,9 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="core_mmu">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
+</li>
+      
+        <li class="md-nav__item">
   <a href="#core_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1734,8 +1749,8 @@
   </a>
   
 </li>
-        
-          <li class="md-nav__item">
+      
+        <li class="md-nav__item">
   <a href="#core_l1cache_mmu_devices" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1745,9 +1760,26 @@
   </a>
   
 </li>
-        
-      </ul>
-    </nav>
+      
+        <li class="md-nav__item">
+  <a href="#apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        apara
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        sparc_apara
+      
+    </span>
+  </a>
   
 </li>
       
@@ -1794,17 +1826,19 @@ indexes. See each file's own header comment for the full detail behind
 its one-line description here.</p>
 <p>There is one table per configuration, listed top-down: the root module
 first, then its children in the order each parent instantiates them,
-depth-first. A design unit shared by both configurations (everything
-under <code>sitar_component_models/</code>) appears in both tables, once per
-configuration that uses it.</p>
+depth-first. A design unit shared by several configurations
+(everything under <code>sitar_component_models/</code>) appears in the table of
+each configuration that uses it. From <code>core_mmu_devices</code> on, each table
+lists only what differs from the configuration it builds on.</p>
 <ul>
 <li>
 <p><strong>Scope</strong><br />
 <code>common</code> means the file lives in <code>model/sitar_component_models/</code> and
     is translated into every configuration's build, whether or not that
     configuration actually instantiates it. See that folder's own
-    build-script comment. <code>core_only</code>/<code>core_mmu</code> means the file lives
-    under that configuration's own <code>system_models/&lt;config&gt;/sitar_model/src/</code>.</p>
+    build-script comment. A configuration's name (<code>core_only</code>,
+    <code>core_mmu</code>, ...) means the file lives under that configuration's own
+    <code>system_models/&lt;config&gt;/sitar_model/src/</code>.</p>
 </li>
 <li>
 <p><strong>Parent</strong><br />
@@ -1962,7 +1996,7 @@ configuration that uses it.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="core_mmu_devices">core_mmu_devices<a class="headerlink" href="#core_mmu_devices" title="Permanent link">&para;</a></h3>
+<h2 id="core_mmu_devices">core_mmu_devices<a class="headerlink" href="#core_mmu_devices" title="Permanent link">&para;</a></h2>
 <p>Every <code>core_mmu</code> design unit above appears here too, except that this
 configuration's own <code>System</code> and <code>Core</code> replace <code>core_mmu</code>'s, and three
 more join them.</p>
@@ -2012,7 +2046,7 @@ more join them.</p>
 </tr>
 </tbody>
 </table>
-<h3 id="core_l1cache_mmu_devices">core_l1cache_mmu_devices<a class="headerlink" href="#core_l1cache_mmu_devices" title="Permanent link">&para;</a></h3>
+<h2 id="core_l1cache_mmu_devices">core_l1cache_mmu_devices<a class="headerlink" href="#core_l1cache_mmu_devices" title="Permanent link">&para;</a></h2>
 <p>Every <code>core_mmu_devices</code> design unit appears here too, except that this
 configuration's own <code>System</code> and <code>Core</code> replace those, and one more
 joins them.</p>
@@ -2054,13 +2088,144 @@ joins them.</p>
 </tr>
 </tbody>
 </table>
+<h2 id="apara">apara<a class="headerlink" href="#apara" title="Permanent link">&para;</a></h2>
+<p>The standalone engine: none of the SPARC design units above take part.</p>
+<table>
+<thead>
+<tr>
+<th>Design unit</th>
+<th>File</th>
+<th>Scope</th>
+<th>Embedded C++ class</th>
+<th>Parent</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Top</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/apara/sitar_model/src/Top.sitar"><code>Top.sitar</code></a></td>
+<td>apara</td>
+<td>None</td>
+<td>None (root)</td>
+<td>The root module for the <code>apara</code> build. Instantiates one <code>AparaEngine</code>, stops the simulation once every started thread has stopped, and holds the engine's timing knobs.</td>
+</tr>
+<tr>
+<td><strong>AparaEngine</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar"><code>AparaEngine.sitar</code></a></td>
+<td>common</td>
+<td>None</td>
+<td><code>Top</code> (1 instance: <code>engine</code>)</td>
+<td>The engine's five-stage pipeline: one module per stage, joined by nets with the hardware's channel depths.</td>
+</tr>
+<tr>
+<td><strong>AparaFetch</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaFetch.sitar"><code>AparaFetch.sitar</code></a></td>
+<td>common</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaTiming.h"><code>AparaTiming.h</code></a> (<code>BranchTargetBuffer</code>)</td>
+<td><code>AparaEngine</code> (1 instance: <code>fetch</code>)</td>
+<td>The FETCH stage. Keeps each thread's fetch PC and the branch target buffer, picks a thread round robin, and sends the bundles of its IMEM line to DECODE, one per cycle, each with a predicted next PC.</td>
+</tr>
+<tr>
+<td><strong>AparaDecode</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaDecode.sitar"><code>AparaDecode.sitar</code></a></td>
+<td>common</td>
+<td>None</td>
+<td><code>AparaEngine</code> (1 instance: <code>decode</code>)</td>
+<td>The DECODE stage. Finds a bundle's registers, latency, and divider use, and passes it on its thread's channel to REGFILE.</td>
+</tr>
+<tr>
+<td><strong>AparaRegfile</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaRegfile.sitar"><code>AparaRegfile.sitar</code></a></td>
+<td>common</td>
+<td>None</td>
+<td><code>AparaEngine</code> (1 instance: <code>regfile</code>)</td>
+<td>The REGFILE stage. Holds one bundle per thread, issues one per cycle whose registers are unlocked while a token is free, and releases locks and tokens as results come back from EXEC.</td>
+</tr>
+<tr>
+<td><strong>AparaExec</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaExec.sitar"><code>AparaExec.sitar</code></a></td>
+<td>common</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaCore.h"><code>AparaCore</code></a></td>
+<td><code>AparaEngine</code> (1 instance: <code>exec</code>)</td>
+<td>The EXEC stage, and the owner of the engine's functional state. Executes each bundle and holds it for its latency. In a system, also serves the host side's requests and sends the engine's loads and stores that leave its data memory.</td>
+</tr>
+<tr>
+<td><strong>AparaWriteback</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaWriteback.sitar"><code>AparaWriteback.sitar</code></a></td>
+<td>common</td>
+<td>None</td>
+<td><code>AparaEngine</code> (1 instance: <code>writeback</code>)</td>
+<td>The WRITEBACK stage. Sends FETCH a PC correction for a mispredicted bundle, and a notice when a thread stops.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sparc_apara">sparc_apara<a class="headerlink" href="#sparc_apara" title="Permanent link">&para;</a></h2>
+<p>Every <code>core_l1cache_mmu_devices</code> design unit appears here too, except
+that this configuration's own <code>System</code> and <code>Core</code> replace those, and
+<code>SystemInterconnect</code> replaces <code>SystemBridge</code>. The engine's design units
+are those of <code>apara</code> above (except its <code>Top</code>), plus <code>AparaHost</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Design unit</th>
+<th>File</th>
+<th>Scope</th>
+<th>Embedded C++ class</th>
+<th>Parent</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>System</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
+<td>sparc_apara</td>
+<td>None</td>
+<td><code>Top</code></td>
+<td>Assembles <code>Core</code>, <code>SystemInterconnect</code>, <code>PhysicalMainMemory</code>, <code>PeripheralDevices</code>, <code>AparaEngine</code>, and <code>AparaHost</code>. Owns the consolidated latency-knob block for this configuration, the engine's knobs included.</td>
+</tr>
+<tr>
+<td><strong>Core</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Core.sitar"><code>Core.sitar</code></a></td>
+<td>sparc_apara</td>
+<td>None</td>
+<td><code>System</code> (1 instance: <code>core</code>)</td>
+<td>The same as <code>core_l1cache_mmu_devices</code>' <code>Core</code>.</td>
+</tr>
+<tr>
+<td><strong>SystemInterconnect</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar"><code>SystemInterconnect.sitar</code></a></td>
+<td>common</td>
+<td>None (uses <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h"><code>SystemAddressMap.h</code></a>)</td>
+<td><code>System</code> (1 instance: <code>interconnect</code>)</td>
+<td>The physical bus with two masters, the core and the engine's host side, taken round robin. Routes each request to main memory, the devices, or the engine's windows, one transaction at a time.</td>
+</tr>
+<tr>
+<td><strong>AparaEngine</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar"><code>AparaEngine.sitar</code></a></td>
+<td>common</td>
+<td>None</td>
+<td><code>System</code> (1 instance: <code>engine</code>)</td>
+<td>As in <code>apara</code>.</td>
+</tr>
+<tr>
+<td><strong>AparaHost</strong> (module)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar"><code>AparaHost.sitar</code></a></td>
+<td>common</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaControlCore.h"><code>AparaControlCore</code></a>, <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaDmaCore.h"><code>AparaDmaCore</code></a></td>
+<td><code>System</code> (1 instance: <code>host</code>)</td>
+<td>The engine's host side: its control unit and DMA unit. Serves the SPARC's accesses to the engine's three windows, carries out their commands through <code>engine.exec</code>, and sends DMA transfers and the engine's outside loads and stores onto the bus as its second master. Drives the engine's interrupt.</td>
+</tr>
+</tbody>
+</table>
 <h2 id="notes">Notes<a class="headerlink" href="#notes" title="Permanent link">&para;</a></h2>
 <ul>
 <li>
 <p><strong>Module vs. procedure</strong><br />
-<code>Top</code>, <code>System</code>, <code>Core</code>, <code>PhysicalMainMemory</code>, <code>SystemBridge</code>, and
-    <code>PeripheralDevices</code> are <code>module</code>s.
-    Every other row above is a <code>procedure</code>. See the sibling <code>sitar</code>
+<code>Top</code>, <code>System</code>, <code>Core</code>, <code>PhysicalMainMemory</code>, <code>SystemBridge</code>,
+    <code>SystemInterconnect</code>, <code>PeripheralDevices</code>, and every <code>Apara*</code> design
+    unit are <code>module</code>s. Every other row above is a <code>procedure</code>. See the sibling <code>sitar</code>
     repo's own documentation for the general module/procedure
     distinction, and <code>System.sitar</code>'s own header comment for how it
     plays out in <code>core_mmu</code> specifically.</p>
@@ -2069,9 +2234,12 @@ joins them.</p>
 <p><strong>Reading "None" in the C++ class column</strong><br />
     This applies to every request/response-only or token-only procedure
     (<code>VirtualMainMemoryInterface</code>, <code>PhysicalMainMemoryInterface</code>,
-    <code>PullAToken</code>, <code>PushAToken</code>) and to the three purely structural
-    modules (<code>Top</code>, <code>System</code>, <code>Core</code>). None of these hold a
-    functional-model class instance themselves.</p>
+    <code>PullAToken</code>, <code>PushAToken</code>), to the three purely structural
+    modules (<code>Top</code>, <code>System</code>, <code>Core</code>), to the buses (<code>SystemBridge</code>,
+    <code>SystemInterconnect</code>), and to the APARA pipeline stages that only
+    move bundles (<code>AparaEngine</code>, <code>AparaDecode</code>, <code>AparaRegfile</code>,
+    <code>AparaWriteback</code>). None of these hold a functional-model class
+    instance themselves.</p>
 </li>
 </ul>
 

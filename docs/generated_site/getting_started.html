@@ -2076,9 +2076,14 @@ own folder:</p>
 </span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>./build.sh
 </span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>./build.sh<span class="w"> </span>--logging
 </span></code></pre></div>
-<p><code>core_mmu_devices</code> and <code>core_l1cache_mmu_devices</code> are planned
-configurations, not yet buildable, see <a href="model_configurations.html">Model
-Configurations</a>.</p>
+<p>The same goes for <code>core_mmu_devices</code>, <code>core_l1cache_mmu_devices</code>, and
+<code>sparc_apara</code>. Each executable is named after its configuration, e.g.
+<code>executable/sparc_sim_cpp_core_mmu_devices</code>. See <a href="model_configurations.html">Model
+Configurations</a> for what each one contains.</p>
+<p>The <code>apara</code> configuration, the APARA engine on its own, also builds
+this way, but it runs APARA engine programs rather than SPARC ones, so
+it has its own executables and its own walkthrough, see <a href="apara/running.html">Writing and
+Running APARA Programs</a>.</p>
 <hr />
 <h2 id="running-the-simulator">Running the simulator<a class="headerlink" href="#running-the-simulator" title="Permanent link">&para;</a></h2>
 <p>The process is: first build a configuration (previous section), then
@@ -2137,7 +2142,7 @@ with <code>--stats</code> added, back in <code>model/system_models/core_only/cpp
 </span></code></pre></div>
 <h3 id="running-the-existing-simple-test">Running the existing simple test<a class="headerlink" href="#running-the-existing-simple-test" title="Permanent link">&para;</a></h3>
 <p>The same check has a shortcut, <code>run_simple_test.sh</code>, bundled in every
-testbench folder. <code>cd</code> to the same level as the build script (the
+SPARC configuration's testbench folders. <code>cd</code> to the same level as the build script (the
 testbench folder, e.g. <code>model/system_models/core_only/cpp_model</code>) and
 run it directly:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./run_simple_test.sh

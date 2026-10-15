@@ -1745,7 +1745,7 @@ and the full address map.</p>
 <tr>
 <td><code>[0]</code></td>
 <td><code>Timer_en</code></td>
-<td>Enable bit. Writing 1 starts the countdown, writing 0 disables the timer.</td>
+<td>Enable bit. Writing 1 starts the timer, writing 0 disables it.</td>
 </tr>
 <tr>
 <td><code>[31:1]</code></td>
@@ -1793,7 +1793,7 @@ and the interrupt output, and moves to <code>TIMER_DISABLED</code>.</p>
 <p>A free running 64-bit counter across ASR[31] and ASR[30], running at
 the processor clock and read-only, is documented separately from this
 Timer. It is unrelated to it, a CPU-internal cycle counter rather
-than a memory-mapped, software-configured countdown timer. Our Sitar
+than a memory-mapped, software-configured timer. Our Sitar
 model does not yet implement this counter.</p>
 
 

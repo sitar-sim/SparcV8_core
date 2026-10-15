@@ -24,7 +24,7 @@ up, see `devices/README.md`), `caches/` (the L1 caches,
 (an APARA engine, `sparc_apara`, see `apara/README.md`).
 
 Write an ordinary, freestanding `main()` (no libc, see
-`docs/writing_and_running_c_programs.md`). Each test computes something,
+`docs/source/writing_and_running_c_programs.md`). Each test computes something,
 compares it against a golden value computed once on the host machine and
 hardcoded in the same source file (so the `.vprj` never has to re-embed
 it independently), writes 1 (pass) or 0 (fail) into `%o0`, then ends with

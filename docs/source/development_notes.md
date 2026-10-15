@@ -11,23 +11,29 @@ tests, or building on this model for a larger system.
 SparcV8_core/
   model/
     cpp_common_code/          SparcCore, the core, timing-agnostic. Shared by both drivers.
-                                mmu/ holds the MMU's own MmuCore class.
-    sitar_component_models/    The reusable Sitar procedures every configuration is built from.
-    system_models/              One folder per configuration (core_only/, core_mmu/), each with
-                                  its own cpp_model/ (0-delay driver) and sitar_model/
-                                  (Sitar-timed driver) subfolders.
+                                mmu/, cache/, devices/ and apara/ hold the MMU, the L1 caches,
+                                the peripheral devices and the APARA engine.
+    sitar_component_models/    The reusable Sitar procedures and modules every configuration
+                                 is built from.
+    system_models/              One folder per configuration (core_only/, core_mmu/, ...,
+                                  sparc_apara/), each with its own cpp_model/ (0-delay driver)
+                                  and sitar_model/ (Sitar-timed driver) subfolders.
     build_scripts/               Shared build logic every configuration's own build.sh invokes.
   validation/
     asm/                Instruction-level assembly test suite.
-    C/                  Self-validating bare-metal C mini-benchmark suite, including C/mmu/.
+    C/                  Self-validating bare-metal C mini-benchmark suite, including the
+                          component suites C/mmu/, C/devices/, C/caches/ and C/apara/.
+    apara/              The APARA engine's own test suite and its runner.
     test_simple_ADD/    Canonical copy of the bundled walkthrough example.
   compiler/               SPARC V8 cross-toolchain + build scripts.
+    include/                Bare-metal C routines for the devices and the APARA engine.
+    apara/                  The APARA engine's assembler and disassembler (mcode).
   debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
   docs/                    This documentation site.
     source/                  The .md pages you're reading (MkDocs docs_dir).
     generated_site/           Prebuilt, committed output. See "Building the docs site" below.
-    mkdocs.yml, requirements.txt, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config,
-      pinned dependencies, and vendored syntax lexers (Sitar, SPARC assembly).
+    mkdocs.yml, requirements.txt, *_pygments_lexer/  Build config, pinned dependencies, and
+      vendored syntax lexers (Sitar, SPARC assembly, APARA mcode).
     compliance/               Documented, specific divergences from AJIT's own reference results.
   log_viewer/              Offline browser tool for viewing an instruction/state trace.
 ```
@@ -84,7 +90,15 @@ Timing is deliberately kept out of `cpp_common_code/` entirely.
 where an MMU is present, `Mmu.sitar`, `PhysicalMainMemoryInterface.sitar`,
 `PhysicalMainMemory.sitar`, and each configuration's own top-level
 composition file, e.g. `System.sitar` in `core_mmu`) are the only place
-cycle counts exist. See [Performance Modeling](performance_modeling.md).
+cycle counts exist. The same holds for the later components: the
+caches' timing is in `L1Caches.sitar`, the devices' in
+`PeripheralDevices.sitar`, the buses' in `SystemBridge.sitar` and
+`SystemInterconnect.sitar`, and the APARA engine's in its `Apara*.sitar`
+modules. One exception: the engine's instruction latency table, and the
+other plain C++ helpers its pipeline stages share, are in
+`cpp_common_code/apara/AparaTiming.h`. Only the timing model uses them,
+the functional engine never does. See [Performance
+Modeling](performance_modeling.md).
 
 ## Linking against libquadmath
 

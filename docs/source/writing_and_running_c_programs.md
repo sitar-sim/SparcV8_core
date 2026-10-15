@@ -144,6 +144,7 @@ unchanged. `compile_c.sh` puts that folder on the include path.
 | `ajit_access_routines.h` | Physical (MMU-bypass) loads and stores, `ajit_get_core_and_thread_id()`, and the Timer and Serial routines, e.g. `__ajit_serial_putchar_via_bypass__()`, `__ajit_serial_getchar_via_bypass__()`, `__ajit_write_timer_control_register_via_bypass__()`. |
 | `ajit_mt_irc.h` | Interrupt Controller routines (`enableInterruptController()`, `writeInterruptControlRegister()`, ...) and interrupt dispatch (`ajit_set_interrupt_handler()`). |
 | `ajit_ipi.h` | Inter-processor interrupts (`__ajit_set_ipi_interrupt__()`, ...). |
+| `apara_access_routines.h` | The APARA engine, in `sparc_apara`: loading its program, starting its threads, its DMA unit (`apara_load_program()`, `apara_start_thread()`, ...). See [The Engine in a System](apara/system.md#software). |
 | `stdint.h` | `uint32_t` and friends, which the bundled compiler does not provide on its own. |
 
 Printing a message:
@@ -168,7 +169,11 @@ final `ta 0`. A program that takes interrupts links
 `compiler/crt0_interrupts.s` instead, which also handles register
 window overflow and underflow, and sends every interrupt to
 `ajit_generic_interrupt_handler()` (in `ajit_mt_irc.h`). That function
-calls the handler registered for the interrupt's level:
+disables the thread's Interrupt Controller slot, calls the handler
+registered for the interrupt's level, and enables the slot again (the
+sequence on the [Interrupt
+Controller](peripheral_devices_interrupt_controller.md#handling-an-interrupt)
+page). The handler itself only has to clear its source:
 
 ```c
 #include "ajit_access_routines.h"

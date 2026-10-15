@@ -15,9 +15,11 @@ Two models of the core are provided.
     built using the [Sitar](https://sitar-sim.github.io/sitar/) parallel simulation
     framework.
 
-The full executable testbenches provided here connect the cores to a
-simple array-like byte addressable memory that allows a user to run
-programs.
+The executable testbenches provided here connect the core to a
+simulated system for running programs: in the simplest configuration a
+plain array-like byte-addressable memory, and in the larger ones an
+MMU, caches, peripheral devices, and an accelerator (see
+[Configurations](#configurations)).
 These models are meant to be used as:
 
 - Educational simulation models, to run programs on the core and observe their execution.  
@@ -138,13 +140,25 @@ of connecting an external component such as a cache.
     MMU](sparcv8_Architecture_reference_Manual.pdf#page=236) described in
     Appendix H of the manual. See [Model
     Configurations](model_configurations.md#configuration-core_mmu).
-- **`core_mmu_devices`** (planned)  
+- **`core_mmu_devices`**  
     Adds a timer, an interrupt controller, and a serial device. See
     [Model
-    Configurations](model_configurations.md#configuration-core_mmu_devices-planned).
-- **`core_l1cache_mmu_devices`** (planned)  
+    Configurations](model_configurations.md#configuration-core_mmu_devices).
+- **`core_l1cache_mmu_devices`**  
     Adds split instruction and data L1 caches. See [Model
-    Configurations](model_configurations.md#configuration-core_l1cache_mmu_devices-planned).
+    Configurations](model_configurations.md#configuration-core_l1cache_mmu_devices).
+
+Two further configurations model the **APARA engine**, a vector
+compute engine designed to work alongside a SPARC processor as an
+accelerator:
+
+- **`apara`**  
+    One APARA engine on its own, with no SPARC core, for writing and
+    running engine programs. See [The APARA Engine](apara/index.md).
+- **`sparc_apara`**  
+    `core_l1cache_mmu_devices` plus one APARA engine, which the SPARC
+    program loads, starts, and exchanges data with. See [The Engine in a
+    System](apara/system.md).
 
 See [Model Configurations](model_configurations.md) for a block diagram
 of each one.
@@ -163,10 +177,12 @@ top-level folders are organized as follows.
     two testbenches that drive it (`cpp_model/`, `sitar_model/`). See
     [Model Components](model_components.md).
 - **`validation/`**  
-    The functional validation suite, assembly and C tests. See
-    [Validation Suite](validation_suite.md).
+    The functional validation suite, assembly and C tests, and the
+    APARA engine's own tests (`validation/apara/`). See [Validation
+    Suite](validation_suite.md).
 - **`compiler/`**  
-    The bundled `sparc-elf` cross-toolchain and the scripts that drive it.
+    The bundled `sparc-elf` cross-toolchain and the scripts that drive it,
+    and the APARA engine's assembler and disassembler (`compiler/apara/`).
     See [Cross Compiler](cross_compiler.md).
 - **`log_viewer/`**  
     The trace visualizer tool. See [The log viewer](logging.md#the-log-viewer).

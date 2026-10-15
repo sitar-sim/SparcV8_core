@@ -1306,13 +1306,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        The pipeline
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="The pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-bundles-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A bundle's journey
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1324,6 +1341,89 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Timing rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instruction-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instruction latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-divider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The divider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EXEC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-locks-and-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register locks and tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branch-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch prediction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mispredicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mispredicts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1683,13 +1783,30 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#structure" class="md-nav__link">
+  <a href="#the-pipeline" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Structure
+        The pipeline
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="The pipeline">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-bundles-journey" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A bundle's journey
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1701,6 +1818,89 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Timing rules">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#instruction-latency" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instruction latency
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#data-memory" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data memory
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-divider" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The divider
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#exec" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        EXEC
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#register-locks-and-tokens" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Register locks and tokens
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#branch-prediction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Branch prediction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mispredicts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mispredicts
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1748,71 +1948,69 @@
 
 <h1 id="apara-timing-model">APARA Timing Model<a class="headerlink" href="#apara-timing-model" title="Permanent link">&para;</a></h1>
 <p>The sitar_model of the <code>apara</code> configuration is a cycle-level model of
-the engine's pipeline, built from the APARA microarchitecture document
-(<em>APARA Engine: Microarchitecture and Timing</em>, in the APARA repository's
-<code>engine_isp/docs/microarch</code>). As everywhere in this project, the
-functionality comes from the same C++ class the fast model uses
-(<code>AparaCore</code>), and the timing from the Sitar structure itself: the
-pipeline's stages are modules, its channels are nets, and a bundle's time
-is spent waiting in them, never computed after the fact.</p>
-<h2 id="structure">Structure<a class="headerlink" href="#structure" title="Permanent link">&para;</a></h2>
-<pre class="mermaid"><code>flowchart LR
-    F["FETCH&lt;br/&gt;(BTB, thread PCs)"] --&gt; D["DECODE"]
-    D --&gt;|"4 channels,&lt;br/&gt;one per thread"| R["REGFILE&lt;br/&gt;(locks, tokens)"]
-    R --&gt; E["EXEC&lt;br/&gt;(AparaCore)"]
-    E --&gt;|results| R
-    R --&gt; W["WRITEBACK"]
-    W --&gt;|"PC correction,&lt;br/&gt;halt"| F</code></pre>
-<p><code>AparaEngine</code> (<code>model/sitar_component_models/AparaEngine.sitar</code>) holds
-five modules, one per stage, joined by nets with the hardware's channel
-depths (2 entries, 1 for EXEC's results and WRITEBACK's notices). Each
-module pulls its inputs in phase 0 of a cycle and pushes its outputs in
-phase 1, so a bundle takes at least one cycle per stage, and a stage
-whose output channel is full holds its bundle: the hardware's elastic
+the engine's pipeline. It is built from the APARA microarchitecture
+document (<em>APARA Engine: Microarchitecture and Timing</em>, in the APARA
+repository's <code>engine_isp/docs/microarch</code>), and is the same pipeline
+<code>sparc_apara</code> uses.</p>
+<p>As everywhere in this project, the model keeps function and timing
+apart. What each bundle does comes from the same C++ class the fast
+functional model runs, so the two models always compute the same
+results. The timing comes from the Sitar structure itself: the
+pipeline's stages are modules, the channels between them are nets, and
+a bundle's time is spent actually waiting in them, for a free channel, a
+register, or the divider. It is never computed after the fact. This is
+what makes the timing model trustworthy for experiments: change a
+channel depth or a latency, and every effect it has on the rest of the
+pipeline follows by itself.</p>
+<hr />
+<h2 id="the-pipeline">The pipeline<a class="headerlink" href="#the-pipeline" title="Permanent link">&para;</a></h2>
+<p><img src="../images/apara_structure.svg" alt="APARA pipeline structure" title="APARA pipeline structure"></p>
+<p>The engine's five stages, each a module, are joined by nets with the
+hardware's channel depths: 2 entries, except 1 for EXEC's results and
+for WRITEBACK's notices to FETCH. Each module takes its inputs in the
+first half of a cycle and sends its outputs in the second half, so a
+bundle spends at least one cycle in each stage. A stage whose output
+channel is full holds its bundle until there is room, and the stages
+before it then fill up and wait too. This is the hardware's <em>elastic</em>
 pipeline.</p>
-<table>
-<thead>
-<tr>
-<th>Stage</th>
-<th>Module</th>
-<th>What it does in a cycle</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td>FETCH</td>
-<td><code>AparaFetch</code></td>
-<td>picks a running thread (round robin), reads the 8-word IMEM line holding its PC, and sends the line's bundles one per cycle, in PC order, before picking another thread; predicts each bundle's next PC with the BTB</td>
-</tr>
-<tr>
-<td>DECODE</td>
-<td><code>AparaDecode</code></td>
-<td>decodes a bundle: registers read and written, latency, divider use; sends it on its thread's channel</td>
-</tr>
-<tr>
-<td>REGFILE</td>
-<td><code>AparaRegfile</code></td>
-<td>holds one bundle per thread; issues one per cycle (round robin) whose registers are all unlocked, if a token is free; locks the registers it writes. Releases a bundle's locks and token when its result comes back from EXEC</td>
-</tr>
-<tr>
-<td>EXEC</td>
-<td><code>AparaExec</code></td>
-<td>runs the bundle (<code>AparaCore::step()</code>) and holds it for its latency; skips wrong-path bundles</td>
-</tr>
-<tr>
-<td>WRITEBACK</td>
-<td><code>AparaWriteback</code></td>
-<td>sends FETCH a PC correction for a mispredicted bundle, a halt notice for a stopped thread</td>
-</tr>
-</tbody>
-</table>
-<p>A bundle with no stalls is fetched in cycle <em>c</em>, decoded in <em>c+1</em>, issued
-in <em>c+2</em>, runs in EXEC from <em>c+3</em>, comes back to REGFILE after its latency
-and leaves WRITEBACK a cycle later: a one-bundle program takes 6 cycles.</p>
+<ul>
+<li><strong>FETCH</strong><br />
+    Picks a running thread (round robin), reads the 8-word IMEM line
+    holding its PC, and sends that line's bundles to DECODE, one per
+    cycle and in PC order, before picking another thread. It predicts
+    each bundle's next PC with the branch target buffer (BTB).</li>
+<li><strong>DECODE</strong><br />
+    Decodes a bundle: which registers it reads and writes, how long it
+    will take in EXEC, and whether it needs the divider. It then sends
+    the bundle on to REGFILE, on its thread's own channel.</li>
+<li><strong>REGFILE</strong><br />
+    Holds one waiting bundle per thread. Each cycle it issues one of them
+    (round robin) whose registers are all free, provided a <em>token</em> is
+    free, and locks the registers that bundle will write. When the
+    bundle's result comes back from EXEC, it releases those locks and the
+    token.</li>
+<li><strong>EXEC</strong><br />
+    Executes the bundle, then holds it for its latency. EXEC owns the
+    engine's state: its memories, registers, and threads. It skips
+    bundles fetched on a wrong path.</li>
+<li><strong>WRITEBACK</strong><br />
+    Retires the bundle. It sends FETCH a PC correction when a bundle's
+    next PC was mispredicted, and a notice when a thread has stopped.</li>
+</ul>
+<h3 id="a-bundles-journey">A bundle's journey<a class="headerlink" href="#a-bundles-journey" title="Permanent link">&para;</a></h3>
+<p>A bundle with no stalls is fetched in some cycle <em>c</em>, decoded in <em>c+1</em>,
+issued by REGFILE in <em>c+2</em>, and executed in EXEC from <em>c+3</em>. Its result
+comes back to REGFILE after its latency, and it leaves WRITEBACK one
+cycle later. So a program of one 1-cycle bundle takes 6 cycles from
+start to finish. Later bundles overlap with it, so a stream of
+independent bundles completes at one bundle per cycle.</p>
+<hr />
 <h2 id="timing-rules">Timing rules<a class="headerlink" href="#timing-rules" title="Permanent link">&para;</a></h2>
-<p><strong>Latency.</strong> A bundle's time in EXEC is its slowest instruction's latency,
-from a table loaded at start-up (below), or its memory phase if that is
-longer. The defaults are the microarchitecture document's table:</p>
+<h3 id="instruction-latency">Instruction latency<a class="headerlink" href="#instruction-latency" title="Permanent link">&para;</a></h3>
+<p>A bundle's time in EXEC is the latency of its slowest instruction, or
+the time of its memory accesses if that is longer. The latencies come
+from a table, by instruction class. The defaults are the
+microarchitecture document's table:</p>
 <table>
 <thead>
 <tr>
@@ -1830,7 +2028,7 @@ longer. The defaults are the microarchitecture document's table:</p>
 <tr>
 <td><code>arith int&lt;=32</code>, <code>arith fp&lt;=16</code></td>
 <td>1</td>
-<td><code>+ - *</code> scalar and vector</td>
+<td><code>+ - *</code>, scalar and vector</td>
 </tr>
 <tr>
 <td><code>arith int64</code></td>
@@ -1879,42 +2077,59 @@ longer. The defaults are the microarchitecture document's table:</p>
 </tr>
 </tbody>
 </table>
-<p><code>--latency-file &lt;file&gt;</code> overrides entries, one <code>&lt;class&gt; &lt;operands&gt;
-&lt;cycles&gt;</code> per line (<code>#</code> comments):</p>
+<p>To try other latencies, pass <code>--latency-file &lt;file&gt;</code> to the <code>apara</code>
+simulator. Each line of the file overrides one entry, as <code>&lt;class&gt;
+&lt;operands&gt; &lt;cycles&gt;</code>, and <code>#</code> starts a comment:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>arith fp32 5     # an f32 add/subtract/multiply takes 5 cycles
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>divide any 20
 </span></code></pre></div>
-<p><strong>Memory.</strong> DMEM has two banks (address bit 15), each with one 256-bit
-port. A bundle's accesses to different banks proceed in parallel;
-accesses to the same bank one after another, each extra one adding
-<code>bankConflictCycles</code> (1).</p>
-<p><strong>Divider.</strong> <code>/</code> and <code>$fsqrt</code> share one unit: a bundle that needs it
-waits in EXEC until the previous user has finished.</p>
-<p><strong>EXEC.</strong> By default EXEC takes a new bundle every cycle (it is internally
-pipelined) and results leave it in order, one per cycle.</p>
-<p><strong>Register locks and tokens.</strong> A bundle waits in REGFILE while any
-register it reads or writes is locked by an earlier bundle of its thread.
-At most 2 bundles are in EXEC at a time (REGFILE's tokens); a token comes
-back with the bundle's result, two cycles after issue for a 1-cycle
-bundle, so the pipeline runs at one bundle per cycle.</p>
-<p><strong>Branch prediction.</strong> The branch target buffer has 256 entries, direct
-mapped by the low 8 bits of the bundle's PC and shared by the threads.
-Each holds a 22-bit tag, a 2-bit counter (0 strongly taken, 3 strongly not
-taken) and a target; a lookup predicts the target if the tag matches and
-the counter is below 3, otherwise the next bundle. Only PC corrections
-train it: a taken correction lowers the counter and sets the target, a
-not-taken one raises it, a new entry starts at 0 or 3.</p>
-<p><strong>Mispredicts.</strong> EXEC compares each bundle's actual next PC with FETCH's
-prediction. On a mismatch, the thread's state in EXEC becomes
-<em>mispredicted</em>: its following bundles, fetched on the wrong path, are
-skipped (not executed; their locks are still released) until FETCH,
-corrected by WRITEBACK, sends the first bundle of the right path, marked
-<em>new stream</em>. The penalty is 5 cycles with one thread; other threads keep
-the pipeline busy meanwhile. A halting bundle does the same for its
-thread, for good.</p>
+<h3 id="data-memory">Data memory<a class="headerlink" href="#data-memory" title="Permanent link">&para;</a></h3>
+<p>DMEM has two banks (address bit 15 selects the bank), each with its own
+256-bit port. A bundle's accesses to different banks proceed in
+parallel. Accesses to the same bank go one after another, each extra
+one adding a cycle (the <code>bankConflictCycles</code> knob). Placing two arrays
+that are read together in different banks avoids the conflict.</p>
+<h3 id="the-divider">The divider<a class="headerlink" href="#the-divider" title="Permanent link">&para;</a></h3>
+<p>Integer and float divides and square roots share one divider. A bundle
+that needs it waits in EXEC until the previous user has finished.</p>
+<h3 id="exec">EXEC<a class="headerlink" href="#exec" title="Permanent link">&para;</a></h3>
+<p>By default EXEC is internally pipelined: it takes a new bundle every
+cycle, and results leave it in order, one per cycle. The microarchitecture
+document also allows reading it as a stage that holds one bundle for its
+whole latency, and the <code>pipelined</code> knob selects that instead (see
+<a href="deviations.html#open-questions-in-the-sources">Deviations and Findings</a>).</p>
+<h3 id="register-locks-and-tokens">Register locks and tokens<a class="headerlink" href="#register-locks-and-tokens" title="Permanent link">&para;</a></h3>
+<p>A bundle waits in REGFILE while any register it reads or writes is
+locked by an earlier bundle of its thread, that is, until the earlier
+bundle's result is back. This is how the pipeline keeps a thread's
+bundles in order without stalling the other threads.</p>
+<p>At most 2 bundles are in EXEC at a time, one per REGFILE <em>token</em>. A
+token comes back with the bundle's result, two cycles after issue for a
+1-cycle bundle, so two tokens are exactly enough to issue one bundle
+every cycle.</p>
+<h3 id="branch-prediction">Branch prediction<a class="headerlink" href="#branch-prediction" title="Permanent link">&para;</a></h3>
+<p>The branch target buffer has 256 entries, direct mapped by the low 8
+bits of a bundle's PC, and shared by the four threads. Each entry holds
+a 22-bit tag, a 2-bit counter (0 strongly taken, 3 strongly not taken),
+and a target. A lookup predicts the entry's target if the tag matches
+and the counter is below 3, and otherwise the next bundle.</p>
+<p>Only PC corrections train the BTB: a correction to a taken branch lowers
+the counter and sets the target, one to a not-taken branch raises the
+counter, and a new entry starts at 0 or 3 accordingly.</p>
+<h3 id="mispredicts">Mispredicts<a class="headerlink" href="#mispredicts" title="Permanent link">&para;</a></h3>
+<p>EXEC compares each bundle's actual next PC with the one FETCH predicted.
+On a mismatch, the thread's following bundles, already fetched on the
+wrong path, are skipped (not executed, though their register locks are
+still released) until FETCH, corrected by WRITEBACK, sends the first
+bundle of the right path. With one thread, a mispredict costs 5 cycles.
+With several, the other threads keep the pipeline busy meanwhile. A
+thread's halting bundle is handled the same way, except that the thread
+then stays stopped.</p>
+<hr />
 <h2 id="knobs">Knobs<a class="headerlink" href="#knobs" title="Permanent link">&para;</a></h2>
-<p>In <code>model/system_models/apara/sitar_model/src/Top.sitar</code>, one place for
-all of them (rebuild after a change):</p>
+<p>All the timing knobs are set in one place, <code>Top.sitar</code> in <code>apara</code>
+(<code>model/system_models/apara/sitar_model/src/Top.sitar</code>) and
+<code>System.sitar</code> in <code>sparc_apara</code>. Rebuild after a change.</p>
 <table>
 <thead>
 <tr>
@@ -1927,41 +2142,54 @@ all of them (rebuild after a change):</p>
 <tr>
 <td><code>engine.fetch.imemDelay</code></td>
 <td>0</td>
-<td>cycles between picking a thread and its IMEM line arriving</td>
+<td>Cycles between FETCH picking a thread and its IMEM line arriving.</td>
 </tr>
 <tr>
 <td><code>engine.exec.pipelined</code></td>
 <td>true</td>
-<td>false: EXEC holds one bundle for its whole latency</td>
+<td>false: EXEC holds one bundle for its whole latency.</td>
 </tr>
 <tr>
 <td><code>engine.exec.latency.bankConflictCycles</code></td>
 <td>1</td>
-<td>per extra same-bank access in a bundle</td>
+<td>Cycles per extra same-bank access in a bundle.</td>
 </tr>
 <tr>
 <td><code>engine.regfile.tokens</code></td>
 <td>2</td>
-<td>bundles allowed in EXEC</td>
+<td>How many bundles may be in EXEC at once.</td>
 </tr>
 </tbody>
 </table>
-<p><code>--stats</code> prints the pipeline's counters: bundles fetched, executed and
-skipped, mispredicts, BTB-predicted fetches, cycles lost to register locks,
-tokens and the divider, and bank conflicts.</p>
+<p><code>--stats</code> prints the pipeline's counters: bundles fetched, executed, and
+skipped, mispredicts, fetches that followed a BTB prediction, the cycles
+lost to register locks, to tokens, and to the divider, and bank
+conflicts (see <a href="../performance_modeling.html#apara-engine">Performance
+Modeling</a>).</p>
+<hr />
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
-<p><code>validation/apara/timing/</code> holds microbenchmarks, each with its cycle count
-derived by hand from the rules above and written in its header: one bundle
-(6 cycles), a stream at full rate, latency, a read-after-write stall versus
-the independent case, the shared divider, a bank conflict versus two banks,
-a mispredict, two threads. <code>run_tests.py --sitar</code> checks every count
-exactly. Each knob was also checked by changing it alone: every count moved
-by exactly the derived amount (for example <code>imemDelay = 1</code> adds one cycle
-per IMEM line, <code>tokens = 1</code> halves the issue rate).</p>
-<p>The model is checked against the microarchitecture document, not yet
-against the hardware (Aa_model) traces: its open items (the latencies
-marked above, EXEC's structure, same-bank ordering) are listed in
-<a href="deviations.html">Deviations and Findings</a>.</p>
+<p><code>validation/apara/timing/</code> holds microbenchmarks, each with its cycle
+count derived by hand from the rules above and written in its header:</p>
+<ul>
+<li>one bundle (6 cycles), and a stream of bundles at full rate,</li>
+<li>latency, and a read-after-write stall against the independent case,</li>
+<li>the shared divider,</li>
+<li>a bank conflict against the same accesses on two banks,</li>
+<li>a mispredict,</li>
+<li>two threads sharing the pipeline.</li>
+</ul>
+<p><code>run_tests.py --sitar</code> checks every count exactly. The counts are
+derived for the default knob values and latency table, so the suite
+checks the timing model at those settings only. When the knobs were
+added, each one was also checked once by hand, by changing it alone:
+every count moved by exactly the amount the rules predict (for example,
+<code>imemDelay = 1</code> adds one cycle per IMEM line, and <code>tokens = 1</code> halves
+the issue rate). Those checks are not part of the suite.</p>
+<p>The model has been checked against the microarchitecture document, but
+not yet against the hardware's own (Aa_model) simulation traces. Its
+open items, such as the latencies marked above, EXEC's structure, and
+the order of same-bank accesses, are listed in <a href="deviations.html">Deviations and
+Findings</a>.</p>
 
 
 

@@ -13,5 +13,5 @@ The APARA engine's tests, and their runner.
   register and results files.
 
 Each test is one mcode file with `//@` lines saying how to run it and
-what to expect. See the documentation's "Writing and Running APARA
-Programs" page.
+what to expect. See [Writing and Running APARA
+Programs](https://sitar-sim.github.io/SparcV8_core/apara/running.html).

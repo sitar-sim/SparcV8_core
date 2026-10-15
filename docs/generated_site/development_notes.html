@@ -1818,25 +1818,31 @@ tests, or building on this model for a larger system.</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SparcV8_core/
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>  model/
 </span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>    cpp_common_code/          SparcCore, the core, timing-agnostic. Shared by both drivers.
-</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                mmu/ holds the MMU&#39;s own MmuCore class.
-</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    sitar_component_models/    The reusable Sitar procedures every configuration is built from.
-</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    system_models/              One folder per configuration (core_only/, core_mmu/), each with
-</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                  its own cpp_model/ (0-delay driver) and sitar_model/
-</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>                                  (Sitar-timed driver) subfolders.
-</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    build_scripts/               Shared build logic every configuration&#39;s own build.sh invokes.
-</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>  validation/
-</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    asm/                Instruction-level assembly test suite.
-</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    C/                  Self-validating bare-metal C mini-benchmark suite, including C/mmu/.
-</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
-</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>  docs/                    This documentation site.
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    generated_site/           Prebuilt, committed output. See &quot;Building the docs site&quot; below.
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    mkdocs.yml, requirements.txt, sitar_pygments_lexer/, sparc_pygments_lexer/  Build config,
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>      pinned dependencies, and vendored syntax lexers (Sitar, SPARC assembly).
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>                                mmu/, cache/, devices/ and apara/ hold the MMU, the L1 caches,
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>                                the peripheral devices and the APARA engine.
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>    sitar_component_models/    The reusable Sitar procedures and modules every configuration
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>                                 is built from.
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    system_models/              One folder per configuration (core_only/, core_mmu/, ...,
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>                                  sparc_apara/), each with its own cpp_model/ (0-delay driver)
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>                                  and sitar_model/ (Sitar-timed driver) subfolders.
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    build_scripts/               Shared build logic every configuration&#39;s own build.sh invokes.
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  validation/
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    asm/                Instruction-level assembly test suite.
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    C/                  Self-validating bare-metal C mini-benchmark suite, including the
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                          component suites C/mmu/, C/devices/, C/caches/ and C/apara/.
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    apara/              The APARA engine&#39;s own test suite and its runner.
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    include/                Bare-metal C routines for the devices and the APARA engine.
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    apara/                  The APARA engine&#39;s assembler and disassembler (mcode).
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  docs/                    This documentation site.
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    generated_site/           Prebuilt, committed output. See &quot;Building the docs site&quot; below.
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    mkdocs.yml, requirements.txt, *_pygments_lexer/  Build config, pinned dependencies, and
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>      vendored syntax lexers (Sitar, SPARC assembly, APARA mcode).
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
 </span></code></pre></div>
 <p>Each of <code>model/cpp_common_code/</code>, <code>model/sitar_component_models/</code>, and
 every <code>model/system_models/&lt;config&gt;/{cpp_model,sitar_model}/</code> has its own
@@ -1876,7 +1882,15 @@ in either.</p>
 where an MMU is present, <code>Mmu.sitar</code>, <code>PhysicalMainMemoryInterface.sitar</code>,
 <code>PhysicalMainMemory.sitar</code>, and each configuration's own top-level
 composition file, e.g. <code>System.sitar</code> in <code>core_mmu</code>) are the only place
-cycle counts exist. See <a href="performance_modeling.html">Performance Modeling</a>.</p>
+cycle counts exist. The same holds for the later components: the
+caches' timing is in <code>L1Caches.sitar</code>, the devices' in
+<code>PeripheralDevices.sitar</code>, the buses' in <code>SystemBridge.sitar</code> and
+<code>SystemInterconnect.sitar</code>, and the APARA engine's in its <code>Apara*.sitar</code>
+modules. One exception: the engine's instruction latency table, and the
+other plain C++ helpers its pipeline stages share, are in
+<code>cpp_common_code/apara/AparaTiming.h</code>. Only the timing model uses them,
+the functional engine never does. See <a href="performance_modeling.html">Performance
+Modeling</a>.</p>
 <h2 id="linking-against-libquadmath">Linking against libquadmath<a class="headerlink" href="#linking-against-libquadmath" title="Permanent link">&para;</a></h2>
 <p><code>FloatingPointFunctions.h</code> needs <code>libquadmath</code> for quad-precision support.
 <code>sitar compile --cflags</code> only reaches the compile step (<code>CCFLAGS</code>), never

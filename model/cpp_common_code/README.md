@@ -56,18 +56,24 @@ later an MMU or a cache).
   (reads/writes/atomics, full vs. partial doubleword accesses), in the
   same spirit as `mmu/MmuStats.h`.
 - **`SystemAddressMap.h`** -- which physical target (main memory, the
-  peripheral devices, or nothing) a physical address belongs to. Shared
-  by `SystemBus` below and by the sitar_model's `SystemBridge` module, so
-  the two can never disagree.
+  peripheral devices, an APARA engine's windows, or nothing) a physical
+  address belongs to, and where those windows are (`sparc_apara` uses
+  its AJIT_APARA layout). Shared by `SystemBus` below and by the
+  sitar_model's `SystemBridge` and `SystemInterconnect` modules, so the
+  models can never disagree.
 - **`SystemBus.h` / `.cpp`** -- the cpp_model's physical bus for a
-  configuration with devices (`core_mmu_devices`): implements
-  `PhysicalMemoryInterface`, routes each access to `MainMemory` or to
-  `devices/PeripheralDevicesCore` by address.
+  configuration with devices (`core_mmu_devices` and later): implements
+  `PhysicalMemoryInterface`, routes each access to `MainMemory`, to
+  `devices/PeripheralDevicesCore`, or (in `sparc_apara`) to an attached
+  APARA engine, by address.
 - **`cache/`** -- the split L1 caches (`L1CachesCore`, `CacheArray`).
   See `cache/README.md`.
 - **`devices/`** -- the peripheral devices (Timer, Serial, Interrupt
   Controller) and `PeripheralDevicesCore`, the shared set that holds
   them. See `devices/README.md`.
+- **`mmu/`** -- the MMU (`MmuCore`). See `mmu/README.md`.
+- **`apara/`** -- the APARA engine (`AparaCore`), and, for
+  `sparc_apara`, its control and DMA units. See `apara/README.md`.
 - **`SparcStateMachine.h` / `.cpp`** -- the reusable 0-delay
   fetch-decode-execute FSM every `cpp_model` configuration drives
   `SparcCore` through: `SparcStateMachine(core, mem)`, then

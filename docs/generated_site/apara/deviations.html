@@ -1803,20 +1803,32 @@
 
 
 <h1 id="apara-deviations-and-findings">APARA: Deviations and Findings<a class="headerlink" href="#apara-deviations-and-findings" title="Permanent link">&para;</a></h1>
-<p>The model is our own implementation of the APARA engine. Its sources, in
-order of authority for us: the microarchitecture document (timing and
-structure), the ISA document (<code>engine_isp/isa/isa.txt</code>), and the reference
-model McodeMachine with its tools (<code>mcode_align</code>, <code>mcode_assemble</code>,
-<code>mcode_run</code>). For every program the reference tools handle correctly the
-model gives the same results: the same object file from the assembler,
-and the same final state (PC, registers, DMEM) from a run, checked on
-every valid program of the APARA repository and on our own tests
-(Ref <a href="running.html">Writing and Running Programs</a>).</p>
-<p>This page lists where the model differs from the reference model, why,
-and the open questions in the sources, for review with the APARA's
-designer. Tests that depend on a deviation are marked <code>//@ deviation</code> in
-<code>validation/apara/tests/</code> (<code>dev_*.mcode</code>).</p>
+<p>This project's APARA model is its own implementation of the engine,
+written from the engine's documents and checked against APARA's
+reference model. Its sources, in order of authority:</p>
+<ol>
+<li><strong>The microarchitecture document</strong>, for the engine's structure and
+   timing.</li>
+<li><strong>The ISA document</strong> (<code>engine_isp/isa/isa.txt</code> in the APARA
+   repository), for what each instruction does.</li>
+<li><strong>The reference model</strong>, McodeMachine, with its tools (<code>mcode_align</code>,
+   <code>mcode_assemble</code>, <code>mcode_run</code>).</li>
+</ol>
+<p>For every program the reference tools handle correctly, the model gives
+the same results: the assembler writes the same object file, and a run
+reaches the same final state (PC, registers, DMEM). This was checked on
+every valid program of the APARA repository, and on this project's own
+tests (see <a href="running.html#running-the-tests">Writing and Running Programs</a>).</p>
+<p>This page lists where the model deliberately differs from the reference
+model, and why, followed by the open questions in the sources, which
+are to be reviewed with APARA's designers. Every test that depends on a
+deviation is marked with a <code>//@ deviation</code> line, and they are collected
+in <code>validation/apara/tests/</code> as <code>dev_*.mcode</code>.</p>
+<hr />
 <h2 id="deviations-from-the-reference-model">Deviations from the reference model<a class="headerlink" href="#deviations-from-the-reference-model" title="Permanent link">&para;</a></h2>
+<p>Each row gives what the reference model does, what this model does
+instead, and why. Most are fixes of defects in the reference model,
+where it contradicts the ISA document or its own intent.</p>
 <h3 id="semantics">Semantics<a class="headerlink" href="#semantics" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2051,13 +2063,15 @@ designer. Tests that depend on a deviation are marked <code>//@ deviation</code>
 </tr>
 </tbody>
 </table>
-<p>The rule for local addresses follows the hardware (<code>isInEngineDataMem</code>):
-in a system only the engine's own DMEM window is local. The reference
-model aliases every address into DMEM; the standalone <code>apara</code>
-configuration keeps that behavior.</p>
+<p>Which addresses are local also follows the hardware: in a system, only
+the engine's own DMEM window is local, and every other address goes out
+to the system. The reference model aliases every address into DMEM, and
+the standalone <code>apara</code> configuration keeps that behavior.</p>
+<hr />
 <h2 id="open-questions-in-the-sources">Open questions in the sources<a class="headerlink" href="#open-questions-in-the-sources" title="Permanent link">&para;</a></h2>
-<p>Carried by the model as explicit, documented choices (D1-D7 from the
-first review of the sources, then the findings since):</p>
+<p>Where the sources disagree or are silent, the model makes an explicit
+choice, listed here. D1 to D7 come from the first review of the
+sources, the rest from the findings since.</p>
 <ul>
 <li><strong>D1, opcode numbering from 0x16.</strong> The Aa_model's <code>parameters.aa</code> and
   <code>OperatorClassification.txt</code> disagree. The model uses the assembler's

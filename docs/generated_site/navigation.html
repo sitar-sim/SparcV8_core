@@ -1861,11 +1861,11 @@
 </tr>
 <tr>
 <td><a href="model_configurations.html">Model Configurations</a></td>
-<td>A block-diagram-level summary of each testbench configuration, current and planned.</td>
+<td>A block-diagram-level summary of each testbench configuration.</td>
 </tr>
 <tr>
 <td><a href="model_components.html">Model Components</a></td>
-<td>Describes each component in detail: SparcCore, Mmu, Memory, Caches, and Devices.</td>
+<td>Describes each component in detail: SparcCore, Mmu, Memory, Caches, Devices, the system bus, and the APARA engine.</td>
 </tr>
 <tr>
 <td><a href="peripheral_devices.html">Peripheral Devices</a></td>
@@ -1873,15 +1873,43 @@
 </tr>
 <tr>
 <td><a href="peripheral_devices_timer.html">Timer</a></td>
-<td>Register format, one-shot countdown behavior, and state machine.</td>
+<td>Register format, one-shot behavior, and state machine.</td>
 </tr>
 <tr>
 <td><a href="peripheral_devices_interrupt_controller.html">Interrupt Controller</a></td>
-<td>Per-core IRC register format, interrupt sources, priority, and the planned multi-core extension.</td>
+<td>The shared, multi-thread IRC: one slot per hardware thread, interrupt sources, priority, and inter-processor interrupts.</td>
 </tr>
 <tr>
 <td><a href="peripheral_devices_serial_device.html">Serial Device</a></td>
 <td>UART register format, baud-rate calculation, and the Tx/Rx state machines.</td>
+</tr>
+<tr>
+<td><a href="apara/index.html">The APARA Engine</a></td>
+<td>Overview of the APARA vector compute engine, and its two configurations.</td>
+</tr>
+<tr>
+<td><a href="apara/isa.html">APARA Instruction Set</a></td>
+<td>The engine's state, data types, bundles, and every instruction.</td>
+</tr>
+<tr>
+<td><a href="apara/assembly_and_tools.html">APARA Assembly Language and Tools</a></td>
+<td>mcode, the assembler and disassembler, and the file formats.</td>
+</tr>
+<tr>
+<td><a href="apara/running.html">Writing and Running APARA Programs</a></td>
+<td>Running an engine program on its own, and the engine's test suite.</td>
+</tr>
+<tr>
+<td><a href="apara/timing_model.html">APARA Timing Model</a></td>
+<td>The engine's five-stage pipeline in the Sitar model, and its timing rules and knobs.</td>
+</tr>
+<tr>
+<td><a href="apara/system.html">The Engine in a System</a></td>
+<td><code>sparc_apara</code>: the SPARC program's view of the engine, its control and DMA units, and the C routines.</td>
+</tr>
+<tr>
+<td><a href="apara/deviations.html">APARA Deviations and Findings</a></td>
+<td>Where the model differs from the APARA reference model, and the open questions.</td>
 </tr>
 <tr>
 <td><a href="model_components_reference.html">Model Components Reference</a></td>

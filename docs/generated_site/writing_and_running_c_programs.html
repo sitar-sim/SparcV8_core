@@ -1997,6 +1997,10 @@ unchanged. <code>compile_c.sh</code> puts that folder on the include path.</p>
 <td>Inter-processor interrupts (<code>__ajit_set_ipi_interrupt__()</code>, ...).</td>
 </tr>
 <tr>
+<td><code>apara_access_routines.h</code></td>
+<td>The APARA engine, in <code>sparc_apara</code>: loading its program, starting its threads, its DMA unit (<code>apara_load_program()</code>, <code>apara_start_thread()</code>, ...). See <a href="apara/system.html#software">The Engine in a System</a>.</td>
+</tr>
+<tr>
 <td><code>stdint.h</code></td>
 <td><code>uint32_t</code> and friends, which the bundled compiler does not provide on its own.</td>
 </tr>
@@ -2020,7 +2024,11 @@ final <code>ta 0</code>. A program that takes interrupts links
 <code>compiler/crt0_interrupts.s</code> instead, which also handles register
 window overflow and underflow, and sends every interrupt to
 <code>ajit_generic_interrupt_handler()</code> (in <code>ajit_mt_irc.h</code>). That function
-calls the handler registered for the interrupt's level:</p>
+disables the thread's Interrupt Controller slot, calls the handler
+registered for the interrupt's level, and enables the slot again (the
+sequence on the <a href="peripheral_devices_interrupt_controller.html#handling-an-interrupt">Interrupt
+Controller</a>
+page). The handler itself only has to clear its source:</p>
 <div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_access_routines.h&quot;</span>
 </span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_mt_irc.h&quot;</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>

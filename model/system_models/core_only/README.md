@@ -1,9 +1,9 @@
 # system_models/core_only/
 
-The SPARC V8 core on its own: no MMU, no cache, no peripherals. This is
-the existing model, unchanged in behavior, just reorganized to fit the
-same layout every later configuration (core and MMU, core and MMU and
-devices, and so on) will follow.
+The SPARC V8 core on its own: no MMU, no cache, no peripherals. The
+simplest configuration, and the one the documentation's walkthroughs
+use. Every later configuration (`core_mmu`, `core_mmu_devices`, and so
+on) follows the same folder layout.
 
 Two subfolders, one per driver:
 

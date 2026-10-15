@@ -1781,7 +1781,7 @@ minimum set of devices that make the model realistic, and sufficient
 to port a basic operating system on top of it.</p>
 <ul>
 <li><strong><a href="peripheral_devices_timer.html">Timer</a></strong><br />
-    A countdown timer, used for generating periodic interrupts, the
+    A one-shot timer, used for generating periodic interrupts, the
     kind an OS uses for context switching.</li>
 <li><strong><a href="peripheral_devices_interrupt_controller.html">Interrupt Controller</a></strong><br />
     Routes hardware interrupts to the hardware threads of every core,
@@ -1812,10 +1812,10 @@ bus:</p>
 <li><strong>Serial Device</strong>: <code>serial_in</code>/<code>serial_out</code> pins, and a
   <code>serial_int_out</code> output to the Interrupt Controller.</li>
 <li><strong>Interrupt Controller</strong>: <code>timer_int_out</code>/<code>serial_int_out</code> inputs,
-  an external interrupt input (<code>env_int_in</code>, reserved for an external
-  source such as an accelerator), and one <code>interrupt_level</code> output per
-  hardware thread. Inter-processor interrupts are generated inside it,
-  from its own IPI registers.</li>
+  an external interrupt input (<code>env_int_in</code>, for an external source
+  such as an accelerator: in <code>sparc_apara</code>, the APARA engine), and one
+  <code>interrupt_level</code> output per hardware thread. Inter-processor
+  interrupts are generated inside it, from its own IPI registers.</li>
 </ul>
 <hr />
 <h2 id="device-address-map">Device address map<a class="headerlink" href="#device-address-map" title="Permanent link">&para;</a></h2>
@@ -1916,7 +1916,7 @@ from the simulator.</p>
 <td></td>
 </tr>
 <tr>
-<td>Env (external, e.g. an accelerator)</td>
+<td>Env (external: the APARA engine in <code>sparc_apara</code>)</td>
 <td>14</td>
 <td>Lowest</td>
 </tr>
@@ -1951,6 +1951,16 @@ deliberate:</p>
   lost.</li>
 <li><strong>Unmapped device addresses</strong> read as 0 and ignore writes, with a
   warning, the same as AJIT's bridge does for any unmapped address.</li>
+<li><strong>Serial register addresses.</strong> AJIT's own sources disagree. The newer
+  multi-thread access routines (<code>default_device_addresses.h</code> in
+  <code>ajit_access_routines_mt</code>, on the ajit-toolchain's <code>marshal</code> branch)
+  and the memory map tables of the AJIT processor description put Tx at
+  <code>0xFFFF3204</code> and Rx at <code>0xFFFF3208</code>, with the baud-frequency register
+  alone at <code>0xFFFF3210</code>. The older headers, AJIT's C models, and the
+  processor description's Chapter 8 text put Tx at <code>0xFFFF3210</code> (shared
+  with the baud-frequency register, told apart by access width) and Rx at
+  <code>0xFFFF3220</code>. This model follows the newer layout, the one that goes
+  with the multi-thread Interrupt Controller it models.</li>
 </ul>
 
 

@@ -3,8 +3,8 @@
 Validating a processor model can mean different things: functional
 (does each instruction do the right thing), timing or microarchitectural
 (does it take the right number of cycles, in the right order), or both.
-This project's suite, in `validation/`, is purely **functional**. There
-are no timing tests here. Both models drive the exact same `SparcCore` (see
+This project's SPARC suite, in `validation/`, is purely **functional**.
+There are no SPARC timing tests here. Both models drive the exact same `SparcCore` (see
 [Models](index.md#models)), so this one suite validates both, and
 catches a regression in either.
 
@@ -86,10 +86,15 @@ Before running a test, `run_tests.py` parses this and normalizes it into
 the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
 [mask]` format, writing it to a `.expected` file alongside the test.
 
-Two optional lines, used by the device tests:
+Three optional lines, used by the device and APARA tests:
 
 - `STARTUP = crt0_interrupts.s`, before `RESULTS`, links that startup
   file instead of `compiler/crt0.s` (C tests only).
+- `MCODE = kernel.mcode`, before `RESULTS`, names an APARA engine
+  program the test carries. Before compiling, `build_hex.py` assembles
+  it and writes it out as a C array, `kernel.mcode.h`, for the test to
+  `#include` (C tests only, may be repeated). See [The Engine in a
+  System](apara/system.md#software).
 - `serial_out = "text"`, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   `\n` and `\x41` work). Only configurations with devices check it.
@@ -280,13 +285,19 @@ components, each living in its own folder:
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the
     environment.
 - **`validation/C/apara/`**  
-    An APARA engine driven from the SPARC: its control unit (IMEM,
-    registers, running threads, completion by polling and by interrupt),
-    its DMA unit, its DMEM window, and its own accesses to main memory.
-    Needs `sparc_apara`; run with `--max-cycles 5000000` on the
-    sitar_model. See [The Engine in a System](apara/system.md). (The
-    engine on its own has its own suite, `validation/apara/`: Ref
-    [Writing and Running APARA Programs](apara/running.md).)
+    An APARA engine driven from a SPARC program: loading its program,
+    reading and writing its registers, running its threads and learning
+    when they stop (by polling and by interrupt), its DMA unit, its data
+    memory, and the engine's own accesses to main memory. Needs
+    `sparc_apara`. On the sitar_model, run them with `--max-cycles
+    5000000`. See [The Engine in a System](apara/system.md).
+- **`validation/apara/`**  
+    The APARA engine on its own, with its own test format and runner:
+    one test per instruction class, threads, and bundles. Unlike the
+    SPARC suite, it also has timing tests: microbenchmarks whose cycle
+    counts, derived by hand for the default timing settings, the timing
+    model must match exactly. See [Writing and Running APARA
+    Programs](apara/running.md#tests).
 
 A component's tests only pass on a configuration that actually includes
 that component, e.g. the MMU suite needs `core_mmu` or a later
@@ -309,7 +320,7 @@ validation/run_tests.py validation/C/mmu
 ```
 
 This same suite runs unmodified on any other configuration that also
-includes an MMU, once one exists, such as `core_mmu_devices`.
+includes an MMU, such as `core_mmu_devices`.
 
 ---
 

@@ -1,12 +1,20 @@
 # validation/
 
-Functional validation suite for the SPARC V8 core model. No timing/pipeline
-tests here, functional correctness only.
+Functional validation suite for the SPARC V8 core model: functional
+correctness only, no SPARC timing/pipeline tests. (The APARA engine's own
+suite, `apara/`, is the exception: it also checks the engine's timing
+model, see `apara/README.md`.)
 
 ## What's here
 
 - `asm/` -- hand-written, opcode-level assembly tests. See `asm/README.md`.
-- `C/` -- bare-metal C tests. See `C/README.md`.
+- `C/` -- bare-metal C tests. See `C/README.md`. Besides the
+  benchmarks, it holds one folder per component suite: `mmu/`,
+  `devices/`, `caches/`, and `apara/` (an APARA engine driven from the
+  SPARC), each needing a configuration that has that component.
+- `apara/` -- the APARA engine's own tests (mcode programs, functional
+  and timing), with their own runner, `apara/run_tests.py`. See
+  `apara/README.md`.
 - `test_simple_ADD/` -- one more `.vprj` test, but its main job is as
   the small example program used throughout the docs and both models'
   own `run_simple_test.sh` scripts
@@ -41,8 +49,9 @@ Roughly in the order you'd use them:
    `../model/system_models/core_only/sitar_model/build.sh` -- build the
    checker binary to run tests against (not a script in this directory,
    listed here since it's the next step).
-4. `run_tests.py <root_folder> [--sitar] [--max-cycles N] [-v]` -- runs
-   each test's `.hex` against the checker and reports PASS/FAIL. Doesn't
+4. `run_tests.py <root_folder> [--config NAME] [--sitar] [--max-cycles N] [-v]`
+   -- runs each test's `.hex` against the checker and reports PASS/FAIL.
+   `--config` picks the configuration (default `core_only`). Doesn't
    need the toolchain.
 5. `clean.sh [root_folder]` -- removes generated build byproducts (`.o`,
    `.elf`, `.expected`). Leaves `.hex`/`.s`/`.c`/`.vprj`/`.objdump` alone.

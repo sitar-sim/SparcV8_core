@@ -1882,8 +1882,8 @@
 <p>Validating a processor model can mean different things: functional
 (does each instruction do the right thing), timing or microarchitectural
 (does it take the right number of cycles, in the right order), or both.
-This project's suite, in <code>validation/</code>, is purely <strong>functional</strong>. There
-are no timing tests here. Both models drive the exact same <code>SparcCore</code> (see
+This project's SPARC suite, in <code>validation/</code>, is purely <strong>functional</strong>.
+There are no SPARC timing tests here. Both models drive the exact same <code>SparcCore</code> (see
 <a href="index.html#models">Models</a>), so this one suite validates both, and
 catches a regression in either.</p>
 <p>It checks the core's instruction-level behavior against the SPARC V8
@@ -1956,10 +1956,15 @@ never edited directly, and doesn't need to be committed to git.</p>
 <p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
 the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
 [mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
-<p>Two optional lines, used by the device tests:</p>
+<p>Three optional lines, used by the device and APARA tests:</p>
 <ul>
 <li><code>STARTUP = crt0_interrupts.s</code>, before <code>RESULTS</code>, links that startup
   file instead of <code>compiler/crt0.s</code> (C tests only).</li>
+<li><code>MCODE = kernel.mcode</code>, before <code>RESULTS</code>, names an APARA engine
+  program the test carries. Before compiling, <code>build_hex.py</code> assembles
+  it and writes it out as a C array, <code>kernel.mcode.h</code>, for the test to
+  <code>#include</code> (C tests only, may be repeated). See <a href="apara/system.html#software">The Engine in a
+  System</a>.</li>
 <li><code>serial_out = "text"</code>, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   <code>\n</code> and <code>\x41</code> work). Only configurations with devices check it.</li>
@@ -2182,6 +2187,20 @@ components, each living in its own folder:</p>
     through the caches on that configuration, and with every ordinary
     access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the
     environment.</li>
+<li><strong><code>validation/C/apara/</code></strong><br />
+    An APARA engine driven from a SPARC program: loading its program,
+    reading and writing its registers, running its threads and learning
+    when they stop (by polling and by interrupt), its DMA unit, its data
+    memory, and the engine's own accesses to main memory. Needs
+    <code>sparc_apara</code>. On the sitar_model, run them with <code>--max-cycles
+    5000000</code>. See <a href="apara/system.html">The Engine in a System</a>.</li>
+<li><strong><code>validation/apara/</code></strong><br />
+    The APARA engine on its own, with its own test format and runner:
+    one test per instruction class, threads, and bundles. Unlike the
+    SPARC suite, it also has timing tests: microbenchmarks whose cycle
+    counts, derived by hand for the default timing settings, the timing
+    model must match exactly. See <a href="apara/running.html#tests">Writing and Running APARA
+    Programs</a>.</li>
 </ul>
 <p>A component's tests only pass on a configuration that actually includes
 that component, e.g. the MMU suite needs <code>core_mmu</code> or a later
@@ -2197,7 +2216,7 @@ Started</a>):</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>validation/run_tests.py<span class="w"> </span>validation/C/mmu
 </span></code></pre></div>
 <p>This same suite runs unmodified on any other configuration that also
-includes an MMU, once one exists, such as <code>core_mmu_devices</code>.</p>
+includes an MMU, such as <code>core_mmu_devices</code>.</p>
 <hr />
 <h2 id="credits-validation-suite-of-the-ajit-sparc-v8-processor">Credits: validation suite of the AJIT SPARC V8 processor<a class="headerlink" href="#credits-validation-suite-of-the-ajit-sparc-v8-processor" title="Permanent link">&para;</a></h2>
 <p>Most of <code>validation/asm/</code>'s tests, and the scripts that build and run

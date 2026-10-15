@@ -12,7 +12,7 @@ minimum set of devices that make the model realistic, and sufficient
 to port a basic operating system on top of it.
 
 - **[Timer](peripheral_devices_timer.md)**  
-    A countdown timer, used for generating periodic interrupts, the
+    A one-shot timer, used for generating periodic interrupts, the
     kind an OS uses for context switching.
 - **[Interrupt Controller](peripheral_devices_interrupt_controller.md)**  
     Routes hardware interrupts to the hardware threads of every core,
@@ -48,10 +48,10 @@ bus:
 - **Serial Device**: `serial_in`/`serial_out` pins, and a
   `serial_int_out` output to the Interrupt Controller.
 - **Interrupt Controller**: `timer_int_out`/`serial_int_out` inputs,
-  an external interrupt input (`env_int_in`, reserved for an external
-  source such as an accelerator), and one `interrupt_level` output per
-  hardware thread. Inter-processor interrupts are generated inside it,
-  from its own IPI registers.
+  an external interrupt input (`env_int_in`, for an external source
+  such as an accelerator: in `sparc_apara`, the APARA engine), and one
+  `interrupt_level` output per hardware thread. Inter-processor
+  interrupts are generated inside it, from its own IPI registers.
 
 ---
 
@@ -90,7 +90,7 @@ from the simulator.
 | Timer | 10 | Highest |
 | IPI (inter-processor interrupt) | 11 | |
 | Serial | 12 | |
-| Env (external, e.g. an accelerator) | 14 | Lowest |
+| Env (external: the APARA engine in `sparc_apara`) | 14 | Lowest |
 
 For each hardware thread, the Interrupt Controller priority-encodes
 the active sources that thread's mask enables: the lowest IRL number
@@ -124,3 +124,13 @@ deliberate:
   lost.
 - **Unmapped device addresses** read as 0 and ignore writes, with a
   warning, the same as AJIT's bridge does for any unmapped address.
+- **Serial register addresses.** AJIT's own sources disagree. The newer
+  multi-thread access routines (`default_device_addresses.h` in
+  `ajit_access_routines_mt`, on the ajit-toolchain's `marshal` branch)
+  and the memory map tables of the AJIT processor description put Tx at
+  `0xFFFF3204` and Rx at `0xFFFF3208`, with the baud-frequency register
+  alone at `0xFFFF3210`. The older headers, AJIT's C models, and the
+  processor description's Chapter 8 text put Tx at `0xFFFF3210` (shared
+  with the baud-frequency register, told apart by access width) and Rx at
+  `0xFFFF3220`. This model follows the newer layout, the one that goes
+  with the multi-thread Interrupt Controller it models.

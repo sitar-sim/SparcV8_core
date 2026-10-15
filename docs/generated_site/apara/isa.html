@@ -1230,6 +1230,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Engine state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-a-thread-runs-and-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a thread runs and stops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1241,6 +1280,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Data types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#floats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Floats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1251,6 +1329,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sizes-and-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sizes and slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1796,6 +1891,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Engine state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-a-thread-runs-and-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a thread runs and stops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1807,6 +1941,45 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Data types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#floats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Floats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1817,6 +1990,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sizes-and-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sizes and slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1957,16 +2147,21 @@
 
 
 <h1 id="apara-instruction-set">APARA Instruction Set<a class="headerlink" href="#apara-instruction-set" title="Permanent link">&para;</a></h1>
-<p>This page is the programmer's reference for the APARA engine as this
-model implements it: its state, its data types, bundles, and every
-instruction. The model follows the APARA ISA (<code>engine_isp/isa/isa.txt</code> in
-the APARA repository) and the reference model, McodeMachine; where the two
-disagree, or the reference model has a defect, the model's choice is
-listed in <a href="deviations.html">Deviations and Findings</a>.</p>
+<p>This page is the programmer's reference for the APARA engine, as this
+project models it: what state a program sees, the data types its
+instructions work on, how instructions are grouped into bundles, and
+every instruction, with its assembly syntax and its encoding.</p>
+<p>The model follows the APARA ISA document (<code>engine_isp/isa/isa.txt</code> in
+the APARA repository) and APARA's reference model, McodeMachine. Where
+the two disagree, or where the reference model has a defect, the
+choice this model makes is listed in <a href="deviations.html">Deviations and
+Findings</a>.</p>
+<hr />
 <h2 id="engine-state">Engine state<a class="headerlink" href="#engine-state" title="Permanent link">&para;</a></h2>
-<p>An engine runs up to <strong>four threads</strong>. They share the engine's two local
-memories and its execution pipeline, and each has its own architectural
-state:</p>
+<h3 id="threads">Threads<a class="headerlink" href="#threads" title="Permanent link">&para;</a></h3>
+<p>An engine runs up to <strong>four hardware threads</strong>. They share the
+engine's memories and its pipeline, but each thread has its own
+architectural state:</p>
 <table>
 <thead>
 <tr>
@@ -1979,25 +2174,29 @@ state:</p>
 <tr>
 <td>PC</td>
 <td>32 bits</td>
-<td>a <strong>word</strong> index into IMEM, not a byte address</td>
+<td>The address of the thread's next bundle, as an instruction-word index into IMEM, not a byte address.</td>
 </tr>
 <tr>
 <td><code>$r0</code> .. <code>$r31</code></td>
 <td>64 bits each</td>
-<td><code>$r0</code> reads as 0; writes to it are dropped</td>
+<td>General-purpose registers. <code>$r0</code> always reads as 0, and writes to it are dropped.</td>
 </tr>
 <tr>
-<td>return-address stack (RAS)</td>
+<td>Return-address stack (RAS)</td>
 <td>64 entries</td>
-<td>pushed by <code>$call</code>, popped by <code>$return</code></td>
+<td>Return addresses: <code>$call</code> pushes one, <code>$return</code> pops one.</td>
 </tr>
 <tr>
 <td>ERROR</td>
 <td>32 bits</td>
-<td>why the thread stopped (below)</td>
+<td>Why the thread stopped, see below.</td>
 </tr>
 </tbody>
 </table>
+<p>Four threads let the engine stay busy: while one thread waits (for a
+result, a memory access, or a mispredicted branch), the pipeline runs
+the others.</p>
+<h3 id="memories">Memories<a class="headerlink" href="#memories" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
 <tr>
@@ -2010,23 +2209,31 @@ state:</p>
 <tr>
 <td>IMEM</td>
 <td>16 KB, 4096 instruction words</td>
-<td>read by the pipeline 8 words (one <em>line</em>) at a time</td>
+<td>The program, shared by all four threads. The pipeline reads it 8 words (one <em>line</em>) at a time.</td>
 </tr>
 <tr>
 <td>DMEM</td>
 <td>64 KB, 8192 64-bit words</td>
-<td>two 32 KB banks (address bit 15), <strong>big-endian</strong></td>
+<td>The data, shared by all four threads. Two banks of 32 KB (address bit 15 selects the bank), each accessed through its own port. <strong>Big-endian</strong>.</td>
 </tr>
 </tbody>
 </table>
-<p>DMEM addresses are byte addresses. Each 64-bit word ("dword") is
-big-endian: the byte at an address with <code>(address &amp; 7) == 0</code> is bits
-[63:56]. In the standalone engine every data address aliases into DMEM
-(modulo 64 KB). In a system (the <code>sparc_apara</code> configuration), other
-addresses reach system memory.</p>
-<p>A thread is <em>inactive</em> until started, then <em>running</em> until it executes
-<code>$halt</code> or meets an exception, after which it is <em>halted</em>. ERROR tells
-which:</p>
+<p>DMEM addresses are byte addresses. Each 64-bit word ("dword") is stored
+big-endian: the byte at an address with <code>(address &amp; 7) == 0</code> is the
+dword's most significant byte, bits [63:56].</p>
+<p>What an address outside DMEM means depends on where the engine is:</p>
+<ul>
+<li><strong>On its own</strong> (the <code>apara</code> configuration), every data address
+  aliases into DMEM, modulo 64 KB, as in the APARA reference model.</li>
+<li><strong>In a system</strong> (the <code>sparc_apara</code> configuration), DMEM appears at a
+  window in the system's physical address space, and only addresses in
+  that window are local. Every other address goes out to the system's
+  memory, see <a href="system.html#address-map">The Engine in a System</a>.</li>
+</ul>
+<h3 id="how-a-thread-runs-and-stops">How a thread runs and stops<a class="headerlink" href="#how-a-thread-runs-and-stops" title="Permanent link">&para;</a></h3>
+<p>A thread is <strong>inactive</strong> until it is started at some PC. It is then
+<strong>running</strong>, until it either executes <code>$halt</code> or meets an exception.
+Either way it is then <strong>halted</strong>, and its ERROR register says why:</p>
 <table>
 <thead>
 <tr>
@@ -2037,22 +2244,23 @@ which:</p>
 <tbody>
 <tr>
 <td>26</td>
-<td>return-address stack error: <code>$call</code> with the RAS full, or <code>$return</code> with it empty</td>
+<td>Return-address stack error: a <code>$call</code> with the RAS full, or a <code>$return</code> with it empty.</td>
 </tr>
 <tr>
 <td>25</td>
-<td>the thread executed <code>$halt</code></td>
+<td>The thread executed <code>$halt</code>.</td>
 </tr>
 <tr>
 <td>24</td>
-<td>an exception stopped the thread</td>
+<td>An exception stopped the thread.</td>
 </tr>
 <tr>
 <td>[23:0]</td>
-<td>one 3-bit exception code per bundle slot, slot <em>s</em> in bits [3s+2 : 3s]</td>
+<td>One 3-bit exception code per bundle slot: slot <em>s</em>'s code is in bits [3s+2 : 3s].</td>
 </tr>
 </tbody>
 </table>
+<p>The exception codes:</p>
 <table>
 <thead>
 <tr>
@@ -2063,41 +2271,44 @@ which:</p>
 <tbody>
 <tr>
 <td>1</td>
-<td>integer divide by zero</td>
+<td>Integer divide by zero.</td>
 </tr>
 <tr>
 <td>2</td>
-<td>float divide by zero</td>
+<td>Float divide by zero.</td>
 </tr>
 <tr>
 <td>3</td>
-<td>a float arithmetic result is not a number (NaN)</td>
+<td>A float arithmetic result is not a number (NaN).</td>
 </tr>
 <tr>
 <td>4</td>
-<td>(reserved: integer square root of a negative number in the hardware's table; there is no integer square root)</td>
+<td>Reserved. The hardware's table lists "integer square root of a negative number", but there is no integer square root instruction.</td>
 </tr>
 <tr>
 <td>5</td>
-<td>float square root of a negative number</td>
+<td>Float square root of a negative number.</td>
 </tr>
 <tr>
 <td>6</td>
-<td>memory address not a multiple of the transfer size</td>
+<td>A memory address that is not a multiple of the transfer size.</td>
 </tr>
 <tr>
 <td>7</td>
-<td>illegal instruction, an instruction in a slot it cannot use, or no valid bundle at the PC (slot 0)</td>
+<td>An illegal instruction, an instruction in a slot it may not use (see <a href="#bundles">Bundles</a>), or no valid bundle at the PC (reported in slot 0).</td>
 </tr>
 </tbody>
 </table>
 <p>A bundle that raises an exception <strong>changes nothing</strong>: no register,
-memory or PC update happens, and the thread halts with its PC at that
-bundle.</p>
+memory, or PC update happens, and the thread halts with its PC at that
+bundle. This makes the stopped state easy to examine: the PC names the
+bundle that failed, and the registers are as they were before it.</p>
+<hr />
 <h2 id="data-types">Data types<a class="headerlink" href="#data-types" title="Permanent link">&para;</a></h2>
 <p>Every instruction that operates on data names a type, written in
-parentheses: <code>($i32)</code>, <code>($vf16)</code>. A type is an element width and three
-flags.</p>
+parentheses: <code>($i32)</code>, <code>($vf16)</code>. A type gives an element width, and
+whether the elements are integers or floats, signed or unsigned, and
+one per register (a scalar) or packed several to a register (a vector).</p>
 <table>
 <thead>
 <tr>
@@ -2108,137 +2319,200 @@ flags.</p>
 <tbody>
 <tr>
 <td><code>$i4 $i8 $i16 $i32 $i64</code></td>
-<td>signed integers</td>
+<td>Signed integers.</td>
 </tr>
 <tr>
 <td><code>$u4 $u8 $u16 $u32 $u64</code></td>
-<td>unsigned integers</td>
+<td>Unsigned integers.</td>
 </tr>
 <tr>
 <td><code>$u128 $u256</code></td>
-<td>2 and 4 registers, for memory transfers only</td>
+<td>2 and 4 registers, for memory transfers only.</td>
 </tr>
 <tr>
 <td><code>$f4 $f8 $f16 $f32 $f64</code></td>
-<td>floats</td>
+<td>Floats.</td>
 </tr>
 <tr>
 <td><code>$vi4 .. $vi32</code>, <code>$vu4 .. $vu32</code>, <code>$vf4 .. $vf32</code></td>
-<td>vectors of signed, unsigned or float elements</td>
+<td>Vectors of signed, unsigned, or float elements.</td>
 </tr>
 </tbody>
 </table>
-<p><strong>Scalars</strong> narrower than 64 bits live in the low bits of a register.
-A signed operation sign-extends its operands from the type's width; an
+<h3 id="scalars">Scalars<a class="headerlink" href="#scalars" title="Permanent link">&para;</a></h3>
+<p>A scalar narrower than 64 bits lives in the low bits of a register. A
+signed operation sign-extends its operands from the type's width, and an
 unsigned integer operation uses the full 64-bit register values. Integer
-ALU results are 64 bits. Float results are in the type's format, in the
-low bits.</p>
-<p><strong>Vectors</strong> pack <code>64/width</code> elements in one register, <strong>element 0 in the
-most significant bits</strong>: <code>$r1 = 0x0102030405060708</code> as <code>($vi8)</code> holds the
-elements 1, 2, 3, 4, 5, 6, 7, 8 in that order.</p>
-<p><strong>Floats</strong>: f32 and f64 are IEEE single and double precision. f16 is IEEE
-half precision (E5M10, bias 15), f8 is E4M3 (bias 7), and f4 holds the
-values ±{0, 0.5, 1, 1.5, 2, 3, ∞, NaN}. Arithmetic on narrow floats is done
-in double precision and rounded back with one round bit (round half up on
-the magnitude), saturating to infinity, flushing to zero below the smallest
-subnormal: the reference model's conversion rules exactly.</p>
-<h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link">&para;</a></h2>
-<p>Instructions are 32 bits. They run in <strong>bundles</strong> of 1, 2, 4 or 8, all
-the instructions of a bundle in parallel:</p>
+ALU results are always 64 bits. Float results are in the type's own
+format, in the register's low bits.</p>
+<h3 id="vectors">Vectors<a class="headerlink" href="#vectors" title="Permanent link">&para;</a></h3>
+<p>A vector packs <code>64 / width</code> elements into one register, with <strong>element
+0 in the most significant bits</strong>. For example, <code>$r1 =
+0x0102030405060708</code>, read as <code>($vi8)</code>, holds the eight elements 1, 2, 3,
+4, 5, 6, 7, 8, in that order. A vector operation works on every element
+at once, which is where the engine's speed on small data types comes
+from: one <code>($vi8)</code> add is eight additions.</p>
+<h3 id="floats">Floats<a class="headerlink" href="#floats" title="Permanent link">&para;</a></h3>
+<p><code>f32</code> and <code>f64</code> are IEEE single and double precision. The narrow formats
+are for low-precision work:</p>
 <ul>
-<li>Every instruction of a bundle reads the registers as they were before
-  the bundle. A bundle that swaps two registers just copies each into the
-  other.</li>
-<li>Memory accesses happen in slot order: a load sees a store of an earlier
-  slot of the same bundle.</li>
-<li>Register writes apply in slot order, but no two instructions of a bundle
-  may write the same register (the assembler checks this).</li>
+<li><strong><code>f16</code></strong> is IEEE half precision (5 exponent bits, 10 mantissa bits,
+  bias 15).</li>
+<li><strong><code>f8</code></strong> has 4 exponent bits and 3 mantissa bits (bias 7).</li>
+<li><strong><code>f4</code></strong> holds just the values ±{0, 0.5, 1, 1.5, 2, 3, ∞, NaN}.</li>
 </ul>
-<p>A bundle that holds a branch, call, return, load, store, divide or square
-root must have <strong>8 slots</strong>; any other bundle has the next power of two
-(1, 2, 4 or 8) at least as large as its instruction count. Unused slots
-hold <code>$null</code>. A bundle's address is a multiple of its size. In an 8-slot
-bundle, a branch/call/return must be in slot 0, a divide or square root in
-slot 1, and loads and stores in slots 4 to 7. The assembler does all of
-this (closing, padding, placing, arranging); the engine checks it.</p>
-<p>Bit 31 of an instruction word is set on the first instruction of each
-bundle; bits [30:26] are the opcode.</p>
+<p>Arithmetic on the narrow formats is done in double precision and rounded
+back to the narrow format with one round bit (round half up on the
+magnitude), saturating to infinity, and flushing to zero below the
+smallest subnormal. These are the reference model's conversion rules,
+exactly.</p>
+<hr />
+<h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link">&para;</a></h2>
+<p>The engine is a VLIW (very long instruction word) machine: instead of
+discovering parallelism in hardware, it executes <strong>bundles</strong> of
+instructions that the program has already grouped to run together. A
+bundle holds 1, 2, 4, or 8 instructions of 32 bits each, all executed in
+the same step:</p>
+<ul>
+<li>Every instruction of a bundle reads the registers <strong>as they were
+  before the bundle</strong>. So a bundle that copies <code>$r1</code> into <code>$r2</code> and
+  <code>$r2</code> into <code>$r1</code> swaps them.</li>
+<li>Memory accesses happen in slot order: a load sees a store of an
+  earlier slot of the same bundle.</li>
+<li>No two instructions of a bundle may write the same register (the
+  assembler checks this).</li>
+</ul>
+<h3 id="sizes-and-slots">Sizes and slots<a class="headerlink" href="#sizes-and-slots" title="Permanent link">&para;</a></h3>
+<p>A bundle's size, and which slot each instruction may occupy, follow the
+hardware's execution lanes:</p>
+<ul>
+<li>A bundle that holds a branch, call, return, load, store, divide, or
+  square root must have <strong>8 slots</strong>. Any other bundle has the smallest
+  power of two (1, 2, 4, or 8) that fits its instructions. Unused slots
+  hold <code>$null</code>.</li>
+<li>A bundle's address is a multiple of its size.</li>
+<li>In an 8-slot bundle, a branch, call, or return must be in <strong>slot 0</strong>, a
+  divide or square root in <strong>slot 1</strong> (the engine has one shared divider),
+  and loads and stores in <strong>slots 4 to 7</strong> (the memory lanes).</li>
+</ul>
+<p>You don't have to arrange any of this by hand. The assembler closes,
+pads, places, and arranges every bundle (see <a href="assembly_and_tools.html#what-the-assembler-does">What the assembler
+does</a>), and the engine
+checks the rules when it runs the bundle (exception 7 if one is broken).</p>
+<p>In the encoded program, bit 31 of an instruction word is set on the
+first instruction of each bundle, which is how the engine finds bundle
+boundaries. Bits [30:26] are the opcode.</p>
+<hr />
 <h2 id="instructions">Instructions<a class="headerlink" href="#instructions" title="Permanent link">&para;</a></h2>
-<p>Syntax in the forms the assembler accepts. <code>$rd</code> is the destination,
-<code>$rs1</code>/<code>$rs2</code> the sources, <code>imm</code> a signed 10-bit immediate (-512 to 511).</p>
+<p>The instructions below are shown in the syntax the assembler accepts.
+<code>$rd</code> is the destination register, <code>$rs1</code> and <code>$rs2</code> the sources, and
+<code>imm</code> a signed 10-bit immediate (-512 to 511).</p>
 <h3 id="arithmetic-and-logic-scalar">Arithmetic and logic (scalar)<a class="headerlink" href="#arithmetic-and-logic-scalar" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">+</span>  <span class="k">$rd</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>       <span class="c1">// also: - * / | &amp; ^ ~| ~&amp; ~^ &lt;&lt; &gt;&gt;</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">+</span>  <span class="k">$rd</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="nl">imm</span>
 </span></code></pre></div>
-<p><code>$rd = $rs1 op $rs2</code> (or <code>imm</code>). <code>~|</code>, <code>~&amp;</code>, <code>~^</code> are NOR, NAND, XNOR. For
-integer types, every operation; a signed <code>&gt;&gt;</code> is arithmetic, shift counts
-use their low 6 bits, and <code>/</code> truncates toward zero (divide by zero is
-exception 1). For float types, only <code>+ - * /</code> (divide by zero is
-exception 2, a NaN result exception 3).</p>
+<p><code>$rd = $rs1 op $rs2</code> (or <code>$rs1 op imm</code>). <code>~|</code>, <code>~&amp;</code>, and <code>~^</code> are NOR,
+NAND, and XNOR.</p>
+<ul>
+<li><strong>Integer types</strong> have every operation. A signed <code>&gt;&gt;</code> is an arithmetic
+  shift, shift counts use their low 6 bits, and <code>/</code> truncates toward
+  zero. Dividing by zero raises exception 1.</li>
+<li><strong>Float types</strong> have only <code>+ - * /</code>. Dividing by zero raises exception
+  2, and a NaN result exception 3.</li>
+</ul>
 <h3 id="vector-arithmetic">Vector arithmetic<a class="headerlink" href="#vector-arithmetic" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">$v</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>                <span class="c1">// also: - *</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">$v</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span> <span class="kp">$replicate</span>     <span class="c1">// $rs2&#39;s low element for every element</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">$v</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span> <span class="kp">$replicate</span>     <span class="c1">// $rs2&#39;s low element, used for every element</span>
 </span></code></pre></div>
-<p>Element by element, results wrapping at the element width.</p>
+<p>Element by element: element <em>i</em> of <code>$rd</code> is element <em>i</em> of <code>$rs1</code> plus
+element <em>i</em> of <code>$rs2</code>. Integer results wrap around at the element width.
+With <code>$replicate</code>, every element of <code>$rs1</code> is combined with the same
+value, <code>$rs2</code>'s lowest element, for example to scale a vector.</p>
 <h3 id="dot-product-and-reduction">Dot product and reduction<a class="headerlink" href="#dot-product-and-reduction" title="Permanent link">&para;</a></h3>
-<div class="language-mcode highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">$dot</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>                <span class="c1">// sum of element products</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">$dot</span> <span class="kp">$accumulate</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>    <span class="c1">// ... plus $rd</span>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">$dot</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>                <span class="c1">// the sum of the element products</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">$dot</span> <span class="kp">$accumulate</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>    <span class="c1">// the same, plus $rd</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">$vreduce</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span>               <span class="c1">// also: * | &amp; ^ ~^</span>
 </span></code></pre></div>
-<p>Integer dot products and reductions give a 64-bit result; float ones an
-f32, accumulated in single precision one element at a time.</p>
+<p><code>$dot</code> multiplies two vectors element by element and adds up the
+products. <code>$vreduce</code> combines all the elements of one vector with one
+operation. Integer dot products and reductions give a 64-bit result.
+Float ones give an <code>f32</code>, accumulated in single precision, one element
+at a time.</p>
 <h3 id="square-root">Square root<a class="headerlink" href="#square-root" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">$fsqrt</span> <span class="k">$rd</span> <span class="p">(</span><span class="kt">$f32</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span>                    <span class="c1">// or ($f64)</span>
 </span></code></pre></div>
+<p>A negative operand raises exception 5.</p>
 <h3 id="casts">Casts<a class="headerlink" href="#casts" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">$cast</span> <span class="p">(</span><span class="nl">dtype</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">stype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs2</span>
 </span></code></pre></div>
-<p>Scalar to scalar, or vector to vector. A scalar cast converts the low bits
-of <code>$rs2</code>: integers are sign- or zero-extended by the source type, then
-truncated to the destination width; integer/float conversions convert the
-value (float to integer truncates toward zero and saturates; NaN gives 0).
-A vector cast converts every element and may change the element width by
-one step: widening writes <code>$rd</code> and <code>$rd+1</code>, narrowing reads <code>$rs2</code> and
-<code>$rs2+1</code>.</p>
+<p>Converts <code>$rs2</code>, of type <code>stype</code>, to type <code>dtype</code>. Both types are
+scalars, or both are vectors.</p>
+<ul>
+<li><strong>A scalar cast</strong> converts the low bits of <code>$rs2</code>. Between integers,
+  the value is sign- or zero-extended by the source type, then truncated
+  to the destination width. Between integers and floats, the value is
+  converted. A float-to-integer conversion truncates toward zero and
+  saturates, and a NaN gives 0.</li>
+<li><strong>A vector cast</strong> converts every element, and may change the element
+  width by one step at most (<code>$vi8</code> to <code>$vi16</code>, for example, but not to
+  <code>$vi32</code>). Widening doubles the data, so it writes two registers, <code>$rd</code>
+  and <code>$rd+1</code>. Narrowing reads two, <code>$rs2</code> and <code>$rs2+1</code>.</li>
+</ul>
 <h3 id="moving-and-arranging-bits">Moving and arranging bits<a class="headerlink" href="#moving-and-arranging-bits" title="Permanent link">&para;</a></h3>
-<div class="language-mcode highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">$set</span>   <span class="k">$rd</span> <span class="nl">index</span> <span class="nl">value</span>          <span class="c1">// $rd = value &lt;&lt; (8*index), value 16 bits, index 0-7</span>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">$set</span>   <span class="k">$rd</span> <span class="nl">index</span> <span class="nl">value</span>          <span class="c1">// $rd = value &lt;&lt; (8*index); value 16 bits, index 0 to 7</span>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">$slice</span> <span class="k">$rd</span> <span class="nl">high</span> <span class="nl">low</span> <span class="err">$</span><span class="nl">rs2</span>        <span class="c1">// $rd = bits [high:low] of $rs2</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">$pack</span>  <span class="nl">P</span> <span class="k">$rd</span> <span class="nl">W</span> <span class="err">$</span><span class="nl">rs2</span>             <span class="c1">// the low W bits of $rs2, $rs2+1, ... packed into P bits</span>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">$cmov</span>  <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="nl">cond</span> <span class="p">[</span><span class="nl">incr</span><span class="p">]</span> <span class="k">$rd</span> <span class="err">$</span><span class="nl">rs2</span>   <span class="c1">// if $rs2 cond 0 then $rd = $rs1</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">$cmov</span>  <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="nl">cond</span> <span class="p">[</span><span class="nl">incr</span><span class="p">]</span> <span class="k">$rd</span> <span class="err">$</span><span class="nl">rs2</span>   <span class="c1">// if $rs2 cond 0, then $rd = $rs1</span>
 </span></code></pre></div>
-<p><code>$pack 64 $r8 16 $r2</code> builds <code>$r8</code> from the low 16 bits of <code>$r2</code> .. <code>$r5</code>,
-<code>$r2</code> in the most significant position; <code>P</code> above 64 writes <code>P/64</code>
-registers. <code>$cmov</code> tests its <strong>last</strong> register (<code>$rs2</code>), and an optional
-increment (<code>++1</code>, <code>--1</code>, <code>--2</code>) is added to <code>$rs2</code> after the test.
-<code>value</code> may be decimal or hexadecimal written <code>_h1234</code>.</p>
-<p>Conditions, for <code>$cmov</code> and branches, compare a value with 0: `==  &gt;  &lt;</p>
-<blockquote>
-<p>=  &lt;=  !=<code>. Signed integers compare as values of the type's width,
-unsigned integers as 64-bit unsigned values, floats by value (a NaN
-satisfies only</code>!=`).</p>
-</blockquote>
+<ul>
+<li><strong><code>$set</code></strong> loads a constant. <code>value</code> may be decimal, or hexadecimal
+  written <code>_h1234</code>.</li>
+<li><strong><code>$pack</code></strong> gathers fields from consecutive registers: <code>$pack 64 $r8 16
+  $r2</code> builds <code>$r8</code> from the low 16 bits of <code>$r2</code>, <code>$r3</code>, <code>$r4</code>, and
+  <code>$r5</code>, with <code>$r2</code>'s field in the most significant position. A <code>P</code>
+  larger than 64 writes <code>P/64</code> registers.</li>
+<li><strong><code>$cmov</code></strong> is a conditional move. It tests its <strong>last</strong> register,
+  <code>$rs2</code>, against 0. An optional increment (<code>++1</code>, <code>--1</code>, <code>--2</code>) is
+  added to <code>$rs2</code> after the test, which makes <code>$cmov</code> useful as a loop
+  step too.</li>
+</ul>
+<p>The conditions, for <code>$cmov</code> and for branches, compare a value with 0:
+<code>==  &gt;  &lt;  &gt;=  &lt;=  !=</code>. Signed integers compare as values of the type's
+width, unsigned integers as 64-bit unsigned values, and floats by value
+(a NaN satisfies only <code>!=</code>).</p>
 <h3 id="loads-and-stores">Loads and stores<a class="headerlink" href="#loads-and-stores" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span><span class="p">]</span>        <span class="k">$st</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span><span class="p">]</span> <span class="k">$rd</span>
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span> <span class="o">++</span><span class="nl">n</span><span class="p">]</span>    <span class="c1">// then $rs2 += n * transfer size (n: -16..15)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span> <span class="o">++</span><span class="nl">n</span><span class="p">]</span>    <span class="c1">// then $rs2 += n * the transfer size (n: -16 to 15)</span>
 </span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="nl">imm</span><span class="p">]</span>
 </span></code></pre></div>
-<p>The address is <code>$rs1 + $rs2</code> (or <code>+ imm</code>), and must be a multiple of the
-transfer size (exception 6). 1-, 2-, 4- and 8-byte transfers move one
-register (signed loads sign-extend); <code>$u128</code> and <code>$u256</code> move 2 and 4
-registers, <code>$rd</code> up. A vector type moves one element.</p>
+<p>The address is <code>$rs1 + $rs2</code> (or <code>$rs1 + imm</code>), and must be a multiple of
+the transfer size (exception 6 otherwise). The <code>++n</code> form also steps
+<code>$rs2</code> on, for walking through an array.</p>
+<ul>
+<li>1-, 2-, 4-, and 8-byte transfers move one register. Signed loads
+  sign-extend.</li>
+<li><code>$u128</code> and <code>$u256</code> move 2 and 4 registers, from <code>$rd</code> upward.</li>
+<li>A vector type moves one element.</li>
+</ul>
 <h3 id="control-transfer">Control transfer<a class="headerlink" href="#control-transfer" title="Permanent link">&para;</a></h3>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">?</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs2</span> <span class="nl">cond</span> <span class="p">[</span><span class="nl">incr</span><span class="p">]</span> <span class="k">$goto</span> <span class="nl">label</span>   <span class="c1">// branch if $rs2 cond 0; then $rs2 += incr</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">$call</span> <span class="nl">label</span>                             <span class="c1">// or $call $rs2: target = this address + $rs2</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">$call</span> <span class="nl">label</span>                             <span class="c1">// or $call $rs2: the target is this address + $rs2</span>
 </span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">$return</span>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">$halt</span>
 </span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">$null</span>
 </span></code></pre></div>
 <p>Branch and call targets are relative to the instruction's own address.
-<code>$call</code> pushes the address of the next bundle on the RAS; <code>$return</code> pops
-it. A branch increment is -2 to 1, and not allowed with a float test type.</p>
+<code>$call</code> pushes the address of the next bundle onto the RAS, and
+<code>$return</code> pops it. A branch's optional increment is -2 to 1, and is not
+allowed with a float test type. Like <code>$cmov</code>'s, it lets one instruction
+both count a loop down and test it.</p>
+<p><code>$halt</code> stops the thread. <code>$null</code> does nothing, and fills the unused
+slots of a bundle.</p>
+<hr />
 <h2 id="encodings">Encodings<a class="headerlink" href="#encodings" title="Permanent link">&para;</a></h2>
-<p>The field layouts, as the reference assembler writes them (bit 31 is the
-bundle start bit, bits [30:26] the opcode):</p>
+<p>The field layouts, as the reference assembler writes them. In every
+instruction word, bit 31 is the bundle start bit and bits [30:26] the
+opcode.</p>
 <table>
 <thead>
 <tr>
@@ -2256,7 +2530,7 @@ bundle start bit, bits [30:26] the opcode):</p>
 <tr>
 <td>VALU</td>
 <td>(ALU)</td>
-<td>vector type, replicate[10]</td>
+<td>as ALU, with a vector type, and replicate[10]</td>
 </tr>
 <tr>
 <td>FSQRT</td>
@@ -2321,10 +2595,10 @@ bundle start bit, bits [30:26] the opcode):</p>
 </tbody>
 </table>
 <p>ALU opcodes: <code>+</code> 0x04, <code>-</code> 0x05, <code>*</code> 0x06, <code>/</code> 0x07, <code>|</code> 0x08, <code>&amp;</code> 0x09,
-<code>^</code> 0x0A, <code>~|</code> 0x0B, <code>~&amp;</code> 0x0C, <code>~^</code> 0x0D, <code>&lt;&lt;</code> 0x0E, <code>&gt;&gt;</code> 0x0F. Type codes:
-<code>$i4</code>..<code>$i64</code> 0x00-0x04, <code>$u4</code>..<code>$u64</code> 0x05-0x09, <code>$f4</code>..<code>$f64</code>
-0x0A-0x0E, <code>$u128</code> 0x0F, <code>$u256</code> 0x10, <code>$vu4</code>..<code>$vu32</code> 0x11-0x14,
-<code>$vf4</code>..<code>$vf32</code> 0x15-0x18, <code>$vi4</code>..<code>$vi32</code> 0x19-0x1C.</p>
+<code>^</code> 0x0A, <code>~|</code> 0x0B, <code>~&amp;</code> 0x0C, <code>~^</code> 0x0D, <code>&lt;&lt;</code> 0x0E, <code>&gt;&gt;</code> 0x0F.</p>
+<p>Type codes: <code>$i4</code>..<code>$i64</code> 0x00-0x04, <code>$u4</code>..<code>$u64</code> 0x05-0x09,
+<code>$f4</code>..<code>$f64</code> 0x0A-0x0E, <code>$u128</code> 0x0F, <code>$u256</code> 0x10, <code>$vu4</code>..<code>$vu32</code>
+0x11-0x14, <code>$vf4</code>..<code>$vf32</code> 0x15-0x18, <code>$vi4</code>..<code>$vi32</code> 0x19-0x1C.</p>
 
 
 

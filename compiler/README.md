@@ -57,9 +57,18 @@ Select it with `CRT0=crt0_interrupts.s compile_c.sh ...`, or a
 `include/` holds header-only bare-metal routines for the peripheral
 devices (`ajit_access_routines.h`, `ajit_mt_irc.h`, `ajit_ipi.h`,
 `device_addresses.h`), with the same names and signatures as AJIT's own
-access routines, plus a minimal `stdint.h` (GCC 4.4.3 does not provide
-one for a freestanding build). `compile_c.sh` puts it on the include
-path. See the C Programs page of the documentation.
+access routines, routines for the APARA engine in the `sparc_apara`
+configuration (`apara_access_routines.h`, in the same style), plus a
+minimal `stdint.h` (GCC 4.4.3 does not provide one for a freestanding
+build). `compile_c.sh` puts it on the include path. See the C Programs
+and "The Engine in a System" pages of the documentation.
+
+## `apara/`
+
+The APARA engine's own tools: the mcode assembler and disassembler, and
+a tool that writes an engine program as a C header, for a SPARC program
+to load into the engine. Plain Python 3, nothing to install. See
+`apara/README.md`.
 
 ## Platform support
 

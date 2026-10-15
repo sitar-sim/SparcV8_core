@@ -1,54 +1,84 @@
 # The APARA Engine
 
 APARA is a compute engine designed to sit next to a SPARC (AJIT)
-processor as an accelerator: a four-threaded VLIW engine with its own
-instruction and data memories, built for small-integer and low-precision
-float vector work (dot products, reductions, element-wise arithmetic on 4-
-to 64-bit elements). The processor loads its programs, starts its threads
-and moves data in and out of it. The engine was designed at IIT Bombay
-(Prof. Madhav Desai); this project models it from its documents and its
-reference model.
+processor as an accelerator. It is built for vector work on small
+integers and low-precision floats (dot products, reductions,
+element-wise arithmetic on 4- to 64-bit elements), the kind of
+computation that is slow on a general-purpose core but very regular. The
+SPARC processor loads the engine's programs, starts its threads, and
+moves data in and out of it, while the engine does the number
+crunching.
 
-The engine's main traits, which these pages explain:
+The engine was designed at IIT Bombay (Prof. Madhav Desai). This
+project models it from its documents and its reference model, in the
+same two ways as the SPARC core: a fast functional model, and a Sitar
+timing model of its pipeline.
 
-- **Bundles.** Up to 8 instructions run in parallel each step, in a
-  thread's program order.
-- **Four hardware threads**, each with 32 64-bit registers, sharing one
-  five-stage pipeline: when one thread waits, the others keep it busy.
-- **Types in every instruction.** One register is a 64-bit integer, or 8
-  `$i8` elements, or 16 `$f4` floats, chosen by each instruction.
-- **Local memories**: 16 KB of instructions and 64 KB of data in two banks.
+---
+
+## The engine at a glance
+
+- **Bundles**  
+    The engine is a VLIW machine. Instead of one instruction at a time,
+    it executes *bundles* of up to 8 instructions, which the program has
+    grouped to run together.
+- **Four hardware threads**  
+    Each thread has its own 32 64-bit registers and its own PC, and the
+    four share one five-stage pipeline. When one thread waits, for a
+    result or a branch, the others keep the pipeline busy.
+- **A type in every instruction**  
+    A register is just 64 bits. Each instruction says how to read it:
+    as one 64-bit integer, as 8 `$i8` elements, as 16 `$f4` floats, and
+    so on. One vector instruction thus does up to 16 operations.
+- **Local memories**  
+    16 KB of instruction memory (IMEM) and 64 KB of data memory (DMEM),
+    in two banks, close to the pipeline and fast. In a system, the
+    engine reaches main memory too, more slowly, and its DMA unit copies
+    data in and out.
+
+---
 
 ## In this project
 
-| Configuration | What it is | Status |
-|---|---|---|
-| `apara` | one engine on its own; programs and data placed in its memories before the run | functional and timing models, tests, tools |
-| `sparc_apara` | a SPARC core (with L1 caches, MMU and peripheral devices) and one engine: the SPARC loads and runs the engine's programs, and the engine's DMA and its own loads and stores reach the system's memory | functional and timing models, C routines, tests |
+Two configurations model the engine:
 
-The pages:
+- **`apara`**  
+    One engine on its own. A program and its data are placed in the
+    engine's memories before the run. This is the place to write and
+    test engine programs, and to study the engine's timing.
+- **`sparc_apara`**  
+    A SPARC core (with L1 caches, MMU, and peripheral devices) and one
+    engine. The SPARC program loads and runs the engine's programs, and
+    both the engine's DMA unit and its own loads and stores reach the
+    system's memory.
 
-- [Instruction Set](isa.md): state, types, bundles, every instruction, encodings.
-- [Assembly Language and Tools](assembly_and_tools.md): mcode, our
-  assembler and disassembler, the file formats.
-- [Writing and Running Programs](running.md): the simulators, the tests.
-- [Timing Model](timing_model.md): the pipeline and its timing rules.
-- [The Engine in a System](system.md): sparc_apara, the control and DMA
-  units, the SPARC-side routines.
-- [Deviations and Findings](deviations.md): where the model differs from
-  the reference model, and the open questions.
+Both come with functional and timing models, tests, and tools.
+
+## Where to start
+
+- **To write and run engine programs**, read the [Instruction
+  Set](isa.md), then [Assembly Language and
+  Tools](assembly_and_tools.md), then [Writing and Running
+  Programs](running.md).
+- **To use the engine from a SPARC program**, read [The Engine in a
+  System](system.md).
+- **To study or change the engine's timing**, read the [Timing
+  Model](timing_model.md).
+- **To see where the model departs from APARA's reference model**, and
+  the open questions in its sources, read [Deviations and
+  Findings](deviations.md).
+
+---
 
 ## The code
 
 | Where | What |
 |---|---|
-| `model/cpp_common_code/apara/` | the engine in plain C++: `AparaCore` (state and execution), `AparaInstruction` (decoding), `AparaOperations` (the arithmetic), `AparaTypes` (number formats), `AparaFiles` and `AparaRun` (files and simulator runs), `AparaTiming` (latency table, BTB, pipeline tokens) |
-| `model/sitar_component_models/Apara*.sitar` | the pipeline: `AparaEngine` and its five stage modules |
-| `model/system_models/apara/` | the configuration: `cpp_model/` (`apara_sim_cpp`) and `sitar_model/` (`apara_sim_sitar`) |
-| `model/cpp_common_code/apara/` (system) | `AparaControlCore` (CCU), `AparaDmaCore` (DMA), `AparaSystemCore` (all three, for the cpp model) |
-| `model/sitar_component_models/AparaHost.sitar`, `SystemInterconnect.sitar` | the engine's host side and the two-master bus, in Sitar |
-| `model/system_models/sparc_apara/` | the configuration |
-| `compiler/include/apara_access_routines.h`, `compiler/apara/apara_obj_to_c.py` | SPARC-side routines; an engine program as a C array |
-| `validation/C/apara/` | the SPARC-side tests |
-| `compiler/apara/` | the assembler, disassembler, their library `mcode.py`, vim syntax |
-| `validation/apara/` | the tests and their runner |
+| `model/cpp_common_code/apara/` | The engine in plain C++, shared by both models: its state and execution (`AparaCore`), instruction decoding and arithmetic, the file formats and command line, and, for `sparc_apara`, the control unit, the DMA unit, and the three joined together for the cpp_model. Also the timing model's latency table and pipeline helpers (`AparaTiming.h`). |
+| `model/sitar_component_models/Apara*.sitar` | The timing model: `AparaEngine` and its five stage modules, and `AparaHost`, the engine's host side in `sparc_apara`. |
+| `model/sitar_component_models/SystemInterconnect.sitar` | `sparc_apara`'s two-master bus. |
+| `model/system_models/apara/`, `model/system_models/sparc_apara/` | The two configurations, each with its `cpp_model/` and `sitar_model/`. |
+| `compiler/apara/` | The assembler, the disassembler, the program-to-C-header tool, and vim syntax highlighting. |
+| `compiler/include/apara_access_routines.h` | The SPARC-side C routines. |
+| `validation/apara/` | The engine's own tests, and their runner. |
+| `validation/C/apara/` | The SPARC-side tests. |

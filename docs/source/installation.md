@@ -209,8 +209,8 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`pip install` also pulls in the two vendored Pygments lexers used for
-Sitar and SPARC assembly syntax highlighting.
+`pip install` also pulls in the three vendored Pygments lexers used for
+Sitar, SPARC assembly, and APARA mcode syntax highlighting.
 
 With the venv active, still from `docs/`, rebuild the site:
 

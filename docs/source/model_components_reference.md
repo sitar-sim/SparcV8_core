@@ -15,16 +15,18 @@ its one-line description here.
 
 There is one table per configuration, listed top-down: the root module
 first, then its children in the order each parent instantiates them,
-depth-first. A design unit shared by both configurations (everything
-under `sitar_component_models/`) appears in both tables, once per
-configuration that uses it.
+depth-first. A design unit shared by several configurations
+(everything under `sitar_component_models/`) appears in the table of
+each configuration that uses it. From `core_mmu_devices` on, each table
+lists only what differs from the configuration it builds on.
 
 - **Scope**  
     `common` means the file lives in `model/sitar_component_models/` and
     is translated into every configuration's build, whether or not that
     configuration actually instantiates it. See that folder's own
-    build-script comment. `core_only`/`core_mmu` means the file lives
-    under that configuration's own `system_models/<config>/sitar_model/src/`.
+    build-script comment. A configuration's name (`core_only`,
+    `core_mmu`, ...) means the file lives under that configuration's own
+    `system_models/<config>/sitar_model/src/`.
 
 - **Parent**  
     Names what instantiates this row within the current table's
@@ -55,8 +57,7 @@ configuration that uses it.
 | **PushAToken** (procedure) | [`PushAToken.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar) | common | None | `PhysicalMainMemoryInterface` (1 instance: `sendPhyMemRequest`) and `PhysicalMainMemory` (1 instance: `sendResponse`) | Generic single-token producer, parameterized by width. Retry-pushes one token onto an outport until there's room. |
 | **PhysicalMainMemory** (module) | [`PhysicalMainMemory.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar) | common | [`MainMemory`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/MainMemory.h) | `System` (1 instance: `mainMemory`) | Persistent PM-shaped memory model wrapping `MainMemory`. `core_mmu`'s terminal memory node, below the MMU, reached over nets rather than a procedure handshake. |
 
-
-### core_mmu_devices
+## core_mmu_devices
 
 Every `core_mmu` design unit above appears here too, except that this
 configuration's own `System` and `Core` replace `core_mmu`'s, and three
@@ -69,7 +70,7 @@ more join them.
 | **SystemBridge** (module) | [`SystemBridge.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `bridge`) | The physical bus below the MMU. Routes each request to main memory or to the devices by address, one transaction at a time. |
 | **PeripheralDevices** (module) | [`PeripheralDevices.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar) | common | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | `System` (1 instance: `devices`) | The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core. |
 
-### core_l1cache_mmu_devices
+## core_l1cache_mmu_devices
 
 Every `core_mmu_devices` design unit appears here too, except that this
 configuration's own `System` and `Core` replace those, and one more
@@ -81,12 +82,41 @@ joins them.
 | **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar) | core_l1cache_mmu_devices | None | `System` (1 instance: `core`) | `core_mmu_devices`' `Core`, with `caches` between `sparcThread` and `mmu`. |
 | **L1Caches** (procedure) | [`L1Caches.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar) | common | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | `Core` (1 instance: `caches`) | The split L1 caches. Serves `sparcThread`'s accesses, reaches `mmu` only on a miss or a forwarded access. |
 
+## apara
+
+The standalone engine: none of the SPARC design units above take part.
+
+| Design unit | File | Scope | Embedded C++ class | Parent | Description |
+|---|---|---|---|---|---|
+| **Top** (module) | [`Top.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/apara/sitar_model/src/Top.sitar) | apara | None | None (root) | The root module for the `apara` build. Instantiates one `AparaEngine`, stops the simulation once every started thread has stopped, and holds the engine's timing knobs. |
+| **AparaEngine** (module) | [`AparaEngine.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar) | common | None | `Top` (1 instance: `engine`) | The engine's five-stage pipeline: one module per stage, joined by nets with the hardware's channel depths. |
+| **AparaFetch** (module) | [`AparaFetch.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaFetch.sitar) | common | [`AparaTiming.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaTiming.h) (`BranchTargetBuffer`) | `AparaEngine` (1 instance: `fetch`) | The FETCH stage. Keeps each thread's fetch PC and the branch target buffer, picks a thread round robin, and sends the bundles of its IMEM line to DECODE, one per cycle, each with a predicted next PC. |
+| **AparaDecode** (module) | [`AparaDecode.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaDecode.sitar) | common | None | `AparaEngine` (1 instance: `decode`) | The DECODE stage. Finds a bundle's registers, latency, and divider use, and passes it on its thread's channel to REGFILE. |
+| **AparaRegfile** (module) | [`AparaRegfile.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaRegfile.sitar) | common | None | `AparaEngine` (1 instance: `regfile`) | The REGFILE stage. Holds one bundle per thread, issues one per cycle whose registers are unlocked while a token is free, and releases locks and tokens as results come back from EXEC. |
+| **AparaExec** (module) | [`AparaExec.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaExec.sitar) | common | [`AparaCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaCore.h) | `AparaEngine` (1 instance: `exec`) | The EXEC stage, and the owner of the engine's functional state. Executes each bundle and holds it for its latency. In a system, also serves the host side's requests and sends the engine's loads and stores that leave its data memory. |
+| **AparaWriteback** (module) | [`AparaWriteback.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaWriteback.sitar) | common | None | `AparaEngine` (1 instance: `writeback`) | The WRITEBACK stage. Sends FETCH a PC correction for a mispredicted bundle, and a notice when a thread stops. |
+
+## sparc_apara
+
+Every `core_l1cache_mmu_devices` design unit appears here too, except
+that this configuration's own `System` and `Core` replace those, and
+`SystemInterconnect` replaces `SystemBridge`. The engine's design units
+are those of `apara` above (except its `Top`), plus `AparaHost`.
+
+| Design unit | File | Scope | Embedded C++ class | Parent | Description |
+|---|---|---|---|---|---|
+| **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar) | sparc_apara | None | `Top` | Assembles `Core`, `SystemInterconnect`, `PhysicalMainMemory`, `PeripheralDevices`, `AparaEngine`, and `AparaHost`. Owns the consolidated latency-knob block for this configuration, the engine's knobs included. |
+| **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Core.sitar) | sparc_apara | None | `System` (1 instance: `core`) | The same as `core_l1cache_mmu_devices`' `Core`. |
+| **SystemInterconnect** (module) | [`SystemInterconnect.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `interconnect`) | The physical bus with two masters, the core and the engine's host side, taken round robin. Routes each request to main memory, the devices, or the engine's windows, one transaction at a time. |
+| **AparaEngine** (module) | [`AparaEngine.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar) | common | None | `System` (1 instance: `engine`) | As in `apara`. |
+| **AparaHost** (module) | [`AparaHost.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar) | common | [`AparaControlCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaControlCore.h), [`AparaDmaCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaDmaCore.h) | `System` (1 instance: `host`) | The engine's host side: its control unit and DMA unit. Serves the SPARC's accesses to the engine's three windows, carries out their commands through `engine.exec`, and sends DMA transfers and the engine's outside loads and stores onto the bus as its second master. Drives the engine's interrupt. |
+
 ## Notes
 
 - **Module vs. procedure**  
-    `Top`, `System`, `Core`, `PhysicalMainMemory`, `SystemBridge`, and
-    `PeripheralDevices` are `module`s.
-    Every other row above is a `procedure`. See the sibling `sitar`
+    `Top`, `System`, `Core`, `PhysicalMainMemory`, `SystemBridge`,
+    `SystemInterconnect`, `PeripheralDevices`, and every `Apara*` design
+    unit are `module`s. Every other row above is a `procedure`. See the sibling `sitar`
     repo's own documentation for the general module/procedure
     distinction, and `System.sitar`'s own header comment for how it
     plays out in `core_mmu` specifically.
@@ -94,6 +124,9 @@ joins them.
 - **Reading "None" in the C++ class column**  
     This applies to every request/response-only or token-only procedure
     (`VirtualMainMemoryInterface`, `PhysicalMainMemoryInterface`,
-    `PullAToken`, `PushAToken`) and to the three purely structural
-    modules (`Top`, `System`, `Core`). None of these hold a
-    functional-model class instance themselves.
+    `PullAToken`, `PushAToken`), to the three purely structural
+    modules (`Top`, `System`, `Core`), to the buses (`SystemBridge`,
+    `SystemInterconnect`), and to the APARA pipeline stages that only
+    move bundles (`AparaEngine`, `AparaDecode`, `AparaRegfile`,
+    `AparaWriteback`). None of these hold a functional-model class
+    instance themselves.

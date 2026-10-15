@@ -1334,6 +1334,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#an-offload-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An offload, step by step
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#carrying-the-engines-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Carrying the engine's program
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#address-map" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1341,6 +1391,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Address map">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-engines-own-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine's own view
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1371,17 +1438,6 @@
     <span class="md-ellipsis">
       
         Interrupts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
       
     </span>
   </a>
@@ -1716,6 +1772,56 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#an-offload-step-by-step" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        An offload, step by step
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#software" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Software
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Software">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#carrying-the-engines-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Carrying the engine's program
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#address-map" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1723,6 +1829,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Address map">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#the-engines-own-view" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine's own view
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1753,17 +1876,6 @@
     <span class="md-ellipsis">
       
         Interrupts
-      
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#software" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Software
       
     </span>
   </a>
@@ -1815,15 +1927,176 @@
 <h1 id="the-apara-engine-in-a-system-sparc_apara">The APARA Engine in a System (sparc_apara)<a class="headerlink" href="#the-apara-engine-in-a-system-sparc_apara" title="Permanent link">&para;</a></h1>
 <p>The <code>sparc_apara</code> configuration puts one APARA engine next to the SPARC
 core of <code>core_l1cache_mmu_devices</code> (with its L1 caches, MMU, and
-peripheral devices), as the APARA hardware attaches to an AJIT
-processor: the SPARC loads the engine's program, starts its threads and
-learns when they stop, and moves data in and out, all through memory-
-mapped registers; the engine can also read and write the system's
-memory itself.</p>
+peripheral devices), the way the APARA hardware attaches to an AJIT
+processor. A SPARC program uses the engine as an accelerator:</p>
+<ol>
+<li>It <strong>loads the engine's program</strong> into the engine's instruction
+   memory (IMEM).</li>
+<li>It <strong>moves the input data</strong> into the engine's data memory (DMEM),
+   either by writing it directly or by asking the engine's DMA unit to
+   copy it from main memory.</li>
+<li>It <strong>starts one or more engine threads</strong>, and sets their registers
+   first if they need arguments.</li>
+<li>It <strong>learns when the threads have stopped</strong>, by polling or by an
+   interrupt, and how (a <code>$halt</code>, or an exception).</li>
+<li>It <strong>moves the results back</strong>, the same two ways.</li>
+</ol>
+<p>All of this goes through memory-mapped registers: the engine's
+<strong>control unit</strong> (CCU), which carries out commands for each thread, and
+its <strong>DMA unit</strong>, which copies data between main memory and DMEM. The
+engine can also read and write main memory itself, with its ordinary
+loads and stores.</p>
+<p>This page describes the SPARC program's side: the C routines first,
+then the address map and registers they use, then how the two models
+implement it.</p>
+<hr />
+<h2 id="an-offload-step-by-step">An offload, step by step<a class="headerlink" href="#an-offload-step-by-step" title="Permanent link">&para;</a></h2>
+<p>The test <code>validation/C/apara/dma_dot_product/</code> offloads a dot product of
+two 32-element <code>int8_t</code> vectors to the engine. The engine's program,
+<code>kernel.mcode</code>, loads both vectors from DMEM, computes four 8-element
+dot products in one bundle, adds them up, and stores the 64-bit result
+back in DMEM:</p>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// The dot product of two 32-element $i8 vectors in DMEM (at $r9 and</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">// $r10), stored as a 64-bit word at $r9 + 504. ($r9: DMEM&#39;s window</span>
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="c1">// address.)</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="nl">start</span><span class="p">:</span>
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a>    <span class="kp">||</span>
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>        <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r1</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span>   <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r2</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span>
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a>        <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r3</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">16</span><span class="p">]</span>  <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r4</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">24</span><span class="p">]</span>
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>    <span class="kp">;</span>
+</span><span id="__span-0-9"><a id="__codelineno-0-9" name="__codelineno-0-9" href="#__codelineno-0-9"></a>    <span class="kp">||</span>
+</span><span id="__span-0-10"><a id="__codelineno-0-10" name="__codelineno-0-10" href="#__codelineno-0-10"></a>        <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r5</span> <span class="p">[</span><span class="nv">$r10</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span>   <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r6</span> <span class="p">[</span><span class="nv">$r10</span> <span class="o">+</span> <span class="mi">8</span><span class="p">]</span>
+</span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>        <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r7</span> <span class="p">[</span><span class="nv">$r10</span> <span class="o">+</span> <span class="mi">16</span><span class="p">]</span>  <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r8</span> <span class="p">[</span><span class="nv">$r10</span> <span class="o">+</span> <span class="mi">24</span><span class="p">]</span>
+</span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="kp">;</span>
+</span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    <span class="kp">||</span>
+</span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>        <span class="k">$dot</span> <span class="nv">$r20</span> <span class="p">(</span><span class="kt">$vi8</span><span class="p">)</span> <span class="nv">$r1</span> <span class="nv">$r5</span>   <span class="k">$dot</span> <span class="nv">$r21</span> <span class="p">(</span><span class="kt">$vi8</span><span class="p">)</span> <span class="nv">$r2</span> <span class="nv">$r6</span>
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>        <span class="k">$dot</span> <span class="nv">$r22</span> <span class="p">(</span><span class="kt">$vi8</span><span class="p">)</span> <span class="nv">$r3</span> <span class="nv">$r7</span>   <span class="k">$dot</span> <span class="nv">$r23</span> <span class="p">(</span><span class="kt">$vi8</span><span class="p">)</span> <span class="nv">$r4</span> <span class="nv">$r8</span>
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    <span class="kp">;</span>
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r24</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r20</span> <span class="nv">$r21</span>   <span class="o">+</span> <span class="nv">$r25</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r22</span> <span class="nv">$r23</span> <span class="kp">;</span>
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r26</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r24</span> <span class="nv">$r25</span> <span class="kp">;</span>
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    <span class="kp">||</span> <span class="k">$st</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">504</span><span class="p">]</span> <span class="nv">$r26</span> <span class="kp">;</span>
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
+</span></code></pre></div>
+<p>The SPARC program's side, from <code>dma_dot_product.c</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;kernel.mcode.h&quot;</span><span class="c1">   // kernel_program[], KERNEL_PROGRAM_WORDS, KERNEL_START</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="n">apara_load_program</span><span class="p">(</span><span class="n">kernel_program</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_PROGRAM_WORDS</span><span class="p">);</span><span class="w">             </span><span class="c1">// 1. the program</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="n">apara_dma_start</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMA_LOAD</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">      </span><span class="c1">// 2. a -&gt; DMEM 0</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="n">apara_dma_start</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMA_LOAD</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">//    b -&gt; DMEM 256</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="n">apara_dma_wait</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">apara_dma_wait</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">apara_write_thread_register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMEM_BASE</span><span class="p">);</span><span class="w">                  </span><span class="c1">// 3. arguments,</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">apara_write_thread_register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMEM_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">256</span><span class="p">);</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">apara_start_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_START</span><span class="p">);</span><span class="w">                                  </span><span class="c1">//    and start</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="n">apara_wait_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                                                 </span><span class="c1">// 4. wait</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="n">apara_dma_store</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">504</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span><span class="w">                       </span><span class="c1">// 5. DMEM 504 -&gt; result</span>
+</span></code></pre></div>
+<p>Two DMA channels copy the two vectors at the same time. The engine's
+thread 0 gets the two vectors' DMEM addresses in <code>$r9</code> and <code>$r10</code>, and
+runs from the label <code>start</code>. The SPARC program then waits for the
+thread to stop, and copies the result back to main memory with a third
+DMA channel.</p>
+<hr />
+<h2 id="software">Software<a class="headerlink" href="#software" title="Permanent link">&para;</a></h2>
+<h3 id="the-routines">The routines<a class="headerlink" href="#the-routines" title="Permanent link">&para;</a></h3>
+<p><code>compiler/include/apara_access_routines.h</code> has C routines for all of
+the steps above, in the style of AJIT's own access routines (AJIT
+itself has no engine routines, so these are this project's design).
+Every routine uses MMU-bypass accesses, so it works whether or not the
+MMU is enabled, and never goes through the caches.</p>
+<table>
+<thead>
+<tr>
+<th>Routine</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apara_load_program(words, n)</code></td>
+<td>Write words 0 to n-1 of IMEM.</td>
+</tr>
+<tr>
+<td><code>apara_write_imem(i, w)</code>, <code>apara_read_imem(i)</code></td>
+<td>One IMEM word.</td>
+</tr>
+<tr>
+<td><code>apara_write_thread_register(t, r, v)</code>, <code>apara_read_thread_register(t, r)</code></td>
+<td>A thread's 64-bit register.</td>
+</tr>
+<tr>
+<td><code>apara_start_thread(t, pc)</code></td>
+<td>Start thread <code>t</code> at <code>pc</code> (a label's address, from the program's header).</td>
+</tr>
+<tr>
+<td><code>apara_reset_thread(t)</code></td>
+<td>Stop thread <code>t</code>, and clear its PC, return-address stack, and ERROR. Its registers are kept.</td>
+</tr>
+<tr>
+<td><code>apara_poll_thread(t)</code></td>
+<td>The thread's completion word: 0 while it is running, or valid plus its ERROR once it has stopped. Each stop is reported once.</td>
+</tr>
+<tr>
+<td><code>apara_wait_thread(t)</code></td>
+<td>Poll until the thread stops, and return its completion word.</td>
+</tr>
+<tr>
+<td><code>apara_thread_stop_pc(t)</code></td>
+<td>Where the thread stopped.</td>
+</tr>
+<tr>
+<td><code>apara_request_completion_interrupt(t)</code>, <code>apara_thread_completion(t)</code>, <code>apara_clear_interrupt(t)</code></td>
+<td>Learn of the stop by interrupt instead, see <a href="#interrupts">Interrupts</a>.</td>
+</tr>
+<tr>
+<td><code>apara_dma_start(c, op, src, dst, bursts, gap, bytes_per_burst, irq)</code></td>
+<td>Start DMA channel <code>c</code>, see <a href="#the-dma-unit">The DMA unit</a>.</td>
+</tr>
+<tr>
+<td><code>apara_dma_done(c)</code>, <code>apara_dma_wait(c)</code></td>
+<td>Whether channel <code>c</code> has finished, and waiting for it.</td>
+</tr>
+<tr>
+<td><code>apara_dma_load(c, dmem, src, n)</code>, <code>apara_dma_store(c, dst, dmem, n)</code></td>
+<td>One contiguous copy of <code>n</code> bytes into or out of DMEM, waiting for it.</td>
+</tr>
+<tr>
+<td><code>apara_dma_clear_interrupt(c)</code></td>
+<td>Clear channel <code>c</code>'s interrupt.</td>
+</tr>
+<tr>
+<td><code>apara_dmem_write_word(o, v)</code>, <code>apara_dmem_read_word(o)</code></td>
+<td>A 32-bit word of DMEM, at byte offset <code>o</code>, directly.</td>
+</tr>
+<tr>
+<td><code>apara_read_timer()</code></td>
+<td>The engine's cycle counter.</td>
+</tr>
+</tbody>
+</table>
+<p>The completion word's bits have names: <code>APARA_COMPLETION_VALID</code>,
+<code>APARA_ERROR_HALT</code>, <code>APARA_ERROR_EXCEPTION</code>, <code>APARA_ERROR_RAS</code>, and
+<code>APARA_ERROR_CODE(word, slot)</code> for a slot's exception code. A thread
+that ended with <code>$halt</code> reports <code>APARA_COMPLETION_VALID |
+APARA_ERROR_HALT</code>.</p>
+<h3 id="carrying-the-engines-program">Carrying the engine's program<a class="headerlink" href="#carrying-the-engines-program" title="Permanent link">&para;</a></h3>
+<p>An engine program travels inside the SPARC program as a C array.
+<code>compiler/apara/apara_obj_to_c.py</code> assembles it and writes a header:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>compiler/apara/apara_obj_to_c.py<span class="w"> </span>kernel.mcode<span class="w">       </span><span class="c1"># writes kernel.mcode.h</span>
+</span></code></pre></div>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">kernel_program</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span><span class="w">   </span><span class="c1">// IMEM words 0, 1, ...</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="cp">#define KERNEL_PROGRAM_WORDS 33</span>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="cp">#define KERNEL_START 0x0                             </span><span class="c1">// each label&#39;s address</span>
+</span></code></pre></div>
+<p>The names come from the file name (<code>--name</code> chooses another). A test in
+the validation suite names its engine programs in its <code>.vprj</code>, with an
+<code>MCODE = kernel.mcode</code> line, and <code>validation/build_hex.py</code> writes the
+headers before compiling (see <a href="../validation_suite.html#the-vprj-expected-results-format">Validation
+Suite</a>).</p>
+<hr />
 <h2 id="address-map">Address map<a class="headerlink" href="#address-map" title="Permanent link">&para;</a></h2>
-<p>The system's physical addresses follow the AJIT_APARA layout (Ref
-<code>model/cpp_common_code/SystemAddressMap.h</code>), with the APARA parameter
-template's addresses for engine 0 of cluster 0:</p>
+<p>The system's physical addresses follow the AJIT_APARA layout, with the
+addresses APARA's parameter template gives engine 0 of cluster 0:</p>
 <table>
 <thead>
 <tr>
@@ -1834,42 +2107,48 @@ template's addresses for engine 0 of cluster 0:</p>
 <tbody>
 <tr>
 <td><code>0x0000_0000</code> ..</td>
-<td>main memory (256 MB), except:</td>
+<td>Main memory (256 MB), except:</td>
 </tr>
 <tr>
 <td><code>0x0100_0000</code> .. <code>0x0100_FFFF</code></td>
-<td>the engine's DMEM, 64 KB</td>
+<td>The engine's DMEM, 64 KB.</td>
 </tr>
 <tr>
 <td><code>0xFFFE_0000</code> .. <code>0xFFFE_007F</code></td>
-<td>the engine's control unit (CCU) registers</td>
+<td>The engine's control unit (CCU) registers.</td>
 </tr>
 <tr>
 <td><code>0xFFFE_2000</code> .. <code>0xFFFE_207F</code></td>
-<td>the engine's DMA registers</td>
+<td>The engine's DMA registers.</td>
 </tr>
 <tr>
 <td><code>0xFFFF_0000</code> .. <code>0xFFFF_FFFF</code></td>
-<td>the peripheral devices</td>
+<td>The peripheral devices.</td>
 </tr>
 </tbody>
 </table>
-<p>Only main memory is ever cached; the engine's windows never are. A SPARC
-program should reach them with MMU-bypass accesses (ASI 0x20), as the
-routines below do. A program's own code and data must stay clear of the
-DMEM window.</p>
-<p>Inside the engine, an address in its own DMEM window is local; <strong>every
-other address goes off island</strong>, to the system (the hardware's rule).
-So an engine program in a system addresses its DMEM by the window's
-address, usually through a register the host sets:</p>
-<div class="language-mcode highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// $r9 = 0x01000000 (set by the SPARC): DMEM byte 0x100 is $r9 + 256.</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>    <span class="kp">||</span> <span class="k">$st</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">256</span><span class="p">]</span> <span class="nv">$r3</span> <span class="kp">;</span>
+<p>Only main memory is ever cached, the engine's windows never are. A SPARC
+program should reach them with MMU-bypass accesses (ASI <code>0x20</code>), as the
+routines above do. A program's own code and data must stay clear of the
+DMEM window, which lies inside main memory's range.</p>
+<h3 id="the-engines-own-view">The engine's own view<a class="headerlink" href="#the-engines-own-view" title="Permanent link">&para;</a></h3>
+<p>Inside the engine, an address in its own DMEM window is local, and
+every other address goes <strong>off island</strong>, out to the system, as in the
+hardware. So in a system, an engine program addresses its DMEM by the
+window's address. Usually the SPARC program passes that address in a
+register, as <code>dma_dot_product</code> does in <code>$r9</code>:</p>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// $r9 = 0x01000000 (set by the SPARC): DMEM byte 0x100 is $r9 + 256.</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>    <span class="kp">||</span> <span class="k">$st</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="p">[</span><span class="nv">$r9</span> <span class="o">+</span> <span class="mi">256</span><span class="p">]</span> <span class="nv">$r3</span> <span class="kp">;</span>
 </span></code></pre></div>
-<p>(The standalone <code>apara</code> configuration instead aliases every address into
-DMEM, as the APARA reference model does.)</p>
+<p>An engine load or store to any other address reaches main memory (or a
+device) through the system bus, which takes much longer than a DMEM
+access. The standalone <code>apara</code> configuration instead aliases every
+address into DMEM, as the APARA reference model does.</p>
+<hr />
 <h2 id="the-control-unit">The control unit<a class="headerlink" href="#the-control-unit" title="Permanent link">&para;</a></h2>
-<p>Each thread has 8 32-bit registers at <code>0xFFFE_0000 + 32*thread +
-4*register</code>:</p>
+<p>The control unit has a block of 8 32-bit registers for each of the
+engine's four threads, at <code>0xFFFE_0000 + 32*thread + 4*register</code>.
+Commands for a thread go through its block.</p>
 <table>
 <thead>
 <tr>
@@ -1880,7 +2159,7 @@ DMEM, as the APARA reference model does.)</p>
 <tbody>
 <tr>
 <td>R0</td>
-<td>control: [31:16] sequence number, [15:14] thread (for command 9), [11:8] command, flags [4] run the command interpreter, [3] interrupt enable, [2] completed, [1] started, [0] start</td>
+<td>Control: [31:16] sequence number, [15:14] a thread number (for command 9), [11:8] the command, and the flags [4] run the command interpreter, [3] interrupt enable, [2] completed, [1] started, [0] start. (Bits [7:5], "init done" and "cpu mode" in the hardware, are kept but have no effect in the model.)</td>
 </tr>
 <tr>
 <td>R1</td>
@@ -1888,33 +2167,36 @@ DMEM, as the APARA reference model does.)</p>
 </tr>
 <tr>
 <td>R2</td>
-<td>IMEM index / register index</td>
+<td>IMEM index, or register number</td>
 </tr>
 <tr>
 <td>R3</td>
-<td>IMEM write data / timer high</td>
+<td>IMEM write data, or timer high</td>
 </tr>
 <tr>
 <td>R4</td>
-<td>IMEM read data / timer low</td>
+<td>IMEM read data, or timer low</td>
 </tr>
 <tr>
 <td>R5</td>
-<td>completion: [31] valid, [26] RAS error, [25] halt, [24] exception, [23:0] exception codes</td>
+<td>Completion: [31] valid, [26] RAS error, [25] halt, [24] exception, [23:0] exception codes</td>
 </tr>
 <tr>
 <td>R6</td>
-<td>register high / stop PC / RAS depth</td>
+<td>Register high, or stop PC, or RAS depth</td>
 </tr>
 <tr>
 <td>R7</td>
-<td>register low / next PC / RAS top</td>
+<td>Register low, or next PC, or RAS top</td>
 </tr>
 </tbody>
 </table>
-<p>The host writes the arguments, then R0 with a command, <code>start</code> and <code>run
-the command interpreter</code>; the unit sets <code>started</code>, carries the command
-out, writes its results, and sets <code>completed</code>.</p>
+<p>To give a command, the host writes its arguments into R1 to R7, then
+writes R0 with the command and the flags <em>start</em> and <em>run the command
+interpreter</em>. The unit sets <em>started</em>, carries the command out, writes
+its results into the registers, and sets <em>completed</em>. The host polls
+R0 for <em>completed</em> before reading the results or giving the next
+command.</p>
 <table>
 <thead>
 <tr>
@@ -1929,15 +2211,15 @@ out, writes its results, and sets <code>completed</code>.</p>
 </tr>
 <tr>
 <td>2 write IMEM</td>
-<td>IMEM[R2] := R3 (IMEM is shared by the threads)</td>
+<td>IMEM[R2] := R3. IMEM is shared by the threads, so any thread's block will do.</td>
 </tr>
 <tr>
 <td>3 reset</td>
-<td>stop the thread: PC 0, RAS and ERROR cleared, registers kept</td>
+<td>Stop the thread: PC 0, RAS and ERROR cleared, registers kept.</td>
 </tr>
 <tr>
 <td>4 run</td>
-<td>start the thread at R1</td>
+<td>Start the thread at R1.</td>
 </tr>
 <tr>
 <td>5 read register</td>
@@ -1949,25 +2231,28 @@ out, writes its results, and sets <code>completed</code>.</p>
 </tr>
 <tr>
 <td>7 completion</td>
-<td>once the thread has stopped: R5 := valid + its ERROR, R6 := its PC (each stop reported once); else R5 := 0. With interrupt enable, the command waits for the stop and then raises the engine interrupt</td>
+<td>Once the thread has stopped: R5 := valid plus its ERROR, and R6 := its PC (each stop is reported once). Before that, R5 := 0. With <em>interrupt enable</em> set, the command instead waits for the stop, and then raises the engine interrupt.</td>
 </tr>
 <tr>
 <td>8 step</td>
-<td>run one bundle at R1, with local data only; R7 := the next PC</td>
+<td>Run one bundle at R1, with local data only. R7 := the next PC.</td>
 </tr>
 <tr>
 <td>9 RAS state</td>
-<td>R6 := depth, R7 := top of thread R0[15:14]'s RAS</td>
+<td>R6 := depth, R7 := top of the RAS of the thread named in R0[15:14].</td>
 </tr>
 <tr>
 <td>10 timer</td>
-<td>R3:R4 := the engine's cycle count</td>
+<td>R3:R4 := the engine's cycle count.</td>
 </tr>
 </tbody>
 </table>
-<p>Writing R0 with interrupt enable clear clears the interrupt.</p>
+<p>Writing R0 with <em>interrupt enable</em> clear clears the interrupt.</p>
+<hr />
 <h2 id="the-dma-unit">The DMA unit<a class="headerlink" href="#the-dma-unit" title="Permanent link">&para;</a></h2>
-<p>Four channels of 8 registers at <code>0xFFFE_2000 + 32*channel + 4*register</code>:</p>
+<p>The DMA unit copies data between main memory and DMEM, while the SPARC
+and the engine both go on working. It has four independent channels,
+each with 8 registers at <code>0xFFFE_2000 + 32*channel + 4*register</code>:</p>
 <table>
 <thead>
 <tr>
@@ -1978,132 +2263,100 @@ out, writes its results, and sets <code>completed</code>.</p>
 <tbody>
 <tr>
 <td>R0</td>
-<td>control: [31:24] operation (1 load: system memory to DMEM; 2 store: DMEM to system memory), [23:20] and [19:16] the top 4 bits of the 36-bit source and destination, [15:8] sequence number, flags [4] error, [3] interrupt enable, [2] completed, [1] started, [0] scheduled</td>
+<td>Control: [31:24] operation (1 load: main memory to DMEM, 2 store: DMEM to main memory), [23:20] and [19:16] the top 4 bits of the 36-bit source and destination addresses, [15:8] sequence number, and the flags [4] error, [3] interrupt enable, [2] completed, [1] started, [0] scheduled.</td>
 </tr>
 <tr>
 <td>R1, R2</td>
-<td>source and destination base addresses</td>
+<td>Source and destination base addresses.</td>
 </tr>
 <tr>
 <td>R3</td>
-<td>total bytes (for the record)</td>
+<td>Total bytes (for the record only).</td>
 </tr>
 <tr>
 <td>R4</td>
-<td>number of bursts</td>
+<td>Number of bursts.</td>
 </tr>
 <tr>
 <td>R5</td>
-<td>gap: the distance between bursts</td>
+<td>Gap: the distance between bursts.</td>
 </tr>
 <tr>
 <td>R6</td>
-<td>bytes per burst; the stop cycle, once completed</td>
+<td>Bytes per burst. Once completed: the stop cycle.</td>
 </tr>
 <tr>
 <td>R7</td>
-<td>the start cycle</td>
+<td>The start cycle.</td>
 </tr>
 </tbody>
 </table>
-<p>Writing R0 with <code>scheduled</code> starts the channel. A load <strong>gathers</strong>: burst
-<em>i</em> comes from source + <em>i</em>·gap and lands at destination + <em>i</em>·(bytes per
-burst); a store <strong>scatters</strong>, the reverse. The DMEM side's address may be
-a DMEM offset or a window address. On completion: <code>completed</code>, and the
-interrupt if enabled; writing R0 with interrupt enable clear clears it.
-An unknown operation completes at once with <code>error</code>.</p>
+<p>The host writes R1 to R6, then writes R0 with the operation and
+<em>scheduled</em>, which starts the channel. A copy is a number of <strong>bursts</strong>,
+so one command can also collect or spread out strided data:</p>
+<ul>
+<li>A <strong>load gathers</strong>: burst <em>i</em> comes from source + <em>i</em>·gap, and lands
+  at destination + <em>i</em>·(bytes per burst), so the bursts end up packed
+  together in DMEM.</li>
+<li>A <strong>store scatters</strong>, the reverse: packed in DMEM, spread out in main
+  memory.</li>
+</ul>
+<p>For one contiguous copy, use a single burst. The DMEM-side address may
+be a DMEM byte offset or a window address. When the copy is done, the
+channel sets <em>completed</em>, and raises the engine interrupt if <em>interrupt
+enable</em> was set. Writing R0 with <em>interrupt enable</em> clear clears it. An
+unknown operation completes at once, with <em>error</em> set.</p>
+<hr />
 <h2 id="interrupts">Interrupts<a class="headerlink" href="#interrupts" title="Permanent link">&para;</a></h2>
-<p>The engine's interrupt (its control unit's or its DMA unit's) drives the
-Interrupt Controller's external input, IRL 14. A handler for it, with
-the AJIT dispatch scheme of <code>compiler/include/ajit_mt_irc.h</code>:</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">engine_handler</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="p">{</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">    </span><span class="n">completion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apara_thread_completion</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="w">    </span><span class="n">apara_clear_interrupt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="p">}</span>
-</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="p">...</span>
-</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">EXTERNAL_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">engine_handler</span><span class="p">);</span>
-</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">EXTERNAL_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span>
-</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="n">apara_start_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_START</span><span class="p">);</span>
-</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="n">apara_request_completion_interrupt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+<p>Both units can interrupt the SPARC when something finishes: the
+control unit when a thread stops (command 7 with <em>interrupt enable</em>),
+and the DMA unit when a channel completes. Either one drives the
+Interrupt Controller's external input, IRL 14 (<code>EXTERNAL_IRL</code>).</p>
+<p>A program that takes interrupts links the interrupt startup code (a
+<code>STARTUP = crt0_interrupts.s</code> line in its <code>.vprj</code>), and registers a
+handler with the AJIT dispatch routines of <code>compiler/include/ajit_mt_irc.h</code>
+(see <a href="../writing_and_running_c_programs.html#taking-interrupts">Taking interrupts</a>).
+From <code>validation/C/apara/run_interrupt/</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">void</span><span class="w"> </span><span class="nf">engine_handler</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="p">{</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="n">completion</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apara_thread_completion</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">   </span><span class="c1">// the stop, as apara_poll_thread() would report it</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span><span class="n">apara_clear_interrupt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span><span class="w">                  </span><span class="c1">// clear the source</span>
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a><span class="p">}</span>
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a><span class="p">{</span>
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a><span class="w">    </span><span class="n">ajit_initialize_interrupt_handlers_to_null</span><span class="p">();</span>
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a><span class="w">    </span><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">EXTERNAL_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">engine_handler</span><span class="p">);</span>
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a><span class="w">    </span><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">EXTERNAL_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span><span class="w">   </span><span class="c1">// slot 0: enable, IRL 14</span>
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>
+</span><span id="__span-5-13"><a id="__codelineno-5-13" name="__codelineno-5-13" href="#__codelineno-5-13"></a><span class="w">    </span><span class="n">apara_load_program</span><span class="p">(</span><span class="n">kernel_program</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_PROGRAM_WORDS</span><span class="p">);</span>
+</span><span id="__span-5-14"><a id="__codelineno-5-14" name="__codelineno-5-14" href="#__codelineno-5-14"></a><span class="w">    </span><span class="n">apara_start_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_LOOP</span><span class="p">);</span>
+</span><span id="__span-5-15"><a id="__codelineno-5-15" name="__codelineno-5-15" href="#__codelineno-5-15"></a><span class="w">    </span><span class="n">apara_request_completion_interrupt</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-5-16"><a id="__codelineno-5-16" name="__codelineno-5-16" href="#__codelineno-5-16"></a><span class="w">    </span><span class="p">...</span><span class="w">                                        </span><span class="c1">// the SPARC goes on with its own work</span>
+</span><span id="__span-5-17"><a id="__codelineno-5-17" name="__codelineno-5-17" href="#__codelineno-5-17"></a><span class="p">}</span>
 </span></code></pre></div>
-<h2 id="software">Software<a class="headerlink" href="#software" title="Permanent link">&para;</a></h2>
-<p><code>compiler/include/apara_access_routines.h</code> has the routines, in the style
-of AJIT's access routines:</p>
-<table>
-<thead>
-<tr>
-<th>Routine</th>
-<th>Does</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>apara_load_program(words, n)</code></td>
-<td>IMEM words 0..n-1</td>
-</tr>
-<tr>
-<td><code>apara_write_thread_register(t, r, v)</code>, <code>apara_read_thread_register(t, r)</code></td>
-<td>a thread's 64-bit register</td>
-</tr>
-<tr>
-<td><code>apara_start_thread(t, pc)</code>, <code>apara_reset_thread(t)</code></td>
-<td></td>
-</tr>
-<tr>
-<td><code>apara_poll_thread(t)</code>, <code>apara_wait_thread(t)</code></td>
-<td>the completion word</td>
-</tr>
-<tr>
-<td><code>apara_thread_stop_pc(t)</code></td>
-<td>where it stopped</td>
-</tr>
-<tr>
-<td><code>apara_request_completion_interrupt(t)</code>, <code>apara_thread_completion(t)</code>, <code>apara_clear_interrupt(t)</code></td>
-<td>completion by interrupt</td>
-</tr>
-<tr>
-<td><code>apara_dma_start(...)</code>, <code>apara_dma_wait(c)</code>, <code>apara_dma_load(c, dmem, src, n)</code>, <code>apara_dma_store(c, dst, dmem, n)</code></td>
-<td>DMA</td>
-</tr>
-<tr>
-<td><code>apara_dmem_write_word(o, v)</code>, <code>apara_dmem_read_word(o)</code></td>
-<td>DMEM directly, through the window</td>
-</tr>
-<tr>
-<td><code>apara_read_timer()</code></td>
-<td></td>
-</tr>
-</tbody>
-</table>
-<p>An engine program travels inside the SPARC program as a C array:
-<code>compiler/apara/apara_obj_to_c.py kernel.mcode</code> writes <code>kernel.mcode.h</code>
-with <code>kernel_program[]</code>, <code>KERNEL_PROGRAM_WORDS</code>, and a <code>KERNEL_&lt;LABEL&gt;</code>
-address for each label. A test's <code>.vprj</code> can name its kernels with
-<code>MCODE = kernel.mcode</code> lines; <code>validation/build_hex.py</code> then writes the
-headers before compiling.</p>
-<p>A complete offload, from <code>validation/C/apara/dma_dot_product/</code>:</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="n">apara_load_program</span><span class="p">(</span><span class="n">kernel_program</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_PROGRAM_WORDS</span><span class="p">);</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">apara_dma_start</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMA_LOAD</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">a</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">    </span><span class="c1">// a -&gt; DMEM 0</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">apara_dma_start</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMA_LOAD</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">b</span><span class="p">,</span><span class="w"> </span><span class="mi">256</span><span class="p">,</span><span class="w"> </span><span class="mi">1</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">N</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">);</span><span class="w">  </span><span class="c1">// b -&gt; DMEM 256</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="n">apara_dma_wait</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="n">apara_dma_wait</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="n">apara_write_thread_register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">9</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMEM_BASE</span><span class="p">);</span>
-</span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="n">apara_write_thread_register</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="mi">10</span><span class="p">,</span><span class="w"> </span><span class="n">APARA_DMEM_BASE</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">256</span><span class="p">);</span>
-</span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">apara_start_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">KERNEL_START</span><span class="p">);</span>
-</span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a><span class="n">apara_wait_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
-</span><span id="__span-2-10"><a id="__codelineno-2-10" name="__codelineno-2-10" href="#__codelineno-2-10"></a><span class="n">apara_dma_store</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">,</span><span class="w"> </span><span class="mi">504</span><span class="p">,</span><span class="w"> </span><span class="mi">8</span><span class="p">);</span><span class="w">                      </span><span class="c1">// DMEM 504 -&gt; result</span>
-</span></code></pre></div>
+<hr />
 <h2 id="the-models">The models<a class="headerlink" href="#the-models" title="Permanent link">&para;</a></h2>
-<p><strong>cpp_model.</strong> <code>AparaSystemCore</code> (<code>model/cpp_common_code/apara/</code>) joins
-the engine (<code>AparaCore</code>), <code>AparaControlCore</code> and <code>AparaDmaCore</code>. The
-<code>SystemBus</code> routes the engine's windows to it; its off-island accesses and
-DMA transfers go back through the same bus. After every core cycle the
-engine runs one bundle and its DMA moves one piece (up to 8 bytes).</p>
-<p><strong>sitar_model.</strong> The engine's pipeline (<code>AparaEngine</code>, Ref <a href="timing_model.html">Timing
-Model</a>) and its host side (<code>AparaHost</code>: the control and
-DMA units) are sibling modules of the core, on a <code>SystemInterconnect</code>
-with two masters (the core and <code>AparaHost</code>, round robin):</p>
+<p>Both models carry out the same commands with the same C++ classes:
+<code>AparaControlCore</code> (the control unit), <code>AparaDmaCore</code> (the DMA unit),
+and the engine itself, <code>AparaCore</code>. They differ, as in every
+configuration, in timing.</p>
+<ul>
+<li><strong>cpp_model</strong><br />
+    The bus routes the engine's three windows to the engine, and the
+    engine's off-island accesses and DMA transfers go back through the
+    same bus. After every SPARC instruction, the engine runs one bundle,
+    and the DMA unit moves one piece of a copy (up to 8 bytes).</li>
+<li><strong>sitar_model</strong><br />
+    The engine's pipeline (<code>AparaEngine</code>, see <a href="timing_model.html">APARA Timing
+    Model</a>) and its host side (<code>AparaHost</code>: the control
+    and DMA units) are modules beside the core. The bus becomes an
+    interconnect with two masters, the core and the host side, taken
+    round robin. See <a href="../model_configurations.html#configuration-sparc_apara">Model
+    Configurations</a>
+    for the diagram.</li>
+</ul>
+<p>In the sitar_model, the parts divide the work like this:</p>
 <table>
 <thead>
 <tr>
@@ -2114,22 +2367,27 @@ with two masters (the core and <code>AparaHost</code>, round robin):</p>
 <tbody>
 <tr>
 <td><code>engine.exec</code></td>
-<td>the engine's state; serves <code>host</code>'s requests on its service port (DMEM, registers, IMEM, thread commands), one cycle each; sends a bundle's off-island transactions to <code>host</code> and holds the bundle until they are answered; tells <code>host</code> when a thread stops</td>
+<td>The engine's state. Serves the host side's requests (DMEM, registers, IMEM, thread commands), one per cycle. Sends a bundle's off-island loads and stores to the host side, and holds the bundle until they are answered. Tells the host side when a thread stops.</td>
 </tr>
 <tr>
 <td><code>host</code></td>
-<td>the CCU and DMA registers and commands; the engine's slave port (the SPARC's accesses to the three windows) and master port (DMA transfers, off-island accesses)</td>
+<td>The control unit's and DMA unit's registers and commands. Answers the SPARC's accesses to the engine's three windows, and sends DMA transfers and off-island accesses onto the bus.</td>
 </tr>
 <tr>
 <td><code>interconnect</code></td>
-<td>one transaction at a time, from the core or the host, to main memory, the devices or the host</td>
+<td>One transaction at a time, from the core or from the host side, to main memory, the devices, or the host side.</td>
 </tr>
 </tbody>
 </table>
-<p>Every net crossing takes a cycle, so a SPARC access to a CCU register
-crosses four nets, and to DMEM six (through EXEC).</p>
+<p>Every net crossing takes a cycle, so a SPARC access to a control-unit
+register crosses four nets (core to interconnect to host, and back),
+and one to DMEM six, since it also goes on to <code>engine.exec</code>, which owns
+DMEM.</p>
+<hr />
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>validation/C/apara/</code>, run on <code>--config sparc_apara</code>, both models:</p>
+<p><code>validation/C/apara/</code> holds the SPARC-side tests. Run them on <code>--config
+sparc_apara</code>, on both models (with <code>--max-cycles 5000000</code> on the
+sitar_model):</p>
 <table>
 <thead>
 <tr>
@@ -2140,35 +2398,35 @@ crosses four nets, and to DMEM six (through EXEC).</p>
 <tbody>
 <tr>
 <td><code>imem_registers</code></td>
-<td>IMEM and register round trips, the timer</td>
+<td>IMEM and register round trips, and the timer.</td>
 </tr>
 <tr>
 <td><code>run_poll</code></td>
-<td>run a program, poll its completion, its result in DMEM through the window (byte order)</td>
+<td>Running a program and polling its completion, and its result in DMEM, read through the window (byte order included).</td>
 </tr>
 <tr>
 <td><code>run_interrupt</code></td>
-<td>the completion interrupt, IRL 14, in a trap handler</td>
+<td>The completion interrupt, IRL 14, taken in a trap handler.</td>
 </tr>
 <tr>
 <td><code>exception</code></td>
-<td>an engine exception's completion word, reset, and a second run</td>
+<td>An engine exception's completion word, a reset, and a second run.</td>
 </tr>
 <tr>
 <td><code>four_threads</code></td>
-<td>four threads on one program, their own data</td>
+<td>Four threads running one program on their own data.</td>
 </tr>
 <tr>
 <td><code>off_island</code></td>
-<td>the engine reading and writing main memory</td>
+<td>The engine reading and writing main memory.</td>
 </tr>
 <tr>
 <td><code>dma_interrupt</code></td>
-<td>a gather load, its interrupt</td>
+<td>A gather load, and its interrupt.</td>
 </tr>
 <tr>
 <td><code>dma_dot_product</code></td>
-<td>a whole offload: DMA in, dot product, DMA out</td>
+<td>A whole offload: DMA in, the dot product, DMA out.</td>
 </tr>
 </tbody>
 </table>

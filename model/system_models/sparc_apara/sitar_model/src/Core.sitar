@@ -12,7 +12,7 @@
 // accesses go on to the MMU and over the nets below it.
 //
 // Also exposes requestOut/responseIn, so Mmu can reach the physical bus
-// (SystemBridge, a sibling module under System.sitar), and
+// (SystemInterconnect, a sibling module under System.sitar), and
 // interruptLevelIn, polled once per cycle by one more parallel branch,
 // which drives the latest interrupt level onto the core's IRL pins.
 //================================================================
@@ -36,7 +36,7 @@ module Core
 	//This module's own physical-side ports -- what Mmu's two
 	//PhysicalMainMemoryInterface instances (phyMemReadProcedure/
 	//phyMemWriteProcedure) actually push requests onto and pull
-	//responses from, once wired below. Connected to SystemBridge
+	//responses from, once wired below. Connected to SystemInterconnect
 	//over nets declared one level up, in System.sitar (Ref that file's
 	//own header comment).
 	outport requestOut  : width TOKEN_REQ_WIDTH

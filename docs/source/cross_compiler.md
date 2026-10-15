@@ -48,3 +48,15 @@ The resulting tools (`sparc-linux-gcc`, `sparc-linux-as`, ...) end up in
 `<buildroot>/output/host/usr/bin`. Add that to your `PATH`. See
 `compiler/README.md` for the full note, including a link to the original
 writeup this is based on.
+
+---
+
+## APARA engine programs
+
+Programs for the APARA engine are written in its own assembly language,
+mcode, and assembled by this project's own tools in `compiler/apara/`
+(plain Python 3, nothing to install). A SPARC program that drives the
+engine carries the engine's program inside it, as a C array the same
+tools generate. See [APARA Assembly Language and
+Tools](apara/assembly_and_tools.md) and [The Engine in a
+System](apara/system.md#software).

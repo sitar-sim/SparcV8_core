@@ -27,12 +27,14 @@
 //--timer-tick-divider, when given, overrides the value set in
 //System.sitar's knob block.
 //
-//--stats prints the core's instruction-mix counters, the MMU's
-//statistics, and physical memory's own access counters (see
-//SparcCoreStats.h, MmuStats.h, MainMemoryStats.h), layered
-//innermost-to-outermost, once the run finishes, to stdout, ahead of
-//the state/PASS-FAIL report below. Off by default. Can appear anywhere
-//among the arguments.
+//--stats prints, once the run finishes, the core's instruction-mix
+//counters, both caches' counters, the MMU's statistics, physical
+//memory's own access counters, the devices' access counts (see
+//SparcCoreStats.h, L1CachesCore.h, MmuStats.h, MainMemoryStats.h,
+//PeripheralDevicesCore.h), and the APARA engine's pipeline counters
+//(AparaTiming.h's AparaTimingStats), layered innermost-to-outermost, to
+//stdout, ahead of the state/PASS-FAIL report below. Off by default. Can
+//appear anywhere among the arguments.
 
 #include "Top.h"
 #include "SystemAddressMap.h"

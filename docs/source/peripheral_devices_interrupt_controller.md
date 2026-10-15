@@ -23,8 +23,11 @@ and the full address map.
 | [Serial Device](peripheral_devices_serial_device.md) | 12 | every slot (each slot's mask decides) |
 | External (`env_int_in`) | 14 | every slot (each slot's mask decides) |
 
-The external input is reserved for a source outside this device set,
-such as an accelerator. It is not driven by any device here.
+The external input is for a source outside this device set, such as an
+accelerator. In `sparc_apara` the APARA engine drives it, to signal that
+an engine thread or a DMA transfer has finished (see [The Engine in a
+System](apara/system.md#interrupts)). In the other configurations
+nothing drives it, and it stays 0.
 
 ## Slots
 

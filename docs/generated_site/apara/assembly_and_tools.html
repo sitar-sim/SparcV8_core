@@ -1258,6 +1258,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="A first program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#program-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Program structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1279,6 +1296,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="The tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1702,6 +1736,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="A first program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#program-structure" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Program structure
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1723,6 +1774,23 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="The tools">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#error-messages" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Error messages
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1770,11 +1838,17 @@
 
 <h1 id="apara-assembly-language-and-tools">APARA Assembly Language and Tools<a class="headerlink" href="#apara-assembly-language-and-tools" title="Permanent link">&para;</a></h1>
 <p>APARA programs are written in <strong>mcode</strong>, the engine's assembly language,
-and assembled with our own tools in <code>compiler/apara/</code> (Python 3, standard
-library only). For any program the APARA reference assembler accepts, the
-tools write the same object file, word for word: they were checked on
-every valid program in the APARA repository's test and verification
-folders.</p>
+and assembled with this project's own tools in <code>compiler/apara/</code>. The
+tools are plain Python 3, using only the standard library, so there is
+nothing to install.</p>
+<p>The tools are compatible with APARA's own reference tools: for any
+program the reference assembler accepts, they write the same object
+file, word for word. This was checked on every valid program in the
+APARA repository's test and verification folders. They also check more
+than the reference tools do, and stop with an error where the reference
+assembler would silently produce a wrong program (see <a href="#error-messages">Error
+messages</a>).</p>
+<hr />
 <h2 id="a-first-program">A first program<a class="headerlink" href="#a-first-program" title="Permanent link">&para;</a></h2>
 <div class="language-mcode highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="c1">// Sum the 8-bit elements of a vector, store the result.</span>
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="c1">//@ reg: 0 $r1 0x0102030405060708</span>
@@ -1789,51 +1863,87 @@ folders.</p>
 </span><span id="__span-0-11"><a id="__codelineno-0-11" name="__codelineno-0-11" href="#__codelineno-0-11"></a>    <span class="kp">;</span>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
 </span></code></pre></div>
-<p>A program is a sequence of <strong>bundles</strong>, each <code>||</code>, one to eight
-instructions, <code>;</code>. A bundle may have a label (<code>sum:</code>). <code>//</code> starts a
-comment. Lines starting <code>//@</code> are directions for the test runner (Ref
-<a href="running.html">Writing and Running Programs</a>); the assembler ignores them.
-Every instruction is listed in <a href="isa.html">APARA Instruction Set</a>.</p>
+<p>The program's three bundles run one after another:</p>
+<ol>
+<li><code>$vreduce</code> reads <code>$r1</code> as a vector of eight 8-bit signed elements and
+   adds them up, into <code>$r2</code>.</li>
+<li><code>$st</code> stores <code>$r2</code>, as a 64-bit integer, at DMEM address <code>$r0 + 16</code>,
+   that is, 16 (<code>$r0</code> is always 0).</li>
+<li><code>$halt</code> stops the thread.</li>
+</ol>
+<p>The <code>//@</code> line sets thread 0's <code>$r1</code> before the run. It is a direction
+for the test runner (see <a href="running.html#tests">Writing and Running
+Programs</a>), and the assembler ignores it.</p>
+<h3 id="program-structure">Program structure<a class="headerlink" href="#program-structure" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Bundles</strong><br />
+    A program is a sequence of bundles. Each starts with <code>||</code>, holds one
+    to eight instructions, and ends with <code>;</code>. A bundle may be written on
+    one line or span several.</li>
+<li><strong>Labels</strong><br />
+    A bundle may have a label (<code>sum:</code>), which branches and calls can name
+    as their target.</li>
+<li><strong>Comments</strong><br />
+<code>//</code> starts a comment, to the end of the line.</li>
+<li><strong>Instructions</strong><br />
+    Every instruction is listed in <a href="isa.html">APARA Instruction Set</a>.</li>
+</ul>
+<hr />
 <h2 id="what-the-assembler-does">What the assembler does<a class="headerlink" href="#what-the-assembler-does" title="Permanent link">&para;</a></h2>
+<p>Beyond translating each instruction, the assembler turns the bundles as
+written into bundles the engine can run. It does this in seven steps:</p>
 <ol>
 <li><strong>Parses and checks</strong> every instruction: register numbers, types,
-   immediate and increment ranges, the operations each type allows
-   (Ref the error messages below).</li>
-<li><strong>Checks each bundle</strong>: at most 8 instructions, one branch/call/return,
-   4 loads/stores, one divide or square root, and no register written by
-   two instructions.</li>
-<li><strong>Closes</strong> each bundle with <code>$null</code>s up to its capacity: 8 if it holds a
-   control transfer, load/store, divide or square root, else the next
-   power of two.</li>
-<li><strong>Places</strong> the bundles, each at a multiple of its size, filling gaps
-   with <code>$null</code> pad bundles of 4, 2 and 1 slots.</li>
-<li><strong>Arranges the lanes</strong> of each 8-slot bundle: the control transfer in
-   lane 0, a divide or square root in lane 1, loads and stores in lanes 4
-   to 7, the other instructions in source order in the free lanes.</li>
+   immediate and increment ranges, and whether each operation is
+   allowed for its type.</li>
+<li><strong>Checks each bundle</strong>: at most 8 instructions, at most one
+   branch/call/return, at most 4 loads and stores, at most one divide or
+   square root, and no register written by two instructions.</li>
+<li><strong>Closes</strong> each bundle, filling it with <code>$null</code>s up to its size: 8
+   slots if it holds a control transfer, load or store, divide, or square
+   root, otherwise the smallest power of two that fits.</li>
+<li><strong>Places</strong> the bundles in IMEM, each at an address that is a multiple
+   of its size, filling any gaps with <code>$null</code> bundles.</li>
+<li><strong>Arranges the slots</strong> of each 8-slot bundle: the control transfer in
+   slot 0, a divide or square root in slot 1, loads and stores in slots 4
+   to 7, and the other instructions, in source order, in the free slots.</li>
 <li><strong>Resolves labels</strong>: a branch or call holds its target relative to its
-   own address (its bundle's address plus its lane).</li>
-<li><strong>Encodes</strong>, setting bit 31 on each bundle's first word.</li>
+   own address (its bundle's address plus its slot).</li>
+<li><strong>Encodes</strong> every instruction, setting bit 31 on each bundle's first
+   word.</li>
 </ol>
-<p>These are the reference tools' passes (<code>mcode_align</code> then
-<code>mcode_assemble</code>) in one step.</p>
+<p>Steps 3 to 5 are what the reference tools call alignment
+(<code>mcode_align</code>), and the rest assembly (<code>mcode_assemble</code>). Here they are
+one step.</p>
+<hr />
 <h2 id="the-tools">The tools<a class="headerlink" href="#the-tools" title="Permanent link">&para;</a></h2>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode<span class="w">                 </span><span class="c1"># writes prog.obj</span>
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode<span class="w"> </span>-o<span class="w"> </span>out.obj<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span>--aligned<span class="w"> </span>prog.aligned.mcode<span class="w"> </span>--listing<span class="w"> </span>prog.lst
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>python3<span class="w"> </span>compiler/apara/apara_dis.py<span class="w"> </span>prog.obj<span class="w">                  </span><span class="c1"># mcode to standard output</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>python3<span class="w"> </span>compiler/apara/apara_dis.py<span class="w"> </span>prog.obj<span class="w">                  </span><span class="c1"># mcode, to standard output</span>
 </span></code></pre></div>
 <ul>
+<li><strong><code>apara_as.py</code></strong>, the assembler. It writes an object file, by default
+  named after the source. Two options write more:<ul>
 <li><code>--aligned</code> writes the program as placed and arranged, every bundle
   with its address: the program the engine actually runs.</li>
-<li><code>--listing</code> writes each word's address, encoding and instruction.</li>
-<li><code>apara_dis.py</code> turns an object file back into mcode, with labels <code>L_&lt;address&gt;</code>
-  for branch and call targets. Its output assembles back to the same object
-  file.</li>
+<li><code>--listing</code> writes each word's address, encoding, and instruction.</li>
 </ul>
-<p>An error stops the assembly:</p>
+</li>
+<li><strong><code>apara_dis.py</code></strong>, the disassembler. It turns an object file back
+  into mcode, naming branch and call targets <code>L_&lt;address&gt;</code>. Its output
+  assembles back to the same object file.</li>
+<li><strong><code>apara_obj_to_c.py</code></strong>, for programs the SPARC loads into the engine
+  (in <code>sparc_apara</code>). It writes an engine program as a C header,
+  containing the program as an array and each label's address as a
+  <code>#define</code>. See <a href="system.html#software">The Engine in a System</a>.</li>
+</ul>
+<p><code>python3 compiler/apara/test_mcode.py</code> runs the tools' own unit tests.</p>
+<h3 id="error-messages">Error messages<a class="headerlink" href="#error-messages" title="Permanent link">&para;</a></h3>
+<p>Any error stops the assembly, with the file, the line, and the reason:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>prog.mcode:12: error: $r2 is written twice in this bundle (also at line 11)
 </span></code></pre></div>
-<p>Some messages and what they mean:</p>
+<p>Some messages, and what they mean:</p>
 <table>
 <thead>
 <tr>
@@ -1844,34 +1954,35 @@ Every instruction is listed in <a href="isa.html">APARA Instruction Set</a>.</p>
 <tbody>
 <tr>
 <td><code>immediate 600 is out of range (-512 to 511)</code></td>
-<td>immediates are 10-bit signed</td>
+<td>Immediates are 10-bit signed.</td>
 </tr>
 <tr>
 <td><code>a bundle holds at most one divide or square root</code></td>
-<td>the engine has one shared divider</td>
+<td>The engine has one divider, shared by divides and square roots.</td>
 </tr>
 <tr>
 <td><code>floats have only + - * /</code></td>
-<td>no logic or shifts on float types</td>
+<td>No logic operations or shifts on float types.</td>
 </tr>
 <tr>
 <td><code>the registers from $r30 run past $r31</code></td>
-<td>a <code>$u256</code> transfer needs 4 consecutive registers</td>
+<td>A <code>$u256</code> transfer needs 4 consecutive registers.</td>
 </tr>
 <tr>
 <td><code>a vector cast changes the element width by one step</code></td>
-<td><code>($vi8)</code> to <code>($vi32)</code> needs two casts</td>
+<td><code>($vi8)</code> to <code>($vi32)</code> needs two casts.</td>
 </tr>
 <tr>
 <td><code>undefined label x</code></td>
-<td>(the reference assembler silently uses 0)</td>
+<td>A misspelled label. (The reference assembler silently uses 0.)</td>
 </tr>
 </tbody>
 </table>
-<p><code>python3 compiler/apara/test_mcode.py</code> runs the tools' own unit tests.</p>
+<hr />
 <h2 id="file-formats">File formats<a class="headerlink" href="#file-formats" title="Permanent link">&para;</a></h2>
-<p>The formats of the reference tools, so files move freely between the two
-tool sets. Numbers are hexadecimal; <code>!</code> starts a comment.</p>
+<p>The tools and the simulators use the reference tools' file formats, so
+files move freely between the two sets of tools. In every format,
+numbers are hexadecimal and <code>!</code> starts a comment.</p>
 <table>
 <thead>
 <tr>
@@ -1913,19 +2024,22 @@ tool sets. Numbers are hexadecimal; <code>!</code> starts a comment.</p>
 </tr>
 <tr>
 <td></td>
-<td><code>&lt;thread&gt; error &lt;ERROR&gt; [mask]</code> (ours)</td>
+<td><code>&lt;thread&gt; error &lt;ERROR&gt; [mask]</code> (this project's addition)</td>
 <td><code>0 error 0x2000000</code></td>
 </tr>
 </tbody>
 </table>
-<p>A mask, if given, selects the bits compared. A data file's dword index is
-taken modulo the DMEM size: index <code>0x10</code> is DMEM bytes 0x80 to 0x87.</p>
+<p>A data file gives DMEM's initial contents by dword (8-byte word) index,
+taken modulo the DMEM size: index <code>0x10</code> is DMEM bytes 0x80 to 0x87. A
+results file lists the expected final state, and a mask, if given,
+selects the bits compared.</p>
+<hr />
 <h2 id="editor-support">Editor support<a class="headerlink" href="#editor-support" title="Permanent link">&para;</a></h2>
 <ul>
-<li>vim: <code>compiler/apara/vim/mcode.vim</code> (copy to <code>~/.vim/syntax/</code>, and add
-  <code>au BufRead,BufNewFile *.mcode set filetype=mcode</code> to <code>~/.vimrc</code>).</li>
-<li>These pages highlight <code>```mcode</code> blocks with the Pygments lexer in
-  <code>docs/mcode_pygments_lexer/</code>.</li>
+<li><strong>vim</strong>: <code>compiler/apara/vim/mcode.vim</code>. Copy it to <code>~/.vim/syntax/</code>, and
+  add <code>au BufRead,BufNewFile *.mcode set filetype=mcode</code> to <code>~/.vimrc</code>.</li>
+<li><strong>This documentation</strong> highlights <code>```mcode</code> code blocks with the
+  Pygments lexer in <code>docs/mcode_pygments_lexer/</code>.</li>
 </ul>
 
 

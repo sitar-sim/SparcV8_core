@@ -53,6 +53,29 @@ instruction set -- modeled at two levels:
 Both models are validated against the same instruction-level test suite
 (`validation/`, `validation/run_tests.py`) -- see `validation/README.md`.
 
+## Configurations
+
+The models come in several configurations, from the core on its own to
+progressively larger systems, one folder per configuration under
+`model/system_models/`, each with both a `cpp_model` and a
+`sitar_model`:
+
+- `core_only` -- the core and main memory.
+- `core_mmu` -- adds the SPARC Reference MMU.
+- `core_mmu_devices` -- adds a timer, an interrupt controller, and a
+  serial device, compatible with the AJIT processor's own.
+- `core_l1cache_mmu_devices` -- adds split L1 instruction and data
+  caches.
+- `apara` -- an APARA engine on its own: a four-threaded vector compute
+  engine, designed at IIT Bombay to work alongside a SPARC (AJIT)
+  processor as an accelerator, with its own assembler
+  (`compiler/apara/`) and test suite (`validation/apara/`).
+- `sparc_apara` -- `core_l1cache_mmu_devices` plus one APARA engine,
+  which the SPARC program loads, runs, and exchanges data with.
+
+See the documentation's Model Configurations page for a block diagram
+of each one.
+
 ## Documentation
 
 Detailed documentation and examples are available here:
@@ -66,17 +89,23 @@ https://sitar-sim.github.io/SparcV8_core/
   `cpp_model/`/`sitar_model/` subfolders and `README.md`). See
   `model/README.md`.
 - `validation/` -- the instruction-level test suite (`asm/`, hand-written
-  assembly; `C/`, bare-metal C) and the scripts that build and run it.
+  assembly; `C/`, bare-metal C, including the component suites for the
+  MMU, devices, caches, and APARA engine), the APARA engine's own tests
+  (`apara/`), and the scripts that build and run them.
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker/objdump,
   plus a minimal bundled C compiler for `validation/C/`) used to build
-  test programs, and the scripts that drive it.
+  test programs, and the scripts that drive it; bare-metal C routines
+  for the devices and the APARA engine (`include/`); and the APARA
+  engine's assembler and disassembler (`apara/`).
 - `log_viewer/` -- a self-contained, offline browser tool for viewing the
   instruction/state trace either model can produce (`--logging` builds --
   see `model/system_models/core_only/cpp_model/README.md`/
   `.../sitar_model/README.md`); see its own `README.md`.
 - `docs/` -- the MkDocs documentation: `source/` (the `.md` pages),
   `generated_site/` (prebuilt, committed output -- open `index.html`
-  directly), `mkdocs.yml`, the vendored `sitar_pygments_lexer/`, and
+  directly), `mkdocs.yml`, the vendored syntax-highlighting lexers
+  (`sitar_pygments_lexer/`, `sparc_pygments_lexer/`,
+  `mcode_pygments_lexer/`), and
   `compliance/` (documented, specific divergences between this model's
   behavior and the AJIT project's own reference test results; see below).
 

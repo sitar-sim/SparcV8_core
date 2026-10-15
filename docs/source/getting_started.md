@@ -105,9 +105,15 @@ cd model/system_models/core_mmu/sitar_model
 ./build.sh --logging
 ```
 
-`core_mmu_devices` and `core_l1cache_mmu_devices` are planned
-configurations, not yet buildable, see [Model
-Configurations](model_configurations.md).
+The same goes for `core_mmu_devices`, `core_l1cache_mmu_devices`, and
+`sparc_apara`. Each executable is named after its configuration, e.g.
+`executable/sparc_sim_cpp_core_mmu_devices`. See [Model
+Configurations](model_configurations.md) for what each one contains.
+
+The `apara` configuration, the APARA engine on its own, also builds
+this way, but it runs APARA engine programs rather than SPARC ones, so
+it has its own executables and its own walkthrough, see [Writing and
+Running APARA Programs](apara/running.md).
 
 ---
 
@@ -184,7 +190,7 @@ OVERALL: PASS (3 checks)
 ### Running the existing simple test
 
 The same check has a shortcut, `run_simple_test.sh`, bundled in every
-testbench folder. `cd` to the same level as the build script (the
+SPARC configuration's testbench folders. `cd` to the same level as the build script (the
 testbench folder, e.g. `model/system_models/core_only/cpp_model`) and
 run it directly:
 

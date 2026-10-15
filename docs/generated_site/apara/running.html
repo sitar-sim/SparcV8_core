@@ -1297,6 +1297,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Running a program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watching-a-program-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watching a program run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1307,6 +1324,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1691,6 +1747,23 @@
     </span>
   </a>
   
+    <nav class="md-nav" aria-label="Running a program">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#watching-a-program-run" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Watching a program run
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
 </li>
       
         <li class="md-nav__item">
@@ -1701,6 +1774,45 @@
       
     </span>
   </a>
+  
+    <nav class="md-nav" aria-label="Tests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
   
 </li>
       
@@ -1725,20 +1837,33 @@
 
 
 <h1 id="writing-and-running-apara-programs">Writing and Running APARA Programs<a class="headerlink" href="#writing-and-running-apara-programs" title="Permanent link">&para;</a></h1>
-<p>The <code>apara</code> configuration is one engine on its own: its program and data
-are placed straight into IMEM and DMEM (and its registers set) before the
-run, and the run ends when every thread it started has stopped. It comes,
-like every configuration, as a fast functional model (cpp_model) and a
-cycle-level timing model (sitar_model), with the same command line.</p>
+<p>The <code>apara</code> configuration is one APARA engine on its own, with no SPARC
+core around it. It is the place to write, run, and debug engine
+programs, and to study the engine's timing, before using the engine
+from a SPARC program (see <a href="system.html">The Engine in a System</a>).</p>
+<p>A run works like this: the simulator places the program in the
+engine's IMEM, the initial data in its DMEM, and the initial register
+values in its registers, starts one or more threads, and runs until
+every thread it started has stopped. It then reports how each thread
+stopped, and, if given the expected final state, checks it.</p>
+<p>Like every configuration, <code>apara</code> comes as a fast functional model
+(cpp_model) and a cycle-level timing model (sitar_model), with the same
+command line.</p>
+<hr />
 <h2 id="building">Building<a class="headerlink" href="#building" title="Permanent link">&para;</a></h2>
+<p>From the repo root:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>model/system_models/apara/cpp_model/build.sh<span class="w">      </span><span class="c1"># executable/apara_sim_cpp</span>
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>model/system_models/apara/sitar_model/build.sh<span class="w">    </span><span class="c1"># executable/apara_sim_sitar (needs sitar)</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>model/system_models/apara/sitar_model/build.sh<span class="w">    </span><span class="c1"># executable/apara_sim_sitar (needs the sitar CLI)</span>
 </span></code></pre></div>
+<hr />
 <h2 id="running-a-program">Running a program<a class="headerlink" href="#running-a-program" title="Permanent link">&para;</a></h2>
+<p>Assemble the program (see <a href="assembly_and_tools.html">APARA Assembly Language and
+Tools</a>), then run the object file:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>model/system_models/apara/cpp_model/executable/apara_sim_cpp<span class="w"> </span><span class="se">\</span>
 </span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span>-p<span class="w"> </span>0x0<span class="w"> </span>-i<span class="w"> </span>prog.obj<span class="w"> </span>-d<span class="w"> </span>data.map<span class="w"> </span>-a<span class="w"> </span>registers.txt<span class="w"> </span>-r<span class="w"> </span>results.txt
 </span></code></pre></div>
+<p>The options:</p>
 <table>
 <thead>
 <tr>
@@ -1749,75 +1874,100 @@ cycle-level timing model (sitar_model), with the same command line.</p>
 <tbody>
 <tr>
 <td><code>-p &lt;pc&gt;</code></td>
-<td>start a thread at <code>&lt;pc&gt;</code> (hex, a word index); repeat for threads 1, 2, 3 (default: one thread at 0)</td>
+<td>Start a thread at <code>&lt;pc&gt;</code> (hexadecimal, an IMEM word index). Repeat it to start threads 1, 2, and 3 too. Without <code>-p</code>, one thread starts at 0.</td>
 </tr>
 <tr>
 <td><code>-i &lt;file&gt;</code></td>
-<td>the object file</td>
+<td>The object file.</td>
 </tr>
 <tr>
 <td><code>-d &lt;file&gt;</code></td>
-<td>initial DMEM contents</td>
+<td>DMEM's initial contents (a data file).</td>
 </tr>
 <tr>
 <td><code>-a &lt;file&gt;</code></td>
-<td>initial register values</td>
+<td>Initial register values.</td>
 </tr>
 <tr>
 <td><code>-r &lt;file&gt;</code></td>
-<td>the expected final state: the run prints <code>PASS</code> or the mismatches and <code>FAIL</code></td>
+<td>The expected final state. The run prints <code>PASS</code>, or the mismatches and <code>FAIL</code>.</td>
 </tr>
 <tr>
 <td><code>--dump-results &lt;file&gt;</code></td>
-<td>write the final state as a results file (<code>-</code> for the screen)</td>
+<td>Write the final state as a results file (<code>-</code> for the screen).</td>
 </tr>
 <tr>
 <td><code>--stats</code></td>
-<td>per-thread counts (cpp_model); the pipeline's counters (sitar_model)</td>
+<td>Print statistics: per-thread counts (cpp_model), or the pipeline's counters (sitar_model, see <a href="timing_model.html#knobs">APARA Timing Model</a>).</td>
 </tr>
 <tr>
 <td><code>--trace</code></td>
-<td>print every bundle executed (cpp_model)</td>
+<td>Print every bundle executed (cpp_model).</td>
 </tr>
 <tr>
 <td><code>--max-bundles &lt;n&gt;</code> / <code>--max-cycles &lt;n&gt;</code></td>
-<td>stop a run that does not end (cpp_model / sitar_model)</td>
+<td>Stop a run that does not end on its own (cpp_model / sitar_model).</td>
 </tr>
 <tr>
 <td><code>--latency-file &lt;file&gt;</code></td>
-<td>instruction latencies (sitar_model, Ref <a href="timing_model.html">Timing Model</a>)</td>
+<td>Change instruction latencies (sitar_model, see <a href="timing_model.html#timing-rules">APARA Timing Model</a>).</td>
 </tr>
 </tbody>
 </table>
-<p>These are the options of the APARA reference simulator, <code>mcode_run</code>, plus
-ours, so the same files run on both. The exit status is 0 for <code>PASS</code> (or,
-without <code>-r</code>, when no thread stopped on an exception), 1 otherwise.</p>
-<p><code>--trace</code> shows the program as it runs:</p>
+<p>The file formats are described in <a href="assembly_and_tools.html#file-formats">File
+formats</a>. The options are those of
+the APARA reference simulator, <code>mcode_run</code>, plus this project's own, so
+the same files run on both.</p>
+<p>The exit status is 0 for <code>PASS</code>, or, without <code>-r</code>, when every thread
+stopped with <code>$halt</code>. It is 1 otherwise (a mismatch, an exception, or a
+thread still running at the limit), and 2 for an error in the command
+line or the files. That makes the simulators easy to use from scripts.</p>
+<h3 id="watching-a-program-run">Watching a program run<a class="headerlink" href="#watching-a-program-run" title="Permanent link">&para;</a></h3>
+<p><code>--trace</code> prints one line per bundle executed: its thread and address,
+its instructions (without the <code>$null</code>s), and, if it did not continue to
+the next bundle, where it went. For example, the end of a loop, from
+<code>validation/apara/tests/control.mcode</code>:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>t0 0x0:  ? ($i64) $r1 &gt; --1 $goto pc+0;  + $r2 ($i64) $r2 $r1;  -&gt; 0x0
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>t0 0x0:  ? ($i64) $r1 &gt; --1 $goto pc+0;  + $r2 ($i64) $r2 $r1;
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>t0 0x8:  ? ($f32) $r3 &lt; $goto pc+16;  -&gt; 0x18
 </span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>t0 0x18:  ? ($i16) $r4 &lt; $goto pc+16;  + $r5 ($i64) $r0 1;  -&gt; 0x28
 </span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>t0 0x28:  $call pc+32;  + $r10 ($i64) $r0 16;  -&gt; 0x48
 </span></code></pre></div>
-<p>(the end of a loop, from <code>validation/apara/tests/control.mcode</code>: a line
-per bundle, its thread and address, its instructions without the
-<code>$null</code>s, and where it went if not to the next bundle).</p>
-<p>A thread that stops on an exception is reported with its slot and cause:</p>
+<p>The bundle at 0x0 branches back to itself while <code>$r1</code> is above 0,
+counting <code>$r1</code> down each time. On its last pass the branch is not
+taken, and the thread falls through to 0x8.</p>
+<p>A thread that stops on an exception is reported with the slot and the
+cause:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>thread 1: stopped at 0x8 by an exception: slot 4 unaligned memory address;
 </span></code></pre></div>
+<hr />
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>validation/apara/</code> holds the engine's tests: <code>tests/</code> (one per
-instruction class, multithreading, bundle semantics, and the
-<a href="deviations.html">deviations</a>) and <code>timing/</code> (microbenchmarks with
-hand-derived cycle counts). Each test is one mcode file that also says
-how to run it and what to expect, in <code>//@</code> lines:</p>
-<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// $cmov: if $rs2 satisfies the condition, $rd = $rs1.</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1">//@ reg: 0 $r1 5</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">//@ expect: 0 reg $r4 0x5</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">//@ cycles: 7</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>    <span class="kp">||</span> <span class="k">$cmov</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r1</span> <span class="o">==</span> <span class="nv">$r4</span> <span class="nv">$r2</span> <span class="kp">;</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
+<p><code>validation/apara/</code> holds the engine's own test suite, in two folders:</p>
+<ul>
+<li><strong><code>tests/</code></strong><br />
+    Functional tests: one per instruction class, plus multithreading,
+    bundle semantics, and the <a href="deviations.html">deviations</a> from the
+    reference model.</li>
+<li><strong><code>timing/</code></strong><br />
+    Microbenchmarks for the timing model, each with a cycle count derived
+    by hand from the <a href="timing_model.html#timing-rules">timing rules</a>.</li>
+</ul>
+<h3 id="a-test">A test<a class="headerlink" href="#a-test" title="Permanent link">&para;</a></h3>
+<p>Each test is a single mcode file. Lines starting with <code>//@</code> say how to
+run it and what to expect. For example, the timing test
+<code>timing/t3_latency.mcode</code>:</p>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Timing: EXEC latency. An f32 add takes 3 cycles in EXEC (cycles 3-5).</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1">// The $halt behind it enters EXEC in cycle 4 but results leave in order,</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">// one per cycle: the add&#39;s in cycle 5, the halt&#39;s in 6; WRITEBACK in 8:</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// 9 cycles.</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1">//</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="c1">//@ cycles: 9</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r1</span> <span class="p">(</span><span class="kt">$f32</span><span class="p">)</span> <span class="nv">$r2</span> <span class="nv">$r3</span> <span class="kp">;</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
 </span></code></pre></div>
+<p>Its header explains where the expected count comes from. A functional
+test instead sets registers and data with <code>reg:</code> and <code>data:</code> lines, and
+lists the expected results with <code>expect:</code> lines.</p>
 <table>
 <thead>
 <tr>
@@ -1828,42 +1978,50 @@ how to run it and what to expect, in <code>//@</code> lines:</p>
 <tbody>
 <tr>
 <td><code>//@ threads: 0x0 0x20</code></td>
-<td>start threads at these PCs (default: one at 0x0)</td>
+<td>Start threads at these PCs. Default: one thread at 0x0.</td>
 </tr>
 <tr>
 <td><code>//@ data: 10: 0x...</code></td>
-<td>an initial DMEM dword</td>
+<td>An initial DMEM dword, in data-file format.</td>
 </tr>
 <tr>
 <td><code>//@ reg: 0 $r3 0x10</code></td>
-<td>an initial register: thread, register, value</td>
+<td>An initial register value: thread, register, value.</td>
 </tr>
 <tr>
 <td><code>//@ expect: 0 reg $r5 0x7</code></td>
-<td>an expected result (results-file format, registers as <code>$rN</code>)</td>
+<td>An expected result, in results-file format (registers written as <code>$rN</code>).</td>
 </tr>
 <tr>
 <td><code>//@ cycles: 12</code></td>
-<td>the exact cycle count on the timing model</td>
+<td>The exact cycle count the timing model must take, with the default timing settings.</td>
 </tr>
 <tr>
 <td><code>//@ deviation: &lt;why&gt;</code></td>
-<td>the test depends on a deviation from the reference model</td>
+<td>The test depends on a deviation from the reference model.</td>
 </tr>
 </tbody>
 </table>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w">                 </span><span class="c1"># all tests, cpp_model</span>
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>--sitar<span class="w">         </span><span class="c1"># on the timing model (also checks cycles)</span>
+<h3 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h3>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w">                 </span><span class="c1"># every test, on the cpp_model</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>--sitar<span class="w">         </span><span class="c1"># on the sitar_model, also checking cycle counts</span>
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>validation/apara/timing<span class="w"> </span>--sitar
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>--reference<span class="w"> </span>--mcode-run<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>mcode_run&gt;
 </span></code></pre></div>
 <p>The runner assembles each test, writes its files into
-<code>validation/apara/build/&lt;test&gt;/</code>, runs it, and prints <code>PASS</code>/<code>FAIL</code>.
-<code>--reference</code> also replays every test without a <code>deviation</code> line on the
-APARA reference simulator: ours writes its final state (PC, all
-registers, all of DMEM that is or was non-zero) as a results file, and
-the reference must reach exactly that state. This checks our model and
-the test's expectations at once.</p>
+<code>validation/apara/build/&lt;test&gt;/</code>, runs it, and prints <code>PASS</code> or <code>FAIL</code>
+for each, then a summary.</p>
+<p><code>--reference</code> also cross-checks the model against the APARA reference
+simulator. For every test without a <code>deviation</code> line, the model writes
+its final state (the PC, every register, and every DMEM word that is or
+was non-zero) as a results file, and the reference simulator, given the
+same program and inputs, must reach exactly that state. This checks the
+model and the test's own expectations at the same time.</p>
+<h3 id="adding-a-test">Adding a test<a class="headerlink" href="#adding-a-test" title="Permanent link">&para;</a></h3>
+<p>Write a new <code>.mcode</code> file in <code>tests/</code> (or <code>timing/</code>, for a timing
+microbenchmark), with its <code>//@</code> lines, and run the suite. There is
+nothing to register: the runner finds every <code>.mcode</code> file in the
+folders it is given.</p>
 
 
 

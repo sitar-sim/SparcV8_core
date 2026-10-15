@@ -9,7 +9,9 @@ for the full rationale):
   `SparcCore` (the SPARC V8 core itself) and `SparcStateMachine` (the
   reusable 0-delay fetch-decode-execute driver every `cpp_model`
   configuration uses), plus their shared support code (`MemCore`,
-  `Decoder`, `Registers`, ...). See `cpp_common_code/README.md`.
+  `Decoder`, `Registers`, ...), and one subfolder per further
+  component: `mmu/`, `cache/`, `devices/`, and `apara/` (the APARA
+  engine). See `cpp_common_code/README.md`.
 - **`sitar_component_models/`** -- the reusable Sitar procedures and
   modules every `sitar_model` configuration is built from
   (`SparcThread.sitar`, `VirtualMainMemoryInterface.sitar`,
@@ -17,7 +19,10 @@ for the full rationale):
   `Mmu.sitar`, `PhysicalMainMemoryInterface.sitar`, and the module
   `PhysicalMainMemory.sitar`; `PullAToken.sitar`/`PushAToken.sitar`, two
   generic single-token I/O procedures used by anything talking to a
-  module over nets), plus `cpp_code/` for sitar-only C++ glue
+  module over nets; and, in the later configurations, `L1Caches.sitar`,
+  the buses `SystemBridge.sitar` and `SystemInterconnect.sitar`,
+  `PeripheralDevices.sitar`, and the APARA engine's `Apara*.sitar`
+  modules), plus `cpp_code/` for sitar-only C++ glue
   (`OpcodeLatencies.h`). See `../docs/source/model_components_reference.md`
   for the full per-file table.
 - **`system_models/`** -- one folder per assembled configuration, e.g.

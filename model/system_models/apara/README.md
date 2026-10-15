@@ -8,5 +8,7 @@ before the run, which ends when every started thread has stopped.
 - **`sitar_model/`** -- the timing model, `apara_sim_sitar`.
 
 Both take the APARA reference simulator's (`mcode_run`'s) options and
-files. See the documentation's "The APARA Engine" pages
-(`docs/source/apara/`), in particular "Writing and Running Programs".
+files. See [The APARA
+Engine](https://sitar-sim.github.io/SparcV8_core/apara/index.html)
+pages, in particular [Writing and Running APARA
+Programs](https://sitar-sim.github.io/SparcV8_core/apara/running.html).

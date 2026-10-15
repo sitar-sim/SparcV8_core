@@ -1194,10 +1194,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-engine-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine at a glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-this-project" class="md-nav__link">
     <span class="md-ellipsis">
       
         In this project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to start
       
     </span>
   </a>
@@ -1661,10 +1683,32 @@
     <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
+  <a href="#the-engine-at-a-glance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine at a glance
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#in-this-project" class="md-nav__link">
     <span class="md-ellipsis">
       
         In this project
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#where-to-start" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Where to start
       
     </span>
   </a>
@@ -1704,57 +1748,68 @@
 
 <h1 id="the-apara-engine">The APARA Engine<a class="headerlink" href="#the-apara-engine" title="Permanent link">&para;</a></h1>
 <p>APARA is a compute engine designed to sit next to a SPARC (AJIT)
-processor as an accelerator: a four-threaded VLIW engine with its own
-instruction and data memories, built for small-integer and low-precision
-float vector work (dot products, reductions, element-wise arithmetic on 4-
-to 64-bit elements). The processor loads its programs, starts its threads
-and moves data in and out of it. The engine was designed at IIT Bombay
-(Prof. Madhav Desai); this project models it from its documents and its
-reference model.</p>
-<p>The engine's main traits, which these pages explain:</p>
+processor as an accelerator. It is built for vector work on small
+integers and low-precision floats (dot products, reductions,
+element-wise arithmetic on 4- to 64-bit elements), the kind of
+computation that is slow on a general-purpose core but very regular. The
+SPARC processor loads the engine's programs, starts its threads, and
+moves data in and out of it, while the engine does the number
+crunching.</p>
+<p>The engine was designed at IIT Bombay (Prof. Madhav Desai). This
+project models it from its documents and its reference model, in the
+same two ways as the SPARC core: a fast functional model, and a Sitar
+timing model of its pipeline.</p>
+<hr />
+<h2 id="the-engine-at-a-glance">The engine at a glance<a class="headerlink" href="#the-engine-at-a-glance" title="Permanent link">&para;</a></h2>
 <ul>
-<li><strong>Bundles.</strong> Up to 8 instructions run in parallel each step, in a
-  thread's program order.</li>
-<li><strong>Four hardware threads</strong>, each with 32 64-bit registers, sharing one
-  five-stage pipeline: when one thread waits, the others keep it busy.</li>
-<li><strong>Types in every instruction.</strong> One register is a 64-bit integer, or 8
-  <code>$i8</code> elements, or 16 <code>$f4</code> floats, chosen by each instruction.</li>
-<li><strong>Local memories</strong>: 16 KB of instructions and 64 KB of data in two banks.</li>
+<li><strong>Bundles</strong><br />
+    The engine is a VLIW machine. Instead of one instruction at a time,
+    it executes <em>bundles</em> of up to 8 instructions, which the program has
+    grouped to run together.</li>
+<li><strong>Four hardware threads</strong><br />
+    Each thread has its own 32 64-bit registers and its own PC, and the
+    four share one five-stage pipeline. When one thread waits, for a
+    result or a branch, the others keep the pipeline busy.</li>
+<li><strong>A type in every instruction</strong><br />
+    A register is just 64 bits. Each instruction says how to read it:
+    as one 64-bit integer, as 8 <code>$i8</code> elements, as 16 <code>$f4</code> floats, and
+    so on. One vector instruction thus does up to 16 operations.</li>
+<li><strong>Local memories</strong><br />
+    16 KB of instruction memory (IMEM) and 64 KB of data memory (DMEM),
+    in two banks, close to the pipeline and fast. In a system, the
+    engine reaches main memory too, more slowly, and its DMA unit copies
+    data in and out.</li>
 </ul>
+<hr />
 <h2 id="in-this-project">In this project<a class="headerlink" href="#in-this-project" title="Permanent link">&para;</a></h2>
-<table>
-<thead>
-<tr>
-<th>Configuration</th>
-<th>What it is</th>
-<th>Status</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>apara</code></td>
-<td>one engine on its own; programs and data placed in its memories before the run</td>
-<td>functional and timing models, tests, tools</td>
-</tr>
-<tr>
-<td><code>sparc_apara</code></td>
-<td>a SPARC core (with L1 caches, MMU and peripheral devices) and one engine: the SPARC loads and runs the engine's programs, and the engine's DMA and its own loads and stores reach the system's memory</td>
-<td>functional and timing models, C routines, tests</td>
-</tr>
-</tbody>
-</table>
-<p>The pages:</p>
+<p>Two configurations model the engine:</p>
 <ul>
-<li><a href="isa.html">Instruction Set</a>: state, types, bundles, every instruction, encodings.</li>
-<li><a href="assembly_and_tools.html">Assembly Language and Tools</a>: mcode, our
-  assembler and disassembler, the file formats.</li>
-<li><a href="running.html">Writing and Running Programs</a>: the simulators, the tests.</li>
-<li><a href="timing_model.html">Timing Model</a>: the pipeline and its timing rules.</li>
-<li><a href="system.html">The Engine in a System</a>: sparc_apara, the control and DMA
-  units, the SPARC-side routines.</li>
-<li><a href="deviations.html">Deviations and Findings</a>: where the model differs from
-  the reference model, and the open questions.</li>
+<li><strong><code>apara</code></strong><br />
+    One engine on its own. A program and its data are placed in the
+    engine's memories before the run. This is the place to write and
+    test engine programs, and to study the engine's timing.</li>
+<li><strong><code>sparc_apara</code></strong><br />
+    A SPARC core (with L1 caches, MMU, and peripheral devices) and one
+    engine. The SPARC program loads and runs the engine's programs, and
+    both the engine's DMA unit and its own loads and stores reach the
+    system's memory.</li>
 </ul>
+<p>Both come with functional and timing models, tests, and tools.</p>
+<h2 id="where-to-start">Where to start<a class="headerlink" href="#where-to-start" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>To write and run engine programs</strong>, read the <a href="isa.html">Instruction
+  Set</a>, then <a href="assembly_and_tools.html">Assembly Language and
+  Tools</a>, then <a href="running.html">Writing and Running
+  Programs</a>.</li>
+<li><strong>To use the engine from a SPARC program</strong>, read <a href="system.html">The Engine in a
+  System</a>.</li>
+<li><strong>To study or change the engine's timing</strong>, read the <a href="timing_model.html">Timing
+  Model</a>.</li>
+<li><strong>To see where the model departs from APARA's reference model</strong>, and
+  the open questions in its sources, read <a href="deviations.html">Deviations and
+  Findings</a>.</li>
+</ul>
+<hr />
 <h2 id="the-code">The code<a class="headerlink" href="#the-code" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -1766,43 +1821,35 @@ reference model.</p>
 <tbody>
 <tr>
 <td><code>model/cpp_common_code/apara/</code></td>
-<td>the engine in plain C++: <code>AparaCore</code> (state and execution), <code>AparaInstruction</code> (decoding), <code>AparaOperations</code> (the arithmetic), <code>AparaTypes</code> (number formats), <code>AparaFiles</code> and <code>AparaRun</code> (files and simulator runs), <code>AparaTiming</code> (latency table, BTB, pipeline tokens)</td>
+<td>The engine in plain C++, shared by both models: its state and execution (<code>AparaCore</code>), instruction decoding and arithmetic, the file formats and command line, and, for <code>sparc_apara</code>, the control unit, the DMA unit, and the three joined together for the cpp_model. Also the timing model's latency table and pipeline helpers (<code>AparaTiming.h</code>).</td>
 </tr>
 <tr>
 <td><code>model/sitar_component_models/Apara*.sitar</code></td>
-<td>the pipeline: <code>AparaEngine</code> and its five stage modules</td>
+<td>The timing model: <code>AparaEngine</code> and its five stage modules, and <code>AparaHost</code>, the engine's host side in <code>sparc_apara</code>.</td>
 </tr>
 <tr>
-<td><code>model/system_models/apara/</code></td>
-<td>the configuration: <code>cpp_model/</code> (<code>apara_sim_cpp</code>) and <code>sitar_model/</code> (<code>apara_sim_sitar</code>)</td>
+<td><code>model/sitar_component_models/SystemInterconnect.sitar</code></td>
+<td><code>sparc_apara</code>'s two-master bus.</td>
 </tr>
 <tr>
-<td><code>model/cpp_common_code/apara/</code> (system)</td>
-<td><code>AparaControlCore</code> (CCU), <code>AparaDmaCore</code> (DMA), <code>AparaSystemCore</code> (all three, for the cpp model)</td>
-</tr>
-<tr>
-<td><code>model/sitar_component_models/AparaHost.sitar</code>, <code>SystemInterconnect.sitar</code></td>
-<td>the engine's host side and the two-master bus, in Sitar</td>
-</tr>
-<tr>
-<td><code>model/system_models/sparc_apara/</code></td>
-<td>the configuration</td>
-</tr>
-<tr>
-<td><code>compiler/include/apara_access_routines.h</code>, <code>compiler/apara/apara_obj_to_c.py</code></td>
-<td>SPARC-side routines; an engine program as a C array</td>
-</tr>
-<tr>
-<td><code>validation/C/apara/</code></td>
-<td>the SPARC-side tests</td>
+<td><code>model/system_models/apara/</code>, <code>model/system_models/sparc_apara/</code></td>
+<td>The two configurations, each with its <code>cpp_model/</code> and <code>sitar_model/</code>.</td>
 </tr>
 <tr>
 <td><code>compiler/apara/</code></td>
-<td>the assembler, disassembler, their library <code>mcode.py</code>, vim syntax</td>
+<td>The assembler, the disassembler, the program-to-C-header tool, and vim syntax highlighting.</td>
+</tr>
+<tr>
+<td><code>compiler/include/apara_access_routines.h</code></td>
+<td>The SPARC-side C routines.</td>
 </tr>
 <tr>
 <td><code>validation/apara/</code></td>
-<td>the tests and their runner</td>
+<td>The engine's own tests, and their runner.</td>
+</tr>
+<tr>
+<td><code>validation/C/apara/</code></td>
+<td>The SPARC-side tests.</td>
 </tr>
 </tbody>
 </table>

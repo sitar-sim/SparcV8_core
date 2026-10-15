@@ -12,7 +12,7 @@ and the full address map.
 
 | Bits | Field | Description |
 |---|---|---|
-| `[0]` | `Timer_en` | Enable bit. Writing 1 starts the countdown, writing 0 disables the timer. |
+| `[0]` | `Timer_en` | Enable bit. Writing 1 starts the timer, writing 0 disables it. |
 | `[31:1]` | `Timer_max_count` | The number of ticks to count, set on the same write that enables the timer. |
 
 A read of the Control register returns it as last written, the same as
@@ -60,5 +60,5 @@ and the interrupt output, and moves to `TIMER_DISABLED`.
 A free running 64-bit counter across ASR[31] and ASR[30], running at
 the processor clock and read-only, is documented separately from this
 Timer. It is unrelated to it, a CPU-internal cycle counter rather
-than a memory-mapped, software-configured countdown timer. Our Sitar
+than a memory-mapped, software-configured timer. Our Sitar
 model does not yet implement this counter.

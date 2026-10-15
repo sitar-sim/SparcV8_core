@@ -22,5 +22,6 @@ is the same `AparaCore` the cpp_model runs, inside the EXEC stage.
         [-r results.txt] [--stats] [--max-cycles n] [--latency-file file]
 ```
 
-It prints the cycles the run took. See the documentation's "APARA Timing
-Model" page for the pipeline, its timing rules and knobs.
+It prints the cycles the run took. See [APARA Timing
+Model](https://sitar-sim.github.io/SparcV8_core/apara/timing_model.html)
+for the pipeline, its timing rules and knobs.
