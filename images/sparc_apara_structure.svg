@@ -1,0 +1,117 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1330 680" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="1330" height="680" fill="#ffffff"/>
+  <defs>
+    <marker id="saArrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="18" markerHeight="18" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <!-- Top (module) containment -->
+  <rect x="20" y="20" width="1290" height="640" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="40" y="50" font-size="16" font-weight="bold">Top (module)</text>
+
+  <!-- System (module) containment -->
+  <rect x="40" y="60" width="1260" height="590" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="60" y="88" font-size="16" font-weight="bold">System (module)</text>
+
+  <!-- everything inside System, shifted right to leave a gutter for the IRL line -->
+  <g transform="translate(30,0)">
+
+  <!-- core : Core (module) containment -->
+  <rect x="60" y="120" width="580" height="180" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="80" y="148" font-size="16" font-weight="bold">core : Core (module)</text>
+
+  <rect x="80" y="180" width="160" height="80" fill="#dbe9f7" stroke="#000000" stroke-width="1.5"/>
+  <text x="160" y="215" text-anchor="middle" font-size="16" font-weight="bold">sparcThread</text>
+  <text x="160" y="238" text-anchor="middle" font-size="12">SparcThread (procedure)</text>
+
+  <rect x="270" y="180" width="160" height="80" fill="#dbe9f7" stroke="#000000" stroke-width="1.5"/>
+  <text x="350" y="215" text-anchor="middle" font-size="16" font-weight="bold">caches</text>
+  <text x="350" y="238" text-anchor="middle" font-size="12">L1Caches (procedure)</text>
+
+  <rect x="460" y="180" width="160" height="80" fill="#dbe9f7" stroke="#000000" stroke-width="1.5"/>
+  <text x="540" y="215" text-anchor="middle" font-size="16" font-weight="bold">mmu</text>
+  <text x="540" y="238" text-anchor="middle" font-size="12">Mmu (procedure)</text>
+
+  <line x1="240" y1="220" x2="270" y2="220" stroke="#000000" stroke-width="2.5" marker-start="url(#saArrow)" marker-end="url(#saArrow)"/>
+  <text x="255" y="204" text-anchor="middle" font-size="16">||</text>
+  <line x1="430" y1="220" x2="460" y2="220" stroke="#000000" stroke-width="2.5" marker-start="url(#saArrow)" marker-end="url(#saArrow)"/>
+  <text x="445" y="204" text-anchor="middle" font-size="16">||</text>
+
+  <!-- engine : AparaEngine (module) containment -->
+  <rect x="60" y="350" width="580" height="240" fill="none" stroke="#000000" stroke-width="1.5" stroke-dasharray="6,4"/>
+  <text x="80" y="378" font-size="16" font-weight="bold">engine : AparaEngine (module)</text>
+
+  <rect x="80" y="410" width="330" height="150" fill="#e8e0f5" stroke="#000000" stroke-width="1.5"/>
+  <text x="245" y="460" text-anchor="middle" font-size="16" font-weight="bold">fetch, decode, regfile, writeback</text>
+  <text x="245" y="484" text-anchor="middle" font-size="12">the other four pipeline stages (modules)</text>
+  <text x="245" y="504" text-anchor="middle" font-size="11">see the apara configuration</text>
+
+  <rect x="460" y="410" width="160" height="150" fill="#e8e0f5" stroke="#000000" stroke-width="1.5"/>
+  <text x="540" y="460" text-anchor="middle" font-size="16" font-weight="bold">exec</text>
+  <text x="540" y="484" text-anchor="middle" font-size="12">AparaExec (module)</text>
+  <text x="540" y="504" text-anchor="middle" font-size="11">the engine's state:</text>
+  <text x="540" y="520" text-anchor="middle" font-size="11">IMEM, DMEM, registers</text>
+
+  <line x1="410" y1="465" x2="458" y2="465" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="458" y1="505" x2="410" y2="505" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+
+  <!-- host : AparaHost (module) -->
+  <rect x="700" y="400" width="160" height="170" fill="#e8e0f5" stroke="#000000" stroke-width="1.5"/>
+  <text x="780" y="460" text-anchor="middle" font-size="16" font-weight="bold">host</text>
+  <text x="780" y="483" text-anchor="middle" font-size="12">AparaHost (module)</text>
+  <text x="780" y="505" text-anchor="middle" font-size="11">control unit (CCU)</text>
+  <text x="780" y="521" text-anchor="middle" font-size="11">DMA unit</text>
+
+  <!-- exec <-> host: service, off-island, stop nets -->
+  <line x1="620" y1="460" x2="698" y2="460" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="698" y1="510" x2="620" y2="510" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <text x="660" y="448" text-anchor="middle" font-size="11">5 nets</text>
+
+  <!-- interconnect -->
+  <rect x="920" y="120" width="140" height="470" fill="#e2f0d9" stroke="#000000" stroke-width="1.5"/>
+  <text x="990" y="330" text-anchor="middle" font-size="16" font-weight="bold">interconnect</text>
+  <text x="990" y="353" text-anchor="middle" font-size="12">SystemInterconnect&lt;2&gt;</text>
+  <text x="990" y="370" text-anchor="middle" font-size="12">(module)</text>
+  <text x="990" y="392" text-anchor="middle" font-size="11">2 masters, round robin</text>
+
+  <!-- core <-> interconnect (master 0) -->
+  <line x1="640" y1="190" x2="918" y2="190" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <text x="780" y="180" text-anchor="middle" font-size="12">master 0: request</text>
+  <line x1="918" y1="230" x2="640" y2="230" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <text x="780" y="250" text-anchor="middle" font-size="12">response</text>
+
+  <!-- host <-> interconnect: master 1 and slave -->
+  <text x="890" y="418" text-anchor="middle" font-size="11">master 1</text>
+  <line x1="860" y1="430" x2="918" y2="430" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="918" y1="458" x2="860" y2="458" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="918" y1="512" x2="860" y2="512" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="860" y1="540" x2="918" y2="540" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <text x="890" y="560" text-anchor="middle" font-size="11">slave</text>
+
+  <!-- mainMemory -->
+  <rect x="1100" y="120" width="160" height="100" fill="#fce8ec" stroke="#000000" stroke-width="1.5"/>
+  <text x="1180" y="160" text-anchor="middle" font-size="16" font-weight="bold">mainMemory</text>
+  <text x="1180" y="183" text-anchor="middle" font-size="12">PhysicalMainMemory</text>
+  <text x="1180" y="200" text-anchor="middle" font-size="12">(module)</text>
+  <line x1="1060" y1="150" x2="1098" y2="150" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="1098" y1="190" x2="1060" y2="190" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+
+  <!-- devices -->
+  <rect x="1100" y="430" width="160" height="120" fill="#fff2cc" stroke="#000000" stroke-width="1.5"/>
+  <text x="1180" y="466" text-anchor="middle" font-size="16" font-weight="bold">devices</text>
+  <text x="1180" y="489" text-anchor="middle" font-size="12">PeripheralDevices</text>
+  <text x="1180" y="506" text-anchor="middle" font-size="12">(module)</text>
+  <text x="1180" y="526" text-anchor="middle" font-size="11">Timer, Serial, IRC</text>
+  <line x1="1060" y1="460" x2="1098" y2="460" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+  <line x1="1098" y1="500" x2="1060" y2="500" stroke="#000000" stroke-width="2.5" marker-end="url(#saArrow)"/>
+
+  <!-- engine interrupt: host -> devices (a single signal: thinner) -->
+  <polyline points="780,570 780,612 1180,612 1180,552" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#saArrow)"/>
+  <text x="980" y="605" text-anchor="middle" font-size="13">engineInterruptNet (IRL 14)</text>
+
+  <!-- interrupt level: devices -> core (a single signal: thinner) -->
+  <polyline points="1230,550 1230,636 25,636 25,210 58,210" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#saArrow)"/>
+  <text x="640" y="630" text-anchor="middle" font-size="13">interruptLevelNet (IRL)</text>
+  </g>
+</svg>
