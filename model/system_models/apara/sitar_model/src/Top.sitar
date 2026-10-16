@@ -39,6 +39,7 @@ module Top
 	engine.exec.pipelined  = true;       //EXEC takes a new bundle every cycle (false: holds one)
 	engine.exec.latency.bankConflictCycles = 1; //per extra same-bank access in a bundle
 	engine.regfile.tokens  = 2;          //bundles allowed in EXEC (issued, result not yet back at REGFILE)
+	engine.regfile.interlock = true;     //false: REGFILE ignores register locks (to demonstrate hazards)
 	//---------------------------------------------------------
 	$
 

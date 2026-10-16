@@ -246,6 +246,10 @@ namespace apara
 		uint64_t tokenStallCycles   = 0; //cycles a ready bundle waited for a REGFILE token
 		uint64_t bankConflicts      = 0; //extra same-bank accesses
 		uint64_t dividerStallCycles = 0; //cycles a bundle waited for the shared divider
+		uint64_t rawHazards         = 0; //bundles issued while a register they read had an older write
+		                                 //still outstanding (0 unless REGFILE's interlock is off)
+		uint64_t maskViolations     = 0; //bundles that read or wrote a register outside their lock masks
+		bool     interlock          = true; //REGFILE's interlock was on
 		uint64_t perThreadExecuted[THREADS_PER_ENGINE] = {0, 0, 0, 0};
 
 		void add(const AparaTimingStats& o);

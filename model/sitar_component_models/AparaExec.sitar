@@ -73,6 +73,7 @@ module AparaExec
 	{
 		uint64_t           readyCycle;
 		apara::ResultToken result;
+		uint32_t           readMask; //DECODE's, for the lock-mask audit
 		bool               pending; //waiting for off-island answers
 		uint64_t           id;
 	};
@@ -138,6 +139,17 @@ module AparaExec
 	void finishStep(unsigned int t, InFlight& f, uint64_t now, uint64_t startCycle, unsigned int cycles, uint32_t predictedNextPc)
 	{
 		apara::StepResult r = core.commitStep(t);
+		//The lock-mask audit: the registers the bundle actually used must
+		//be within the masks DECODE gave REGFILE, or the interlock would
+		//have missed a dependence.
+		if ((r.regsRead & ~f.readMask) || (r.regsWritten & ~f.result.writeMask))
+		{
+			stats.maskViolations++;
+			std::cout << "internal error: the bundle at 0x" << std::hex << f.result.pc
+			          << " used registers outside its lock masks (read 0x" << r.regsRead
+			          << " vs 0x" << f.readMask << ", wrote 0x" << r.regsWritten
+			          << " vs 0x" << f.result.writeMask << ")" << std::dec << "\n";
+		}
 		f.result.nextPc = r.nextPc;
 		if (r.bundle && r.bundle->valid && r.bundle->slot[0].isControl())
 			f.result.flags |= apara::RESULT_CONTROL;
@@ -201,6 +213,7 @@ module AparaExec
 		f.result.thread = (uint8_t) t;
 		f.result.size = b.size;
 		f.result.writeMask = b.writeMask;
+		f.readMask = b.readMask;
 		f.pending = false;
 		f.id = nextId++;
 

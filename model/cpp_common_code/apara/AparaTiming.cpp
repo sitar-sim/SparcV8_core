@@ -209,6 +209,9 @@ void AparaTimingStats::add(const AparaTimingStats& o)
 	tokenStallCycles   += o.tokenStallCycles;
 	bankConflicts      += o.bankConflicts;
 	dividerStallCycles += o.dividerStallCycles;
+	rawHazards         += o.rawHazards;
+	maskViolations     += o.maskViolations;
+	interlock          = interlock && o.interlock;
 	for (unsigned int t = 0; t < THREADS_PER_ENGINE; t++)
 		perThreadExecuted[t] += o.perThreadExecuted[t];
 }
@@ -224,7 +227,10 @@ std::string AparaTimingStats::toString() const
 	  << "register-lock stalls     " << lockStallCycles << " cycles\n"
 	  << "REGFILE token stalls     " << tokenStallCycles << " cycles\n"
 	  << "DMEM bank conflicts      " << bankConflicts << "\n"
-	  << "divider stalls           " << dividerStallCycles << " cycles\n";
+	  << "divider stalls           " << dividerStallCycles << " cycles\n"
+	  << "REGFILE interlock        " << (interlock ? "on" : "off") << "\n"
+	  << "RAW hazards              " << rawHazards << "\n"
+	  << "lock-mask violations     " << maskViolations << "\n";
 	for (unsigned int t = 0; t < THREADS_PER_ENGINE; t++)
 		s << "thread " << t << " bundles executed " << perThreadExecuted[t] << "\n";
 	return s.str();

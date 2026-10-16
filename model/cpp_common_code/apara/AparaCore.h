@@ -157,6 +157,11 @@ namespace apara
 		bool          exception = false;
 		unsigned int  memoryAccessCount = 0;
 		MemoryAccess  memoryAccess[BUNDLE_MAX_SLOTS];
+		//The registers the bundle actually read and wrote (bit i: $ri,
+		//$r0 left out), set by commitStep(). The timing model checks
+		//them against its register-lock masks (Ref AparaExec.sitar).
+		uint32_t      regsRead = 0;
+		uint32_t      regsWritten = 0;
 	};
 
 	class AparaCore

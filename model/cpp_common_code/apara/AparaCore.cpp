@@ -13,6 +13,8 @@ struct AparaCore::SlotWork
 	ExceptionCode exception = ExceptionCode::NONE;
 	PendingWrite  write[5];
 	unsigned int  writeCount = 0;
+	uint32_t      regsRead = 0;    //bit i: $ri was read (Ref StepResult::regsRead)
+	uint32_t      regsWritten = 0; //bit i: $ri was written
 
 	//memory access
 	bool     memory  = false;
@@ -40,6 +42,7 @@ struct AparaCore::SlotWork
 		write[writeCount].reg = (uint8_t) (reg & 31);
 		write[writeCount].value = value;
 		writeCount++;
+		regsWritten |= 1u << (reg & 31);
 	}
 };
 
@@ -194,7 +197,7 @@ void AparaCore::executeSlot(const ThreadState& ts, const Bundle& b, unsigned int
 {
 	const Instruction& in = b.slot[s];
 	const uint32_t address = b.pc + s; //this instruction's own address
-	auto R = [&](unsigned int r) { return ts.r[r & 31]; };
+	auto R = [&](unsigned int r) { w.regsRead |= 1u << (r & 31); return ts.r[r & 31]; };
 
 	if (!in.valid || (b.misplaced >> s) & 1)
 	{
@@ -278,7 +281,7 @@ void AparaCore::executeSlot(const ThreadState& ts, const Bundle& b, unsigned int
 			unsigned int n = 1;
 			if (in.castSource.isVector && in.type.bits < in.castSource.bits)
 				n = in.castSource.bits / in.type.bits;
-			uint64_t v[2] = {R(in.rs2), R(in.rs2 + 1)};
+			uint64_t v[2] = {R(in.rs2), n == 2 ? R(in.rs2 + 1) : 0}; //a narrowing cast reads two
 			result = cast(in.destType, in.castSource, v, n);
 			hasResult = true;
 			break;
@@ -507,6 +510,13 @@ StepResult AparaCore::commitStep(unsigned int t)
 		if (w.setsPc) nextPc = w.nextPc;
 		halt = halt || w.halt;
 	}
+	for (unsigned int s = 0; s < b.size; s++)
+	{
+		res.regsRead |= p.work[s].regsRead;
+		res.regsWritten |= p.work[s].regsWritten;
+	}
+	res.regsRead &= ~1u; //$r0 is not a dependence
+	res.regsWritten &= ~1u;
 	res.redirect = nextPc != b.pc + b.size;
 	res.nextPc = nextPc;
 	res.bundle = &p.bundle;

@@ -152,6 +152,7 @@ module System
 	engine.exec.pipelined  = true;
 	engine.exec.latency.bankConflictCycles = 1;
 	engine.regfile.tokens  = 2;
+	engine.regfile.interlock = true;
 	//---------------------------------------------------------
 	$
 

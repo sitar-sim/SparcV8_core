@@ -17,6 +17,15 @@
 // (The functional register file is AparaCore's, in EXEC: bundles run
 // there in program order, and the locks make every later reader of a
 // register wait until the writer has passed WRITEBACK.)
+//
+// Hazard audit: independently of the locks, REGFILE counts each thread's
+// outstanding writes per register (issued, result not yet back). A
+// bundle issued while a register it reads has an outstanding write is a
+// read-after-write hazard: the hardware would read a stale value. With
+// the interlock on there are none (the locks prevent them). Knob:
+// interlock (default true); false ignores the locks, for demonstrating
+// hazards. The functional results stay correct either way (EXEC runs
+// each thread's bundles in program order); the count is the evidence.
 //================================================================
 
 module AparaRegfile
@@ -38,6 +47,8 @@ module AparaRegfile
 	bool               slotValid[apara::THREADS_PER_ENGINE];
 	apara::BundleToken slot[apara::THREADS_PER_ENGINE];
 	unsigned int tokens;
+	bool         interlock;
+	uint8_t      outstanding[apara::THREADS_PER_ENGINE][32]; //the hazard audit's write counts
 	unsigned int nextThread;
 	int          selected; //this cycle's pick, -1 if none
 
@@ -51,11 +62,15 @@ module AparaRegfile
 	public:
 	void receiveAndPick()
 	{
+		stats.interlock = interlock;
 		while (fromExec.pull(resultTok))
 		{
 			apara::ResultToken r;
 			sitar::unpack(resultTok, r);
 			locks[r.thread % apara::THREADS_PER_ENGINE] &= ~r.writeMask;
+			for (unsigned int i = 1; i < 32; i++)
+				if ((r.writeMask >> i) & 1)
+					outstanding[r.thread % apara::THREADS_PER_ENGINE][i]--;
 			tokens++;
 			toRetire.push_back(r);
 		}
@@ -72,7 +87,7 @@ module AparaRegfile
 			unsigned int t = (nextThread + i) % apara::THREADS_PER_ENGINE;
 			if (!slotValid[t])
 				continue;
-			if ((slot[t].readMask | slot[t].writeMask) & locks[t])
+			if (interlock && ((slot[t].readMask | slot[t].writeMask) & locks[t]))
 			{
 				lockStall = true;
 				continue;
@@ -103,6 +118,15 @@ module AparaRegfile
 		sitar::pack(bundleTok, slot[t]);
 		if (toExec.push(bundleTok))
 		{
+			for (unsigned int i = 1; i < 32; i++)
+				if (((slot[t].readMask >> i) & 1) && outstanding[t][i] > 0)
+				{
+					stats.rawHazards++;
+					break;
+				}
+			for (unsigned int i = 1; i < 32; i++)
+				if ((slot[t].writeMask >> i) & 1)
+					outstanding[t][i]++;
 			locks[t] |= slot[t].writeMask;
 			tokens--;
 			slotValid[t] = false;
@@ -120,6 +144,8 @@ module AparaRegfile
 		std::memset(&slot[t], 0, sizeof(slot[t]));
 	}
 	tokens = 2;
+	interlock = true;
+	std::memset(outstanding, 0, sizeof(outstanding));
 	nextThread = 0;
 	selected = -1;
 	$
