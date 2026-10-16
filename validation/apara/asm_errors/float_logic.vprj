@@ -1,0 +1,2 @@
+SOURCES = float_logic.mcode
+ASM_ERROR = floats have only

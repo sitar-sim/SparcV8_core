@@ -1,0 +1,15 @@
+// A signed narrow type reads only its own width: 0x105 as ($i8) is 5,
+// 0x1_00000007 as ($i32) is 7, 0x100 as ($i8) is 0. The reference model
+// sign-extends negative narrow values but keeps the bits above the width
+// of non-negative ones, so it computes 0x105 + 0 = 0x105 and finds 0x100
+// nonzero.
+
+    ||
+        +  $r10 ($i8)  $r1 $r0          // 5
+        +  $r11 ($i32) $r2 $r0          // 7
+        $cmov ($i8) $r9 == $r12 $r3     // 0x100 as i8 is 0: r12 = 1
+    ;
+    || ? ($i8) $r3 == ++1 $goto done ;  // taken; r3 = 0x101 after the test
+    || + $r13 ($i64) $r0 1  $null ;     // not reached
+done:
+    || $halt ;

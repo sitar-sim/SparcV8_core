@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a load's ++1 writes r2, and another instruction writes r2.
+
+|| $ld ($i64) $r1 [$r0 + $r2 ++1]  + $r2 ($i64) $r0 1 ;

@@ -1,0 +1,16 @@
+SOURCES = cmov.mcode
+
+INIT =
+r1 = 5
+r3 = 7
+r4 = 0xaa
+r5 = 0xbb
+r6 = 0xffffffffffffffff
+r10 = 3
+
+RESULTS =
+r4 = 0x5
+r5 = 0xbb
+r7 = 0x5
+r9 = 0x5
+r10 = 0x4

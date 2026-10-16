@@ -1,0 +1,2 @@
+SOURCES = double_write_load256.mcode
+ASM_ERROR = $r6 is written twice

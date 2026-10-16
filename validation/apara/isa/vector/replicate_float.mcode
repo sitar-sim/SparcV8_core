@@ -1,0 +1,10 @@
+// $replicate combines every element of rs1 with rs2's lowest element (a
+// scalar times a vector), and float vectors: element-wise IEEE f32 and f16.
+
+||
+    $v * $r10 ($vi16) $r1 $r2 $replicate    // each 16-bit element * 2
+    $v + $r11 ($vf32) $r3 $r4               // [1.5, 2.0] + [0.25, -4.0] = [1.75, -2.0]
+    $v * $r12 ($vf16) $r5 $r6 $replicate    // [1, 2, -1.5, 0.5] * 3.0
+    $v - $r13 ($vi8)  $r1 $r2 $replicate    // each byte - 2
+;
+|| $halt ;

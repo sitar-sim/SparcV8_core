@@ -1,0 +1,17 @@
+// The branch predictor (Ref docs: the timing model's Branch prediction):
+// a 256-entry BTB, direct mapped by the low 8 bits of the bundle's PC and
+// tagged with the rest, shared by all threads. An entry predicts its
+// target while its 2-bit counter is below 3 (0 strongly taken). Only
+// mispredicts train it: a taken one creates an entry at 0 (or lowers the
+// counter and sets the target), a not-taken one raises the counter (or
+// creates an entry at 3). MISPREDICTS is checked on the timing model.
+//
+// A loop of 9 passes: its closing branch misses the BTB the first time (a
+// mispredict that creates the entry), is predicted taken 7 times, and
+// mispredicts once more at the exit (counter 0 -> 1): 2.
+
+    || + $r1 ($i64) $r0 8 ;
+loop:
+    || + $r2 ($i64) $r2 1 ;
+    || ? ($i64) $r1 > --1 $goto loop ;      // taken 8 times, then falls through
+    || $halt ;

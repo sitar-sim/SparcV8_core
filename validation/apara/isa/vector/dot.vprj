@@ -1,0 +1,15 @@
+SOURCES = dot.mcode
+
+INIT =
+r1 = 0x0102030405060708
+r2 = 0x01ff01ff01ff01ff
+r14 = 100
+r4 = 0x3c00400042004400
+
+RESULTS =
+r10 = 0xfffffffffffffffc
+r11 = 0x13fc
+r12 = 0x54c878
+r13 = 0xcc
+r14 = 0x130
+r15 = 0x41f00000

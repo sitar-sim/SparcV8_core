@@ -1,0 +1,2 @@
+SOURCES = nine_instructions.mcode
+ASM_ERROR = at most 8 instructions

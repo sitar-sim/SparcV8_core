@@ -1,0 +1,5 @@
+SOURCES = dot_scalar.c
+DEVIATION = 4-byte loads at offset 4: the reference reads the wrong half (deviation 2)
+
+RESULTS =
+m[result] = 0xffffffffffea24ba

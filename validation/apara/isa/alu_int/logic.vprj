@@ -1,0 +1,19 @@
+SOURCES = logic.mcode
+
+INIT =
+r1 = 0xf0f0f0f0f0f0f0f0
+r2 = 0xff00ff00ff00ff00
+r3 = 0xf
+
+RESULTS =
+r10 = 0xfff0fff0fff0fff0
+r11 = 0xf000f000f000f000
+r12 = 0x0ff00ff00ff00ff0
+r13 = 0x000f000f000f000f
+r14 = 0x0fff0fff0fff0fff
+r15 = 0xf00ff00ff00ff00f
+r16 = 0xf0f0f0f0f0f0f0f0
+r17 = 0x10f
+r18 = 0xffffffffffffffff
+r19 = 0xf0f0f0f0f0f0f0ff
+r20 = 0xfffffffffffff000

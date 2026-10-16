@@ -1,0 +1,5 @@
+SOURCES = call_return.mcode
+MISPREDICTS = 4
+
+RESULTS =
+r2 = 3

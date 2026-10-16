@@ -1,0 +1,3 @@
+# The APARA engine's own suites: the standalone apara configuration, run
+# with validation/apara/run_tests.py (not validation/run_tests.py).
+apara_standalone

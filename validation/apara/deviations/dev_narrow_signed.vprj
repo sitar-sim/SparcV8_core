@@ -1,0 +1,15 @@
+SOURCES = dev_narrow_signed.mcode
+DEVIATION = the reference keeps the bits above a non-negative narrow signed operand (deviation 32)
+
+INIT =
+r1 = 0x105
+r2 = 0x100000007
+r3 = 0x100
+r9 = 1
+
+RESULTS =
+r10 = 5
+r11 = 7
+r12 = 1
+r3 = 0x101
+r13 = 0

@@ -1,0 +1,5 @@
+SOURCES = t1_halt.mcode
+CYCLES = 6
+
+RESULTS =
+error = 0x2000000

@@ -1,0 +1,15 @@
+// The return-address stack holds 64 entries: 64 nested calls (a chain
+// that calls itself while r1 > 0) all return correctly, in order, each
+// return popping its entry. Needs $return to pop (deviation 1). The
+// 65th push would stop the thread (Ref dev_exceptions2).
+
+    || + $r1 ($i64) $r0 63  $null ;     // 64 calls in all
+    || $call down ;
+    || $halt ;
+down:
+    || + $r2 ($i64) $r2 1  $null ;      // counts the calls
+    || ? ($i64) $r1 > --1 $goto deeper ;
+    || $return ;
+deeper:
+    || $call down ;
+    || + $r3 ($i64) $r3 1  $return ;    // counts the returns through here

@@ -1,0 +1,11 @@
+SOURCES = memory_order.mcode
+HAZARDS_UNLOCKED = 0
+
+INIT =
+r1 = 0x11
+r3 = 0x22
+
+RESULTS =
+r2 = 0x11
+r4 = 0x22
+m[0x0] = 0x22

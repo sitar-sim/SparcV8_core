@@ -1,0 +1,7 @@
+SOURCES = dev_ras_depth.mcode
+DEVIATION = nested calls need $return to pop (deviation 1)
+
+RESULTS =
+r2 = 64
+r3 = 63
+error = 0x2000000

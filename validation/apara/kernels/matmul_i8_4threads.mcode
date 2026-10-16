@@ -1,0 +1,21 @@
+// The program and its data are already in the engine's IMEM and DMEM (the
+// INIT lines); the RESULTS were computed independently (in Python).
+//
+// C = A x B, 8x8 int8 matrices, C int64. B is stored transposed (row j of
+// BT is column j of B), so C[i][j] is the dot product of A's row i and
+// BT's row j: one $dot ($vi8) each, 8 per bundle. A at 0x0 (one dword
+// per row), BT at 0x40, C at 0x100 (64 bytes per row).
+// The same code on all four threads, two rows each: each thread starts
+// with its own r20 (A's rows 2t, 2t+1), r21 (C's rows) and r22 = 1. The
+// threads share BT (read only) and write disjoint parts of C.
+
+    || $ld ($u256) $r9 [$r0 + 64]  $ld ($u256) $r13 [$r0 + 96] ;    // BT rows 0..7: r9..r16
+row:
+    || $ld ($i64) $r1 [$r0 + $r20 ++1] ;            // A's row, r20 += 8
+    || $dot $r24 ($vi8) $r1 $r9    $dot $r25 ($vi8) $r1 $r10
+       $dot $r26 ($vi8) $r1 $r11   $dot $r27 ($vi8) $r1 $r12
+       $dot $r28 ($vi8) $r1 $r13   $dot $r29 ($vi8) $r1 $r14
+       $dot $r30 ($vi8) $r1 $r15   $dot $r31 ($vi8) $r1 $r16 ;
+    || $st ($u256) [$r21 + 0] $r24  $st ($u256) [$r21 + 32] $r28  + $r21 ($i64) $r21 64 ;
+    || ? ($i64) $r22 > --1 $goto row ;
+    || $halt ;

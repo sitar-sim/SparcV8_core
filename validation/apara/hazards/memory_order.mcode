@@ -1,0 +1,18 @@
+// The REGFILE interlock: a bundle that reads a register an older bundle of
+// its thread will write waits until that result is back. The timing model
+// counts a hazard whenever a bundle is issued while a register it reads
+// still has a write outstanding: with the interlock on (the default) there
+// are none; built with engine.regfile.interlock = false (Ref
+// timing/README.md) the model must report exactly HAZARDS_UNLOCKED of
+// them, the reads real hardware would get wrong. (The functional results
+// are right either way: the model runs each thread's bundles in order.)
+//
+// Memory dependences across bundles: a load right after a store to the
+// same address sees the stored value, and loads see older stores in
+// program order (no register hazards: 0).
+
+|| $st ($i64) [$r0 + 0] $r1 ;
+|| $ld ($i64) $r2 [$r0 + 0] ;       // sees 0x11
+|| $st ($i8)  [$r0 + 7] $r3 ;       // overwrite the low byte
+|| $ld ($i64) $r4 [$r0 + 0] ;       // sees 0x22
+|| $halt ;

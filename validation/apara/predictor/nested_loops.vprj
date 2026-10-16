@@ -1,0 +1,5 @@
+SOURCES = nested_loops.mcode
+MISPREDICTS = 10
+
+RESULTS =
+r3 = 20

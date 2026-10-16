@@ -1,0 +1,2 @@
+SOURCES = increment_range.mcode
+ASM_ERROR = increment 16 is out of range

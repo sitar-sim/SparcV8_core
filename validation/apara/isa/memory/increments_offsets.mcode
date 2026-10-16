@@ -1,0 +1,23 @@
+// Address forms: [$rs1 + imm] with the immediate's extremes, [$rs1 + $rs2]
+// with an increment (++n adds n times the transfer size to $rs2 after the
+// access: ++15 is the largest, and ++1 on a 32-byte transfer adds 32),
+// stores with increments, and the two DMEM banks (address bit 15).
+
+imm:
+    ||
+        $ld ($i64) $r10 [$r1 + 511]     // the largest immediate: r1 = 0x201, 0x201 + 511 = 0x400
+        $ld ($i64) $r11 [$r2 + -512]    // the smallest: 0x600 - 512 = 0x400
+    ;
+incr:
+    ||
+        $ld ($i64) $r12 [$r0 + $r3 ++15]    // 0x400, then r3 += 15 * 8
+        $st ($i32) [$r0 + $r4 ++3] $r5      // store at 0x408 (upper half), then r4 += 12
+        $ld ($u256) $r20 [$r0 + $r6 ++1]    // 0x400..0x41f, then r6 += 32
+    ;
+banks:
+    ||
+        $st ($i64) [$r7 + 0] $r8        // 0x8000: bank 1
+        $ld ($i64) $r13 [$r7 + 0]       // the same bank, later slot: sees the store
+        $ld ($i64) $r14 [$r9 + 0]       // ... while bank 0 (0x7f8) is read in parallel
+    ;
+    || $halt ;

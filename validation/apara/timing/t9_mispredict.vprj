@@ -1,0 +1,5 @@
+SOURCES = t9_mispredict.mcode
+CYCLES = 12
+
+RESULTS =
+pc = 0xa

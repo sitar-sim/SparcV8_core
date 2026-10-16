@@ -1,0 +1,18 @@
+SOURCES = set_slice_pack.mcode
+
+INIT =
+r9 = 0xfedcba9876543211
+
+RESULTS =
+r1 = 0xffff000000000000
+r2 = 0xfffe00
+r3 = 0x1234
+r10 = 0xfedcba9876543211
+r11 = 1
+r12 = 0xf
+r13 = 0x87
+r14 = 0x48c0
+r16 = 0x1234
+r17 = 0x5678
+r18 = 0x9abc
+r19 = 0xdef0

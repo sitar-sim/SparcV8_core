@@ -3,8 +3,6 @@
 // (returned two cycles after issue) nothing stalls. The $halt is fetched
 // in cycle 16 and leaves WRITEBACK in cycle 21: 22 cycles.
 //
-//@ cycles: 22
-//@ expect: 0 pc 0x11
     || $null ;
     || $null ;
     || $null ;

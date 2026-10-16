@@ -1,0 +1,5 @@
+SOURCES = t2_stream.mcode
+CYCLES = 22
+
+RESULTS =
+pc = 0x11

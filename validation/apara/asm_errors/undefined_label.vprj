@@ -1,0 +1,2 @@
+SOURCES = undefined_label.mcode
+ASM_ERROR = undefined label nowhere

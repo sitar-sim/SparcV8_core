@@ -1,0 +1,2 @@
+SOURCES = load256_past_r31.mcode
+ASM_ERROR = run past $r31

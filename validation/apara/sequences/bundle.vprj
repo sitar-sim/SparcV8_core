@@ -1,0 +1,11 @@
+SOURCES = bundle.mcode
+
+INIT =
+r1 = 1
+r2 = 2
+
+RESULTS =
+r1 = 0x2
+r2 = 0x1
+r3 = 0x1
+r4 = 0x1

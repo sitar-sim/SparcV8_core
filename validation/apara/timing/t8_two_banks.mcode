@@ -1,7 +1,5 @@
 // Timing: two loads to different DMEM banks (addresses 0 and 0x8000)
 // proceed in parallel: 3 cycles. 9 cycles in all.
 //
-//@ cycles: 9
-//@ reg: 0 $r3 0x8000
     || $ld ($i64) $r1 [$r0 + 0]  $ld ($i64) $r2 [$r3 + 0] ;
     || $halt ;

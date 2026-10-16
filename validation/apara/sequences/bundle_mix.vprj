@@ -1,0 +1,18 @@
+SOURCES = bundle_mix.mcode
+
+INIT =
+r1 = 2
+r3 = 100
+r4 = 7
+m[0x0] = 0x55
+
+RESULTS =
+r1 = 1
+r2 = 14
+r3 = 102
+r5 = 4
+r6 = 100
+r7 = 0x55
+r8 = 0
+m[0x10] = 100
+m[0x18] = 7

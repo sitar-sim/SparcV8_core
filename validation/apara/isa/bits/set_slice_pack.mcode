@@ -1,0 +1,28 @@
+// $set writes a 16-bit value at a byte position (the rest of the register
+// becomes 0), also as a negative number; $slice extracts any bit field,
+// from one bit to all 64; $pack gathers fields from consecutive registers
+// (the first register's field most significant), up to 4 destination
+// registers.
+
+set:
+    ||
+        $set $r1 6 _hffff               // 0xffff << 48
+        $set $r2 1 -2                   // 0xfffe << 8
+        $set $r3 0 _h1234
+        $set $r4 0 _h5678
+        $set $r5 0 _h9abc
+        $set $r6 0 _hdef0
+    ;
+slice:
+    ||
+        $slice $r10 63 0  $r9           // the whole register
+        $slice $r11 0  0  $r9           // bit 0
+        $slice $r12 63 60 $r9           // the top nibble
+        $slice $r13 35 28 $r9           // a field across the 32-bit boundary
+    ;
+pack:
+    ||
+        $pack 16  $r14 4  $r3           // the low nibbles of r3..r6: 4, 8, c, 0
+        $pack 256 $r16 64 $r3           // r3..r6 copied to r16..r19
+    ;
+    || $halt ;

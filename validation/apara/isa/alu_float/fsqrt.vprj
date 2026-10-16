@@ -1,0 +1,15 @@
+SOURCES = fsqrt.mcode
+THREADS = t0 t1
+DEVIATION = the reference model has no $fsqrt (deviation 8)
+
+INIT =
+r1 = 0x40100000
+r2 = 0x4000000000000000
+t1.r3 = 0xbf800000
+
+RESULTS =
+r10 = 0x3fc00000
+r11 = 0x3ff6a09e667f3bcd
+error = 0x2000000
+t1.error = 0x1000028
+t1.pc = 0x18

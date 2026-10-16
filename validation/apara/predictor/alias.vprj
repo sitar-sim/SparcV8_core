@@ -1,0 +1,6 @@
+SOURCES = alias.mcode
+MISPREDICTS = 14
+
+RESULTS =
+r3 = 9
+r5 = 9

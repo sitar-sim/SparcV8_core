@@ -1,0 +1,7 @@
+// An integer divide by zero raises exception 1 in the divide's slot. The
+// bundle changes nothing (r9 keeps its value though the bundle also writes
+// it), the thread halts with its PC at the bundle, and ERROR holds bit 24
+// (exception) and code 1 in slot 1's field, bits [5:3]: 0x1000008.
+
+|| + $r9 ($i64) $r0 7  / $r2 ($i64) $r1 $r0 ;
+|| $halt ;

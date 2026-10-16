@@ -3,6 +3,5 @@
 // 3 + 1 cycles (EXEC cycles 3-6). The $halt leaves EXEC in 7, WRITEBACK
 // in 9: 10 cycles (Ref t8_two_banks.mcode: 9).
 //
-//@ cycles: 10
     || $ld ($i64) $r1 [$r0 + 0]  $ld ($i64) $r2 [$r0 + 8] ;
     || $halt ;

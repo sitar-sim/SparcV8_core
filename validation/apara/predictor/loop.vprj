@@ -1,0 +1,6 @@
+SOURCES = loop.mcode
+MISPREDICTS = 2
+
+RESULTS =
+r2 = 9
+r1 = 0xffffffffffffffff

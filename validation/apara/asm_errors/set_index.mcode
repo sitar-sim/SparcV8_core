@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): $set at byte index 8 (0..7).
+
+|| $set $r1 8 5 ;

@@ -1,0 +1,2 @@
+SOURCES = two_controls.mcode
+ASM_ERROR = at most one branch/call/return

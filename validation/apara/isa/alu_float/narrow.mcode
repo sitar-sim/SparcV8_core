@@ -1,0 +1,15 @@
+// The narrow float formats: f16 (IEEE half), f8 (4 exponent bits, 3
+// mantissa bits, bias 7), f4 (the values +-0, 0.5, 1, 1.5, 2, 3, inf, NaN,
+// coded 0..7 with bit 3 the sign). Each operation is computed in double
+// precision and rounded back with one round bit (round half up).
+
+||
+    +  $r10 ($f16) $r1 $r2      // 1.5 + 2.25 = 3.75 (0x4380)
+    *  $r11 ($f16) $r1 $r2      // 3.375 (0x42c0)
+    +  $r12 ($f8)  $r3 $r4      // 1.5 + 2.25 = 3.75: 1.875 * 2^1 is exact in f8 (0x47)
+    *  $r13 ($f8)  $r3 $r4      // 3.375 = 1.6875 * 2: rounds up to 1.75 * 2 = 3.5 (0x46)
+    +  $r14 ($f4)  $r5 $r6      // 1.5 + 1.0 = 2.5: rounds to 2.0 (code 4)
+    *  $r15 ($f4)  $r5 $r6      // 1.5 (code 3)
+    -  $r16 ($f4)  $r6 $r5      // -0.5 (sign and code 1: 0x9)
+;
+|| $halt ;

@@ -1,0 +1,12 @@
+// Element-wise $v + - * on vectors: element 0 is in the most significant
+// bits, and integer results wrap at the element width.
+
+||
+    $v + $r10 ($vi8)  $r1 $r2   // 8 elements, each mod 256
+    $v - $r11 ($vi8)  $r1 $r2
+    $v * $r12 ($vi8)  $r1 $r2   // the low 8 bits of each product
+    $v + $r13 ($vi16) $r1 $r2   // 4 elements
+    $v + $r14 ($vi32) $r1 $r2   // 2 elements
+    $v - $r16 ($vu8)  $r0 $r1   // 0 - each element
+;
+|| $halt ;

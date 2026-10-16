@@ -1,0 +1,17 @@
+SOURCES = div.mcode
+
+INIT =
+r1 = 100
+r2 = 0xfffffffffffffff9
+r3 = 7
+r4 = 0xffffffffffffff9c
+
+RESULTS =
+r10 = 0xe
+r11 = 0xfffffffffffffff2
+r12 = 0xfffffffffffffff2
+r13 = 0xe
+r14 = 0x2492492492492484
+r15 = 0xffffffffffffffff
+r16 = 0xffffffffffffffdf
+r17 = 0x0

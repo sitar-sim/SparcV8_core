@@ -1,0 +1,18 @@
+SOURCES = shifts.mcode
+
+INIT =
+r1 = 1
+r2 = 0x8000000000000000
+r3 = 0xfff0
+r4 = 65
+r5 = 64
+
+RESULTS =
+r10 = 0x8000000000000000
+r11 = 0xffffffffffffffff
+r12 = 0x1
+r13 = 0x2
+r14 = 0x1
+r15 = 0xfffffffffffffffc
+r16 = 0x3ffc
+r17 = 0xffffffffffffffe0

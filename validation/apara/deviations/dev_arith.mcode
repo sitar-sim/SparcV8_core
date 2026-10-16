@@ -1,0 +1,38 @@
+// Arithmetic where this model deviates from the APARA reference model
+// (Ref docs/apara, deviations): reductions start from their operation's
+// identity, unsigned reduction elements are zero-extended, a float $dot
+// accumulates, float casts and $fsqrt are implemented, a cast from a
+// 64-bit source is truncated, a 4-byte load at offset 4 reads the low
+// half, and a negative load increment is a 64-bit subtraction.
+
+reduce:
+    ||
+        $vreduce *  $r16 ($vi8)  $r1     // 8! (the reference starts from 0)
+        $vreduce &  $r17 ($vi8)  $r2     // (-1 & ... & 0x0f)
+        $vreduce ~^ $r18 ($vi8)  $r1
+        $vreduce +  $r19 ($vu8)  $r3     // 255 + 1
+        $vreduce *  $r20 ($vf32) $r4     // 1.5 * 2.25
+        $dot $accumulate $r7 ($vf16) $r5 $r6   // 2.0 + 1.0
+    ;
+casts:
+    ||
+        $cast ($f32) $r21 ($i32) $r8     // -200 -> -200.0
+        $cast ($i32) $r22 ($f32) $r9     // -200.7 -> -200, toward zero
+        $cast ($i8)  $r23 ($f32) $r10    // 1e10 saturates to 127
+        $cast ($f32) $r24 ($f64) $r11    // 2.5
+        $cast ($i16) $r25 ($i64) $r12    // truncated to 16 bits
+    ;
+sqrt32:
+    ||
+        $fsqrt $r26 ($f32) $r13          // 1.5
+    ;
+sqrt64:
+    ||
+        $fsqrt $r27 ($f64) $r14
+    ;
+memory:
+    ||
+        $ld ($u32) $r28 [$r0 + 4]        // the low half of dword 0
+        $ld ($i64) $r30 [$r0 + $r29 --1] // dword 2, then $r29 = 16 - 8
+    ;
+    || $halt ;

@@ -1,0 +1,20 @@
+// | & ^ ~| ~& ~^ (OR, AND, XOR, NOR, NAND, XNOR). A signed narrow type
+// sign-extends the operands first, so ($i8) on 0xf0 reads 0xff..f0; an
+// unsigned type uses whole registers.
+
+||
+    |  $r10 ($i64) $r1 $r2
+    &  $r11 ($i64) $r1 $r2
+    ^  $r12 ($i64) $r1 $r2
+    ~| $r13 ($i64) $r1 $r2
+    ~& $r14 ($i64) $r1 $r2
+    ~^ $r15 ($i64) $r1 $r2
+    &  $r16 ($i64) $r1 -1       // the immediate is sign-extended: AND with all ones
+    |  $r17 ($i64) $r3 256      // 0x0f | 0x100
+;
+||
+    |  $r18 ($i8)  $r1 $r3      // 0xff..f0 | 0x0f = all ones
+    ^  $r19 ($u8)  $r1 $r3      // whole registers
+    &  $r20 ($i16) $r2 $r1      // 0xff..ff00 & 0xff..f0f0
+;
+|| $halt ;

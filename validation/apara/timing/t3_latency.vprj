@@ -1,0 +1,4 @@
+SOURCES = t3_latency.mcode
+CYCLES = 9
+
+RESULTS =

@@ -1,0 +1,12 @@
+SOURCES = div_by_zero.mcode
+DEVIATION = the reference model reports the error and goes on (deviation 15)
+
+INIT =
+r1 = 5
+r9 = 0x1234
+
+RESULTS =
+pc = 0x0
+error = 0x1000008
+r9 = 0x1234
+r2 = 0x0

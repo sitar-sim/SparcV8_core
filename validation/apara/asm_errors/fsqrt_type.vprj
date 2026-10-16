@@ -1,0 +1,2 @@
+SOURCES = fsqrt_type.mcode
+ASM_ERROR = $fsqrt takes

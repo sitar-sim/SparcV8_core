@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a register that does not exist.
+
+|| + $r32 ($i64) $r1 $r2 ;

@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): two instructions of a bundle write the same register.
+
+|| + $r1 ($i64) $r2 $r3  - $r1 ($i64) $r2 $r3 ;

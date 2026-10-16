@@ -1,0 +1,18 @@
+SOURCES = dev_exceptions.mcode
+THREADS = 0x0 0x8 0x10 0x18
+DEVIATION = exceptions
+
+INIT =
+r1 = 7
+t3.r1 = 0x3f800000
+
+RESULTS =
+error = 0x1000008
+pc = 0x0
+r3 = 0x0
+t1.error = 0x1006000
+t1.pc = 0x8
+t2.error = 0x4000000
+t2.pc = 0x10
+t3.error = 0x1000010
+t3.pc = 0x18

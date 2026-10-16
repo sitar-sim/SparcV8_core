@@ -1,0 +1,13 @@
+// One thread's exception stops only that thread: thread 1 divides by zero
+// at its first bundle, while threads 0, 2 and 3 run their loops to the
+// end.
+
+work:
+    || + $r2 ($i64) $r0 9 ;
+loop:
+    || + $r1 ($i64) $r1 $r3 ;
+    || ? ($i64) $r2 > --1 $goto loop ;
+    || $halt ;
+fault:
+    || / $r1 ($i64) $r1 $r0 ;
+    || $halt ;

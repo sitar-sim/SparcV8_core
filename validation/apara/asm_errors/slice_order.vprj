@@ -1,0 +1,2 @@
+SOURCES = slice_order.mcode
+ASM_ERROR = a slice needs

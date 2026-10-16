@@ -1,0 +1,2 @@
+SOURCES = register_range.mcode
+ASM_ERROR = no register $r32

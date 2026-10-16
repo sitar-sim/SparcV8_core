@@ -1,0 +1,6 @@
+SOURCES = call_return.mcode
+
+RESULTS =
+r1 = 11
+r4 = 11
+r3 = 24

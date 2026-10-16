@@ -1,0 +1,13 @@
+SOURCES = raw_long_latency.mcode
+HAZARDS_UNLOCKED = 2
+
+INIT =
+r2 = 0x3fc00000
+r5 = 100
+r6 = 7
+
+RESULTS =
+r1 = 0x40400000
+r3 = 0x41100000
+r4 = 14
+r7 = 15

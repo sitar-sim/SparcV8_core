@@ -1,0 +1,11 @@
+SOURCES = raw_chain.mcode
+THREADS = 0x0 other
+HAZARDS_UNLOCKED = 3
+
+RESULTS =
+r1 = 1
+r2 = 3
+r3 = 2
+r4 = 0x20
+t1.r1 = 7
+t1.r2 = 8

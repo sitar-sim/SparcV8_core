@@ -1,0 +1,20 @@
+// The REGFILE interlock: a bundle that reads a register an older bundle of
+// its thread will write waits until that result is back. The timing model
+// counts a hazard whenever a bundle is issued while a register it reads
+// still has a write outstanding: with the interlock on (the default) there
+// are none; built with engine.regfile.interlock = false (Ref
+// timing/README.md) the model must report exactly HAZARDS_UNLOCKED of
+// them, the reads real hardware would get wrong. (The functional results
+// are right either way: the model runs each thread's bundles in order.)
+//
+// Instructions that read their destination: $dot $accumulate adds rd, and
+// $cmov keeps rd when its test fails. A chain of accumulations depends on
+// itself (3 hazards); a $cmov after a write of its rd too (1).
+
+|| $dot $accumulate $r10 ($vi8) $r1 $r2 ;   // r10 = 0 + 36
+|| $dot $accumulate $r10 ($vi8) $r1 $r2 ;   // reads r10: 72
+|| $dot $accumulate $r10 ($vi8) $r1 $r2 ;   // 108
+|| + $r11 ($i64) $r0 9 ;
+|| $cmov ($i64) $r3 != $r11 $r0 ;           // test fails: keeps r11 (reads it)
+|| + $r12 ($i64) $r10 $r11 ;                // reads r10 and r11
+|| $halt ;

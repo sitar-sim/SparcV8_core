@@ -1,0 +1,51 @@
+// Loads and stores of every width. DMEM is big-endian: the byte at an
+// address with (address & 7) == 0 is bits [63:56] of its dword. Signed
+// loads sign-extend; 128- and 256-bit transfers move 2 or 4 registers.
+
+loads1:
+    ||
+        $ld ($i8)  $r2 [$r0 + 0]     // 0x01
+        $ld ($i8)  $r3 [$r0 + 4]     // 0x89, sign-extended
+        $ld ($u8)  $r4 [$r0 + 7]     // 0xef
+        $ld ($i16) $r5 [$r0 + 2]     // 0x4567
+    ;
+loads2:
+    ||
+        $ld ($u16) $r6  [$r0 + 6]    // 0xcdef
+        $ld ($i32) $r7  [$r0 + 0]    // 0x01234567
+        $ld ($u32) $r8  [$r0 + 8]    // 0xfedcba98
+        $ld ($i64) $r9  [$r0 + 8]
+    ;
+loads3:
+    ||
+        $ld ($u128) $r10 [$r0 + 16]  // $r10 and $r11
+        $set $r12 0 _h8000
+    ;
+sext:
+    ||
+        + $r12 ($i16) $r12 $r0       // 0x8000 as an $i16: -32768
+    ;
+stores:
+    ||
+        $st ($i8)  [$r0 + 33] $r21   // dword 4, byte 1
+        $st ($i16) [$r0 + 38] $r22   // dword 4, bytes 6-7
+        $st ($i32) [$r0 + 40] $r23   // dword 5, upper half
+        $st ($i64) [$r0 + 48] $r9    // dword 6
+    ;
+wide:
+    ||
+        $st ($u256) [$r0 + 64] $r10  // $r10..$r13 to dwords 8..11
+        $ld ($i64)  $r16 [$r0 + $r15 ++1]   // dword 0, then $r15 = 8
+    ;
+incr:
+    ||
+        $ld ($i64)  $r17 [$r0 + $r15 ++2]   // dword 1, then $r15 = 8 + 2*8
+        $ld ($i64)  $r18 [$r24 + -8]        // dword 1
+    ;
+same_bundle:
+    ||
+        $st ($i64) [$r0 + 56] $r9    // a load in a later slot sees this store
+        $ld ($i64) $r19 [$r0 + 56]
+    ;
+done:
+    || $halt ;

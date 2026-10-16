@@ -1,0 +1,8 @@
+// In the standalone apara configuration every data address aliases into
+// DMEM, modulo 64 KB: 0x10008 is DMEM address 0x8.
+
+||
+    $st ($i64) [$r1 + 0] $r2        // 0x10008 -> DMEM 0x8
+    $ld ($i64) $r3 [$r0 + 8]
+;
+|| $halt ;

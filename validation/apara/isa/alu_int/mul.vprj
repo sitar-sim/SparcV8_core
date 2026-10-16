@@ -1,0 +1,18 @@
+SOURCES = mul.mcode
+
+INIT =
+r1 = 100
+r2 = 0xfff9
+r3 = 0x1000000000
+r4 = 0xffffffff
+r5 = 7
+
+RESULTS =
+r10 = 0x2710
+r11 = 0xfffffffffffffd44
+r12 = 0xfff20031
+r13 = 0x0
+r14 = 0x1
+r15 = 0xfffffffe00000001
+r16 = 0xffffffffffffffeb
+r17 = 0xffffffffffffffcf

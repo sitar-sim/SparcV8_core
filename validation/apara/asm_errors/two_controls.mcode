@@ -1,0 +1,7 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a bundle holds two control transfers.
+
+|| $null ;
+|| $call f  $return ;
+f:
+|| $halt ;

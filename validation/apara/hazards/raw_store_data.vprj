@@ -1,0 +1,13 @@
+SOURCES = raw_store_data.mcode
+HAZARDS_UNLOCKED = 1
+
+INIT =
+r4 = 1
+r5 = 2
+r6 = 3
+
+RESULTS =
+m[0x20] = 1
+m[0x28] = 2
+m[0x30] = 3
+m[0x38] = 0x4d

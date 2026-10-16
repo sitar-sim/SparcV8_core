@@ -1,0 +1,10 @@
+SOURCES = dev_vector4.mcode
+DEVIATION = the reference model returns 0 for element-wise operations on 4-bit elements (deviation 31)
+
+INIT =
+r1 = 0x0102030405060708
+r2 = 0x10f0207f80ff0001
+
+RESULTS =
+r15 = 0x11f2237385f50709
+r16 = 0xc000a0008

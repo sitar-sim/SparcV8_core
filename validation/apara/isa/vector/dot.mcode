@@ -1,0 +1,12 @@
+// $dot multiplies two vectors element by element and adds the products:
+// a 64-bit integer, or an f32 for float elements. $accumulate adds rd.
+
+||
+    $dot $r10 ($vi8)  $r1 $r2               // 1-2+3-4+5-6+7-8 = -4
+    $dot $r11 ($vu8)  $r1 $r2               // unsigned: 16 + 255 * 20 = 5116
+    $dot $r12 ($vi16) $r1 $r1               // 258^2 + 772^2 + 1286^2 + 1800^2
+    $dot $r13 ($vi4)  $r1 $r1               // 1+4+...+49 + (-8)^2 = 204
+    $dot $accumulate $r14 ($vi8) $r1 $r1    // 100 + 204
+    $dot $r15 ($vf16) $r4 $r4               // 1+4+9+16 = 30.0 (f32)
+;
+|| $halt ;

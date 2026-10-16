@@ -1,0 +1,13 @@
+SOURCES = dev_cmov_narrow.mcode
+DEVIATION = the reference writes $rs2 back without an increment (deviation 5)
+
+INIT =
+r4 = 0x80
+r5 = 0xbf800000
+r9 = 1
+
+RESULTS =
+r28 = 1
+r29 = 1
+r4 = 0x80
+r5 = 0xbf800000

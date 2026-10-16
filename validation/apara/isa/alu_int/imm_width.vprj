@@ -1,0 +1,9 @@
+SOURCES = imm_width.mcode
+
+INIT =
+r1 = 0xf0
+
+RESULTS =
+r10 = 0xffffffffffffffb8
+r11 = 0x1b8
+r12 = 0x1b8

@@ -1,0 +1,26 @@
+// More exceptions (Ref dev_exceptions.mcode): a float NaN result, a
+// thread started inside a bundle (no valid bundle: code 7 in slot 0),
+// a return-address stack overflow, and a negative square root.
+
+    ||                                   // 0x0: infinity - infinity
+        - $r3 ($f32) $r1 $r1
+    ;
+    ||                                   // 0x1
+        $null
+    ;
+    ||                                   // 0x2: thread 1 starts at 0x3, inside this bundle
+        $null $null
+    ;
+    ||                                   // 0x4
+        $null $null $null $null
+    ;
+    ||                                   // 0x8
+        $halt
+    ;
+recurse:
+    ||                                   // 0x10: calls itself until the stack is full
+        $call recurse
+    ;
+    ||                                   // 0x18: sqrt(-1.0), lane 1
+        $fsqrt $r3 ($f32) $r1
+    ;

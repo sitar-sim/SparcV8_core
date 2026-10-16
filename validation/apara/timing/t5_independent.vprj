@@ -1,0 +1,4 @@
+SOURCES = t5_independent.mcode
+CYCLES = 10
+
+RESULTS =

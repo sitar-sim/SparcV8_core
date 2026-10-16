@@ -1,0 +1,33 @@
+// $cmov (type) $rs1 cond $rd $rs2: $rd = $rs1 if $rs2 cond 0, else $rd is
+// unchanged. Each condition is tried on a positive ($r1), a zero ($r2) and
+// a negative ($r3) value; $rd starts at 0 and $rs1 is 1, so each $rd ends
+// as 1 where the condition held.
+
+eq_ne:
+    ||
+        $cmov ($i64) $r9 == $r10 $r1    // 5 == 0: no
+        $cmov ($i64) $r9 == $r11 $r2    // 0 == 0: yes
+        $cmov ($i64) $r9 == $r12 $r3    // no
+        $cmov ($i64) $r9 != $r13 $r1    // yes
+        $cmov ($i64) $r9 != $r14 $r2    // no
+        $cmov ($i64) $r9 != $r15 $r3    // yes
+    ;
+gt_lt:
+    ||
+        $cmov ($i64) $r9 >  $r16 $r1    // yes
+        $cmov ($i64) $r9 >  $r17 $r2    // no
+        $cmov ($i64) $r9 >  $r18 $r3    // no
+        $cmov ($i64) $r9 <  $r19 $r1    // no
+        $cmov ($i64) $r9 <  $r20 $r2    // no
+        $cmov ($i64) $r9 <  $r21 $r3    // yes
+    ;
+ge_le:
+    ||
+        $cmov ($i64) $r9 >= $r22 $r1    // yes
+        $cmov ($i64) $r9 >= $r23 $r2    // yes
+        $cmov ($i64) $r9 >= $r24 $r3    // no
+        $cmov ($i64) $r9 <= $r25 $r1    // no
+        $cmov ($i64) $r9 <= $r26 $r2    // yes
+        $cmov ($i64) $r9 <= $r27 $r3    // yes
+    ;
+    || $halt ;

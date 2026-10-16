@@ -1,0 +1,16 @@
+SOURCES = exceptions.mcode
+THREADS = t0 t1
+DEVIATION = the reference model reports the error and goes on (deviation 15)
+
+INIT =
+r1 = 0x3f800000
+t1.r3 = 0x7f800000
+t1.r4 = 0xff800000
+
+RESULTS =
+pc = 0x0
+error = 0x1000010
+t1.pc = 0x9
+t1.error = 0x1000003
+r2 = 0x0
+t1.r2 = 0x0

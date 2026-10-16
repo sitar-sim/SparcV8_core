@@ -1,0 +1,2 @@
+SOURCES = double_write_cast.mcode
+ASM_ERROR = $r9 is written twice

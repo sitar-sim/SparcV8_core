@@ -1,0 +1,13 @@
+SOURCES = unaligned.mcode
+THREADS = t0 t1 t2 t3
+DEVIATION = the reference model reports the error and goes on (deviation 15)
+
+RESULTS =
+pc = 0x0
+error = 0x1006000
+t1.pc = 0x10
+t1.error = 0x1006000
+t2.pc = 0x20
+t2.error = 0x1006000
+t3.pc = 0x30
+t3.error = 0x1006000

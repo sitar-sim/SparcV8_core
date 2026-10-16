@@ -1,0 +1,9 @@
+SOURCES = t6_divider.mcode
+CYCLES = 26
+
+INIT =
+r1 = 7
+
+RESULTS =
+r2 = 0x1
+r3 = 0x1

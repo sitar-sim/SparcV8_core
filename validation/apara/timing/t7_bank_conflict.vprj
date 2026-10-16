@@ -1,0 +1,4 @@
+SOURCES = t7_bank_conflict.mcode
+CYCLES = 10
+
+RESULTS =

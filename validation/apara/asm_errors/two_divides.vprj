@@ -1,0 +1,2 @@
+SOURCES = two_divides.mcode
+ASM_ERROR = at most one divide

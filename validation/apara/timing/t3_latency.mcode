@@ -3,6 +3,5 @@
 // one per cycle: the add's in cycle 5, the halt's in 6; WRITEBACK in 8:
 // 9 cycles.
 //
-//@ cycles: 9
     || + $r1 ($f32) $r2 $r3 ;
     || $halt ;

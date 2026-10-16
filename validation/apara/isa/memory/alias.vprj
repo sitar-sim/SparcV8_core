@@ -1,0 +1,9 @@
+SOURCES = alias.mcode
+
+INIT =
+r1 = 0x10008
+r2 = 0x5a5a5a5a5a5a5a5a
+
+RESULTS =
+r3 = 0x5a5a5a5a5a5a5a5a
+m[0x8] = 0x5a5a5a5a5a5a5a5a

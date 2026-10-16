@@ -1,0 +1,12 @@
+// $vreduce combines all the elements of one vector with + | ^ (and * & ~^,
+// Ref deviations/): a 64-bit integer, or an f32 for float elements.
+
+||
+    $vreduce + $r10 ($vi8)  $r1     // 1+2+...+8 = 36
+    $vreduce ^ $r11 ($vi8)  $r1     // 1^2^...^8 = 8
+    $vreduce | $r12 ($vi8)  $r1     // 0x0f
+    $vreduce + $r13 ($vi8)  $r2     // 4 * (1 + -1) = 0
+    $vreduce + $r14 ($vi16) $r1     // 0x0102 + 0x0304 + 0x0506 + 0x0708
+    $vreduce + $r15 ($vf32) $r3     // 1.5 + 2.5 = 4.0
+;
+|| $halt ;

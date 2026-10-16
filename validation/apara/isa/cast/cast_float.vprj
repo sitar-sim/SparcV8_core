@@ -1,0 +1,21 @@
+SOURCES = cast_float.mcode
+DEVIATION = the reference model has no float casts (deviation 9)
+
+INIT =
+r1 = 0xfffffffffffffff9
+r2 = 0x40300000
+r3 = 0xc0300000
+r4 = 0x501502f9
+r5 = 0x7fc00000
+r6 = 0x3fb999999999999a
+r7 = 0x3e00
+
+RESULTS =
+r10 = 0xc0e00000
+r11 = 2
+r12 = 0xfffffffffffffffe
+r13 = 0x7fffffff
+r14 = 0
+r15 = 0x4006000000000000
+r16 = 0x3dcccccd
+r17 = 0x3fc00000

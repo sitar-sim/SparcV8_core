@@ -1,0 +1,19 @@
+// One full 8-slot bundle using every lane: a branch (slot 0), a divide
+// (slot 1), two ALU operations, two loads and two stores (slots 4-7).
+// Every instruction reads the registers as they were before the bundle,
+// the memory accesses happen in slot order (the load after the store to
+// 0x10 sees the new value), and the branch decides the next PC.
+
+    ||
+        ? ($i64) $r1 > --1 $goto taken   // r1 = 2 > 0: taken; r1 = 1 after
+        / $r2 ($i64) $r3 $r4             // 100 / 7 = 14
+        + $r3 ($i64) $r3 $r1             // reads the old r3 (100) and r1 (2): 102
+        * $r5 ($i64) $r1 $r1             // the old r1: 4
+        $st ($i64) [$r0 + 16] $r3        // stores the old r3: 100
+        $ld ($i64) $r6 [$r0 + 16]        // a later slot: sees 100
+        $st ($i64) [$r0 + 24] $r4
+        $ld ($i64) $r7 [$r0 + 0]         // the initial 0x55
+    ;
+    || + $r8 ($i64) $r0 1 ;              // skipped by the branch
+taken:
+    || $halt ;

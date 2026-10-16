@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a 256-bit load into r30 would need r30..r33.
+
+|| $ld ($u256) $r30 [$r0 + 0] ;

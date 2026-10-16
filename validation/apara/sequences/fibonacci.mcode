@@ -1,0 +1,9 @@
+// Fibonacci numbers: each loop pass computes the next pair in one bundle
+// (a, b = b, a + b: both instructions read the old a and b) and stores
+// it. After 40 passes a is F(40).
+
+    || + $r1 ($i64) $r0 0  + $r2 ($i64) $r0 1  + $r3 ($i64) $r0 39  + $r4 ($i64) $r0 0 ;
+loop:
+    || + $r1 ($i64) $r2 $r0  + $r2 ($i64) $r1 $r2  $st ($i64) [$r0 + $r4 ++1] $r1 ;
+    || ? ($i64) $r3 > --1 $goto loop ;
+    || $halt ;

@@ -1,0 +1,19 @@
+// A branch's increment (++1, --1, --2) is added to the tested register
+// after the test, taken or not: one instruction both tests and counts a
+// loop. The increment applies to the whole 64-bit register, whatever the
+// test type.
+
+loop1:
+    || + $r2 ($i64) $r2 1 ;                     // count the passes
+    || ? ($i64) $r1 > --1 $goto loop1 ;         // 5, 4, 3, 2, 1 taken; 0 not: r1 ends at -1
+loop2:
+    || + $r4 ($i64) $r4 1 ;
+    || ? ($i64) $r3 > --2 $goto loop2 ;         // 6, 4, 2 taken; 0 not: r3 ends at -2
+loop3:
+    || + $r6 ($i64) $r6 1 ;
+    || ? ($i64) $r5 < ++1 $goto loop3 ;         // -3, -2, -1 taken; 0 not: r5 ends at 1
+narrow:
+    || ? ($i8) $r7 < ++1 $goto done ;           // 0x80 is -128 as i8: taken, then r7 = 0x81
+    || + $r8 ($i64) $r0 1  $null ;              // not reached (two slots: an even offset to done)
+done:
+    || $halt ;

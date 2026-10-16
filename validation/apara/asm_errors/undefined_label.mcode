@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a branch to a label that does not exist.
+
+|| ? ($i64) $r1 > $goto nowhere ;

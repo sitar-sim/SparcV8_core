@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): an immediate outside -512..511.
+
+|| + $r1 ($i64) $r0 600 ;

@@ -1,0 +1,4 @@
+SOURCES = dot_vector.c
+
+RESULTS =
+m[result] = 0xffffffffffff248c

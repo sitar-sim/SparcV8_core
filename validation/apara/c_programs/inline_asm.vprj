@@ -1,0 +1,5 @@
+SOURCES = inline_asm.c
+
+RESULTS =
+m[out] = 0x24
+m[out+0x8] = 0x48

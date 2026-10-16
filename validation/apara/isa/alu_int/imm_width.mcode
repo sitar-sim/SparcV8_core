@@ -1,0 +1,11 @@
+// An immediate operand is subject to the type's width, like a register
+// operand: with ($i8), the immediate 200 (0xc8) is read as the 8-bit
+// value -56, so -16 + 200 gives -72, not 184. With ($i64) the full
+// immediate counts.
+
+||
+    +  $r10 ($i8)  $r1 200      // -16 + -56 = -72
+    +  $r11 ($i64) $r1 200      // 0xf0 + 200 = 440
+    +  $r12 ($u8)  $r1 200      // unsigned: 0xf0 + 200 = 440
+;
+|| $halt ;

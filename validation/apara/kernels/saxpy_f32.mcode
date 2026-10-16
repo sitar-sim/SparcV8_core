@@ -1,0 +1,14 @@
+// The program and its data are already in the engine's IMEM and DMEM (the
+// INIT lines); the RESULTS were computed independently (in Python).
+//
+// y = a*x + y on 8 f32 elements (two per register): $v * ($vf32) with
+// $replicate scales x by a, $v + adds y. x at 0x0, y at 0x20 (in place),
+// a = 2.5 in r3. The values are chosen so every result is exact.
+
+|| $ld ($u256) $r4 [$r0 + 0]  $ld ($u256) $r8 [$r0 + 32] ;
+|| $v * $r12 ($vf32) $r4 $r3 $replicate   $v * $r13 ($vf32) $r5 $r3 $replicate
+   $v * $r14 ($vf32) $r6 $r3 $replicate   $v * $r15 ($vf32) $r7 $r3 $replicate ;
+|| $v + $r16 ($vf32) $r12 $r8   $v + $r17 ($vf32) $r13 $r9
+   $v + $r18 ($vf32) $r14 $r10  $v + $r19 ($vf32) $r15 $r11 ;
+|| $st ($u256) [$r0 + 32] $r16 ;
+|| $halt ;

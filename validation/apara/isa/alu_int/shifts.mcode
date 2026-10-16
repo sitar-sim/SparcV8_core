@@ -1,0 +1,14 @@
+// << and >>. A signed >> is arithmetic, an unsigned one logical. The shift
+// count uses its low 6 bits (65 shifts by 1, 64 by 0).
+
+||
+    << $r10 ($i64) $r1 63       // 1 << 63
+    >> $r11 ($i64) $r2 63       // arithmetic: all ones
+    >> $r12 ($u64) $r2 63       // logical: 1
+    << $r13 ($i64) $r1 $r4      // count 65: 1 << 1
+    << $r14 ($i64) $r1 $r5      // count 64: 1 << 0
+    >> $r15 ($i16) $r3 2        // -16 >> 2 = -4
+    >> $r16 ($u16) $r3 2        // 0xfff0 >> 2 = 0x3ffc
+    << $r17 ($i8)  $r3 1        // 0xf0 is -16 as i8: -32
+;
+|| $halt ;

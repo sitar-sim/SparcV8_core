@@ -1,0 +1,7 @@
+SOURCES = t10_two_threads.mcode
+THREADS = 0x0 0x8
+CYCLES = 10
+
+RESULTS =
+pc = 0x1
+t1.pc = 0x9

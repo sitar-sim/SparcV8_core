@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a $cmov's increment writes r3, and another instruction writes r3.
+
+|| $cmov ($i64) $r1 != ++1 $r2 $r3  + $r3 ($i64) $r0 1 ;

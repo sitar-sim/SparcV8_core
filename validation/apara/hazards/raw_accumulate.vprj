@@ -1,0 +1,12 @@
+SOURCES = raw_accumulate.mcode
+HAZARDS_UNLOCKED = 4
+
+INIT =
+r1 = 0x0102030405060708
+r2 = 0x0101010101010101
+r3 = 0x77
+
+RESULTS =
+r10 = 0x6c
+r11 = 9
+r12 = 0x75

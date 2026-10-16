@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a bundle holds two divides (one divider).
+
+|| / $r1 ($i64) $r2 $r3  / $r4 ($i64) $r2 $r3 ;

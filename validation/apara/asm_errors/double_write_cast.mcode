@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a widening cast writes r8 and r9, and another instruction writes r9.
+
+|| $cast ($vi16) $r8 ($vi8) $r1  + $r9 ($i64) $r0 1 ;

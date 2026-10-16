@@ -1,0 +1,11 @@
+// $cmov with a narrow or float test type: the test reads the low bits as
+// the type's value, and $rs2 is left alone (there is no increment). The
+// reference model writes $rs2 back with its sign-extended test value even
+// without an increment, so 0x80 tested as ($i8) would become
+// 0xff..ff80 there.
+
+||
+    $cmov ($i8)  $r9 <  $r28 $r4    // 0x80 is -128 as i8: yes
+    $cmov ($f32) $r9 <  $r29 $r5    // -1.0 < 0: yes
+;
+|| $halt ;

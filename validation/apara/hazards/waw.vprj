@@ -1,0 +1,6 @@
+SOURCES = waw.mcode
+HAZARDS_UNLOCKED = 0
+
+RESULTS =
+r1 = 2
+r2 = 3

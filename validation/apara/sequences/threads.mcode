@@ -1,0 +1,16 @@
+// Four threads share IMEM and DMEM and run one bundle each in turn
+// (round robin). Threads 0-2 start at 0x0, thread 3 at 0x8. Each has its
+// own registers: $r1 = 8 * thread, $r2 = 0x100 + thread.
+
+store:                                   // 0x0
+    ||
+        $st ($i64) [$r1 + 0]  $r2        // each thread its own dword
+        $st ($i64) [$r0 + 32] $r2        // all to dword 4: thread 2 is last
+    ;
+double:                                  // 0x8
+    ||
+        + $r3 ($i64) $r2 $r2
+    ;
+    ||                                   // 0x9
+        $halt
+    ;

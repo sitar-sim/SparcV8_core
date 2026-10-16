@@ -1,0 +1,17 @@
+SOURCES = branch_increment.mcode
+
+INIT =
+r1 = 5
+r3 = 6
+r5 = 0xfffffffffffffffd
+r7 = 0x80
+
+RESULTS =
+r1 = 0xffffffffffffffff
+r2 = 6
+r3 = 0xfffffffffffffffe
+r4 = 4
+r5 = 1
+r6 = 4
+r7 = 0x81
+r8 = 0

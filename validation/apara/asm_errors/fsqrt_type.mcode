@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): $fsqrt on f16 (only f32 and f64).
+
+|| $fsqrt $r1 ($f16) $r2 ;

@@ -1,0 +1,9 @@
+SOURCES = saxpy.c
+DEVIATION = 4-byte loads at offset 4: the reference reads the wrong half (deviation 2)
+
+RESULTS =
+m[y+0x0] = 0x415c000041700000
+m[y+0x8] = 0xc1eb000041280000
+m[y+0x10] = 0x410800003f400000
+m[y+0x18] = 0x4180000040ca0000
+m[total] = 0x4225c00000000000

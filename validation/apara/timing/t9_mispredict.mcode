@@ -5,8 +5,6 @@
 // have). The wrong-path $halt at 0x8 is skipped; the target is at 0x9. The target's $halt
 // leaves WRITEBACK in cycle 11: 12 cycles.
 //
-//@ cycles: 12
-//@ expect: 0 pc 0xa
     || ? ($i64) $r0 == $goto target ;
     || $halt ;
 target:

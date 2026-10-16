@@ -1,0 +1,7 @@
+SOURCES = t8_two_banks.mcode
+CYCLES = 9
+
+INIT =
+r3 = 0x8000
+
+RESULTS =

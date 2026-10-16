@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a logic operation on a float type.
+
+|| | $r1 ($f32) $r2 $r3 ;

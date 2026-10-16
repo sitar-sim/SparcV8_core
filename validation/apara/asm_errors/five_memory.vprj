@@ -1,0 +1,2 @@
+SOURCES = five_memory.mcode
+ASM_ERROR = at most 4 loads/stores

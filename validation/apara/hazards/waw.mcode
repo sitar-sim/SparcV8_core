@@ -1,0 +1,18 @@
+// The REGFILE interlock: a bundle that reads a register an older bundle of
+// its thread will write waits until that result is back. The timing model
+// counts a hazard whenever a bundle is issued while a register it reads
+// still has a write outstanding: with the interlock on (the default) there
+// are none; built with engine.regfile.interlock = false (Ref
+// timing/README.md) the model must report exactly HAZARDS_UNLOCKED of
+// them, the reads real hardware would get wrong. (The functional results
+// are right either way: the model runs each thread's bundles in order.)
+//
+// Two bundles writing the same register (WAW) with no reader in between:
+// not a read-after-write hazard (results return to REGFILE in order, so
+// the later value wins). The model's interlock waits on writes too, so
+// with it on the second write waits for the first.
+
+|| + $r1 ($i64) $r0 1 ;
+|| + $r1 ($i64) $r0 2 ;
+|| + $r2 ($i64) $r0 3 ;
+|| $halt ;

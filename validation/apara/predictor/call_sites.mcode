@@ -1,0 +1,18 @@
+// The branch predictor (Ref docs: the timing model's Branch prediction):
+// a 256-entry BTB, direct mapped by the low 8 bits of the bundle's PC and
+// tagged with the rest, shared by all threads. An entry predicts its
+// target while its 2-bit counter is below 3 (0 strongly taken). Only
+// mispredicts train it: a taken one creates an entry at 0 (or lowers the
+// counter and sets the target), a not-taken one raises the counter (or
+// creates an entry at 3). MISPREDICTS is checked on the timing model.
+//
+// The same function called once from each of 3 call sites: each call
+// mispredicts (a new BTB entry each), and so does each return: the BTB
+// holds one target per return instruction, the last one seen. 6 in all.
+
+    || $call f ;
+    || $call f ;
+    || $call f ;
+    || $halt ;
+f:
+    || + $r2 ($i64) $r2 1  $return ;

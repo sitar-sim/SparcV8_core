@@ -1,0 +1,11 @@
+SOURCES = independent.mcode
+HAZARDS_UNLOCKED = 0
+
+INIT =
+r9 = 10
+
+RESULTS =
+r1 = 1
+r2 = 2
+r3 = 13
+r9 = 4

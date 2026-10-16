@@ -1,0 +1,7 @@
+SOURCES = raw_scalar.mcode
+CYCLES = 11
+HAZARDS_UNLOCKED = 1
+
+RESULTS =
+r1 = 5
+r2 = 6

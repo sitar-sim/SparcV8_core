@@ -1,0 +1,10 @@
+// $fsqrt on f32 and f64; a negative operand raises exception 5 (thread 1:
+// in slot 1, the divider's slot, ERROR 0x1000028).
+
+t0:
+    || $fsqrt $r10 ($f32) $r1 ;     // sqrt(2.25) = 1.5
+    || $fsqrt $r11 ($f64) $r2 ;     // sqrt(2.0)
+    || $halt ;
+t1:
+    || $fsqrt $r10 ($f32) $r3 ;     // sqrt(-1.0)
+    || $halt ;

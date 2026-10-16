@@ -1,0 +1,2 @@
+SOURCES = double_write.mcode
+ASM_ERROR = $r1 is written twice

@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a load increment outside -16..15.
+
+|| $ld ($i64) $r1 [$r0 + $r2 ++16] ;

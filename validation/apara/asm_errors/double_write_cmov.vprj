@@ -1,0 +1,2 @@
+SOURCES = double_write_cmov.mcode
+ASM_ERROR = $r3 is written twice

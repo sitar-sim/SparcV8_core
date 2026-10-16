@@ -1,0 +1,18 @@
+// The program and its data are already in the engine's IMEM and DMEM (the
+// INIT lines); the RESULTS were computed independently (in Python).
+//
+// The sum of 64 int16 elements: a loop of 4 passes, each loading 16
+// elements (256 bits) and reducing each register with $vreduce + ($vi16),
+// then accumulating. V at 0x0, the sum at 0x100.
+
+    || + $r20 ($i64) $r0 0  + $r22 ($i64) $r0 3  + $r30 ($i64) $r0 0 ;
+loop:
+    || $ld ($u256) $r1 [$r0 + $r20 ++1] ;               // r20 += 32
+    || $vreduce + $r5 ($vi16) $r1  $vreduce + $r6 ($vi16) $r2
+       $vreduce + $r7 ($vi16) $r3  $vreduce + $r8 ($vi16) $r4 ;
+    || + $r5 ($i64) $r5 $r6  + $r7 ($i64) $r7 $r8 ;
+    || + $r30 ($i64) $r30 $r5 ;
+    || + $r30 ($i64) $r30 $r7 ;
+    || ? ($i64) $r22 > --1 $goto loop ;
+    || $st ($i64) [$r0 + 256] $r30 ;
+    || $halt ;

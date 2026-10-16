@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a vector cast that changes the element width by two steps.
+
+|| $cast ($vi32) $r2 ($vi8) $r1 ;

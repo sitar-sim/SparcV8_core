@@ -1,0 +1,11 @@
+// Four threads run the same code on the same DMEM dwords, each storing
+// only its own byte lane: thread t writes byte t of every dword (its r1 =
+// t, r2 = its value). A byte store changes only its own byte, so the
+// threads do not interfere, whatever their interleaving.
+
+    || + $r3 ($i64) $r0 7  $null ;               // 8 dwords
+loop:
+    || $st ($i8) [$r1 + 0] $r2 ;                 // byte t of this dword
+    || + $r1 ($i64) $r1 8  + $r2 ($i64) $r2 1 ;
+    || ? ($i64) $r3 > --1 $goto loop ;
+    || $halt ;

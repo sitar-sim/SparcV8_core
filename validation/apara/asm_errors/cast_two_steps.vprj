@@ -1,0 +1,2 @@
+SOURCES = cast_two_steps.mcode
+ASM_ERROR = by one step

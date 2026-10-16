@@ -1,0 +1,12 @@
+SOURCES = sort.c
+DEVIATION = 4-byte loads at offset 4: the reference reads the wrong half (deviation 2)
+
+RESULTS =
+m[v+0x0] = 0xfffffc60fffffcd3
+m[v+0x8] = 0xffffff0cffffff98
+m[v+0x10] = 0x0000003600000051
+m[v+0x18] = 0x000000f400000109
+m[v+0x20] = 0x000001240000012b
+m[v+0x28] = 0x0000016a0000018c
+m[v+0x30] = 0x00000211000002c5
+m[v+0x38] = 0x000002d400000393

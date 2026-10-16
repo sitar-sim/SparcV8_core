@@ -1,0 +1,10 @@
+// Element-wise $v + and * on 4-bit elements (16 per register), each result
+// wrapping mod 16. The reference model returns 0 for every element-wise
+// operation on 4-bit elements; the ISA lists $vi4/$vu4 among the vector
+// types, and the reference's own $dot ($vi4) works.
+
+||
+    $v + $r15 ($vi4) $r1 $r2    // 16 nibbles, each mod 16
+    $v * $r16 ($vu4) $r1 $r2    // the low 4 bits of each product
+;
+|| $halt ;

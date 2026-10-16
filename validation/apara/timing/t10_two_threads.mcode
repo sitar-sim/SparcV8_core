@@ -3,10 +3,6 @@
 // $halt at 0x8 in cycle 4. That halt leaves WRITEBACK in cycle 9:
 // 10 cycles. (Thread 0's bundles after its own $halt are skipped.)
 //
-//@ cycles: 10
-//@ threads: 0x0 0x8
-//@ expect: 0 pc 0x1
-//@ expect: 1 pc 0x9
     || $halt ;
     || $null ;
     || $null $null ;

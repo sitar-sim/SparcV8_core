@@ -4,7 +4,6 @@
 // cycles in EXEC (7-8). The $halt issues in 7, leaves EXEC behind it in
 // cycle 9 and WRITEBACK in 11: 12 cycles (Ref t5_independent.mcode: 10).
 //
-//@ cycles: 12
     || + $r1 ($f32) $r2 $r3 ;
     || + $r4 ($i64) $r1 1 ;
     || $halt ;

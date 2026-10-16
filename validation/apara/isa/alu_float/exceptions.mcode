@@ -1,0 +1,11 @@
+// Float exceptions, one per thread: thread 0 divides by zero (exception 2,
+// in slot 1: ERROR 0x1000010), thread 1 adds +inf and -inf, a NaN
+// (exception 3, in slot 0: ERROR 0x1000003). Neither bundle changes
+// anything; each thread halts with its PC at its bundle.
+
+t0:
+    || /  $r2 ($f32) $r1 $r0 ;      // 1.0 / 0.0
+    || $halt ;
+t1:
+    || +  $r2 ($f32) $r3 $r4 ;      // inf + -inf
+    || $halt ;

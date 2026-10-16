@@ -1,0 +1,4 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): $slice with its low bit above its high bit.
+
+|| $slice $r1 3 5 $r2 ;

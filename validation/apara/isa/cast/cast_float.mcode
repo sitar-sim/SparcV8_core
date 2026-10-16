@@ -1,0 +1,15 @@
+// Casts with floats: integer to float converts the value; float to integer
+// truncates toward zero and saturates at the destination's range (a NaN
+// gives 0); float to float changes the precision.
+
+||
+    $cast ($f32) $r10 ($i64) $r1    // -7 -> -7.0
+    $cast ($i64) $r11 ($f32) $r2    // 2.75 -> 2
+    $cast ($i64) $r12 ($f32) $r3    // -2.75 -> -2
+    $cast ($i32) $r13 ($f32) $r4    // 1e10 saturates to 2^31 - 1
+    $cast ($i64) $r14 ($f32) $r5    // NaN -> 0
+    $cast ($f64) $r15 ($f32) $r2    // 2.75 as a double
+    $cast ($f32) $r16 ($f64) $r6    // 0.1 rounded to single
+    $cast ($f32) $r17 ($f16) $r7    // 1.5 (half) as single
+;
+|| $halt ;

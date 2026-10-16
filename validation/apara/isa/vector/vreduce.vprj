@@ -1,0 +1,14 @@
+SOURCES = vreduce.mcode
+
+INIT =
+r1 = 0x0102030405060708
+r2 = 0x01ff01ff01ff01ff
+r3 = 0x3fc0000040200000
+
+RESULTS =
+r10 = 0x24
+r11 = 0x8
+r12 = 0xf
+r13 = 0x0
+r14 = 0x1014
+r15 = 0x40800000

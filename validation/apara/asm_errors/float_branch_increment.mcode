@@ -1,0 +1,6 @@
+// The assembler must reject this program (ASM_ERROR in the .vprj gives the
+// message): a branch increment with a float test type.
+
+|| ? ($f32) $r1 > --1 $goto x ;
+x:
+|| $halt ;

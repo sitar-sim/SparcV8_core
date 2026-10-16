@@ -1,0 +1,19 @@
+// The REGFILE interlock: a bundle that reads a register an older bundle of
+// its thread will write waits until that result is back. The timing model
+// counts a hazard whenever a bundle is issued while a register it reads
+// still has a write outstanding: with the interlock on (the default) there
+// are none; built with engine.regfile.interlock = false (Ref
+// timing/README.md) the model must report exactly HAZARDS_UNLOCKED of
+// them, the reads real hardware would get wrong. (The functional results
+// are right either way: the model runs each thread's bundles in order.)
+//
+// A store reads its data registers: a 256-bit store of r4..r7 right after
+// r7 is written depends on it (1 hazard), and the stored value is the new
+// one. The writer is an 8-slot bundle (it also loads), so the store, also
+// 8 slots, follows it directly: before a lone 1-slot writer, the
+// assembler's alignment padding (null bundles up to address 8) would give
+// the writer time to finish, and there would be no hazard to see.
+
+|| + $r7 ($i64) $r0 77  $ld ($i64) $r8 [$r0 + 0] ;
+|| $st ($u256) [$r0 + 32] $r4 ;     // reads r4..r7
+|| $halt ;

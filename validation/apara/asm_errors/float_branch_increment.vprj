@@ -1,0 +1,2 @@
+SOURCES = float_branch_increment.mcode
+ASM_ERROR = no increment with a float test type

@@ -1,0 +1,17 @@
+SOURCES = thread_fault_isolation.mcode
+THREADS = work fault work work
+DEVIATION = the reference model reports the error and goes on (deviation 15)
+
+INIT =
+r3 = 1
+t2.r3 = 2
+t3.r3 = 3
+t1.r1 = 5
+
+RESULTS =
+r1 = 10
+t2.r1 = 20
+t3.r1 = 30
+error = 0x2000000
+t1.error = 0x1000008
+t1.r1 = 5

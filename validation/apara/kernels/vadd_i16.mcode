@@ -1,0 +1,15 @@
+// The program and its data are already in the engine's IMEM and DMEM (the
+// INIT lines); the RESULTS were computed independently (in Python).
+//
+// Z = X + Y on 32 int16 elements (sums wrap at 16 bits), 16 elements per
+// loop pass: two 256-bit loads, four $v + ($vi16), one 256-bit store. X at
+// 0x0, Y at 0x40, Z at 0x80; r20 walks the arrays.
+
+    || + $r20 ($i64) $r0 0  + $r22 ($i64) $r0 1 ;      // 2 passes
+loop:
+    || $ld ($u256) $r1 [$r20 + 0]  $ld ($u256) $r5 [$r20 + 64] ;
+    || $v + $r9 ($vi16) $r1 $r5   $v + $r10 ($vi16) $r2 $r6
+       $v + $r11 ($vi16) $r3 $r7  $v + $r12 ($vi16) $r4 $r8 ;
+    || $st ($u256) [$r20 + 128] $r9  + $r20 ($i64) $r20 32 ;  // the add reads r20 before it changes
+    || ? ($i64) $r22 > --1 $goto loop ;
+    || $halt ;

@@ -1,0 +1,26 @@
+SOURCES = add_sub.mcode
+
+INIT =
+r1 = 100
+r2 = 0xfff9
+r3 = 0xf0
+r4 = 0x7fffffffffffffff
+r5 = 0x8
+r6 = 0xffffffff
+
+RESULTS =
+r10 = 0xc8
+r11 = 0x5d
+r12 = 0xffffffffffffffe0
+r13 = 0x8000000000000000
+r14 = 0xfffffffffffffff0
+r15 = 0x1e0
+r16 = 0x0
+r17 = 0x100000000
+r18 = 0x8000000000000065
+r19 = 0x6b
+r20 = 0xffffffffffffffff
+r21 = 0x69
+r22 = 0xfffffffffffffff7
+r23 = 0xfffffffffffffe64
+r24 = 0x263

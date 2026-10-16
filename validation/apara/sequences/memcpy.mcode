@@ -1,0 +1,13 @@
+// Copies 32 dwords (256 bytes) from 0x0 to 0x400, 64 bytes per pass with
+// two 256-bit loads and two 256-bit stores, the address registers stepped
+// by the transfers' own ++1 (32 bytes each): r10 for the source, r11 for
+// the destination.
+
+    || + $r10 ($i64) $r0 0  $set $r11 0 _h400  + $r12 ($i64) $r0 3 ;
+loop:
+    || $ld ($u256) $r1 [$r0 + $r10 ++1] ;
+    || $ld ($u256) $r5 [$r0 + $r10 ++1] ;
+    || $st ($u256) [$r0 + $r11 ++1] $r1 ;
+    || $st ($u256) [$r0 + $r11 ++1] $r5 ;
+    || ? ($i64) $r12 > --1 $goto loop ;
+    || $halt ;

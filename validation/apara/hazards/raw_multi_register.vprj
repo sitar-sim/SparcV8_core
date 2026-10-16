@@ -1,0 +1,16 @@
+SOURCES = raw_multi_register.mcode
+HAZARDS_UNLOCKED = 3
+
+INIT =
+m[0x0] = 1
+m[0x8] = 2
+m[0x10] = 3
+m[0x18] = 0x44
+r1 = 0x0102030405060708
+r2 = 0x1111
+r3 = 0x2222
+
+RESULTS =
+r20 = 0x44
+r21 = 0x0005000600070008
+r22 = 0x2222

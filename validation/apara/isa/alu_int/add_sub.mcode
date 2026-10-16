@@ -1,0 +1,28 @@
+// Integer + and -, register and immediate forms, on every integer width.
+// A signed type sign-extends both operands from its width; an unsigned
+// type uses the whole 64-bit registers. The result is always 64 bits, so
+// narrow sums do not wrap at the type's width, but 64-bit ones do.
+// An immediate is a 10-bit signed value (-512..511).
+
+add:
+    ||
+        +  $r10 ($i64) $r1 $r1      // 100 + 100 = 200
+        +  $r11 ($i16) $r2 $r1      // -7 + 100 = 93 (r2 = 0xfff9 is -7 as i16)
+        +  $r12 ($i8)  $r3 $r3      // -16 + -16 = -32: not wrapped to 8 bits
+        +  $r13 ($i64) $r4 1        // 0x7fff...ff + 1 wraps to 0x8000...00
+        +  $r14 ($i4)  $r5 $r5      // 0x8 is -8 as i4: -16
+        +  $r15 ($u8)  $r3 $r3      // unsigned: whole registers, 0xf0 + 0xf0 = 0x1e0
+        +  $r16 ($i32) $r6 1        // 0xffffffff is -1 as i32: 0
+        +  $r17 ($u32) $r6 1        // ... and 4294967295 as u32: 0x100000000
+    ;
+sub:
+    ||
+        -  $r18 ($i64) $r1 $r4      // 100 - (2^63 - 1) wraps to 2^63 + 101
+        -  $r19 ($i16) $r1 $r2      // 100 - (-7) = 107
+        -  $r20 ($u64) $r0 1        // 0 - 1 = all ones
+        -  $r21 ($i64) $r1 -5       // 100 - (-5) = 105
+        -  $r22 ($i4)  $r5 1        // -8 - 1 = -9
+        +  $r23 ($i64) $r1 -512     // the smallest immediate: -412
+        +  $r24 ($i64) $r1 511      // the largest: 611
+    ;
+    || $halt ;

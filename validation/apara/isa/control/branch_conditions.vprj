@@ -1,0 +1,14 @@
+SOURCES = branch_conditions.mcode
+
+INIT =
+r1 = 5
+r2 = 0
+r3 = 0xfffffffffffffffb
+r4 = 0x80
+r5 = 0x100000000
+r6 = 0xbf800000
+r7 = 0x3f800000
+r8 = 0xc000000000000000
+
+RESULTS =
+r29 = 0x351abde

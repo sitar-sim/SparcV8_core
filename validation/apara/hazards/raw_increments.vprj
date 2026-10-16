@@ -1,0 +1,17 @@
+SOURCES = raw_increments.mcode
+HAZARDS_UNLOCKED = 4
+
+INIT =
+m[0x0] = 0x99
+r3 = 0x10
+r4 = 2
+r5 = 0x55
+
+RESULTS =
+r1 = 0x99
+r10 = 8
+r11 = 0x18
+m[0x10] = 0x99
+r12 = 1
+r6 = 0x55
+r13 = 1

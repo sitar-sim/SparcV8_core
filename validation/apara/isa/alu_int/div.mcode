@@ -1,0 +1,13 @@
+// Integer /: signed division truncates toward zero; unsigned division uses
+// whole registers. A bundle holds at most one divide (the engine has one
+// divider), so each divide here is its own bundle.
+
+|| /  $r10 ($i64) $r1 $r3 ;     // 100 / 7 = 14
+|| /  $r11 ($i64) $r1 $r2 ;     // 100 / -7 = -14
+|| /  $r12 ($i64) $r4 $r3 ;     // -100 / 7 = -14
+|| /  $r13 ($i64) $r4 $r2 ;     // -100 / -7 = 14
+|| /  $r14 ($u64) $r4 $r3 ;     // (2^64 - 100) / 7, unsigned
+|| /  $r15 ($i8)  $r2 $r3 ;     // 0xf9 is -7 as i8: -7 / 7 = -1
+|| /  $r16 ($i64) $r1 -3 ;      // 100 / -3 = -33
+|| /  $r17 ($i64) $r3 $r1 ;     // 7 / 100 = 0
+|| $halt ;

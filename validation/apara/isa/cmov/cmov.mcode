@@ -1,0 +1,12 @@
+// $cmov (type) $rs1 <condition> [increment] $rd $rs2: if $rs2 satisfies
+// the condition (compared with 0), $rd = $rs1. The register tested is
+// the last one written; the increment is added to it.
+
+cmov:
+    ||
+        $cmov ($i64) $r1 ==     $r4 $r2   // $r2 == 0: $r4 = 5
+        $cmov ($i64) $r1 ==     $r5 $r3   // $r3 != 0: $r5 unchanged
+        $cmov ($i8)  $r1 <      $r7 $r6   // -1 < 0: $r7 = 5
+        $cmov ($i64) $r1 != ++1 $r9 $r10  // 3 != 0: $r9 = 5, then $r10 = 4
+    ;
+    || $halt ;

@@ -1,0 +1,2 @@
+SOURCES = immediate_range.mcode
+ASM_ERROR = out of range

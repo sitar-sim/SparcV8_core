@@ -1,0 +1,15 @@
+SOURCES = dev_control.mcode
+DEVIATION = nested calls, unsigned compare, signed cmov increment
+
+INIT =
+r1 = 0x8000000000000000
+r4 = 3
+
+RESULTS =
+r2 = 0x1
+r3 = 0x1
+r4 = 0x2
+r5 = 0x1
+r6 = 0x1
+r7 = 0x1
+error = 0x2000000

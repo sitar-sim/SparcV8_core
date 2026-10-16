@@ -1,0 +1,22 @@
+// Scalar integer casts: the source is sign- or zero-extended by its own
+// type, then truncated to the destination width (not extended again).
+// Vector casts change the element width by one step: widening writes two
+// registers, narrowing reads two.
+
+scalar:
+    ||
+        $cast ($i16) $r10 ($u8)  $r1    // 0xf0 zero-extended, 16 bits: 0xf0
+        $cast ($i16) $r11 ($i8)  $r1    // -16 sign-extended, 16 bits: 0xfff0
+        $cast ($u8)  $r12 ($i16) $r2    // 0x0180 truncated: 0x80
+        $cast ($i32) $r13 ($i16) $r2    // 384
+    ;
+widen:
+    ||
+        $cast ($vi32) $r14 ($vi16) $r3  // [1, -2, -32768, 32767]: r14, r15
+        $cast ($vu16) $r16 ($vu8)  $r4  // 8 unsigned bytes to 16 bits: r16, r17
+    ;
+narrow:
+    ||
+        $cast ($vi16) $r18 ($vi32) $r14 // r14, r15 back to [1, -2, -32768, 32767]
+    ;
+    || $halt ;

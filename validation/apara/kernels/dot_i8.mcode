@@ -1,0 +1,23 @@
+// The program and its data are already in the engine's IMEM and DMEM (the
+// INIT lines); the RESULTS were computed independently (in Python).
+//
+// A 64-element int8 dot product, unrolled into VLIW bundles: four 256-bit
+// loads bring both vectors (16 registers of 8 elements), eight $dot
+// ($vi8) in one bundle multiply-add them 8 elements at a time, and an
+// add tree sums the eight partial results. A at 0x0, B at 0x100, the
+// result at 0x1c0.
+
+load:
+    || $ld ($u256) $r4  [$r0 + 0]   $ld ($u256) $r8  [$r0 + 256]
+       $ld ($u256) $r12 [$r0 + 32]  $ld ($u256) $r16 [$r0 + 288] ;
+dots:
+    || $dot $r20 ($vi8) $r4  $r8    $dot $r21 ($vi8) $r5  $r9
+       $dot $r22 ($vi8) $r6  $r10   $dot $r23 ($vi8) $r7  $r11
+       $dot $r24 ($vi8) $r12 $r16   $dot $r25 ($vi8) $r13 $r17
+       $dot $r26 ($vi8) $r14 $r18   $dot $r27 ($vi8) $r15 $r19 ;
+sum:
+    || + $r20 ($i64) $r20 $r21  + $r22 ($i64) $r22 $r23  + $r24 ($i64) $r24 $r25  + $r26 ($i64) $r26 $r27 ;
+    || + $r20 ($i64) $r20 $r22  + $r24 ($i64) $r24 $r26 ;
+    || + $r20 ($i64) $r20 $r24 ;
+    || $st ($i64) [$r0 + 448] $r20 ;
+    || $halt ;

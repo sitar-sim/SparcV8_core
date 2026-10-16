@@ -1,0 +1,17 @@
+// An address that is not a multiple of the transfer size raises exception
+// 6 in the access's slot (the first memory lane, slot 4: ERROR 0x1006000).
+// One thread per case: a 2-byte load at an odd address, a 4-byte store at
+// 2, an 8-byte load at 4, a 16-byte load at 8.
+
+t0:
+    || $ld ($i16)  $r1 [$r0 + 1] ;
+    || $halt ;
+t1:
+    || $st ($i32)  [$r0 + 2] $r1 ;
+    || $halt ;
+t2:
+    || $ld ($i64)  $r1 [$r0 + 4] ;
+    || $halt ;
+t3:
+    || $ld ($u128) $r1 [$r0 + 8] ;
+    || $halt ;
