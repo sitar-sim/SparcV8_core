@@ -239,6 +239,22 @@ static inline uint32_t apara_dmem_read_word(uint32_t offset)
 	return __ajit_load_word_mmu_bypass__(APARA_DMEM_BASE + offset);
 }
 
+// The DMEM words a C engine program's initialized globals need: the
+// (offset, value) pairs apara_obj_to_c.py writes as <name>_dmem_image[],
+// <NAME>_DMEM_IMAGE_WORDS of them.
+static inline void apara_load_dmem_image(const uint32_t* pairs, uint32_t n)
+{
+	uint32_t i;
+	for (i = 0; i < n; i++)
+		apara_dmem_write_word(pairs[2 * i], pairs[2 * i + 1]);
+}
+
+// A 64-bit DMEM word (big-endian: the high half at the lower address).
+static inline uint64_t apara_dmem_read_dword(uint32_t offset)
+{
+	return ((uint64_t) apara_dmem_read_word(offset) << 32) | apara_dmem_read_word(offset + 4);
+}
+
 //------------------------------------------------------------------------
 // DMA
 //------------------------------------------------------------------------

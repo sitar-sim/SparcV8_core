@@ -3,8 +3,10 @@
 that loads it into the engine (Ref compiler/include/apara_access_routines.h).
 
     apara_obj_to_c.py kernel.mcode [-o kernel.mcode.h] [--name kernel]
+    apara_obj_to_c.py kernel.c [--dmem-base 0x01000000]
 
-Assembles the mcode source (or reads an .obj) and writes:
+Assembles the mcode source (or reads an .obj, or compiles a C source
+with apcc.py first) and writes:
 
     static const uint32_t kernel_program[] = { ... };   // IMEM words 0, 1, ...
     #define KERNEL_PROGRAM_WORDS 24
@@ -12,7 +14,14 @@ Assembles the mcode source (or reads an .obj) and writes:
 
 so `apara_load_program(kernel_program, KERNEL_PROGRAM_WORDS)` loads it and
 `apara_start_thread(0, KERNEL_LOOP)` starts a thread at a label. The name
-defaults to the file's stem. validation/build_hex.py runs this for each
+defaults to the file's stem. For a C source it also writes each global's
+DMEM byte offset, and the DMEM words its initializers set:
+
+    #define KERNEL_DMEM_RESULT 0x80                     // each global's DMEM offset
+    static const uint32_t kernel_dmem_image[] = { offset, value, ... };
+    #define KERNEL_DMEM_IMAGE_WORDS 6                    // (offset, value) pairs
+
+loaded with apara_load_dmem_image(). validation/build_hex.py runs this for each
 `MCODE = <file>` line of a test's .vprj.
 """
 
@@ -30,6 +39,8 @@ def main():
     ap.add_argument('source', help='.mcode source or .obj object file')
     ap.add_argument('-o', '--output')
     ap.add_argument('--name')
+    ap.add_argument('--dmem-base', type=lambda v: int(v, 0), default=0x01000000,
+                    help="a C source's DMEM base address (default: engine 0's window in sparc_apara)")
     a = ap.parse_args()
 
     name = a.name or re.sub(r'\W', '_', os.path.basename(a.source).split('.')[0])
@@ -38,8 +49,22 @@ def main():
             text = f.read()
     except OSError as e:
         sys.exit('error: %s' % e)
-    labels = {}
+    labels, symbols, image_words = {}, {}, []
     try:
+        if a.source.endswith('.c'):
+            import apcc
+            try:
+                r = apcc.compile_source(text, a.source, 1, a.dmem_base)
+            except apcc.CompileError as e:
+                sys.stderr.write('error: %s\n' % e.args[0])
+                return 1
+            text, symbols = r.mcode, r.symbols
+            for line in r.data_lines:
+                index, value = line.split(':')
+                v = int(value, 16)
+                for half, w in ((0, v >> 32), (4, v & 0xFFFFFFFF)):
+                    if w:
+                        image_words.append((int(index, 16) * 8 + half, w))
         if a.source.endswith('.obj'):
             words = mcode.read_object(text)
         else:
@@ -63,7 +88,15 @@ def main():
         out.append('\t' + ' '.join('0x%08x,' % image.get(j, 0) for j in range(i, min(i + 4, n))))
     out += ['};', '#define %s_PROGRAM_WORDS %d' % (name.upper(), n), '']
     for label, address in sorted(labels.items(), key=lambda x: x[1]):
-        out.append('#define %s_%s 0x%x' % (name.upper(), re.sub(r'\W', '_', label).upper(), address))
+        if not re.match(r'^L\d+_', label):  # not the compiler's internal labels
+            out.append('#define %s_%s 0x%x' % (name.upper(), re.sub(r'\W', '_', label).upper(), address))
+    if a.source.endswith('.c'):
+        out.append('')
+        for sym, offset in sorted(symbols.items(), key=lambda x: x[1]):
+            out.append('#define %s_DMEM_%s 0x%x' % (name.upper(), sym.upper(), offset))
+        out += ['', 'static const uint32_t %s_dmem_image[] = {' % name] + \
+               ['\t0x%x, 0x%08x,' % (o, w) for o, w in image_words] + \
+               ['\t0, 0', '};', '#define %s_DMEM_IMAGE_WORDS %d' % (name.upper(), len(image_words))]
     out += ['', '#endif', '']
     output = a.output or a.source + '.h'
     with open(output, 'w') as f:
