@@ -16,6 +16,7 @@ MmuCore::MmuCore(PhysicalMemoryInterface& downstream, int threadId)
 	  walkResultPte_(0), walkResultLevel_(0), walkResultPhyAddrOfPte_(0), translateWasTlbHit_(false),
 	  stagedUpdatedPte_(0), logger_(0), simulatedTime_(0)
 {
+	assert(threadId >= 0 && threadId < MAX_THREADS);
 	for (int i = 0; i < MAX_THREADS; i++)
 	{
 		controlRegister_[i] = 0;
@@ -41,12 +42,12 @@ void MmuCore::log(const std::string& event, const std::string& detail)
 
 bool MmuCore::mmuEnabled() const
 {
-	return readBits(controlRegister_[threadId_ & 1], MmuControlBits::E_BIT, MmuControlBits::E_BIT) != 0;
+	return readBits(controlRegister_[threadId_], MmuControlBits::E_BIT, MmuControlBits::E_BIT) != 0;
 }
 
 bool MmuCore::alwaysCacheable() const
 {
-	return readBits(controlRegister_[threadId_ & 1], MmuControlBits::ALWAYS_CACHEABLE_BIT, MmuControlBits::ALWAYS_CACHEABLE_BIT) != 0;
+	return readBits(controlRegister_[threadId_], MmuControlBits::ALWAYS_CACHEABLE_BIT, MmuControlBits::ALWAYS_CACHEABLE_BIT) != 0;
 }
 
 //Ref Appendix H.3 (Control Register, NF field): "When NF = 1, a fault
@@ -61,7 +62,7 @@ bool MmuCore::alwaysCacheable() const
 //exactly where they'd otherwise set mae=true.
 bool MmuCore::noFaultSuppressesTrap(uint32_t asi) const
 {
-	bool nf = readBits(controlRegister_[threadId_ & 1], MmuControlBits::NF_BIT, MmuControlBits::NF_BIT) != 0;
+	bool nf = readBits(controlRegister_[threadId_], MmuControlBits::NF_BIT, MmuControlBits::NF_BIT) != 0;
 	return nf && asi != ASI_SUPERVISOR_INSTRUCTION;
 }
 
@@ -356,7 +357,7 @@ bool MmuCore::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool
 		return true;
 	}
 
-	uint32_t context = contextRegister_[threadId_ & 1];
+	uint32_t context = contextRegister_[threadId_];
 
 	//Ref this file's header/MmuCore.h's own comment: built from the shared
 	//step primitives below rather than one opaque function, so this
@@ -446,7 +447,7 @@ void MmuCore::beginWalk(uint32_t va, uint32_t context)
 	walkL2Index_ = readBits(va, PageTableWalk::L2_INDEX_HIGH_BIT, PageTableWalk::L2_INDEX_LOW_BIT);
 	walkL3Index_ = readBits(va, PageTableWalk::L3_INDEX_HIGH_BIT, PageTableWalk::L3_INDEX_LOW_BIT);
 	walkCurLevel_ = 0;
-	walkCurPhyAddr_ = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_ & 1], context);
+	walkCurPhyAddr_ = getPhyAddrFromPTD(contextTablePointerRegister_[threadId_], context);
 }
 
 bool MmuCore::recordWalkStep(uint32_t fetchedPte, uint8_t stopAtLevel)
@@ -532,7 +533,7 @@ bool MmuCore::probe(uint32_t va, uint32_t& resultPte)
 {
 	resultPte = 0;
 	uint8_t probeType = (uint8_t) readBits(va, 11, 8); //Ref Table H-6
-	uint32_t context = contextRegister_[threadId_ & 1];
+	uint32_t context = contextRegister_[threadId_];
 
 	if (probeType == 4) //entire: whatever a normal lookup/walk actually finds
 	{
@@ -596,7 +597,7 @@ void MmuCore::flush(uint32_t va)
 {
 	if (!tlbActive()) return; //nothing cached to flush
 	uint8_t flushType = (uint8_t) readBits(va, 11, 8); //Ref Table H-6, same VA[11:8] convention as probe
-	tlb_.flush(flushType, va, contextRegister_[threadId_ & 1]);
+	tlb_.flush(flushType, va, contextRegister_[threadId_]);
 }
 
 //---------------------------------------------------------------------
@@ -607,17 +608,17 @@ uint32_t MmuCore::readRegister(uint32_t addr)
 {
 	uint32_t registerId = readBits(addr, 31, 8); //Ref Table H-5
 	uint32_t result = 0;
-	if (registerId == MmuRegisterSelect::CONTROL) result = controlRegister_[threadId_ & 1];
-	else if (registerId == MmuRegisterSelect::CONTEXT_TABLE_POINTER) result = contextTablePointerRegister_[threadId_ & 1];
-	else if (registerId == MmuRegisterSelect::CONTEXT) result = contextRegister_[threadId_ & 1];
+	if (registerId == MmuRegisterSelect::CONTROL) result = controlRegister_[threadId_];
+	else if (registerId == MmuRegisterSelect::CONTEXT_TABLE_POINTER) result = contextTablePointerRegister_[threadId_];
+	else if (registerId == MmuRegisterSelect::CONTEXT) result = contextRegister_[threadId_];
 	else if (registerId == MmuRegisterSelect::FAULT_STATUS)
 	{
 		//A read to the FSR clears it (Ref Appendix H.5).
-		result = faultStatusRegister_[threadId_ & 1];
-		faultStatusRegister_[threadId_ & 1] = 0;
-		faultClass_[threadId_ & 1] = NO_FAULT;
+		result = faultStatusRegister_[threadId_];
+		faultStatusRegister_[threadId_] = 0;
+		faultClass_[threadId_] = NO_FAULT;
 	}
-	else if (registerId == MmuRegisterSelect::FAULT_ADDRESS) result = faultAddressRegister_[threadId_ & 1];
+	else if (registerId == MmuRegisterSelect::FAULT_ADDRESS) result = faultAddressRegister_[threadId_];
 
 	stats.registerReads++;
 	log("MMU_REGISTER_READ", "id=" + std::to_string(registerId) + " value=" + std::to_string(result));
@@ -637,12 +638,12 @@ void MmuCore::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint3
 
 	if (registerId == MmuRegisterSelect::CONTROL)
 	{
-		controlRegister_[threadId_ & 1] = data;
+		controlRegister_[threadId_] = data;
 		if (!independentMmuContextPerThread) for (int i = 0; i < MAX_THREADS; i++) controlRegister_[i] = data;
 	}
 	else if (registerId == MmuRegisterSelect::CONTEXT_TABLE_POINTER)
 	{
-		contextTablePointerRegister_[threadId_ & 1] = data;
+		contextTablePointerRegister_[threadId_] = data;
 		if (!independentMmuContextPerThread) for (int i = 0; i < MAX_THREADS; i++) contextTablePointerRegister_[i] = data;
 		//Writing the context-table pointer invalidates the whole TLB
 		//(Ref Appendix H.7's "Miss Processing" implies stale translations
@@ -653,7 +654,7 @@ void MmuCore::writeRegister(uint32_t addr, uint32_t word0, uint32_t word1, uint3
 	}
 	else if (registerId == MmuRegisterSelect::CONTEXT)
 	{
-		contextRegister_[threadId_ & 1] = data;
+		contextRegister_[threadId_] = data;
 		if (!independentMmuContextPerThread) for (int i = 0; i < MAX_THREADS; i++) contextRegister_[i] = data;
 		stats.contextRegisterWrites++;
 	}
@@ -881,7 +882,7 @@ void MmuCore::recordFault(uint8_t at, uint8_t faultType, uint8_t level, uint32_t
 
 void MmuCore::updateFsrFar(uint32_t fsrVal, uint32_t farVal, uint8_t faultClass)
 {
-	int tid = threadId_ & 1;
+	int tid = threadId_;
 
 	//OW (Overwrite) is set only when a fault of the same class overwrites
 	//an unread one (Ref Appendix H.5).

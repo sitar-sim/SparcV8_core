@@ -53,11 +53,11 @@ class MmuCore : public VirtualMemoryInterface
 		//downstream: whatever this MMU forwards translated or
 		//pass-through accesses to, over PhysicalMemoryInterface
 		//(MainMemory today). threadId: which hardware thread within this
-		//MMU's core this instance represents -- registers are kept
-		//thread-indexed internally (MAX_THREADS, matching Ajit's
-		//MMU_MAX_NUMBER_OF_THREADS) even though only thread_id 0 is used
-		//until SMT support lands, so that extension needs no interface
-		//change later.
+		//MMU's core this instance represents, 0 to MAX_THREADS-1
+		//(asserted) -- registers are kept thread-indexed internally
+		//(MAX_THREADS, Ajit's MMU_MAX_NUMBER_OF_THREADS) even though only
+		//thread 0 exists until SMT support lands, so that extension needs
+		//no interface change later.
 		explicit MmuCore(PhysicalMemoryInterface& downstream, int threadId = 0);
 
 		//Dispatches on request.accessType to handleReadAccess()/
@@ -144,7 +144,7 @@ class MmuCore : public VirtualMemoryInterface
 		//above takes context as an explicit parameter rather than
 		//reading the register itself, so Sitar's own dispatch (living
 		//outside this class) needs this to supply it.
-		uint32_t currentContext() const { return contextRegister_[threadId_ & 1]; }
+		uint32_t currentContext() const { return contextRegister_[threadId_]; }
 
 		//Ref the Control Register's E bit (Ref Appendix H.3) -- whether
 		//translation is actually active right now (independent of

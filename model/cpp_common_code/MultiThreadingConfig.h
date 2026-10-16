@@ -9,17 +9,16 @@
 //own register file and a future L1 cache's per-thread state need the
 //same number.
 //
-//This model currently only ever constructs thread 0, so this value is
-//not yet exercised beyond sizing per-thread arrays.
-//
-//Some call sites (MmuCore.cpp's `threadId_ & 1` thread-index selection)
-//hardcode an assumption that this is exactly 2. Changing this value
-//alone does not make those call sites correct for a different thread
-//count.
+//Only 1 is supported so far: every configuration constructs one thread
+//per core. The multithreaded configurations will allow 1, 2, or 4, once
+//the core, the MMU, and the caches handle more than one thread; until
+//then the static_assert below stops a build with any other value.
 
 #ifndef MULTI_THREADING_CONFIG_H
 #define MULTI_THREADING_CONFIG_H
 
-static const int NUM_THREADS_PER_CORE = 2;
+static const int NUM_THREADS_PER_CORE = 1;
+
+static_assert(NUM_THREADS_PER_CORE == 1, "only 1 thread per core is supported so far");
 
 #endif
