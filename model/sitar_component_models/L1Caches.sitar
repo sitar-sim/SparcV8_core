@@ -1,6 +1,9 @@
 //================================================================
 // procedure L1Caches
-// Author: Neha Karanjkar
+// Original Authors: Madhav Desai, Neha Karanjkar, Aniket Deshmukh
+// Model Author: Claude Opus 5.5 (high)
+// This model code was adapted from the VIVT L1 cache model developed by
+// the original authors.
 //
 // The Sitar timing model for a core's split L1 caches. Embeds the plain
 // C++ L1CachesCore (field `caches`), which holds both caches and the

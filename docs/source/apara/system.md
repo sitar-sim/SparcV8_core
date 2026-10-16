@@ -34,20 +34,7 @@ The SPARC core reaches main memory, the devices and the engine through
 the system bus. The engine is the bus's second master: its DMA unit, and
 its own loads and stores outside DMEM, reach main memory through it too.
 
-```text
-   SPARC core (with its L1 caches and MMU)
-        |
-        | master 1                       master 2: the DMA unit's copies, and the
-        v                                engine's loads and stores outside DMEM
-   +------------------------- system bus ---------------------------+
-        |                  |                                |   ^
-        v                  v                                v   |
-   main memory      devices: Timer, Serial,           APARA engine: control unit,
-                    Interrupt Controller              DMA unit, IMEM, DMEM,
-                           ^                          4 threads, pipeline
-                           |                                |
-                           +------- interrupt (IRL 14) -----+
-```
+<img src="../images/sparc_apara_connections.svg" alt="How the SPARC core, main memory, the devices and the APARA engine are connected" title="sparc_apara connections">
 
 The SPARC and the engine communicate in four ways:
 

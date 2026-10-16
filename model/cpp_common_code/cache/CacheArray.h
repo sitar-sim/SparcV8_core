@@ -1,8 +1,8 @@
 //CacheArray.h
-//Original Author: Neha Karanjkar
+//Original Authors: Madhav Desai, Neha Karanjkar, Aniket Deshmukh
 //Model Author: Claude Opus 5.5 (high)
-//The model code was adapted from a Sparc v8 core simulation model written
-//by the first author in C++ and Sitar (2015-2017).
+//This model code was adapted from the VIVT L1 cache model developed by
+//the original authors.
 //
 //One virtually indexed, virtually tagged (VIVT) cache's storage and
 //lookup: the lines, their tags, and replacement. No access policy at all
