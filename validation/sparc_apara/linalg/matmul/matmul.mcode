@@ -1,0 +1,18 @@
+// C = A x B for 8x8 int8 matrices (int64 results), two rows per thread.
+// DMEM (offsets): A at 0x0 (one dword per row), B transposed at 0x40 (row
+// j of BT is column j of B), C at 0x100 (64 bytes per row).
+//   $r20  this thread's first row of A (window address)
+//   $r21  the matching row of C (window address)
+//   $r22  rows - 1
+//   $r23  DMEM's window address
+start:
+    || $ld ($u256) $r9 [$r23 + 64]  $ld ($u256) $r13 [$r23 + 96] ;   // BT: r9..r16
+row:
+    || $ld ($i64) $r1 [$r20 + 0]  + $r20 ($i64) $r20 8 ;
+    || $dot $r24 ($vi8) $r1 $r9    $dot $r25 ($vi8) $r1 $r10
+       $dot $r26 ($vi8) $r1 $r11   $dot $r27 ($vi8) $r1 $r12
+       $dot $r28 ($vi8) $r1 $r13   $dot $r29 ($vi8) $r1 $r14
+       $dot $r30 ($vi8) $r1 $r15   $dot $r31 ($vi8) $r1 $r16 ;
+    || $st ($u256) [$r21 + 0] $r24  $st ($u256) [$r21 + 32] $r28  + $r21 ($i64) $r21 64 ;
+    || ? ($i64) $r22 > --1 $goto row ;
+    || $halt ;

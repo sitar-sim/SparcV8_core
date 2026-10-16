@@ -20,4 +20,4 @@ and its interrupt drives the Interrupt Controller's IRL 14 input.
 
 `--stats` adds the number of bundles the engine ran. See [The Engine in
 a System](https://sitar-sim.github.io/SparcV8_core/apara/system.html),
-and `validation/C/apara/` for the tests.
+and `validation/sparc_apara/` for the tests.

@@ -1,0 +1,9 @@
+// Adds 1, $r3 + 1 times, both to a shared dword (at $r1) and to the
+// thread's own dword (at $r2): a load, an add and a store each time,
+// three separate bundles, with nothing to make them atomic.
+start:
+    || $ld ($i64) $r5 [$r1 + 0]  $ld ($i64) $r6 [$r2 + 0] ;
+    || + $r5 ($i64) $r5 1  + $r6 ($i64) $r6 1 ;
+    || $st ($i64) [$r1 + 0] $r5  $st ($i64) [$r2 + 0] $r6 ;
+    || ? ($i64) $r3 > --1 $goto start ;
+    || $halt ;

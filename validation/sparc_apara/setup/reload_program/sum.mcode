@@ -1,0 +1,12 @@
+// Sums the 16 dwords at $r1 into the dword at $r1 + 128. A different
+// program loaded over squares.mcode: its loop branch is also at 0x8 but
+// goes back to 0x2, so the branch predictor's entry from the first
+// program predicts the wrong target, once.
+start:
+    || + $r2 ($i64) $r0 15  + $r6 ($i64) $r0 0 ;
+loop:
+    || $ld ($i64) $r3 [$r1 + 0]  + $r1 ($i64) $r1 8 ;
+    || + $r6 ($i64) $r6 $r3 ;
+    || ? ($i64) $r2 > --1 $goto loop ;
+    || $st ($i64) [$r1 + 0] $r6 ;
+    || $halt ;

@@ -6,7 +6,7 @@
 # never enables the MMU), just confirms the MMU-in-the-loop, disabled,
 # pass-through path works -- see validation/C/mmu/ for real translation
 # coverage, validation/C/devices/ for the devices, validation/C/caches/
-# for the caches, and validation/C/apara/ for the APARA engine.
+# for the caches, and validation/sparc_apara/ for the APARA engine.
 set -e
 DIR="$(cd "$(dirname "$0")" && pwd)"
 TEST_DIR="$DIR/../../../../validation/test_simple_ADD"

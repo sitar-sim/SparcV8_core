@@ -1,0 +1,7 @@
+// Counts to $r2 + 1, storing the count at $r1 after each step: a
+// progress word the SPARC can watch.
+start:
+    || + $r10 ($i64) $r10 1 ;
+    || $st ($i64) [$r1 + 0] $r10 ;
+    || ? ($i64) $r2 > --1 $goto start ;
+    || $halt ;

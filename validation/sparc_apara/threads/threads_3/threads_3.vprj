@@ -1,0 +1,7 @@
+SOURCES = threads_3.c
+MCODE = ../dot_kernel.mcode
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000001f

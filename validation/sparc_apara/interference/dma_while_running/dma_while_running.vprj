@@ -1,0 +1,7 @@
+SOURCES = dma_while_running.c
+MCODE = ../../threads/dot_kernel.mcode
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000000f

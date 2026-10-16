@@ -1,0 +1,18 @@
+// One thread's part of a dot product of two int8 vectors in DMEM:
+//   $r1  the thread's slice of A (an address in DMEM's window)
+//   $r2  the same slice of B
+//   $r3  the number of 32-byte blocks in the slice, minus 1
+//   $r4  where to store the 64-bit result
+start:
+    || + $r10 ($i64) $r0 0 ;
+loop:
+    || $ld ($u256) $r12 [$r1 + 0]  $ld ($u256) $r16 [$r2 + 0]
+       + $r1 ($i64) $r1 32  + $r2 ($i64) $r2 32 ;
+    || $dot $r20 ($vi8) $r12 $r16  $dot $r21 ($vi8) $r13 $r17
+       $dot $r22 ($vi8) $r14 $r18  $dot $r23 ($vi8) $r15 $r19 ;
+    || + $r20 ($i64) $r20 $r21  + $r22 ($i64) $r22 $r23 ;
+    || + $r10 ($i64) $r10 $r20 ;
+    || + $r10 ($i64) $r10 $r22 ;
+    || ? ($i64) $r3 > --1 $goto loop ;
+    || $st ($i64) [$r4 + 0] $r10 ;
+    || $halt ;

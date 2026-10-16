@@ -1,0 +1,7 @@
+SOURCES = shared_counter.c
+MCODE = counter.mcode
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000000f

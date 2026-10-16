@@ -1,0 +1,9 @@
+SOURCES = load_verify.c
+# 295,000 cycles on the cpp_model: 512 IMEM words and 2 KB of DMEM, written
+# and read back one word at a time through the control unit and the window.
+MAX_CYCLES = 1000000
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000001f

@@ -1,0 +1,4 @@
+# The SPARC core using an APARA engine: the sparc_apara configuration
+# (the engine's interrupt reaches the SPARC through the Interrupt
+# Controller, one of the devices).
+sparc devices apara

@@ -1,0 +1,6 @@
+// $r1 / $r2, stored at $r3. With $r2 = 0, an exception (code 1, in the
+// divider's slot 1) stops the thread at this bundle.
+start:
+    || / $r4 ($i64) $r1 $r2 ;
+    || $st ($i64) [$r3 + 0] $r4 ;
+    || $halt ;
