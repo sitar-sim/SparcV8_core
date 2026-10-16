@@ -12,7 +12,8 @@ MMU disabled. Reporting is the same as `validation/C/devices/`.
 | `device_never_cached` | A device register read with plain loads keeps changing, even with "always cacheable" set. |
 | `atomic_on_cached_line` | LDSTUB on a cached byte returns the old value, and the cache and memory both see 0xFF afterward. |
 
-`stale_until_flush` deliberately fails on a configuration without
-caches. The rest of the suite (asm, C, C/mmu, C/devices) also runs
+`stale_until_flush` would fail on a configuration without caches, so
+`run_tests.py` skips this folder on those (its `REQUIRES` file names
+`caches`). The rest of the suite (asm, C, C/mmu, C/devices) also runs
 through the caches on this configuration, and with every ordinary access
 cached under `SPARC_ALWAYS_CACHEABLE=1`.

@@ -22,6 +22,12 @@ Top/Core/SparcThread model) -- same CLI, same expected-results format,
 same PASS/FAIL/OVERALL output, so the exact same suite runs against
 either model unchanged.
 
+Not every test suits every configuration: a folder's REQUIRES file lists
+what its tests need (e.g. "mmu"), and a configuration's COMPONENTS file
+(model/system_models/<config>/COMPONENTS) what it has. Tests that need
+something --config lacks are skipped, and listed at the end, so
+run_tests.py validation --config core_only is safe.
+
 Pass --config NAME (default: core_only) to instead drive another
 system_models configuration, e.g. --config core_mmu runs against
 model/system_models/core_mmu/cpp_model/executable/sparc_sim_cpp_core_mmu
@@ -70,6 +76,7 @@ def run_one_test(vprj_path, max_cycles, env, check_test):
     with open(expected_path, 'w') as f:
         f.write('\n'.join(expected_lines) + '\n')
 
+    max_cycles = max(max_cycles, vprj.parse_max_cycles(vprj_path) or 0)
     check = subprocess.run([check_test, hex_path, expected_path, str(max_cycles)],
                             capture_output=True, text=True, env=env)
     return check.returncode == 0, check.stdout + check.stderr
@@ -87,6 +94,11 @@ def main():
                      help="which system_models configuration to drive (default: core_only)")
     args = ap.parse_args()
 
+    if 'apara_standalone' in (vprj.config_components(args.config) or set()):
+        print("error: %s is the engine alone, with no SPARC core: its tests run with "
+              "validation/apara/run_tests.py" % args.config)
+        sys.exit(1)
+
     check_test = check_test_sitar(args.config) if args.sitar else check_test_cpp(args.config)
     build_hint = ("model/system_models/%s/sitar_model/build.sh" % args.config if args.sitar
                   else "model/system_models/%s/cpp_model/build.sh" % args.config)
@@ -98,6 +110,24 @@ def main():
     if not vprj_files:
         print("No .vprj files found under %s" % args.root)
         sys.exit(1)
+
+    # Each test's REQUIRES (its folder's and its parents') against what the
+    # configuration has (its COMPONENTS file): skip the tests it cannot run.
+    have = vprj.config_components(args.config)
+    skipped = {}
+    if have is None:
+        print("note: %s has no COMPONENTS file: running every test" % args.config)
+    else:
+        runnable = []
+        for v in vprj_files:
+            missing = vprj.requirements(v) - have
+            if missing:
+                folder = os.path.relpath(vprj.requiring_folder(v, missing), vprj.REPO_ROOT)
+                key = (folder, ', '.join(sorted(missing)))
+                skipped[key] = skipped.get(key, 0) + 1
+            else:
+                runnable.append(v)
+        vprj_files = runnable
 
     env = vprj.subprocess_env()
     passed_count = 0
@@ -121,7 +151,10 @@ def main():
                 print("    " + line)
 
     total = len(vprj_files)
-    print("\n%d/%d tests passed" % (passed_count, total))
+    for (folder, missing), n in sorted(skipped.items()):
+        print("skipped %d test(s) under %s: %s has no %s" % (n, folder, args.config, missing))
+    print("\n%d/%d tests passed" % (passed_count, total) +
+          (" (%d skipped)" % sum(skipped.values()) if skipped else ""))
     if failed:
         print("\nFailed tests:")
         for f in failed:

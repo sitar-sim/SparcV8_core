@@ -69,7 +69,9 @@ def main():
     ap.add_argument('-v', '--verbose', action='store_true', help="show assembler output for every test, not just failures")
     args = ap.parse_args()
 
-    vprj_files = vprj.find_vprj_files(args.root)
+    # The APARA engine's own suites (REQUIRES apara_standalone) are not
+    # SPARC programs: validation/apara/run_tests.py assembles them itself.
+    vprj_files = [v for v in vprj.find_vprj_files(args.root) if 'apara_standalone' not in vprj.requirements(v)]
     if not vprj_files:
         print("No .vprj files found under %s" % args.root)
         sys.exit(1)

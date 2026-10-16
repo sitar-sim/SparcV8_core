@@ -1,20 +1,23 @@
 # validation/
 
-Functional validation suite for the SPARC V8 core model: functional
-correctness only, no SPARC timing/pipeline tests. (The APARA engine's own
-suite, `apara/`, is the exception: it also checks the engine's timing
-model, see `apara/README.md`.)
+The validation suites. The SPARC suites check functional correctness
+only (no SPARC timing/pipeline tests); the APARA engine's own suites,
+`apara/`, also check the engine's timing model.
 
 ## What's here
 
 - `asm/` -- hand-written, opcode-level assembly tests. See `asm/README.md`.
 - `C/` -- bare-metal C tests. See `C/README.md`. Besides the
   benchmarks, it holds one folder per component suite: `mmu/`,
-  `devices/`, `caches/`, and `apara/` (an APARA engine driven from the
-  SPARC), each needing a configuration that has that component.
-- `apara/` -- the APARA engine's own tests (mcode programs, functional
-  and timing), with their own runner, `apara/run_tests.py`. See
-  `apara/README.md`.
+  `devices/`, `caches/`, each needing a configuration that has that
+  component.
+- `sparc_apara/` -- C programs for the SPARC that use an APARA engine:
+  setup, threads, interference, linear algebra (the `sparc_apara`
+  configuration). See `sparc_apara/README.md`.
+- `apara/` -- the APARA engine's own tests (mcode and C programs,
+  functional and timing, hazards, the branch predictor), on the
+  standalone `apara` configuration, with their own runner,
+  `apara/run_tests.py`. See `apara/README.md`.
 - `test_simple_ADD/` -- one more `.vprj` test, but its main job is as
   the small example program used throughout the docs and both models'
   own `run_simple_test.sh` scripts
@@ -31,8 +34,29 @@ model, see `apara/README.md`.)
   the cpp one, for the log viewer's own demo (same name throughout, not
   a differently-named copy).
 
-Every test in `asm/`/`C/` is a `<TEST>.<s|c>` + `<TEST>.vprj` pair.
-`.vprj` lists the expected final state as `REG`/`MEM` checks.
+Every SPARC test is a `<TEST>.<s|c>` + `<TEST>.vprj` pair. `.vprj`
+lists the expected final state as `REG`/`MEM` checks. (The APARA
+engine's tests have their own `.vprj` format, Ref `apara/apara_vprj.py`.)
+
+## Which suites run on which configuration
+
+A suite folder's `REQUIRES` file lists what its tests need (`sparc`,
+`mmu`, `devices`, `caches`, `apara`, or `apara_standalone` for the
+engine's own suites); requirements add up down the tree. Each
+configuration lists what it has in its `COMPONENTS` file
+(`../model/system_models/<config>/COMPONENTS`). `run_tests.py --config
+<config>` runs the tests whose requirements the configuration meets, and
+lists the folders it skipped, so the whole tree can be run against any
+configuration:
+
+```bash
+python3 validation/run_tests.py validation --config core_only     # asm/, C/ benchmarks
+python3 validation/run_tests.py validation --config sparc_apara   # everything but apara/
+python3 validation/apara/run_tests.py                             # apara/, on the apara configuration
+```
+
+A new configuration needs only its `COMPONENTS` file; a new suite, a
+`REQUIRES` file if it needs more than the SPARC core.
 
 ## Scripts
 
@@ -51,8 +75,8 @@ Roughly in the order you'd use them:
    listed here since it's the next step).
 4. `run_tests.py <root_folder> [--config NAME] [--sitar] [--max-cycles N] [-v]`
    -- runs each test's `.hex` against the checker and reports PASS/FAIL.
-   `--config` picks the configuration (default `core_only`). Doesn't
-   need the toolchain.
+   `--config` picks the configuration (default `core_only`), and the
+   tests it cannot run are skipped (above). Doesn't need the toolchain.
 5. `clean.sh [root_folder]` -- removes generated build byproducts (`.o`,
    `.elf`, `.expected`). Leaves `.hex`/`.s`/`.c`/`.vprj`/`.objdump` alone.
 

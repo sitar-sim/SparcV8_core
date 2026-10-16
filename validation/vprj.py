@@ -15,6 +15,10 @@ SOURCES_LINE_RE = re.compile(r'^SOURCES\s*=\s*(\S+)')
 # Optional: a startup file to link instead of compiler/crt0.s (C tests
 # only), e.g. `STARTUP = crt0_interrupts.s`.
 STARTUP_LINE_RE = re.compile(r'^STARTUP\s*=\s*(\S+)')
+# Optional: a test that legitimately runs long raises its own cycle limit,
+# e.g. `MAX_CYCLES = 1000000` (the runner uses the larger of this and its
+# --max-cycles).
+MAX_CYCLES_LINE_RE = re.compile(r'^MAX_CYCLES\s*=\s*(\d+)')
 # Optional RESULTS line: the exact bytes the program must have sent out
 # through the Serial device, as a double-quoted string with C-style
 # escapes (\n, \t, \\, \", \xHH). Only configurations with devices
@@ -58,6 +62,16 @@ def parse_startup(path):
             m = STARTUP_LINE_RE.match(line)
             if m:
                 return m.group(1)
+    return None
+
+
+def parse_max_cycles(path):
+    """Returns the MAX_CYCLES a .vprj gives, or None."""
+    with open(path) as f:
+        for line in f:
+            m = MAX_CYCLES_LINE_RE.match(line)
+            if m:
+                return int(m.group(1))
     return None
 
 
@@ -140,6 +154,53 @@ def find_vprj_files(root):
                 vprj_files.append(os.path.join(dirpath, fn))
     vprj_files.sort()
     return vprj_files
+
+
+VALIDATION_ROOT = os.path.join(REPO_ROOT, 'validation')
+
+
+def read_words(path):
+    """The words of a REQUIRES or COMPONENTS file ('#' starts a comment)."""
+    words = set()
+    with open(path) as f:
+        for line in f:
+            words |= set(line.split('#', 1)[0].split())
+    return words
+
+
+def requirements(vprj_path):
+    """What a test needs: the union of the REQUIRES files in its folder and
+    every folder above it, up to validation/."""
+    need = set()
+    d = os.path.dirname(os.path.abspath(vprj_path))
+    while True:
+        f = os.path.join(d, 'REQUIRES')
+        if os.path.isfile(f):
+            need |= read_words(f)
+        if d == VALIDATION_ROOT or os.path.dirname(d) == d:
+            return need
+        d = os.path.dirname(d)
+
+
+def requiring_folder(vprj_path, missing):
+    """The outermost folder (from validation/ down) whose REQUIRES names
+    one of `missing`: where a skipped test's suite begins."""
+    found = None
+    d = os.path.dirname(os.path.abspath(vprj_path))
+    while True:
+        f = os.path.join(d, 'REQUIRES')
+        if os.path.isfile(f) and read_words(f) & missing:
+            found = d
+        if d == VALIDATION_ROOT or os.path.dirname(d) == d:
+            return found
+        d = os.path.dirname(d)
+
+
+def config_components(config):
+    """What a configuration contains (its COMPONENTS file), or None if it
+    has none."""
+    f = os.path.join(REPO_ROOT, 'model', 'system_models', config, 'COMPONENTS')
+    return read_words(f) if os.path.isfile(f) else None
 
 
 def subprocess_env():

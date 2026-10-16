@@ -1,0 +1,5 @@
+# What this configuration contains, for the validation suites (Ref
+# validation/README.md: a suite folder's REQUIRES file lists what its
+# tests need; validation/run_tests.py --config core_l1cache_mmu_devices runs the tests whose
+# requirements are all here, and skips the rest).
+sparc mmu devices caches
