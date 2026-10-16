@@ -1,4 +1,8 @@
 //FloatingPointFunctions.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Functions to convert ints and floats between formats, and to detect
 //IEEE 754 exceptions for the SPARC V8 floating-point instructions

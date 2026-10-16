@@ -1,6 +1,9 @@
 //================================================================
 // module Top
-// Author: Neha Karanjkar
+// Original author: Madhav Desai, IITB
+// Model Author: Claude Opus 5.5 (high)
+// This model code was adapted from the APARA engine specification and
+// reference C implementation developed by Prof. Madhav Desai, IITB
 //
 // The top-level module Sitar requires for `sitar compile`. It looks for
 // a module literally named Top. Just instantiates System. Kept as its

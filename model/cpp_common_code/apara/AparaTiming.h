@@ -1,4 +1,8 @@
 //AparaTiming.h
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //Plain C++ pieces of the APARA engine's timing model (the Sitar modules
 //AparaFetch .. AparaWriteback embed these): the tokens that travel

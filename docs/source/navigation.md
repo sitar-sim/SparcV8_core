@@ -42,6 +42,18 @@ hide:
 | [Timer](peripheral_devices_timer.md) | Register format, one-shot behavior, and state machine. |
 | [Interrupt Controller](peripheral_devices_interrupt_controller.md) | The shared, multi-thread IRC: one slot per hardware thread, interrupt sources, priority, and inter-processor interrupts. |
 | [Serial Device](peripheral_devices_serial_device.md) | UART register format, baud-rate calculation, and the Tx/Rx state machines. |
+| [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
+| [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
+| [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |
+
+## The APARA Accelerator
+
+APARA is a vector compute engine designed to work alongside a SPARC
+processor as an accelerator. These pages cover the engine on its own
+(`apara`) and next to the SPARC core (`sparc_apara`).
+
+| Page | Description |
+|---|---|
 | [The APARA Engine](apara/index.md) | Overview of the APARA vector compute engine, and its two configurations. |
 | [APARA Instruction Set](apara/isa.md) | The engine's state, data types, bundles, and every instruction. |
 | [APARA Assembly Language and Tools](apara/assembly_and_tools.md) | mcode, the assembler and disassembler, and the file formats. |
@@ -50,9 +62,6 @@ hide:
 | [APARA Timing Model](apara/timing_model.md) | The engine's five-stage pipeline in the Sitar model, and its timing rules and knobs. |
 | [The Engine in a System](apara/system.md) | `sparc_apara`: how the SPARC and the engine are connected and communicate, the setup protocol, the control and DMA units, the C routines, and the tests. |
 | [APARA Deviations and Findings](apara/deviations.md) | The model's sources, where it deliberately departs from them, and the open questions (for the model's authors). |
-| [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
-| [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
-| [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |
 
 ## More
 

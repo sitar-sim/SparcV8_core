@@ -1,4 +1,8 @@
 //TimerCore.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //A one-shot timer. Software writes a maximum count and an enable bit to
 //a single Control register. The timer then counts timer ticks, and once

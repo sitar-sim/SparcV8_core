@@ -1,4 +1,8 @@
 //SerialCore.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //A memory-mapped serial device (UART), a single instance, exchanging
 //bytes with the host through a SerialBackend (console, files, or a pty,

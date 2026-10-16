@@ -1,4 +1,8 @@
 //sparc_sim.cpp
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //The sparc_apara configuration's entry point: core_l1cache_mmu_devices
 //(a SPARC core with split L1 caches, an MMU, and the peripheral devices)

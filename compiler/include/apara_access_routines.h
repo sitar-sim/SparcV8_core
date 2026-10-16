@@ -1,4 +1,8 @@
 // apara_access_routines.h
+// Original author: Madhav Desai, IITB
+// Model Author: Claude Opus 5.5 (high)
+// This model code was adapted from the APARA engine specification and
+// reference C implementation developed by Prof. Madhav Desai, IITB
 //
 // Routines for a bare-metal SPARC C program to use an APARA engine: load
 // its program, set and read its threads' registers, run them and learn

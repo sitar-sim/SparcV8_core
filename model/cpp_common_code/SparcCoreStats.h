@@ -1,4 +1,8 @@
 //SparcCoreStats.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Functional instruction-mix counters for SparcCore, owned by it the
 //same way MmuStats is owned by MmuCore. Deliberately excludes anything

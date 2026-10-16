@@ -1,4 +1,8 @@
 //SerialBackend.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Host-side I/O for the Serial device's serial_out/serial_in pins: where
 //transmitted bytes go, and where received bytes come from. SerialCore

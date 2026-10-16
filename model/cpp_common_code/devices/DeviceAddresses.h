@@ -1,4 +1,8 @@
 //DeviceAddresses.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Peripheral device register addresses and bit-field layouts. See
 //https://sitar-sim.github.io/SparcV8_core/peripheral_devices.html for

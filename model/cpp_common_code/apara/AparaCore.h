@@ -1,4 +1,8 @@
 //AparaCore.h
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //Functional model of one APARA engine: four hardware threads sharing an
 //instruction memory (IMEM), a data memory (DMEM) and the execution units.

@@ -1,4 +1,8 @@
 //apara_sim.cpp
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //The apara configuration's entry point: one standalone APARA engine
 //(AparaCore), functional model. The program and its data are placed

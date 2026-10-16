@@ -1,4 +1,8 @@
 //L1CachesCore.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //A core's split L1 caches: an instruction cache and a data cache, both
 //VIVT (Ref CacheArray.h), sitting between the core and the MMU. Implements

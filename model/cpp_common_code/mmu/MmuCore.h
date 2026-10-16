@@ -1,4 +1,8 @@
 //MmuCore.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //The SPARC Reference MMU (Ref Appendix H). Ported from Ajit's C model
 //and rewritten as a C++ class. The page-table walk, fault matrix,

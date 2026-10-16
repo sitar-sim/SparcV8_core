@@ -1,4 +1,8 @@
 //DebugRegistry.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Lets a debugger reach a live SparcCore/MemCore from any stopped frame,
 //in either model, without caring who constructed it or which frame it's

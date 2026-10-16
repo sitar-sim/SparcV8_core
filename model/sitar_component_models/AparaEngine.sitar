@@ -1,6 +1,9 @@
 //================================================================
 // module AparaEngine
-// Author: Neha Karanjkar
+// Original author: Madhav Desai, IITB
+// Model Author: Claude Opus 5.5 (high)
+// This model code was adapted from the APARA engine specification and
+// reference C implementation developed by Prof. Madhav Desai, IITB
 //
 // One APARA engine's thread execution unit: the five pipeline stages,
 // each a module, joined by nets with the channel depths of the

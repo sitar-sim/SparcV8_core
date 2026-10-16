@@ -1,4 +1,8 @@
 //AparaOperations.h
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //The value computations of the APARA instructions, as pure functions of
 //operand values (no engine state). AparaCore calls these; the unit tests

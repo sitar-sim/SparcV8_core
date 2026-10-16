@@ -1206,28 +1206,122 @@
   
   
   
+    <li class="md-nav__item">
+      <a href="model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
     
     
     
     
       
+        
+        
+      
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
         
           
-          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
             
   
   
   <span class="md-ellipsis">
     
   
-    The APARA Engine
+    The APARA Accelerator
   
 
     
@@ -1238,12 +1332,12 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_5_5">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
             <span class="md-nav__icon md-icon"></span>
             
   
-    The APARA Engine
+    The APARA Accelerator
   
 
           </label>
@@ -1479,98 +1573,6 @@
     </li>
   
 
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="model_components_reference.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Components Reference
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="model_configuration_settings.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Configuration Settings
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="performance_modeling.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Performance Modeling
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-          </ul>
-        </nav>
-      
-    </li>
-  
-
     
       
       
@@ -1592,10 +1594,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
         
           
-          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
             
   
   
@@ -1613,8 +1615,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_6">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2016,25 +2018,11 @@ shared by both models, so the two can never disagree.</p>
 <p>A four-threaded vector compute engine, with its own instruction and
 data memories, designed to work alongside a SPARC processor as an
 accelerator. It is modeled in the <code>apara</code> configuration on its own and
-in <code>sparc_apara</code> next to the SPARC core. See <a href="apara/index.html">The APARA
-Engine</a> for the engine itself.</p>
-<p>The C++ class <code>AparaCore</code> (<code>model/cpp_common_code/apara/</code>) holds the
-engine's state and executes its instructions, the same class in both
-models, like <code>SparcCore</code> for the SPARC. In <code>sparc_apara</code> two more
-classes model the engine's host side, its control unit and its DMA
-unit.</p>
-<ul>
-<li><strong>cpp_model</strong><br />
-    Runs the engine one bundle (a group of instructions executed
-    together) at a time, with zero modeled latency. In <code>sparc_apara</code>, the
-    engine runs one bundle and its DMA unit moves up to 8 bytes after
-    every SPARC instruction.</li>
-<li><strong>sitar_model</strong><br />
-<code>AparaEngine</code> models the engine's five-stage pipeline, one module per
-    stage, with the hardware's timing rules (see <a href="apara/timing_model.html">APARA Timing
-    Model</a>). In <code>sparc_apara</code>, <code>AparaHost</code> models
-    the control and DMA units, beside the core on the system bus.</li>
-</ul>
+in <code>sparc_apara</code> next to the SPARC core. As for the SPARC, one C++ class
+(<code>AparaCore</code>) holds its state and executes its instructions in both
+models, and the sitar_model adds one module per pipeline stage. See
+<a href="apara/index.html">The APARA Accelerator</a> section, and <a href="apara/index.html#the-code">The
+code</a> there for its classes and modules.</p>
 <hr />
 <p>All component-wise timing configurations are listed in <a href="model_configuration_settings.html">Model
 Configuration Settings</a>.</p>

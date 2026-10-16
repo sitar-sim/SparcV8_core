@@ -501,9 +501,7 @@ configuration, in timing.
     Model](timing_model.md)) and its host side (`AparaHost`: the control
     and DMA units) are modules beside the core. The bus becomes an
     interconnect with two masters, the core and the host side, taken
-    round robin. See [Model
-    Configurations](../model_configurations.md#configuration-sparc_apara)
-    for the diagram.
+    round robin. See [Modules and nets](#modules-and-nets) below.
 
 In the sitar_model, the parts divide the work like this:
 
@@ -517,6 +515,65 @@ Every net crossing takes a cycle, so a SPARC access to a control-unit
 register crosses four nets (core to interconnect to host, and back),
 and one to DMEM six, since it also goes on to `engine.exec`, which owns
 DMEM.
+
+### Modules and nets
+
+`System` is that of `core_l1cache_mmu_devices`, with `engine` (the same
+`AparaEngine` module as in the `apara` configuration, see [APARA Timing
+Model](timing_model.md#modules-and-nets)) and `host` added, and its
+bridge replaced by the two-master interconnect. The interconnect routes
+the SPARC's accesses to the engine's three windows to `host`, and
+carries `host`'s DMA transfers and off-island accesses as its second
+master.
+
+`host` reaches the engine's state in `exec` over five more nets: one
+pair for its requests to the engine (read a register, write IMEM, start
+a thread, ...), one pair for the engine's loads and stores that leave
+it, and one for the notice that a thread has stopped. The engine's
+interrupt goes from `host` to the Interrupt Controller's external
+input, IRL 14.
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/System.sitar">System</a> (module)
+      |
+      +-- core : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/sparc_apara/sitar_model/src/Core.sitar">Core</a> (module)
+      |    |
+      |    +-- sparcThread : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SparcThread.sitar">SparcThread</a> (procedure)
+      |    |
+      |    +-- caches : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar">L1Caches</a> (procedure)
+      |    |
+      |    +-- mmu : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/Mmu.sitar">Mmu</a> (procedure)
+      |
+      +-- interconnect : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar">SystemInterconnect</a>&lt;2&gt; (module)
+      |
+      +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
+      |
+      +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
+      |
+      +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module: fetch, decode, regfile, exec, writeback, as in apara)
+      |
+      +-- host : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar">AparaHost</a> (module)
+
+core.requestOut                   --coreRequestNet-->       interconnect.masterRequestIn[0]
+core.responseIn                   <-coreResponseNet--       interconnect.masterResponseOut[0]
+host.masterRequestOut             --hostRequestNet-->       interconnect.masterRequestIn[1]
+host.masterResponseIn             <-hostResponseNet--       interconnect.masterResponseOut[1]
+interconnect.memoryRequestOut     --memoryRequestNet-->     mainMemory.requestIn
+interconnect.memoryResponseIn     <-memoryResponseNet--     mainMemory.responseOut
+interconnect.devicesRequestOut    --devicesRequestNet-->    devices.requestIn
+interconnect.devicesResponseIn    <-devicesResponseNet--    devices.responseOut
+interconnect.engineRequestOut     --engineRequestNet-->     host.slaveRequestIn
+interconnect.engineResponseIn     <-engineResponseNet--     host.slaveResponseOut
+devices.interruptLevelOut         --interruptLevelNet-->    core.interruptLevelIn
+host.interruptOut                 --engineInterruptNet-->   devices.externalInterruptIn
+host.serviceOut                   --serviceRequestNet-->    engine.exec.serviceIn
+host.serviceIn                    <-serviceResponseNet--    engine.exec.serviceOut
+engine.exec.offIslandOut          --offIslandRequestNet-->  host.offIslandIn
+engine.exec.offIslandIn           <-offIslandResponseNet--  host.offIslandOut
+engine.exec.stopOut               --stopNet-->              host.stopIn
+</pre>
 
 ---
 

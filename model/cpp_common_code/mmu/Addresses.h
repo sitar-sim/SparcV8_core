@@ -1,4 +1,8 @@
 //Addresses.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //MMU-specific constants: the register-select decode (Ref Appendix H,
 //Table H-5), the Control Register and Fault Status Register bit-field

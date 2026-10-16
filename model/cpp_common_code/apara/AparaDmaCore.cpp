@@ -1,4 +1,8 @@
 //AparaDmaCore.cpp
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 
 #include "AparaDmaCore.h"
 #include "AparaCore.h"

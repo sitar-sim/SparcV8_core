@@ -1,4 +1,8 @@
 //Decoder.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Decodes the 32-bit instruction word into an Opcode. The instruction
 //register and its bit fields are described in Registers.h. Opcodes are

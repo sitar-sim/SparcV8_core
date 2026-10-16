@@ -1,4 +1,8 @@
 //MainMemory.h
+//Original Author: Neha Karanjkar
+//Model Author: Claude Opus 5.5 (high)
+//The model code was adapted from a Sparc v8 core simulation model written
+//by the first author in C++ and Sitar (2015-2017).
 //
 //Physical-memory endpoint for a configuration with an MMU. Implements
 //PhysicalMemoryInterface, wrapping a MemCore for the actual backing

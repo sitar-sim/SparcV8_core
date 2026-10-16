@@ -1,4 +1,8 @@
 //test_apara_system.cpp
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //Standalone unit test for AparaSystemCore and the units it joins
 //(AparaControlCore, AparaDmaCore, AparaCore in SYSTEM_BUS mode), driven

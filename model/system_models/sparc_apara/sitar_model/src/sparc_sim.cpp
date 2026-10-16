@@ -1,5 +1,8 @@
 //sparc_sim.cpp
-//Author: Neha Karanjkar
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //The sparc_apara configuration's Sitar entry point: core_l1cache_mmu_devices'
 //system plus one APARA engine (TOP->system.engine, its pipeline and its

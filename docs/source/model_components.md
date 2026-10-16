@@ -194,25 +194,11 @@ shared by both models, so the two can never disagree.
 A four-threaded vector compute engine, with its own instruction and
 data memories, designed to work alongside a SPARC processor as an
 accelerator. It is modeled in the `apara` configuration on its own and
-in `sparc_apara` next to the SPARC core. See [The APARA
-Engine](apara/index.md) for the engine itself.
-
-The C++ class `AparaCore` (`model/cpp_common_code/apara/`) holds the
-engine's state and executes its instructions, the same class in both
-models, like `SparcCore` for the SPARC. In `sparc_apara` two more
-classes model the engine's host side, its control unit and its DMA
-unit.
-
-- **cpp_model**  
-    Runs the engine one bundle (a group of instructions executed
-    together) at a time, with zero modeled latency. In `sparc_apara`, the
-    engine runs one bundle and its DMA unit moves up to 8 bytes after
-    every SPARC instruction.
-- **sitar_model**  
-    `AparaEngine` models the engine's five-stage pipeline, one module per
-    stage, with the hardware's timing rules (see [APARA Timing
-    Model](apara/timing_model.md)). In `sparc_apara`, `AparaHost` models
-    the control and DMA units, beside the core on the system bus.
+in `sparc_apara` next to the SPARC core. As for the SPARC, one C++ class
+(`AparaCore`) holds its state and executes its instructions in both
+models, and the sitar_model adds one module per pipeline stage. See
+[The APARA Accelerator](apara/index.md) section, and [The
+code](apara/index.md#the-code) there for its classes and modules.
 
 ---
 

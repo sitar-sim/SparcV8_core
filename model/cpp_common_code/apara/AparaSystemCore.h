@@ -1,4 +1,8 @@
 //AparaSystemCore.h
+//Original author: Madhav Desai, IITB
+//Model Author: Claude Opus 5.5 (high)
+//This model code was adapted from the APARA engine specification and
+//reference C implementation developed by Prof. Madhav Desai, IITB
 //
 //One APARA engine attached to a system, for the functional (cpp) model:
 //the engine (AparaCore), its control unit (AparaControlCore) and DMA unit

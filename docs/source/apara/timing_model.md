@@ -62,6 +62,41 @@ cycle later. So a program of one 1-cycle bundle takes 6 cycles from
 start to finish. Later bundles overlap with it, so a stream of
 independent bundles completes at one bundle per cycle.
 
+### Modules and nets
+
+The `apara` configuration's `Top` holds one `AparaEngine` and nothing
+else: there is no SPARC core and no system around it. This shows which
+design unit instantiates which, and the nets joining the stages.
+
+<pre>
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/apara/sitar_model/src/Top.sitar">Top</a>
+ |
+ +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module)
+      |
+      +-- fetch     : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaFetch.sitar">AparaFetch</a> (module)
+      |
+      +-- decode    : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaDecode.sitar">AparaDecode</a> (module)
+      |
+      +-- regfile   : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaRegfile.sitar">AparaRegfile</a> (module)
+      |
+      +-- exec      : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaExec.sitar">AparaExec</a> (module)
+      |
+      +-- writeback : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaWriteback.sitar">AparaWriteback</a> (module)
+
+fetch.toDecode          --fetchToDecode-->          decode.fromFetch
+decode.toRegfile[0..3]  --decodeToRegfile[0..3]-->  regfile.fromDecode[0..3]
+regfile.toExec          --regfileToExec-->          exec.fromRegfile
+exec.toRegfile          --execToRegfile-->          regfile.fromExec
+regfile.toWriteback     --regfileToWriteback-->     writeback.fromRegfile
+writeback.correctionOut --correctionNet-->          fetch.correctionIn
+writeback.haltOut       --haltNet-->                fetch.haltIn
+exec.fetchControlOut    --fetchControlNet-->        fetch.controlIn
+</pre>
+
+`decodeToRegfile` is one net per thread, so REGFILE can hold a waiting
+bundle of each thread and issue whichever one is ready.
+`fetchControlNet` carries thread starts and resets to FETCH.
+
 ---
 
 ## Timing rules

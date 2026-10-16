@@ -1,6 +1,9 @@
 //================================================================
 // module System
-// Author: Neha Karanjkar
+// Original author: Madhav Desai, IITB
+// Model Author: Claude Opus 5.5 (high)
+// This model code was adapted from the APARA engine specification and
+// reference C implementation developed by Prof. Madhav Desai, IITB
 //
 // The sparc_apara system: core_l1cache_mmu_devices' SPARC core, main
 // memory and peripheral devices, plus one APARA engine, on a bus with two
