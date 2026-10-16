@@ -5,11 +5,8 @@ project models it: what state a program sees, the data types its
 instructions work on, how instructions are grouped into bundles, and
 every instruction, with its assembly syntax and its encoding.
 
-The model follows the APARA ISA document (`engine_isp/isa/isa.txt` in
-the APARA repository) and APARA's reference model, McodeMachine. Where
-the two disagree, or where the reference model has a defect, the
-choice this model makes is listed in [Deviations and
-Findings](deviations.md).
+Where this description departs from the engine's own documents, the
+choice is listed in [Deviations and Findings](deviations.md).
 
 ---
 
@@ -46,7 +43,7 @@ dword's most significant byte, bits [63:56].
 What an address outside DMEM means depends on where the engine is:
 
 - **On its own** (the `apara` configuration), every data address
-  aliases into DMEM, modulo 64 KB, as in the APARA reference model.
+  aliases into DMEM, modulo 64 KB.
 - **In a system** (the `sparc_apara` configuration), DMEM appears at a
   window in the system's physical address space, and only addresses in
   that window are local. Every other address goes out to the system's
@@ -129,8 +126,7 @@ are for low-precision work:
 Arithmetic on the narrow formats is done in double precision and rounded
 back to the narrow format with one round bit (round half up on the
 magnitude), saturating to infinity, and flushing to zero below the
-smallest subnormal. These are the reference model's conversion rules,
-exactly.
+smallest subnormal.
 
 ---
 
@@ -315,7 +311,7 @@ slots of a bundle.
 
 ## Encodings
 
-The field layouts, as the reference assembler writes them. In every
+The field layouts, as the assembler writes them. In every
 instruction word, bit 31 is the bundle start bit and bits [30:26] the
 opcode.
 

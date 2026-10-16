@@ -1,25 +1,22 @@
 # APARA Assembly Language and Tools
 
 APARA programs are written in **mcode**, the engine's assembly language,
-and assembled with this project's own tools in `compiler/apara/`. The
+and assembled with this project's own tools in `compiler/apara/`. (They
+can also be written in a subset of C, see [The C Compiler](compiler.md),
+which writes mcode for these tools.) The
 tools are plain Python 3, using only the standard library, so there is
 nothing to install.
 
-The tools are compatible with APARA's own reference tools: for any
-program the reference assembler accepts, they write the same object
-file, word for word. This was checked on every valid program in the
-APARA repository's test and verification folders. They also check more
-than the reference tools do, and stop with an error where the reference
-assembler would silently produce a wrong program (see [Error
-messages](#error-messages)).
+The assembler checks programs strictly: it stops with an error on
+anything it cannot encode exactly, rather than producing a wrong
+program (see [Error messages](#error-messages)).
 
 ---
 
 ## A first program
 
 ```mcode
-// Sum the 8-bit elements of a vector, store the result.
-//@ reg: 0 $r1 0x0102030405060708
+// Sum the 8-bit elements of a vector in $r1, store the result.
 
 sum:
     ||
@@ -40,9 +37,10 @@ The program's three bundles run one after another:
    that is, 16 (`$r0` is always 0).
 3. `$halt` stops the thread.
 
-The `//@` line sets thread 0's `$r1` before the run. It is a direction
-for the test runner (see [Writing and Running
-Programs](running.md#tests)), and the assembler ignores it.
+`$r1` is set before the run: by a registers file given to the
+simulator (see [File formats](#file-formats)), or, in a test, by the
+`INIT` section of its `.vprj` (see [Writing and Running
+Programs](running.md#a-test)).
 
 ### Program structure
 
@@ -84,10 +82,6 @@ written into bundles the engine can run. It does this in seven steps:
 7. **Encodes** every instruction, setting bit 31 on each bundle's first
    word.
 
-Steps 3 to 5 are what the reference tools call alignment
-(`mcode_align`), and the rest assembly (`mcode_assemble`). Here they are
-one step.
-
 ---
 
 ## The tools
@@ -108,11 +102,15 @@ python3 compiler/apara/apara_dis.py prog.obj                  # mcode, to standa
   into mcode, naming branch and call targets `L_<address>`. Its output
   assembles back to the same object file.
 - **`apara_obj_to_c.py`**, for programs the SPARC loads into the engine
-  (in `sparc_apara`). It writes an engine program as a C header,
-  containing the program as an array and each label's address as a
-  `#define`. See [The Engine in a System](system.md#software).
+  (in `sparc_apara`). It writes an engine program, in mcode or in C, as
+  a C header, containing the program as an array and each label's
+  address as a `#define`. See [The Engine in a
+  System](system.md#carrying-the-engines-program).
+- **`apcc.py`**, the C compiler, see [The C Compiler](compiler.md).
 
-`python3 compiler/apara/test_mcode.py` runs the tools' own unit tests.
+`python3 compiler/apara/test_mcode.py` runs the assembler's and
+disassembler's own unit tests. The assembler's checks are also tested by
+the `validation/apara/asm_errors/` suite: programs it must reject.
 
 ### Error messages
 
@@ -131,15 +129,14 @@ Some messages, and what they mean:
 | `floats have only + - * /` | No logic operations or shifts on float types. |
 | `the registers from $r30 run past $r31` | A `$u256` transfer needs 4 consecutive registers. |
 | `a vector cast changes the element width by one step` | `($vi8)` to `($vi32)` needs two casts. |
-| `undefined label x` | A misspelled label. (The reference assembler silently uses 0.) |
+| `undefined label x` | A misspelled label. |
 
 ---
 
 ## File formats
 
-The tools and the simulators use the reference tools' file formats, so
-files move freely between the two sets of tools. In every format,
-numbers are hexadecimal and `!` starts a comment.
+The tools and the simulators share these file formats. In every
+format, numbers are hexadecimal and `!` starts a comment.
 
 | File | Lines | Example |
 |---|---|---|

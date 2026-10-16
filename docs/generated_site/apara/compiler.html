@@ -1,0 +1,2533 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="running.html">
+      
+      
+        <link rel="next" href="timing_model.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>The C Compiler - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#the-apara-c-compiler" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              The C Compiler
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peripheral Devices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Peripheral Devices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_interrupt_controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interrupt Controller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_serial_device.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serial Device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_5" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_5_5" id="__nav_5_5_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Engine
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_5_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_5_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The APARA Engine
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="isa.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instruction Set
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="assembly_and_tools.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Language and Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="compiler.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-first-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A first program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The language
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statements-and-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statements and expressions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions-and-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions and threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-engines-own-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine's own instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The engine&#39;s own instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intrinsics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-mcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline mcode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checking-a-program-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking a program on the host
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code generation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linear-algebra-on-the-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear algebra on the engine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-a-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In a system
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="timing_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timing Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="deviations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and Findings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" >
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#a-first-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A first program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#running-it" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running it
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-language" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The language
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The language">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Types
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#variables" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Variables
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#statements-and-expressions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Statements and expressions
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#functions-and-threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Functions and threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-engines-own-instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine's own instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The engine&#39;s own instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#intrinsics" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Intrinsics
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#inline-mcode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Inline mcode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#checking-a-program-on-the-host" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Checking a program on the host
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#code-generation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Code generation
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#linear-algebra-on-the-engine" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Linear algebra on the engine
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#in-a-system" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        In a system
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="the-apara-c-compiler">The APARA C Compiler<a class="headerlink" href="#the-apara-c-compiler" title="Permanent link">&para;</a></h1>
+<p><code>compiler/apara/apcc.py</code> compiles a small subset of C to mcode, the
+engine's assembly language. It lets you write engine programs, such as
+linear algebra kernels, in a familiar language, and still reach the
+engine's vector instructions where they matter.</p>
+<p>It is a teaching compiler, kept small enough to read: one Python file,
+standard library only. It does not optimize much, and it leaves out
+the parts of C that need a stack, since the engine has none. Its output
+is plain mcode, so you can read what it produced, and replace a part
+with hand-written mcode when speed matters (see <a href="#inline-mcode">inline
+mcode</a>).</p>
+<p>The tool chain, for a program <code>prog.c</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>prog.c --apcc.py--&gt; prog.mcode --apara_as.py--&gt; prog.obj --&gt; simulator
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>               \--&gt; prog.data  (DMEM&#39;s initial contents) --&gt; simulator
+</span></code></pre></div>
+<hr />
+<h2 id="a-first-program">A first program<a class="headerlink" href="#a-first-program" title="Permanent link">&para;</a></h2>
+<p>A dot product of two 64-element <code>int8_t</code> vectors, from
+<code>validation/apara/c_programs/dot_vector.c</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="cp">#define N 64</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="kt">int8_t</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">N</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">-43</span><span class="p">,</span><span class="w"> </span><span class="mi">-9</span><span class="p">,</span><span class="w"> </span><span class="mi">13</span><span class="p">,</span><span class="w"> </span><span class="mi">117</span><span class="p">,</span><span class="w"> </span><span class="p">...};</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="kt">int8_t</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">N</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="mi">54</span><span class="p">,</span><span class="w"> </span><span class="mi">-114</span><span class="p">,</span><span class="w"> </span><span class="mi">-11</span><span class="p">,</span><span class="w"> </span><span class="mi">-113</span><span class="p">,</span><span class="w"> </span><span class="p">...};</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">result</span><span class="p">;</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a><span class="kt">void</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a><span class="p">{</span>
+</span><span id="__span-1-8"><a id="__codelineno-1-8" name="__codelineno-1-8" href="#__codelineno-1-8"></a><span class="w">    </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-1-9"><a id="__codelineno-1-9" name="__codelineno-1-9" href="#__codelineno-1-9"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="mi">8</span><span class="p">)</span>
+</span><span id="__span-1-10"><a id="__codelineno-1-10" name="__codelineno-1-10" href="#__codelineno-1-10"></a><span class="w">        </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">__dot_acc</span><span class="p">(</span><span class="s">&quot;vi8&quot;</span><span class="p">,</span><span class="w"> </span><span class="n">sum</span><span class="p">,</span><span class="w"> </span><span class="n">__ld64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">]),</span><span class="w"> </span><span class="n">__ld64</span><span class="p">(</span><span class="o">&amp;</span><span class="n">B</span><span class="p">[</span><span class="n">i</span><span class="p">]));</span>
+</span><span id="__span-1-11"><a id="__codelineno-1-11" name="__codelineno-1-11" href="#__codelineno-1-11"></a><span class="w">    </span><span class="n">result</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
+</span><span id="__span-1-12"><a id="__codelineno-1-12" name="__codelineno-1-12" href="#__codelineno-1-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>The global arrays live in DMEM. Each <code>__ld64</code> loads 8 elements as one
+64-bit value, and <code>__dot_acc</code> multiplies the 8 pairs and adds the
+products to <code>sum</code>, in one <code>$dot</code> instruction. Compile, assemble, and
+run it on the standalone engine:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>compiler/apara/apcc.py<span class="w"> </span>dot_vector.c<span class="w">        </span><span class="c1"># writes dot_vector.mcode and dot_vector.data</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>dot_vector.mcode
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>model/system_models/apara/cpp_model/executable/apara_sim_cpp<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">        </span>-i<span class="w"> </span>dot_vector.obj<span class="w"> </span>-d<span class="w"> </span>dot_vector.data<span class="w"> </span>--dump-results<span class="w"> </span>-
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>! thread 0 halted, ERROR 0x2000000
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>0 pc 0x48
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>0 mem 0x10 0xffffffffffff248c
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>...
+</span></code></pre></div>
+<p><code>result</code> is DMEM dword 0x10 (byte address 0x80), and holds -56180. The
+compiler lists where it put each global at the top of the mcode file:</p>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// DMEM layout (byte offsets):</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1">//   A                0x0000  int8_t[64]</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">//   B                0x0040  int8_t[64]</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">//   result           0x0080  int64_t</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1">// Generated by apcc.py (-O1). Edit the C source, not this file.</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="nl">main</span><span class="p">:</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r1</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r0</span> <span class="mi">0</span>  <span class="o">+</span> <span class="nv">$r2</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r0</span> <span class="mi">0</span> <span class="kp">;</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a>    <span class="kp">||</span> <span class="o">-</span> <span class="nv">$r3</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r2</span> <span class="mi">64</span> <span class="kp">;</span>
+</span><span id="__span-4-10"><a id="__codelineno-4-10" name="__codelineno-4-10" href="#__codelineno-4-10"></a>    <span class="kp">||</span> <span class="o">?</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r3</span> <span class="o">&gt;=</span> <span class="k">$goto</span> <span class="nl">L3_done</span> <span class="kp">;</span>
+</span><span id="__span-4-11"><a id="__codelineno-4-11" name="__codelineno-4-11" href="#__codelineno-4-11"></a><span class="nl">L1_loop</span><span class="p">:</span>
+</span><span id="__span-4-12"><a id="__codelineno-4-12" name="__codelineno-4-12" href="#__codelineno-4-12"></a>    <span class="err">...</span>
+</span><span id="__span-4-13"><a id="__codelineno-4-13" name="__codelineno-4-13" href="#__codelineno-4-13"></a>    <span class="kp">||</span> <span class="k">$ld</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r4</span> <span class="p">[</span><span class="nv">$r5</span> <span class="o">+</span> <span class="mi">0</span><span class="p">]</span> <span class="kp">;</span>
+</span><span id="__span-4-14"><a id="__codelineno-4-14" name="__codelineno-4-14" href="#__codelineno-4-14"></a>    <span class="kp">||</span> <span class="k">$dot</span> <span class="kp">$accumulate</span> <span class="nv">$r1</span> <span class="p">(</span><span class="kt">$vi8</span><span class="p">)</span> <span class="nv">$r3</span> <span class="nv">$r4</span> <span class="kp">;</span>
+</span><span id="__span-4-15"><a id="__codelineno-4-15" name="__codelineno-4-15" href="#__codelineno-4-15"></a><span class="nl">L2_next</span><span class="p">:</span>
+</span><span id="__span-4-16"><a id="__codelineno-4-16" name="__codelineno-4-16" href="#__codelineno-4-16"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r2</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r2</span> <span class="mi">8</span> <span class="kp">;</span>
+</span><span id="__span-4-17"><a id="__codelineno-4-17" name="__codelineno-4-17" href="#__codelineno-4-17"></a>    <span class="kp">||</span> <span class="o">-</span> <span class="nv">$r3</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r2</span> <span class="mi">64</span> <span class="kp">;</span>
+</span><span id="__span-4-18"><a id="__codelineno-4-18" name="__codelineno-4-18" href="#__codelineno-4-18"></a>    <span class="kp">||</span> <span class="o">?</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="nv">$r3</span> <span class="o">&lt;</span> <span class="k">$goto</span> <span class="nl">L1_loop</span> <span class="kp">;</span>
+</span><span id="__span-4-19"><a id="__codelineno-4-19" name="__codelineno-4-19" href="#__codelineno-4-19"></a><span class="nl">L3_done</span><span class="p">:</span>
+</span><span id="__span-4-20"><a id="__codelineno-4-20" name="__codelineno-4-20" href="#__codelineno-4-20"></a>    <span class="kp">||</span> <span class="k">$st</span> <span class="p">(</span><span class="kt">$i64</span><span class="p">)</span> <span class="p">[</span><span class="nv">$r0</span> <span class="o">+</span> <span class="mi">128</span><span class="p">]</span> <span class="nv">$r1</span>  <span class="k">$halt</span> <span class="kp">;</span>
+</span></code></pre></div>
+<p>Comments in the mcode give the C line each part came from.</p>
+<hr />
+<h2 id="running-it">Running it<a class="headerlink" href="#running-it" title="Permanent link">&para;</a></h2>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>python3<span class="w"> </span>compiler/apara/apcc.py<span class="w"> </span>prog.c<span class="w"> </span><span class="o">[</span>-o<span class="w"> </span>prog.mcode<span class="o">]</span><span class="w"> </span><span class="o">[</span>--data<span class="w"> </span>prog.data<span class="o">]</span><span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">        </span><span class="o">[</span>--symbols<span class="w"> </span>prog.sym<span class="o">]</span><span class="w"> </span><span class="o">[</span>-O0<span class="o">]</span><span class="w"> </span><span class="o">[</span>--dmem-base<span class="w"> </span>addr<span class="o">]</span>
+</span></code></pre></div>
+<table>
+<thead>
+<tr>
+<th>Option</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>-o &lt;file&gt;</code></td>
+<td>The mcode file (default: the source's name with <code>.mcode</code>).</td>
+</tr>
+<tr>
+<td><code>--data &lt;file&gt;</code></td>
+<td>DMEM's initial contents, a data file (default: <code>.data</code>), from the globals' initializers.</td>
+</tr>
+<tr>
+<td><code>--symbols &lt;file&gt;</code></td>
+<td>Also write each global's DMEM byte offset, one <code>name offset</code> per line.</td>
+</tr>
+<tr>
+<td><code>-O0</code></td>
+<td>One instruction per bundle. The default, <code>-O1</code>, packs independent instructions into bundles (see <a href="#code-generation">Code generation</a>).</td>
+</tr>
+<tr>
+<td><code>--dmem-base &lt;addr&gt;</code></td>
+<td>The address of DMEM byte 0 as the program sees it: 0 (the default) for the standalone engine, <code>0x01000000</code> for the engine in <code>sparc_apara</code>, whose DMEM is a window in the system's address space (see <a href="#in-a-system">In a system</a>).</td>
+</tr>
+</tbody>
+</table>
+<p>Errors stop the compilation, with the file, the line, and the reason:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>apcc.py: error: prog.c:2: recursion (f -&gt; f) is not supported
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>apcc.py: error: prog.c:7: x is not defined
+</span></code></pre></div>
+<p><code>python3 compiler/apara/test_apcc.py</code> runs the compiler's own unit
+tests: small programs whose layout, output and error messages it checks,
+and whose mcode must assemble. The programs' results are checked by the
+<code>validation/apara/c_programs/</code> suite.</p>
+<hr />
+<h2 id="the-language">The language<a class="headerlink" href="#the-language" title="Permanent link">&para;</a></h2>
+<h3 id="types">Types<a class="headerlink" href="#types" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>C type</th>
+<th>Engine type</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>int8_t</code>, <code>int16_t</code>, <code>int32_t</code>, <code>int64_t</code> (and <code>char</code>, <code>short</code>, <code>int</code>, <code>long</code>)</td>
+<td><code>$i8</code> .. <code>$i64</code></td>
+</tr>
+<tr>
+<td><code>uint8_t</code> .. <code>uint64_t</code> (and <code>unsigned char</code> ..)</td>
+<td><code>$u8</code> .. <code>$u64</code></td>
+</tr>
+<tr>
+<td><code>float</code>, <code>double</code></td>
+<td><code>$f32</code>, <code>$f64</code></td>
+</tr>
+<tr>
+<td><code>void</code></td>
+<td>(functions only)</td>
+</tr>
+</tbody>
+</table>
+<p>Integer expressions are computed in 64 bits (unsigned if an operand is
+<code>uint64_t</code>, signed otherwise), much as C widens small types before
+arithmetic. A value is wrapped to its type's width when it is stored in
+a narrower variable or array element, or cast to a narrower type. Float
+expressions are computed in <code>float</code>, or in <code>double</code> if an operand is a
+<code>double</code>. A cast converts explicitly (<code>(int32_t) x</code>, <code>(double) i</code>).</p>
+<h3 id="variables">Variables<a class="headerlink" href="#variables" title="Permanent link">&para;</a></h3>
+<ul>
+<li>
+<p><strong>Global variables</strong>, scalars and one- or two-dimensional arrays, live
+  in DMEM. They are laid out from address 0 in declaration order, each
+  aligned to 8 bytes, unless <code>__at(addr)</code> places one at a fixed DMEM byte
+  address (a multiple of 8):</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="kt">int8_t</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="mi">64</span><span class="p">]</span><span class="w"> </span><span class="n">__at</span><span class="p">(</span><span class="mh">0x100</span><span class="p">);</span>
+</span></code></pre></div>
+<p>They may have constant initializers, which go into the data file.
+Without one, a global starts as zero on the standalone engine, whose
+DMEM starts as zero (in a system, see <a href="#in-a-system">In a system</a>).</p>
+</li>
+<li>
+<p><strong>Local variables and parameters</strong> are scalars, each kept in a
+  register for the function's whole life. There is no stack, so there
+  are no local arrays.</p>
+</li>
+</ul>
+<h3 id="statements-and-expressions">Statements and expressions<a class="headerlink" href="#statements-and-expressions" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Statements</strong>: declarations, assignments (<code>=</code>, <code>+=</code>, <code>-=</code>, <code>*=</code>,
+  <code>/=</code>, <code>%=</code>, <code>&amp;=</code>, <code>|=</code>, <code>^=</code>, <code>&lt;&lt;=</code>, <code>&gt;&gt;=</code>), <code>++</code> and <code>--</code>, <code>if</code> and
+  <code>else</code>, <code>while</code>, <code>do</code> ... <code>while</code>, <code>for</code>, <code>break</code>, <code>continue</code>,
+  <code>return</code>, and blocks.</li>
+<li><strong>Expressions</strong>: the usual arithmetic, bitwise, shift, comparison and
+  logical operators, <code>?:</code>, casts, array indexing (<code>A[i]</code>, <code>M[i][j]</code>),
+  <code>&amp;A[i]</code> (an element's DMEM byte address, for the intrinsics), and
+  calls.</li>
+<li><strong>Preprocessor</strong>: object-like <code>#define NAME value</code>. Other preprocessor
+  lines, <code>#include</code> among them, are ignored.</li>
+</ul>
+<h3 id="functions-and-threads">Functions and threads<a class="headerlink" href="#functions-and-threads" title="Permanent link">&para;</a></h3>
+<ul>
+<li><strong>Functions</strong> may call other functions, but <strong>not recursively</strong>
+  (directly or through others). Each variable gets its own register,
+  different from those of every function on a call chain through it,
+  so a call has nothing to save: it is a <code>$call</code> and a <code>$return</code>.</li>
+<li><strong><code>__entry</code></strong> marks a thread's entry point. Its parameters arrive in
+  <code>$r1</code>, <code>$r2</code>, ... (set before the thread starts), and returning from
+  it halts the thread. A program may have several entry points, one per
+  kind of thread. Without any <code>__entry</code>, <code>main</code> is the entry point.</li>
+</ul>
+<p>Several threads may run the same entry function, each with its own
+arguments. From <code>c_programs/matmul_threads.c</code>, a matrix product whose
+rows are split among threads:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="n">__entry</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="n">rows</span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">first</span><span class="p">,</span><span class="w"> </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">count</span><span class="p">)</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a><span class="p">{</span>
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a><span class="w">    </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">first</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">first</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="n">count</span><span class="p">;</span><span class="w"> </span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a><span class="w">        </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">j</span><span class="o">++</span><span class="p">)</span><span class="w"> </span><span class="p">{</span>
+</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a><span class="w">            </span><span class="kt">int64_t</span><span class="w"> </span><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a><span class="w">            </span><span class="k">for</span><span class="w"> </span><span class="p">(</span><span class="kt">int64_t</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="w"> </span><span class="o">&lt;</span><span class="w"> </span><span class="n">N</span><span class="p">;</span><span class="w"> </span><span class="n">k</span><span class="o">++</span><span class="p">)</span>
+</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a><span class="w">                </span><span class="n">sum</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">A</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">*</span><span class="w"> </span><span class="n">B</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+</span><span id="__span-8-8"><a id="__codelineno-8-8" name="__codelineno-8-8" href="#__codelineno-8-8"></a><span class="w">            </span><span class="n">C</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
+</span><span id="__span-8-9"><a id="__codelineno-8-9" name="__codelineno-8-9" href="#__codelineno-8-9"></a><span class="w">        </span><span class="p">}</span>
+</span><span id="__span-8-10"><a id="__codelineno-8-10" name="__codelineno-8-10" href="#__codelineno-8-10"></a><span class="p">}</span>
+</span></code></pre></div>
+<p>Every thread has its own registers, so each has its own <code>i</code>, <code>j</code>, <code>k</code>
+and <code>sum</code>. They share the global arrays, so each must write only its own
+part of them: the engine has no atomic operations (see <a href="system.html#threads-sharing-data">Threads sharing
+data</a>).</p>
+<h3 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h3>
+<p>The limits, by design:</p>
+<ul>
+<li>No recursion, no pointers (other than integer DMEM addresses), no
+  structs, no local arrays.</li>
+<li>At most about 28 variables live along any call chain (the engine has
+  31 usable registers, and expressions need temporaries). The compiler
+  says so when a program needs more.</li>
+<li>Comparisons test the sign of the difference, so two 64-bit operands
+  must differ by less than 2<sup>63</sup>.</li>
+<li>No standard library. There is nowhere to print to: a program leaves
+  its results in DMEM.</li>
+</ul>
+<hr />
+<h2 id="the-engines-own-instructions">The engine's own instructions<a class="headerlink" href="#the-engines-own-instructions" title="Permanent link">&para;</a></h2>
+<h3 id="intrinsics">Intrinsics<a class="headerlink" href="#intrinsics" title="Permanent link">&para;</a></h3>
+<p>The intrinsics reach the vector instructions. Each works on 64-bit
+values holding packed vectors, as the engine's registers do. <code>T</code> names
+the element type, as a string: <code>"vi8"</code>, <code>"vu16"</code>, <code>"vf32"</code>, and so on
+(<code>vi</code>, <code>vu</code> or <code>vf</code>, 4 to 32 bits).</p>
+<table>
+<thead>
+<tr>
+<th>Intrinsic</th>
+<th>Instruction</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>__ld64(addr)</code>, <code>__st64(addr, v)</code></td>
+<td><code>$ld</code>, <code>$st</code> <code>($i64)</code></td>
+<td>A 64-bit load or store at a DMEM byte address (<code>&amp;A[i]</code>): 8 <code>int8_t</code> elements at once, for example.</td>
+</tr>
+<tr>
+<td><code>__dot(T, a, b)</code></td>
+<td><code>$dot</code></td>
+<td>The sum of the element products.</td>
+</tr>
+<tr>
+<td><code>__dot_acc(T, acc, a, b)</code></td>
+<td><code>$dot $accumulate</code></td>
+<td><code>acc + __dot(T, a, b)</code>.</td>
+</tr>
+<tr>
+<td><code>__vadd</code>, <code>__vsub</code>, <code>__vmul</code> <code>(T, a, b)</code></td>
+<td><code>$v + - *</code></td>
+<td>Element-wise.</td>
+</tr>
+<tr>
+<td><code>__vadd_rep</code>, <code>__vsub_rep</code>, <code>__vmul_rep</code> <code>(T, a, s)</code></td>
+<td><code>$v ... $replicate</code></td>
+<td>The same, with <code>s</code>'s lowest element for every element of the second operand.</td>
+</tr>
+<tr>
+<td><code>__vreduce(OP, T, a)</code></td>
+<td><code>$vreduce</code></td>
+<td>All the elements combined by <code>OP</code>: <code>"+"</code>, <code>"*"</code>, <code>"|"</code>, <code>"&amp;"</code>, <code>"^"</code>.</td>
+</tr>
+<tr>
+<td><code>__fsqrt(x)</code></td>
+<td><code>$fsqrt</code></td>
+<td>The square root of a <code>float</code> or <code>double</code>.</td>
+</tr>
+<tr>
+<td><code>__slice(x, high, low)</code></td>
+<td><code>$slice</code></td>
+<td>Bits [high:low] of <code>x</code> (constant positions).</td>
+</tr>
+<tr>
+<td><code>__halt()</code></td>
+<td><code>$halt</code></td>
+<td>Stop the thread here.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="inline-mcode">Inline mcode<a class="headerlink" href="#inline-mcode" title="Permanent link">&para;</a></h3>
+<p><code>__asm__("...")</code> puts mcode into the program as it is, with <code>%name</code>
+standing for a variable's register. One instruction becomes a bundle of
+its own; a whole bundle, <code>|| ... ;</code>, is kept as written. The compiler
+never moves other instructions into, or across, inline mcode. From
+<code>c_programs/inline_asm.c</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">v</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mh">0x0102030405060708</span><span class="p">;</span>
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">s</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a><span class="kt">int64_t</span><span class="w"> </span><span class="n">t</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a><span class="n">__asm__</span><span class="p">(</span><span class="s">&quot;$vreduce + %s ($vi8) %v&quot;</span><span class="p">);</span><span class="w">                       </span><span class="c1">// s = 36</span>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a><span class="n">__asm__</span><span class="p">(</span><span class="s">&quot;|| + %t ($i64) %s %s  - %v ($i64) %v %v ;&quot;</span><span class="p">);</span><span class="w">   </span><span class="c1">// t = 72, v = 0</span>
+</span></code></pre></div>
+<p>The second bundle shows the engine's bundle semantics: both
+instructions read <code>s</code> and <code>v</code> as they were before the bundle.</p>
+<h3 id="checking-a-program-on-the-host">Checking a program on the host<a class="headerlink" href="#checking-a-program-on-the-host" title="Permanent link">&para;</a></h3>
+<p><code>compiler/apara/include/apara.h</code> defines <code>__entry</code>, <code>__at</code> and every
+intrinsic in plain C, so the same program also compiles with an ordinary
+C compiler, to check its results on the host before running it on the
+engine. A small harness calls the program and prints its results:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&lt;stdio.h&gt;</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;apara.h&quot;</span>
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a><span class="cp">#define main kernel_main</span>
+</span><span id="__span-10-4"><a id="__codelineno-10-4" name="__codelineno-10-4" href="#__codelineno-10-4"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;dot_vector.c&quot;</span>
+</span><span id="__span-10-5"><a id="__codelineno-10-5" name="__codelineno-10-5" href="#__codelineno-10-5"></a><span class="cp">#undef main</span>
+</span><span id="__span-10-6"><a id="__codelineno-10-6" name="__codelineno-10-6" href="#__codelineno-10-6"></a>
+</span><span id="__span-10-7"><a id="__codelineno-10-7" name="__codelineno-10-7" href="#__codelineno-10-7"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-10-8"><a id="__codelineno-10-8" name="__codelineno-10-8" href="#__codelineno-10-8"></a><span class="p">{</span>
+</span><span id="__span-10-9"><a id="__codelineno-10-9" name="__codelineno-10-9" href="#__codelineno-10-9"></a><span class="w">    </span><span class="n">kernel_main</span><span class="p">();</span>
+</span><span id="__span-10-10"><a id="__codelineno-10-10" name="__codelineno-10-10" href="#__codelineno-10-10"></a><span class="w">    </span><span class="n">printf</span><span class="p">(</span><span class="s">&quot;result = %lld</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">long</span><span class="w"> </span><span class="kt">long</span><span class="p">)</span><span class="w"> </span><span class="n">result</span><span class="p">);</span><span class="w">   </span><span class="c1">// -56180, as on the engine</span>
+</span><span id="__span-10-11"><a id="__codelineno-10-11" name="__codelineno-10-11" href="#__codelineno-10-11"></a><span class="w">    </span><span class="k">return</span><span class="w"> </span><span class="mi">0</span><span class="p">;</span>
+</span><span id="__span-10-12"><a id="__codelineno-10-12" name="__codelineno-10-12" href="#__codelineno-10-12"></a><span class="p">}</span>
+</span></code></pre></div>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>gcc<span class="w"> </span>-I<span class="w"> </span>compiler/apara/include<span class="w"> </span>host_check.c<span class="w"> </span>-o<span class="w"> </span>host_check<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./host_check
+</span></code></pre></div>
+<p><code>apcc.py</code> ignores the <code>#include</code>, and knows the intrinsics itself. On
+the host, <code>__ld64</code> and <code>__st64</code> use the host's byte order. Element-wise
+results and dot products come out the same as on the engine, but the
+elements' positions within a 64-bit value differ, so <code>__slice</code> of a
+loaded vector does not.</p>
+<hr />
+<h2 id="code-generation">Code generation<a class="headerlink" href="#code-generation" title="Permanent link">&para;</a></h2>
+<ul>
+<li><strong>One register per variable</strong>, temporaries for expressions.</li>
+<li><strong>Loops test at the bottom</strong>, so each iteration takes one branch,
+  which the branch predictor learns (see <a href="timing_model.html#branch-prediction">Branch
+  prediction</a>).</li>
+<li><strong>Bundles.</strong> With <code>-O1</code>, a scheduler packs consecutive instructions
+  into one bundle when none depends on another, and when the bundle
+  stays legal (at most one control transfer, four memory operations and
+  one divide, and no register written twice). Since every instruction
+  in a bundle reads the registers as they were before the bundle, the
+  result is the same as running the instructions one by one. <code>-O0</code> puts
+  every instruction in its own bundle, for comparison: the
+  <code>c_programs/dot_scalar</code> and <code>dot_scalar_O0</code> tests run the same program
+  both ways.</li>
+</ul>
+<p>The hardware resolves every dependence between bundles (see
+<a href="running.html#hazards">Hazards</a>), so the compiler never needs to insert
+waits: a bundle that needs an earlier result waits in the pipeline until
+it is ready. The compiler's job, for speed, is to give the pipeline
+independent work, by unrolling loops by hand, or by splitting the work
+among threads.</p>
+<hr />
+<h2 id="linear-algebra-on-the-engine">Linear algebra on the engine<a class="headerlink" href="#linear-algebra-on-the-engine" title="Permanent link">&para;</a></h2>
+<p>The engine's strength is packed vectors of small elements: one <code>$dot</code>
+on <code>$vi8</code> operands is 8 multiplications and 8 additions. A linear
+algebra kernel gets that speed when its inner loop works on whole
+64-bit words.</p>
+<ul>
+<li><strong>Dot products and matrix products</strong>: load 8 <code>int8_t</code> (or 4
+  <code>int16_t</code>) elements with <code>__ld64</code>, and accumulate with <code>__dot_acc</code>, as
+  in the first program. For a matrix product, store the second matrix
+  transposed, so that a column is contiguous in DMEM.</li>
+<li><strong>Element-wise operations</strong> (vector addition, scaling): <code>__vadd</code>,
+  <code>__vmul_rep</code> (a vector times a scalar), and <code>__st64</code> to store 8
+  results at once (<code>c_programs/vadd_vector.c</code>).</li>
+<li><strong>Floating point</strong>: <code>float</code> and <code>double</code> arithmetic compiles to the
+  engine's float instructions (<code>c_programs/saxpy.c</code>: y = a·x + y).</li>
+<li><strong>More threads</strong>: give each thread its own rows or its own slice, as
+  <code>matmul_threads.c</code> does, and start every thread at the entry function,
+  each with its own arguments.</li>
+</ul>
+<p>The test folder <code>validation/apara/c_programs/</code> has each of these, with
+expected results computed independently. Running one is the quickest
+way to start (see <a href="running.html#tests">Writing and Running Programs</a>).
+For example, <code>matmul_threads.c</code> on three threads, on the timing model,
+reports its cycles and how the pipeline spent them:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>compiler/apara/apcc.py<span class="w"> </span>matmul_threads.c
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>matmul_threads.mcode
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a><span class="nb">printf</span><span class="w"> </span><span class="s1">&#39;0 1 0x0\n0 2 0x2\n1 1 0x2\n1 2 0x2\n2 1 0x4\n2 2 0x2\n&#39;</span><span class="w"> </span>&gt;<span class="w"> </span>registers.txt<span class="w">   </span><span class="c1"># first row, row count</span>
+</span><span id="__span-12-4"><a id="__codelineno-12-4" name="__codelineno-12-4" href="#__codelineno-12-4"></a>model/system_models/apara/sitar_model/executable/apara_sim_sitar<span class="w"> </span>-p<span class="w"> </span>0x0<span class="w"> </span>-p<span class="w"> </span>0x0<span class="w"> </span>-p<span class="w"> </span>0x0<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-12-5"><a id="__codelineno-12-5" name="__codelineno-12-5" href="#__codelineno-12-5"></a><span class="w">        </span>-i<span class="w"> </span>matmul_threads.obj<span class="w"> </span>-d<span class="w"> </span>matmul_threads.data<span class="w"> </span>-a<span class="w"> </span>registers.txt<span class="w"> </span>--stats
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>ran 4554 bundles in 7125 cycles
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>...
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>register-lock stalls     914 cycles
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>REGFILE token stalls     1670 cycles
+</span></code></pre></div>
+<p><code>rows</code> is at IMEM address 0x0 here, so each <code>-p 0x0</code> starts one more
+thread there (<code>apara_as.py --aligned</code> shows every label's address).
+Each thread gets two rows, through <code>$r1</code> and <code>$r2</code>. The counters show
+where the time goes: <a href="timing_model.html">APARA Timing Model</a> explains
+them.</p>
+<hr />
+<h2 id="in-a-system">In a system<a class="headerlink" href="#in-a-system" title="Permanent link">&para;</a></h2>
+<p>In <code>sparc_apara</code>, a SPARC program loads the engine program and its data,
+starts its threads, and collects the results. The engine's DMEM appears
+there as a window at <code>0x0100_0000</code>, and an engine program must address
+it that way (any other address goes out to the system's main memory).
+So a C kernel for the system is compiled with <code>--dmem-base 0x01000000</code>.</p>
+<p><code>compiler/apara/apara_obj_to_c.py</code> does that, and turns the result into
+a C header for the SPARC program:</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>python3<span class="w"> </span>compiler/apara/apara_obj_to_c.py<span class="w"> </span>vector_stats.c<span class="w">     </span><span class="c1"># writes vector_stats.c.h</span>
+</span></code></pre></div>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">vector_stats_program</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span><span class="w">   </span><span class="c1">// the IMEM words</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a><span class="cp">#define VECTOR_STATS_PROGRAM_WORDS 160</span>
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a><span class="cp">#define VECTOR_STATS_MAIN 0x0                               </span><span class="c1">// each function&#39;s IMEM address</span>
+</span><span id="__span-15-4"><a id="__codelineno-15-4" name="__codelineno-15-4" href="#__codelineno-15-4"></a><span class="cp">#define VECTOR_STATS_DMEM_DATA 0x0                          </span><span class="c1">// each global&#39;s DMEM byte offset</span>
+</span><span id="__span-15-5"><a id="__codelineno-15-5" name="__codelineno-15-5" href="#__codelineno-15-5"></a><span class="cp">#define VECTOR_STATS_DMEM_SUM 0x100</span>
+</span><span id="__span-15-6"><a id="__codelineno-15-6" name="__codelineno-15-6" href="#__codelineno-15-6"></a><span class="p">...</span>
+</span><span id="__span-15-7"><a id="__codelineno-15-7" name="__codelineno-15-7" href="#__codelineno-15-7"></a><span class="k">static</span><span class="w"> </span><span class="k">const</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">vector_stats_dmem_image</span><span class="p">[]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="p">{</span><span class="w"> </span><span class="p">...</span><span class="w"> </span><span class="p">};</span><span class="w">  </span><span class="c1">// the initializers</span>
+</span><span id="__span-15-8"><a id="__codelineno-15-8" name="__codelineno-15-8" href="#__codelineno-15-8"></a><span class="cp">#define VECTOR_STATS_DMEM_IMAGE_WORDS 0</span>
+</span></code></pre></div>
+<p><code>kernel_dmem_image[]</code> holds only the non-zero words of the initial
+data. DMEM is zero at power-up, but keeps whatever an earlier program
+left there, so a kernel that is run after another one should not count
+on its uninitialized (or zero-initialized) globals being zero: the SPARC
+program clears them, or the kernel sets them itself.</p>
+<p>The SPARC program then uses the engine through the routines of
+<code>compiler/include/apara_access_routines.h</code>:</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;vector_stats.c.h&quot;</span>
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a><span class="n">apara_load_program</span><span class="p">(</span><span class="n">vector_stats_program</span><span class="p">,</span><span class="w"> </span><span class="n">VECTOR_STATS_PROGRAM_WORDS</span><span class="p">);</span>
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a><span class="n">apara_load_dmem_image</span><span class="p">(</span><span class="n">vector_stats_dmem_image</span><span class="p">,</span><span class="w"> </span><span class="n">VECTOR_STATS_DMEM_IMAGE_WORDS</span><span class="p">);</span>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a><span class="n">apara_dma_load</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">VECTOR_STATS_DMEM_DATA</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="kt">uint32_t</span><span class="p">)</span><span class="w"> </span><span class="n">data</span><span class="p">,</span><span class="w"> </span><span class="k">sizeof</span><span class="p">(</span><span class="n">data</span><span class="p">));</span><span class="w">   </span><span class="c1">// the input</span>
+</span><span id="__span-16-6"><a id="__codelineno-16-6" name="__codelineno-16-6" href="#__codelineno-16-6"></a><span class="n">apara_start_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="n">VECTOR_STATS_MAIN</span><span class="p">);</span>
+</span><span id="__span-16-7"><a id="__codelineno-16-7" name="__codelineno-16-7" href="#__codelineno-16-7"></a><span class="n">apara_wait_thread</span><span class="p">(</span><span class="mi">0</span><span class="p">);</span>
+</span><span id="__span-16-8"><a id="__codelineno-16-8" name="__codelineno-16-8" href="#__codelineno-16-8"></a><span class="n">sum</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">apara_dmem_read_dword</span><span class="p">(</span><span class="n">VECTOR_STATS_DMEM_SUM</span><span class="p">);</span><span class="w">                       </span><span class="c1">// the result</span>
+</span></code></pre></div>
+<p><a href="system.html">The Engine in a System</a> describes these steps in full. A
+test in the validation suite names its C kernels in its <code>.vprj</code>, with an
+<code>MCODE = vector_stats.c</code> line, and <code>validation/build_hex.py</code> writes the
+header before compiling the test.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

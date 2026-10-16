@@ -125,8 +125,8 @@ Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.
 
 See [Model Components](model_components.md) for how the core, the
-memory, and any other components fit together, including a stub example
-of connecting an external component such as a cache.
+memory, and the other components (the MMU, the caches, the devices, the
+system bus, and the APARA engine) fit together.
 
 ---
 
@@ -177,12 +177,14 @@ top-level folders are organized as follows.
     two testbenches that drive it (`cpp_model/`, `sitar_model/`). See
     [Model Components](model_components.md).
 - **`validation/`**  
-    The functional validation suite, assembly and C tests, and the
-    APARA engine's own tests (`validation/apara/`). See [Validation
-    Suite](validation_suite.md).
+    The functional validation suite, assembly and C tests, the
+    component suites, the tests of the SPARC using the APARA engine
+    (`validation/sparc_apara/`), and the APARA engine's own suites
+    (`validation/apara/`). Each suite runs on the configurations that
+    have its components. See [Validation Suite](validation_suite.md).
 - **`compiler/`**  
     The bundled `sparc-elf` cross-toolchain and the scripts that drive it,
-    and the APARA engine's assembler and disassembler (`compiler/apara/`).
+    and the APARA engine's assembler, disassembler and C compiler (`compiler/apara/`).
     See [Cross Compiler](cross_compiler.md).
 - **`log_viewer/`**  
     The trace visualizer tool. See [The log viewer](logging.md#the-log-viewer).

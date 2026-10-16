@@ -57,6 +57,11 @@ point overridden to `crt0.s`'s own `_start`) and does it for you:
 - initializes `%g1` as the pass/fail sentinel,
 - then calls your `main()`.
 
+It leaves the FPU off (the PSR's EF bit clear), so a program that
+computes with `float` or `double` sets EF itself first, or its first
+floating-point instruction traps. `validation/sparc_apara/apara_common.h`
+has a small `enable_fpu()` that does this.
+
 Here's what that looks like once linked, `array_sum`'s actual entry
 point, before `main` even runs:
 
@@ -133,10 +138,8 @@ model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only your_
 
 ## Using the peripheral devices
 
-`compiler/include/` holds header-only routines for the devices, with
-the same file names, function names, and signatures as AJIT's own
-bare-metal access routines, so code written for AJIT compiles here
-unchanged. `compile_c.sh` puts that folder on the include path.
+`compiler/include/` holds header-only routines for the devices.
+`compile_c.sh` puts that folder on the include path.
 
 | Header | Provides |
 |---|---|

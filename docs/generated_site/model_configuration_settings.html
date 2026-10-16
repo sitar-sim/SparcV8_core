@@ -1246,6 +1246,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -2140,6 +2168,13 @@ models.</p>
 <td>Timing</td>
 <td>Runtime</td>
 <td>How many bundles may be in EXEC at once.<br><strong>Range:</strong> positive int, default 2.</td>
+</tr>
+<tr>
+<td><strong><code>engine.regfile.interlock</code></strong></td>
+<td>same</td>
+<td>Structural (for checking only)</td>
+<td>Runtime</td>
+<td>Whether REGFILE holds a bundle until the registers it uses are free. <code>false</code> shows which reads would be hazards without the interlock (see <a href="apara/running.html#hazards">Hazards</a>): the results stay right (the functional state runs each thread in order), but the timing is no longer the engine's.<br><strong>Range:</strong> true/false, default true.</td>
 </tr>
 </tbody>
 </table>

@@ -1368,6 +1368,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1914,8 +1942,8 @@ depending on configuration:</p>
 <p>Split instruction and data L1 caches, between the core and the MMU, in
 <code>core_l1cache_mmu_devices</code>. Both are virtually indexed and virtually
 tagged (VIVT): they are looked up with the virtual address, before any
-translation, which is what lets them sit above the MMU. Their
-behavior follows the AJIT processor's own L1 caches:</p>
+translation, which is what lets them sit above the MMU. Their main
+properties:</p>
 <ul>
 <li><strong>Organization</strong><br />
     64-byte lines. By default 512 lines (32 KB) per cache, direct mapped.
@@ -1961,8 +1989,7 @@ both caches and the whole policy, the same class in both models:</p>
 <hr />
 <h2 id="peripheral-devices">Peripheral Devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h2>
 <p>A Timer, a multi-thread Interrupt Controller, and a Serial device, one
-shared set on the memory side of the MMU, compatible with the AJIT
-processor's own devices. The C++ class <code>PeripheralDevicesCore</code>
+shared set on the memory side of the MMU. The C++ class <code>PeripheralDevicesCore</code>
 (<code>model/cpp_common_code/devices/</code>) holds all three, the same class in
 both models. In the sitar_model the <code>PeripheralDevices</code> module wraps it,
 reached through the <code>SystemBridge</code> over nets. See <a href="peripheral_devices.html">Peripheral

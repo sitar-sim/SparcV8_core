@@ -2,8 +2,7 @@
 
 The `sparc_apara` configuration puts one APARA engine next to the SPARC
 core of `core_l1cache_mmu_devices` (with its L1 caches, MMU, and
-peripheral devices), the way the APARA hardware attaches to an AJIT
-processor. A SPARC program uses the engine as an accelerator:
+peripheral devices). A SPARC program uses the engine as an accelerator:
 
 1. It **loads the engine's program** into the engine's instruction
    memory (IMEM).
@@ -22,15 +21,63 @@ its **DMA unit**, which copies data between main memory and DMEM. The
 engine can also read and write main memory itself, with its ordinary
 loads and stores.
 
-This page describes the SPARC program's side: the C routines first,
-then the address map and registers they use, then how the two models
-implement it.
+This page describes the system's parts and how they are connected,
+then the SPARC program's side: an example, the setup protocol step by
+step, the C routines, and the address map and registers they use. It
+ends with how the two models implement it, and the tests.
+
+---
+
+## How the parts are connected
+
+The SPARC core reaches main memory, the devices and the engine through
+the system bus. The engine is the bus's second master: its DMA unit, and
+its own loads and stores outside DMEM, reach main memory through it too.
+
+```text
+   SPARC core (with its L1 caches and MMU)
+        |
+        | master 1                       master 2: the DMA unit's copies, and the
+        v                                engine's loads and stores outside DMEM
+   +------------------------- system bus ---------------------------+
+        |                  |                                |   ^
+        v                  v                                v   |
+   main memory      devices: Timer, Serial,           APARA engine: control unit,
+                    Interrupt Controller              DMA unit, IMEM, DMEM,
+                           ^                          4 threads, pipeline
+                           |                                |
+                           +------- interrupt (IRL 14) -----+
+```
+
+The SPARC and the engine communicate in four ways:
+
+- **Commands**, from the SPARC: writes to the control unit's registers
+  load IMEM, set a thread's registers, start, reset or query a thread
+  (see [The control unit](#the-control-unit)). Writes to the DMA unit's
+  registers start copies (see [The DMA unit](#the-dma-unit)).
+- **Data in DMEM**, which the SPARC reads and writes directly, through
+  its window in the system's address space, or has the DMA unit copy.
+- **Data in main memory**, which the engine's own loads and stores, and
+  its DMA unit, reach over the bus as its second master.
+- **Completion**, from the engine: a thread that stops (with `$halt`, or
+  an exception) leaves a completion word for the SPARC to poll, and the
+  control unit can raise an interrupt, which reaches the SPARC as IRL 14
+  through the Interrupt Controller. A DMA channel that finishes can do
+  the same.
+
+The engine's threads share its IMEM, DMEM and pipeline. Each has its own
+32 registers, PC, return-address stack, and ERROR register.
+
+In the timing model, these parts are modules joined by nets (see [The
+models](#the-models)):
+
+<img src="../images/sparc_apara_structure.svg" alt="sparc_apara structure diagram" title="sparc_apara structure diagram">
 
 ---
 
 ## An offload, step by step
 
-The test `validation/C/apara/dma_dot_product/` offloads a dot product of
+The test `validation/sparc_apara/basic/dma_dot_product/` offloads a dot product of
 two 32-element `int8_t` vectors to the engine. The engine's program,
 `kernel.mcode`, loads both vectors from DMEM, computes four 8-element
 dot products in one bundle, adds them up, and stores the 64-bit result
@@ -84,13 +131,132 @@ DMA channel.
 
 ---
 
+## Setting up and running the engine
+
+This is the protocol a SPARC program follows to use the engine, with
+what is allowed at each step. Each step has a test in
+`validation/sparc_apara/`, named in brackets.
+
+### At power-up
+
+No engine thread runs, and IMEM, DMEM and every register of every thread
+are zero (`setup/cold_state`). The engine's cycle counter runs from
+power-up. Nothing needs initializing before the first command.
+
+### The steps
+
+1. **Load the program** into IMEM, a word at a time, through the
+   control unit: `apara_load_program(words, n)`. IMEM is shared by the
+   four threads, so one program image serves all of them, and each
+   thread starts at its own label. `apara_read_imem` reads a word back
+   (`setup/load_verify` checks a whole image).
+2. **Put the input data in DMEM**, one of two ways:
+    - directly, through the DMEM window, a 32-bit word at a time
+      (`apara_dmem_write_word`). Simple, but each word is a bus access
+      by the SPARC.
+    - by DMA, which copies from main memory while the SPARC goes on with
+      other work: `apara_dma_load` copies and waits, `apara_dma_start`
+      and `apara_dma_wait` let the SPARC overlap several copies, or do
+      its own work meanwhile. A copy can also gather strided data.
+
+    An engine program compiled from C may also need its initialized
+    globals: `apara_load_dmem_image` (see [Carrying the engine's
+    program](#carrying-the-engines-program)).
+3. **Set each thread's registers**, its arguments
+   (`apara_write_thread_register`), and **start it** at an IMEM address
+   (`apara_start_thread`). Threads may be started one after another, or
+   at different times (`threads/staggered`).
+4. **Learn that the thread has stopped**, by polling or by an interrupt
+   (see [below](#polling-or-an-interrupt)). The completion word says
+   how: `APARA_COMPLETION_VALID | APARA_ERROR_HALT` for a thread that
+   ended with `$halt`. After an exception it has `APARA_ERROR_EXCEPTION`
+   and each slot's exception code (`APARA_ERROR_CODE(word, slot)`), and
+   `apara_thread_stop_pc` gives the bundle that failed.
+5. **Collect the results** from DMEM, directly (`apara_dmem_read_word`,
+   `apara_dmem_read_dword`) or by DMA (`apara_dma_store`, to main
+   memory).
+6. **Start again**, for the next piece of work: a thread that stopped
+   with `$halt` can be started again at once, with new registers. A
+   thread stopped by an exception must be reset first
+   (`apara_reset_thread`), which clears its PC, return-address stack
+   and ERROR, and keeps its registers (`interference/fault_isolation`).
+   A new program may be loaded over the old one between runs
+   (`setup/reload_program`).
+
+`setup/offload_poll` and `setup/offload_interrupt` do all six steps for
+an engine program compiled from C.
+
+### Polling or an interrupt
+
+- **Polling.** `apara_poll_thread(t)` returns 0 while the thread runs,
+  and its completion word once it has stopped. `apara_wait_thread(t)`
+  polls until then. Each poll is a control-unit command, several bus
+  accesses, so a SPARC that only waits is simplest this way.
+- **An interrupt.** `apara_request_completion_interrupt(t)` asks the
+  control unit to raise the engine's interrupt when thread `t` stops.
+  The SPARC goes on with its own work. Its handler reads the completion
+  word (`apara_thread_completion`), and clears the interrupt
+  (`apara_clear_interrupt`). See [Interrupts](#interrupts) for the
+  set-up.
+
+Either way, **each stop is reported exactly once**: after a poll has
+returned a thread's stop, the next poll returns 0 until the thread has
+been started and has stopped again (`threads/staggered`). A program that
+polls several threads can therefore poll them in any order, and never
+counts one stop twice.
+
+### What may happen while threads run
+
+- **Each thread on its own data.** Threads do not disturb one another
+  as long as each writes only its own part of DMEM
+  (`interference/disjoint_regions`). One thread's exception stops only
+  that thread (`interference/fault_isolation`).
+- **The SPARC and the DMA unit** may read and write other parts of DMEM
+  while threads run, and may watch a running thread's progress word
+  (`interference/host_while_running`, `interference/dma_while_running`).
+- **Not while running**: loading IMEM, or writing a running thread's
+  registers. The control unit carries such commands out, but when they
+  take effect in the running thread is undefined. Wait for the thread
+  to stop first, or stop it with `apara_reset_thread`.
+
+### Threads sharing data
+
+The engine's instruction set has no atomic read-modify-write. Threads
+that update the same DMEM word with a load, an add and a store race:
+another thread's update can fall between one thread's load and its
+store, and is lost (`interference/shared_counter`, where four threads
+each add 1, 1000 times, to one word, and the word ends below 4000).
+Threads should therefore work on their own data, and leave the SPARC
+to combine their results, as `linalg/dot_threads` does with four partial
+dot products.
+
+### The SPARC's data cache
+
+The engine's windows are never cached, and the routines reach them with
+MMU-bypass accesses. Main memory may be cached, though (in the pages the
+MMU marks cacheable), and the caches do not see the engine's writes.
+After the DMA unit, or an engine program, writes main memory, the SPARC
+reads that data straight from memory, with an MMU-bypass load (the
+tests' `physical_word`), or flushes its data cache first (see [Model
+Components](../model_components.md#caches)).
+
+### Floating point on the SPARC side
+
+The SPARC's startup code (`compiler/crt0.s`) leaves the FPU off. A SPARC
+program that computes with floats, to check an engine's float results
+for example, turns it on first, by setting the PSR's EF bit
+(`linalg/saxpy`).
+
+---
+
 ## Software
 
 ### The routines
 
 `compiler/include/apara_access_routines.h` has C routines for all of
-the steps above, in the style of AJIT's own access routines (AJIT
-itself has no engine routines, so these are this project's design).
+the steps above, in the same style as the device routines of
+`ajit_access_routines.h` (see [C
+Programs](../writing_and_running_c_programs.md)).
 Every routine uses MMU-bypass accesses, so it works whether or not the
 MMU is enabled, and never goes through the caches.
 
@@ -110,6 +276,8 @@ MMU is enabled, and never goes through the caches.
 | `apara_dma_load(c, dmem, src, n)`, `apara_dma_store(c, dst, dmem, n)` | One contiguous copy of `n` bytes into or out of DMEM, waiting for it. |
 | `apara_dma_clear_interrupt(c)` | Clear channel `c`'s interrupt. |
 | `apara_dmem_write_word(o, v)`, `apara_dmem_read_word(o)` | A 32-bit word of DMEM, at byte offset `o`, directly. |
+| `apara_dmem_read_dword(o)` | A 64-bit word of DMEM (the high half at the lower address). |
+| `apara_load_dmem_image(pairs, n)` | Write a C engine program's initialized globals into DMEM (see [below](#carrying-the-engines-program)). |
 | `apara_read_timer()` | The engine's cycle counter. |
 
 The completion word's bits have names: `APARA_COMPLETION_VALID`,
@@ -133,18 +301,45 @@ static const uint32_t kernel_program[] = { ... };   // IMEM words 0, 1, ...
 #define KERNEL_START 0x0                             // each label's address
 ```
 
-The names come from the file name (`--name` chooses another). A test in
-the validation suite names its engine programs in its `.vprj`, with an
-`MCODE = kernel.mcode` line, and `validation/build_hex.py` writes the
-headers before compiling (see [Validation
-Suite](../validation_suite.md#the-vprj-expected-results-format)).
+The names come from the file name (`--name` chooses another).
+
+An engine program written in C (see [The C Compiler](compiler.md)) is
+handled the same way: `apara_obj_to_c.py kernel.c` compiles it for the
+system, with DMEM at its window address, and writes `kernel.c.h`. That
+header also gives each global variable's DMEM byte offset, and the DMEM
+words its initializers set:
+
+```c
+#define KERNEL_DMEM_DATA 0x0                              // each global's DMEM offset
+static const uint32_t kernel_dmem_image[] = { ... };     // (offset, value) pairs
+#define KERNEL_DMEM_IMAGE_WORDS 6
+```
+
+The SPARC program then loads the program and the initial data, puts its
+input at the globals' offsets, and reads the results from them:
+
+```c
+apara_load_program(kernel_program, KERNEL_PROGRAM_WORDS);
+apara_load_dmem_image(kernel_dmem_image, KERNEL_DMEM_IMAGE_WORDS);
+apara_dma_load(0, KERNEL_DMEM_DATA, (uint32_t) data, sizeof(data));
+```
+
+An `__entry` function's parameters arrive in `$r1`, `$r2`, ..., set with
+`apara_write_thread_register` before the thread starts. The image holds
+only the non-zero words: DMEM keeps whatever an earlier program left, so
+globals that must start at zero are cleared by the SPARC program, unless
+this is the first program since power-up.
+
+A test in the validation suite names its engine programs in its
+`.vprj`, with an `MCODE = kernel.mcode` (or `kernel.c`) line, and
+`validation/build_hex.py` writes the headers before compiling (see
+[Validation Suite](../validation_suite.md#the-vprj-expected-results-format)).
 
 ---
 
 ## Address map
 
-The system's physical addresses follow the AJIT_APARA layout, with the
-addresses APARA's parameter template gives engine 0 of cluster 0:
+The system's physical addresses:
 
 | Range | What |
 |---|---|
@@ -175,7 +370,7 @@ register, as `dma_dot_product` does in `$r9`:
 An engine load or store to any other address reaches main memory (or a
 device) through the system bus, which takes much longer than a DMEM
 access. The standalone `apara` configuration instead aliases every
-address into DMEM, as the APARA reference model does.
+address into DMEM.
 
 ---
 
@@ -263,9 +458,9 @@ Interrupt Controller's external input, IRL 14 (`EXTERNAL_IRL`).
 
 A program that takes interrupts links the interrupt startup code (a
 `STARTUP = crt0_interrupts.s` line in its `.vprj`), and registers a
-handler with the AJIT dispatch routines of `compiler/include/ajit_mt_irc.h`
+handler with the dispatch routines of `compiler/include/ajit_mt_irc.h`
 (see [Taking interrupts](../writing_and_running_c_programs.md#taking-interrupts)).
-From `validation/C/apara/run_interrupt/`:
+From `validation/sparc_apara/basic/run_interrupt/`:
 
 ```c
 void engine_handler(void)
@@ -327,17 +522,28 @@ DMEM.
 
 ## Tests
 
-`validation/C/apara/` holds the SPARC-side tests. Run them on `--config
-sparc_apara`, on both models (with `--max-cycles 5000000` on the
-sitar_model):
+`validation/sparc_apara/` holds the tests of the SPARC using the engine.
+Each is a bare-metal SPARC C program, with one or more engine programs,
+built and run like the other C tests (see [Validation
+Suite](../validation_suite.md)), on `--config sparc_apara`. On the
+sitar_model, give them a larger cycle limit:
 
-| Test | Checks |
-|---|---|
-| `imem_registers` | IMEM and register round trips, and the timer. |
-| `run_poll` | Running a program and polling its completion, and its result in DMEM, read through the window (byte order included). |
-| `run_interrupt` | The completion interrupt, IRL 14, taken in a trap handler. |
-| `exception` | An engine exception's completion word, a reset, and a second run. |
-| `four_threads` | Four threads running one program on their own data. |
-| `off_island` | The engine reading and writing main memory. |
-| `dma_interrupt` | A gather load, and its interrupt. |
-| `dma_dot_product` | A whole offload: DMA in, the dot product, DMA out. |
+```bash
+python3 validation/run_tests.py validation/sparc_apara --config sparc_apara
+python3 validation/run_tests.py validation/sparc_apara --config sparc_apara --sitar --max-cycles 50000000
+```
+
+Every test reports like the device tests: `%o0` = 1 if every check
+passed, and `%o1` has one bit per check, listed in the test's header
+comment. The SPARC program computes the expected results itself.
+
+| Folder | Tests | What they check |
+|---|---|---|
+| `basic/` | 8 | Each part of the engine's interface on its own: IMEM and registers, running and polling, the completion interrupt, exceptions, four threads, the engine's own main-memory accesses, DMA and its interrupt, and a whole offload by DMA (`dma_dot_product`). |
+| `setup/` | 5 | Bringing the engine up, one thread: its state at power-up, loading and reading back its memories, complete offloads of a program compiled from C (by polling and by interrupt), and loading a second program over the first. |
+| `threads/` | 5 | The same program on 1, 2, 3 and 4 threads, each on its own slice of the data, and threads started and restarted at different times. |
+| `interference/` | 5 | Whether threads, the SPARC and the DMA unit disturb one another (see [What may happen while threads run](#what-may-happen-while-threads-run)), and the one real interference, a race on shared data. |
+| `linalg/` | 3 | Linear algebra offloaded to the engine: an 8x8 matrix product on four threads, SAXPY in floating point, and a four-thread dot product compiled from C. |
+
+Each folder has a `README.md` describing its tests, and
+`validation/sparc_apara/README.md` summarizes the protocol above.

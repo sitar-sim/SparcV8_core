@@ -22,12 +22,13 @@ SparcV8_core/
   validation/
     asm/                Instruction-level assembly test suite.
     C/                  Self-validating bare-metal C mini-benchmark suite, including the
-                          component suites C/mmu/, C/devices/, C/caches/ and C/apara/.
-    apara/              The APARA engine's own test suite and its runner.
+                          component suites C/mmu/, C/devices/ and C/caches/.
+    sparc_apara/        The SPARC using the APARA engine (sparc_apara only).
+    apara/              The APARA engine's own test suites and their runner (apara only).
     test_simple_ADD/    Canonical copy of the bundled walkthrough example.
   compiler/               SPARC V8 cross-toolchain + build scripts.
     include/                Bare-metal C routines for the devices and the APARA engine.
-    apara/                  The APARA engine's assembler and disassembler (mcode).
+    apara/                  The APARA engine's assembler, disassembler and C compiler.
   debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
   docs/                    This documentation site.
     source/                  The .md pages you're reading (MkDocs docs_dir).
@@ -119,6 +120,11 @@ you're reading existing tests rather than writing new ones:
 - Every test always halts via `ta 0` with traps disabled, landing the
   core in `error_mode`. This is the deliberate, universal "done" signal
   described on that page, not a failure indicator by itself.
+- A new configuration lists what it contains in a `COMPONENTS` file in
+  its folder, and a new suite folder that needs more than the SPARC core
+  says so in a `REQUIRES` file, so that `validation/run_tests.py` runs
+  each suite only on the configurations that can run it (see [Validation
+  Suite](validation_suite.md#which-tests-run-on-which-configuration)).
 
 ---
 

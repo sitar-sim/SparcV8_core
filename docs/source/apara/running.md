@@ -55,9 +55,7 @@ The options:
 | `--latency-file <file>` | Change instruction latencies (sitar_model, see [APARA Timing Model](timing_model.md#timing-rules)). |
 
 The file formats are described in [File
-formats](assembly_and_tools.md#file-formats). The options are those of
-the APARA reference simulator, `mcode_run`, plus this project's own, so
-the same files run on both.
+formats](assembly_and_tools.md#file-formats).
 
 The exit status is 0 for `PASS`, or, without `-r`, when every thread
 stopped with `$halt`. It is 1 otherwise (a mismatch, an exception, or a
@@ -69,7 +67,7 @@ line or the files. That makes the simulators easy to use from scripts.
 `--trace` prints one line per bundle executed: its thread and address,
 its instructions (without the `$null`s), and, if it did not continue to
 the next bundle, where it went. For example, the end of a loop, from
-`validation/apara/tests/control.mcode`:
+`validation/apara/isa/control/control.mcode`:
 
 ```text
 t0 0x0:  ? ($i64) $r1 > --1 $goto pc+0;  + $r2 ($i64) $r2 $r1;  -> 0x0
@@ -94,62 +92,167 @@ thread 1: stopped at 0x8 by an exception: slot 4 unaligned memory address;
 
 ## Tests
 
-`validation/apara/` holds the engine's own test suite, in two folders:
+`validation/apara/` holds the engine's own test suites, one folder each:
 
-- **`tests/`**  
-    Functional tests: one per instruction class, plus multithreading,
-    bundle semantics, and the [deviations](deviations.md) from the
-    reference model.
-- **`timing/`**  
-    Microbenchmarks for the timing model, each with a cycle count derived
-    by hand from the [timing rules](timing_model.md#timing-rules).
+| Folder | Tests | What they check |
+|---|---|---|
+| `isa/` | 29 | Every instruction, in one subfolder per class (`alu_int`, `alu_float`, `vector`, `cast`, `bits`, `cmov`, `memory`, `control`): each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception. |
+| `sequences/` | 7 | Instructions working together: full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, one thread's fault not stopping the others. |
+| `hazards/` | 10 | The pipeline's handling of dependences between bundles (see [Hazards](#hazards)). |
+| `predictor/` | 6 | The branch predictor: loops, nested loops, two branches sharing a predictor entry, calls and returns. Each test's mispredict count is derived from the [predictor's rules](timing_model.md#branch-prediction). |
+| `asm_errors/` | 21 | Programs the assembler must reject: a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, invalid types. |
+| `timing/` | 10 | Microbenchmarks with exact cycle counts, derived by hand from the [timing rules](timing_model.md#timing-rules). Its `README.md` also has each test's counts for other settings of the [knobs](timing_model.md#knobs). |
+| `kernels/` | 6 | Larger hand-scheduled programs: dot product, vector addition, SAXPY, reduction, and matrix products on one and four threads. |
+| `c_programs/` | 11 | Programs compiled from C with the [C compiler](compiler.md): the language's features, sorting, a prime sieve, and linear algebra. |
+| `deviations/` | 8 | Behavior where the model departs, on purpose, from the engine's reference model (see [Deviations and Findings](deviations.md)). |
+
+Each folder has a `README.md` describing its tests.
 
 ### A test
 
-Each test is a single mcode file. Lines starting with `//@` say how to
-run it and what to expect. For example, the timing test
-`timing/t3_latency.mcode`:
+A test is a source file and a `.vprj` file of the same name, in the
+same spirit as the SPARC tests (see [Validation
+Suite](../validation_suite.md)). The `.vprj` says how to run the program
+and what to expect. For example, the timing test
+`timing/t3_latency`:
 
 ```mcode
 --8<-- "validation/apara/timing/t3_latency.mcode"
 ```
 
-Its header explains where the expected count comes from. A functional
-test instead sets registers and data with `reg:` and `data:` lines, and
-lists the expected results with `expect:` lines.
+```text
+--8<-- "validation/apara/timing/t3_latency.vprj"
+```
+
+The source's header explains where the expected count comes from. A
+functional test sets registers and memory in `INIT`, and lists the
+expected results in `RESULTS`. From `isa/control/control.vprj`:
+
+```text
+SOURCES = control.mcode
+
+INIT =
+r1 = 5
+r3 = 0xbfc00000
+
+RESULTS =
+r1 = 0xffffffffffffffff
+r2 = 0xf
+```
+
+The lines of `INIT` and `RESULTS`:
 
 | Line | Meaning |
 |---|---|
-| `//@ threads: 0x0 0x20` | Start threads at these PCs. Default: one thread at 0x0. |
-| `//@ data: 10: 0x...` | An initial DMEM dword, in data-file format. |
-| `//@ reg: 0 $r3 0x10` | An initial register value: thread, register, value. |
-| `//@ expect: 0 reg $r5 0x7` | An expected result, in results-file format (registers written as `$rN`). |
-| `//@ cycles: 12` | The exact cycle count the timing model must take, with the default timing settings. |
-| `//@ deviation: <why>` | The test depends on a deviation from the reference model. |
+| `r3 = 0x10` | Thread 0's `$r3`. |
+| `t1.r3 = 0x10` | Thread 1's `$r3`. |
+| `m[0x80] = 0x0102030405060708` | The DMEM dword (8 bytes) at byte address 0x80. |
+| `m[C+0x8] = 0x2f2` | In a C test: a dword of the global `C`. |
+| `t1.pc = 0x9` | (`RESULTS` only) Where thread 1 stopped. |
+| `error = 0x2000000` | (`RESULTS` only) Thread 0's ERROR register: 0x2000000 is a `$halt`. |
+
+A value in `RESULTS` may be followed by a mask, which selects the bits
+compared.
+
+The other keys:
+
+| Key | Meaning |
+|---|---|
+| `SOURCES = prog.mcode` | The program: mcode, C (`.c`, compiled first), or an object file (`.obj`). |
+| `THREADS = 0x0 worker` | Start a thread at each of these IMEM addresses or labels. Default: one thread at 0x0. |
+| `CYCLES = 12` | The exact cycle count on the timing model, with the default timing settings. |
+| `MISPREDICTS = 2`, `BTB_PREDICTIONS = 3` | The exact branch predictor counts on the timing model. |
+| `HAZARDS_UNLOCKED = 1` | The hazards the timing model must count when built without the interlock (see [Hazards](#hazards)). |
+| `ASM_ERROR = written twice` | The program must not assemble, and the error message must contain this text. |
+| `DEVIATION = <why>` | The test depends on one of the model's [deviations](deviations.md). |
+| `MAX_CYCLES = 100000` | A larger limit, for a long test. |
+| `APCC_FLAGS = -O0` | Options for the C compiler. |
 
 ### Running the tests
 
 ```bash
-python3 validation/apara/run_tests.py                 # every test, on the cpp_model
-python3 validation/apara/run_tests.py --sitar         # on the sitar_model, also checking cycle counts
-python3 validation/apara/run_tests.py validation/apara/timing --sitar
-python3 validation/apara/run_tests.py --reference --mcode-run <path to mcode_run>
+python3 validation/apara/run_tests.py                          # every suite, on the cpp_model
+python3 validation/apara/run_tests.py --sitar                  # on the sitar_model, also checking the timing keys
+python3 validation/apara/run_tests.py validation/apara/hazards --sitar   # one suite (or one .vprj)
 ```
 
-The runner assembles each test, writes its files into
+The runner compiles or assembles each test, writes its files into
 `validation/apara/build/<test>/`, runs it, and prints `PASS` or `FAIL`
-for each, then a summary.
+for each, then a summary per suite:
 
-`--reference` also cross-checks the model against the APARA reference
-simulator. For every test without a `deviation` line, the model writes
-its final state (the PC, every register, and every DMEM word that is or
-was non-zero) as a results file, and the reference simulator, given the
-same program and inputs, must reach exactly that state. This checks the
-model and the test's own expectations at the same time.
+```text
+PASS  timing/t1_halt.vprj
+...
+  asm_errors     21/21 passed
+  c_programs     11/11 passed
+...
+  timing         10/10 passed
+OVERALL: 108 passed, 0 failed
+```
+
+The `apara` configuration runs only these suites: the SPARC suites need
+a SPARC core (see [Validation Suite](../validation_suite.md#which-tests-run-on-which-configuration)).
 
 ### Adding a test
 
-Write a new `.mcode` file in `tests/` (or `timing/`, for a timing
-microbenchmark), with its `//@` lines, and run the suite. There is
-nothing to register: the runner finds every `.mcode` file in the
-folders it is given.
+Write a source file and its `.vprj` in a suite's folder, and run the
+suite. There is nothing to register: the runner finds every `.vprj`
+file in the folders it is given. To find the expected values of a new
+test, run it once with `--dump-results -` (see [Running a
+program](#running-a-program)), and check every value by hand, or with an
+independent calculation, before writing it down.
+
+---
+
+## Hazards
+
+A **hazard** is a bundle reading a register before an older bundle of
+the same thread has written its new value. The engine's pipeline
+resolves every such read-after-write dependence in hardware: DECODE
+tells REGFILE which registers a bundle reads and writes, and REGFILE
+holds a bundle until every register it reads or writes has been written
+back by the older bundles (see [Register locks and
+tokens](timing_model.md#register-locks-and-tokens)). A program, or a
+compiler, never needs to insert waits.
+
+The other orderings are safe too:
+
+- **Write after write**: the same locks hold a bundle that writes a
+  register an older bundle has yet to write, so the newer value always
+  lands last.
+- **Write after read**: a bundle reads its registers when it is issued,
+  in order, so a later bundle's write can never reach it.
+- **Memory**: a thread's loads and stores reach DMEM in program order.
+- **Other threads**: each thread has its own registers.
+
+What the hardware does not resolve is within a single bundle: two
+instructions writing the same register (directly, or through a
+multi-register load, a cast's second register, or an increment). Every
+instruction of a bundle reads the registers as they were before the
+bundle, so a value written in a bundle cannot be read in the same
+bundle. The assembler rejects a register written twice (the
+`asm_errors/` tests).
+
+The timing model checks the interlock on every run, in two ways, and
+`--stats` reports both:
+
+- **The lock masks.** The registers each bundle actually reads and
+  writes when it executes must be among those DECODE locked for it.
+  Otherwise the model prints an internal error, since the interlock
+  would have missed a dependence, and counts a lock-mask violation
+  (`lock-mask violations 0` otherwise). The test runner fails a test
+  with any.
+- **A hazard count**, kept apart from the locks: a bundle issued while a
+  register it reads still has an older write outstanding. With the
+  interlock it must be 0 (`RAW hazards 0`).
+
+The `hazards/` tests check that the interlock is needed where it acts.
+Built with the knob `engine.regfile.interlock = false` (in
+`model/system_models/apara/sitar_model/src/Top.sitar`, see
+[Knobs](timing_model.md#knobs)), REGFILE ignores its locks, and each
+`hazards/` test must report exactly its `HAZARDS_UNLOCKED` count: the
+reads that would get a stale value without the interlock. The tests of
+independent bundles, write-after-write, and memory order must report
+none. Run them that way with `--sitar`: the runner then checks only the
+hazard counts, since the timing is no longer the engine's. Set the knob
+back to `true`, and rebuild, afterwards.

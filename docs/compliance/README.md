@@ -19,6 +19,11 @@ Four independent issues are documented here so far:
 3. [Quad-precision (`FADDQ` etc.) is implemented here, unimplemented in AJIT](#issue-3-quad-precision-faddq-etc-is-implemented-here-unimplemented-in-ajit) -- 14 tests.
 4. [Atomic load-store (LDSTUB/SWAP) permission-fault checking](#issue-4-atomic-load-store-ldstubswap-permission-fault-checking) -- design-level deviation in the MMU, not yet backed by a side-by-side test pair (see the issue for why).
 
+The APARA engine's findings are in their own file,
+[`apara_specification_findings.md`](apara_specification_findings.md):
+places where the engine's ISA and microarchitecture documents are
+contradictory or ambiguous, found by the APARA validation suites.
+
 Unlike `validation/`, this folder's `.hex` files are *not* committed (see
 `docs/compliance/.gitignore`) -- these are reference/evidence tests, not the
 maintained suite, so run `validation/build_hex.py <path>` (requires the

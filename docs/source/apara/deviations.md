@@ -4,12 +4,21 @@ This project's APARA model is its own implementation of the engine,
 written from the engine's documents and checked against APARA's
 reference model. Its sources, in order of authority:
 
-1. **The microarchitecture document**, for the engine's structure and
-   timing.
+1. **The microarchitecture document** (*APARA Engine: Microarchitecture
+   and Timing*, `engine_isp/docs/microarch` in the APARA repository), for
+   the engine's structure and timing. Its latency table gives the timing
+   model's default latencies. The timing model has been checked against
+   this document, but not yet against the hardware's own (Aa_model)
+   simulation traces.
 2. **The ISA document** (`engine_isp/isa/isa.txt` in the APARA
    repository), for what each instruction does.
 3. **The reference model**, McodeMachine, with its tools (`mcode_align`,
-   `mcode_assemble`, `mcode_run`).
+   `mcode_assemble`, `mcode_run`). The narrow-float conversion rules
+   (see [Instruction Set](isa.md)) are exactly its rules. Its alignment
+   (`mcode_align`) and assembly (`mcode_assemble`) steps are one step in
+   this project's assembler, which uses the same file formats, so files
+   move freely between the two sets of tools; the simulators accept
+   `mcode_run`'s options.
 
 For every program the reference tools handle correctly, the model gives
 the same results: the assembler writes the same object file, and a run
@@ -20,8 +29,8 @@ tests (see [Writing and Running Programs](running.md#running-the-tests)).
 This page lists where the model deliberately differs from the reference
 model, and why, followed by the open questions in the sources, which
 are to be reviewed with APARA's designers. Every test that depends on a
-deviation is marked with a `//@ deviation` line, and they are collected
-in `validation/apara/tests/` as `dev_*.mcode`.
+deviation has a `DEVIATION` line in its `.vprj`, and the tests of the
+deviations themselves are collected in `validation/apara/deviations/`.
 
 ---
 
@@ -49,6 +58,8 @@ where it contradicts the ISA document or its own intent.
 | 12 | a load/store's negative increment is added as an unsigned 32-bit value (`bytes * increment` is evaluated as `unsigned`): `--1` on an 8-byte load adds 0xFFFFFFF8 | a signed 64-bit add | a C++ promotion bug |
 | 13 | float ALU operations other than `+ - * /`, and vector ones other than `+ - *`, assert | illegal instruction (the assembler rejects them) | |
 | 14 | the branch decoder reads `rs2` as 6 bits [5:0], including the offset's low bit | bits [4:0] | an odd offset selected a register 32 higher |
+| 31 | every element-wise `$v` operation on 4-bit elements (`$vi4`, `$vu4`) gives 0 | computed, each element wrapping at 4 bits (`dev_vector4.mcode`) | the ISA lists the 4-bit vector types; the reference's own `$dot ($vi4)` works |
+| 32 | a non-negative operand of a narrow signed type keeps the bits above the type's width (`($i8)` 0x105 + 0 = 0x105), in the ALU, branches and `$cmov` | only the type's width is read (5) (`dev_narrow_signed.mcode`) | "r1 and r2 are i8"; negative values were already sign-extended |
 
 ### Errors and limits
 
@@ -88,6 +99,22 @@ Which addresses are local also follows the hardware: in a system, only
 the engine's own DMEM window is local, and every other address goes out
 to the system. The reference model aliases every address into DMEM, and
 the standalone `apara` configuration keeps that behavior.
+
+The system's physical addresses (see [The Engine in a
+System](system.md#address-map)) follow the AJIT_APARA layout, with the
+addresses APARA's parameter template gives engine 0 of cluster 0.
+
+---
+
+## Cross-checking against the reference simulator
+
+`validation/apara/run_tests.py --reference --mcode-run <path to
+mcode_run>` also cross-checks the model against the reference
+simulator. For every test without a `DEVIATION` line, the model writes
+its final state (the PC, every register, and every DMEM word that is or
+was non-zero) as a results file, and the reference simulator, given the
+same program and inputs, must reach exactly that state. This checks the
+model and the test's own expectations at the same time.
 
 ---
 
@@ -130,3 +157,17 @@ sources, the rest from the findings since.
   has REGFILE reading EXEC's results and forwarding them to the retire
   daemon. The model follows the text; with two tokens it is the version
   that sustains one bundle per cycle.
+
+---
+
+## Findings of the validation suites
+
+The validation suites (`validation/apara/`, `validation/sparc_apara/`)
+also turned up places where the engine's ISA and microarchitecture
+documents are contradictory, ambiguous, or describe a design property
+worth a decision: for example, whether `$set` inserts or replaces, the
+limits of `$pack` and `$dot`, the branch predictor training only on
+mispredicts, returns being predicted by the BTB alone, the throughput
+limit of two REGFILE tokens, and the lack of an atomic read-modify-write.
+They are listed, each with the test that shows it, in
+`docs/compliance/apara_specification_findings.md`.

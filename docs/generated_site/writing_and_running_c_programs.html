@@ -1363,6 +1363,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1889,6 +1917,10 @@ point overridden to <code>crt0.s</code>'s own <code>_start</code>) and does it f
 <li>initializes <code>%g1</code> as the pass/fail sentinel,</li>
 <li>then calls your <code>main()</code>.</li>
 </ul>
+<p>It leaves the FPU off (the PSR's EF bit clear), so a program that
+computes with <code>float</code> or <code>double</code> sets EF itself first, or its first
+floating-point instruction traps. <code>validation/sparc_apara/apara_common.h</code>
+has a small <code>enable_fpu()</code> that does this.</p>
 <p>Here's what that looks like once linked, <code>array_sum</code>'s actual entry
 point, before <code>main</code> even runs:</p>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>00000000 &lt;_start&gt;:
@@ -1968,10 +2000,8 @@ function and global-variable addresses included. See
 </span></code></pre></div>
 <hr />
 <h2 id="using-the-peripheral-devices">Using the peripheral devices<a class="headerlink" href="#using-the-peripheral-devices" title="Permanent link">&para;</a></h2>
-<p><code>compiler/include/</code> holds header-only routines for the devices, with
-the same file names, function names, and signatures as AJIT's own
-bare-metal access routines, so code written for AJIT compiles here
-unchanged. <code>compile_c.sh</code> puts that folder on the include path.</p>
+<p><code>compiler/include/</code> holds header-only routines for the devices.
+<code>compile_c.sh</code> puts that folder on the include path.</p>
 <table>
 <thead>
 <tr>

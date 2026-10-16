@@ -1376,6 +1376,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1826,8 +1854,8 @@
 
 <h1 id="interrupt-controller">Interrupt Controller<a class="headerlink" href="#interrupt-controller" title="Permanent link">&para;</a></h1>
 <p>A single, shared Interrupt Controller (IRC) routes the system's
-interrupt sources to the hardware threads of every core. It is AJIT's
-multi-thread interrupt controller. It has two parts:</p>
+interrupt sources to the hardware threads of every core. It has two
+parts:</p>
 <ul>
 <li>one <strong>slot</strong> per hardware thread, each with its own control
   register, its own state, and its own <code>interrupt_level</code> output to that
@@ -1946,9 +1974,8 @@ number wins: <strong>Timer (10) &gt; IPI (11) &gt; Serial (12) &gt; External (14
 enable bit while already enabled or interrupting only updates the mask.</p>
 <p><img src="images/irc_fsm.svg" alt="Interrupt Controller state machine" title="Interrupt Controller state machine"></p>
 <h2 id="handling-an-interrupt">Handling an interrupt<a class="headerlink" href="#handling-an-interrupt" title="Permanent link">&para;</a></h2>
-<p>The usual sequence, which AJIT's own bare-metal routines follow (and
-which <code>compiler/include/ajit_mt_irc.h</code> implements, see <a href="writing_and_running_c_programs.html">C
-Programs</a>):</p>
+<p>The usual sequence, which the routines in <code>compiler/include/ajit_mt_irc.h</code>
+implement (see <a href="writing_and_running_c_programs.html">C Programs</a>):</p>
 <ol>
 <li>The interrupt trap for level <code>L</code> is taken.</li>
 <li>The handler disables its own slot, which drops <code>interrupt_level</code>.</li>
@@ -1995,7 +2022,7 @@ and the value. To interrupt another thread, a thread writes a message
 for it, then sets its bit in the value register (and in the mask, if
 not already set). The interrupted thread reads its message and clears
 its value bit. Locking around these steps, with the lock word or
-otherwise, is up to software, exactly as in AJIT. The routines in
+otherwise, is up to software. The routines in
 <code>compiler/include/ajit_ipi.h</code> (<code>__ajit_set_ipi_interrupt__()</code> and
 friends) do the register work.</p>
 

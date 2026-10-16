@@ -1537,6 +1537,34 @@
   
   
     <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="timing_model.html" class="md-nav__link">
         
   
@@ -2151,11 +2179,8 @@
 project models it: what state a program sees, the data types its
 instructions work on, how instructions are grouped into bundles, and
 every instruction, with its assembly syntax and its encoding.</p>
-<p>The model follows the APARA ISA document (<code>engine_isp/isa/isa.txt</code> in
-the APARA repository) and APARA's reference model, McodeMachine. Where
-the two disagree, or where the reference model has a defect, the
-choice this model makes is listed in <a href="deviations.html">Deviations and
-Findings</a>.</p>
+<p>Where this description departs from the engine's own documents, the
+choice is listed in <a href="deviations.html">Deviations and Findings</a>.</p>
 <hr />
 <h2 id="engine-state">Engine state<a class="headerlink" href="#engine-state" title="Permanent link">&para;</a></h2>
 <h3 id="threads">Threads<a class="headerlink" href="#threads" title="Permanent link">&para;</a></h3>
@@ -2224,7 +2249,7 @@ dword's most significant byte, bits [63:56].</p>
 <p>What an address outside DMEM means depends on where the engine is:</p>
 <ul>
 <li><strong>On its own</strong> (the <code>apara</code> configuration), every data address
-  aliases into DMEM, modulo 64 KB, as in the APARA reference model.</li>
+  aliases into DMEM, modulo 64 KB.</li>
 <li><strong>In a system</strong> (the <code>sparc_apara</code> configuration), DMEM appears at a
   window in the system's physical address space, and only addresses in
   that window are local. Every other address goes out to the system's
@@ -2364,8 +2389,7 @@ are for low-precision work:</p>
 <p>Arithmetic on the narrow formats is done in double precision and rounded
 back to the narrow format with one round bit (round half up on the
 magnitude), saturating to infinity, and flushing to zero below the
-smallest subnormal. These are the reference model's conversion rules,
-exactly.</p>
+smallest subnormal.</p>
 <hr />
 <h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link">&para;</a></h2>
 <p>The engine is a VLIW (very long instruction word) machine: instead of
@@ -2510,7 +2534,7 @@ both count a loop down and test it.</p>
 slots of a bundle.</p>
 <hr />
 <h2 id="encodings">Encodings<a class="headerlink" href="#encodings" title="Permanent link">&para;</a></h2>
-<p>The field layouts, as the reference assembler writes them. In every
+<p>The field layouts, as the assembler writes them. In every
 instruction word, bit 31 is the bundle start bit and bits [30:26] the
 opcode.</p>
 <table>

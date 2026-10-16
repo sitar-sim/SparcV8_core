@@ -1246,6 +1246,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -2140,7 +2168,7 @@ joins them.</p>
 <td>common</td>
 <td>None</td>
 <td><code>AparaEngine</code> (1 instance: <code>regfile</code>)</td>
-<td>The REGFILE stage. Holds one bundle per thread, issues one per cycle whose registers are unlocked while a token is free, and releases locks and tokens as results come back from EXEC.</td>
+<td>The REGFILE stage. Holds one bundle per thread, issues one per cycle whose registers are unlocked while a token is free, and releases locks and tokens as results come back from EXEC. Also counts, independently of the locks, the bundles issued while a register they read still has a write outstanding (the hazard count), and has the <code>interlock</code> knob that turns the locks off for that check.</td>
 </tr>
 <tr>
 <td><strong>AparaExec</strong> (module)</td>
@@ -2148,7 +2176,7 @@ joins them.</p>
 <td>common</td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaCore.h"><code>AparaCore</code></a></td>
 <td><code>AparaEngine</code> (1 instance: <code>exec</code>)</td>
-<td>The EXEC stage, and the owner of the engine's functional state. Executes each bundle and holds it for its latency. In a system, also serves the host side's requests and sends the engine's loads and stores that leave its data memory.</td>
+<td>The EXEC stage, and the owner of the engine's functional state. Executes each bundle and holds it for its latency, and checks that the registers it used were within its lock masks. In a system, also serves the host side's requests and sends the engine's loads and stores that leave its data memory.</td>
 </tr>
 <tr>
 <td><strong>AparaWriteback</strong> (module)</td>

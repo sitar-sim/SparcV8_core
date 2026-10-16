@@ -1337,6 +1337,34 @@
   
   
     <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="timing_model.html" class="md-nav__link">
         
   
@@ -1747,8 +1775,8 @@
 
 
 <h1 id="the-apara-engine">The APARA Engine<a class="headerlink" href="#the-apara-engine" title="Permanent link">&para;</a></h1>
-<p>APARA is a compute engine designed to sit next to a SPARC (AJIT)
-processor as an accelerator. It is built for vector work on small
+<p>APARA is a compute engine designed to sit next to a SPARC processor
+as an accelerator. It is built for vector work on small
 integers and low-precision floats (dot products, reductions,
 element-wise arithmetic on 4- to 64-bit elements), the kind of
 computation that is slow on a general-purpose core but very regular. The
@@ -1756,8 +1784,7 @@ SPARC processor loads the engine's programs, starts its threads, and
 moves data in and out of it, while the engine does the number
 crunching.</p>
 <p>The engine was designed at IIT Bombay (Prof. Madhav Desai). This
-project models it from its documents and its reference model, in the
-same two ways as the SPARC core: a fast functional model, and a Sitar
+project models it in the same two ways as the SPARC core: a fast functional model, and a Sitar
 timing model of its pipeline.</p>
 <hr />
 <h2 id="the-engine-at-a-glance">The engine at a glance<a class="headerlink" href="#the-engine-at-a-glance" title="Permanent link">&para;</a></h2>
@@ -1801,13 +1828,15 @@ timing model of its pipeline.</p>
   Set</a>, then <a href="assembly_and_tools.html">Assembly Language and
   Tools</a>, then <a href="running.html">Writing and Running
   Programs</a>.</li>
+<li><strong>To write engine programs in C</strong>, such as linear algebra kernels,
+  read <a href="compiler.html">The C Compiler</a>.</li>
 <li><strong>To use the engine from a SPARC program</strong>, read <a href="system.html">The Engine in a
   System</a>.</li>
 <li><strong>To study or change the engine's timing</strong>, read the <a href="timing_model.html">Timing
   Model</a>.</li>
-<li><strong>To see where the model departs from APARA's reference model</strong>, and
-  the open questions in its sources, read <a href="deviations.html">Deviations and
-  Findings</a>.</li>
+<li><strong>For the model's sources, where it deliberately departs from them,
+  and the open questions</strong> (mainly for the model's authors), see
+  <a href="deviations.html">Deviations and Findings</a>.</li>
 </ul>
 <hr />
 <h2 id="the-code">The code<a class="headerlink" href="#the-code" title="Permanent link">&para;</a></h2>
@@ -1837,7 +1866,7 @@ timing model of its pipeline.</p>
 </tr>
 <tr>
 <td><code>compiler/apara/</code></td>
-<td>The assembler, the disassembler, the program-to-C-header tool, and vim syntax highlighting.</td>
+<td>The assembler, the disassembler, the C compiler (<code>apcc.py</code>, with <code>include/apara.h</code>), the program-to-C-header tool, and vim syntax highlighting.</td>
 </tr>
 <tr>
 <td><code>compiler/include/apara_access_routines.h</code></td>
@@ -1845,11 +1874,11 @@ timing model of its pipeline.</p>
 </tr>
 <tr>
 <td><code>validation/apara/</code></td>
-<td>The engine's own tests, and their runner.</td>
+<td>The engine's own test suites, and their runner (see <a href="running.html#tests">Tests</a>).</td>
 </tr>
 <tr>
-<td><code>validation/C/apara/</code></td>
-<td>The SPARC-side tests.</td>
+<td><code>validation/sparc_apara/</code></td>
+<td>The tests of the SPARC using the engine (see <a href="system.html#tests">Tests</a>).</td>
 </tr>
 </tbody>
 </table>

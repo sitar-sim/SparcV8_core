@@ -1350,6 +1350,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1819,9 +1847,7 @@ bus:</p>
 </ul>
 <hr />
 <h2 id="device-address-map">Device address map<a class="headerlink" href="#device-address-map" title="Permanent link">&para;</a></h2>
-<p>The addresses match AJIT's default device map, so software written for
-AJIT finds every device where it expects it. Reach them with the MMU
-bypass ASI (<code>0x20</code>, see Appendix I of the SPARC V8 manual), or with an
+<p>Reach the registers with the MMU bypass ASI (<code>0x20</code>, see Appendix I of the SPARC V8 manual), or with an
 ordinary translated access if the page is identity mapped.</p>
 <table>
 <thead>
@@ -1884,7 +1910,7 @@ ordinary translated access if the page is identity mapped.</p>
 </tbody>
 </table>
 <p><code>%rd</code> holds the register's address, loaded with <code>set</code> beforehand. C
-programs can use the AJIT-compatible routines in <code>compiler/include/</code>
+programs can use the routines in <code>compiler/include/</code>
 instead (see <a href="writing_and_running_c_programs.html">C Programs</a>).</p>
 <p>An access to an address in the device window (<code>0xFFFF0000</code> and up)
 that no device decodes reads as 0 and ignores writes, with a warning
@@ -1951,16 +1977,20 @@ deliberate:</p>
   lost.</li>
 <li><strong>Unmapped device addresses</strong> read as 0 and ignore writes, with a
   warning, the same as AJIT's bridge does for any unmapped address.</li>
-<li><strong>Serial register addresses.</strong> AJIT's own sources disagree. The newer
-  multi-thread access routines (<code>default_device_addresses.h</code> in
-  <code>ajit_access_routines_mt</code>, on the ajit-toolchain's <code>marshal</code> branch)
-  and the memory map tables of the AJIT processor description put Tx at
-  <code>0xFFFF3204</code> and Rx at <code>0xFFFF3208</code>, with the baud-frequency register
-  alone at <code>0xFFFF3210</code>. The older headers, AJIT's C models, and the
-  processor description's Chapter 8 text put Tx at <code>0xFFFF3210</code> (shared
-  with the baud-frequency register, told apart by access width) and Rx at
-  <code>0xFFFF3220</code>. This model follows the newer layout, the one that goes
-  with the multi-thread Interrupt Controller it models.</li>
+<li><strong>Device map and C routines.</strong> The address map above is AJIT's
+  default device map, so software written for AJIT finds every device
+  where it expects it. The headers in <code>compiler/include/</code> keep the file
+  names, function names, and signatures of AJIT's bare-metal access
+  routines (<code>tools/ajit_access_routines_mt/</code> in the ajit-toolchain
+  repository), so code written for AJIT compiles here unchanged; the
+  implementations are this project's own.</li>
+<li><strong>Serial register addresses.</strong> The map above is the one in the
+  multi-thread access routines
+  (<code>tools/ajit_access_routines_mt/include/default_device_addresses.h</code>,
+  ajit-toolchain repository, <code>marshal</code> branch). Older AJIT sources (the
+  single-thread access routines, AJIT's C models, and the processor
+  description's Serial chapter) put Tx at <code>0xFFFF3210</code> and Rx at
+  <code>0xFFFF3220</code>.</li>
 </ul>
 
 

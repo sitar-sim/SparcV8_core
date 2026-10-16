@@ -1,7 +1,7 @@
 # The APARA Engine
 
-APARA is a compute engine designed to sit next to a SPARC (AJIT)
-processor as an accelerator. It is built for vector work on small
+APARA is a compute engine designed to sit next to a SPARC processor
+as an accelerator. It is built for vector work on small
 integers and low-precision floats (dot products, reductions,
 element-wise arithmetic on 4- to 64-bit elements), the kind of
 computation that is slow on a general-purpose core but very regular. The
@@ -10,8 +10,7 @@ moves data in and out of it, while the engine does the number
 crunching.
 
 The engine was designed at IIT Bombay (Prof. Madhav Desai). This
-project models it from its documents and its reference model, in the
-same two ways as the SPARC core: a fast functional model, and a Sitar
+project models it in the same two ways as the SPARC core: a fast functional model, and a Sitar
 timing model of its pipeline.
 
 ---
@@ -60,13 +59,15 @@ Both come with functional and timing models, tests, and tools.
   Set](isa.md), then [Assembly Language and
   Tools](assembly_and_tools.md), then [Writing and Running
   Programs](running.md).
+- **To write engine programs in C**, such as linear algebra kernels,
+  read [The C Compiler](compiler.md).
 - **To use the engine from a SPARC program**, read [The Engine in a
   System](system.md).
 - **To study or change the engine's timing**, read the [Timing
   Model](timing_model.md).
-- **To see where the model departs from APARA's reference model**, and
-  the open questions in its sources, read [Deviations and
-  Findings](deviations.md).
+- **For the model's sources, where it deliberately departs from them,
+  and the open questions** (mainly for the model's authors), see
+  [Deviations and Findings](deviations.md).
 
 ---
 
@@ -78,7 +79,7 @@ Both come with functional and timing models, tests, and tools.
 | `model/sitar_component_models/Apara*.sitar` | The timing model: `AparaEngine` and its five stage modules, and `AparaHost`, the engine's host side in `sparc_apara`. |
 | `model/sitar_component_models/SystemInterconnect.sitar` | `sparc_apara`'s two-master bus. |
 | `model/system_models/apara/`, `model/system_models/sparc_apara/` | The two configurations, each with its `cpp_model/` and `sitar_model/`. |
-| `compiler/apara/` | The assembler, the disassembler, the program-to-C-header tool, and vim syntax highlighting. |
+| `compiler/apara/` | The assembler, the disassembler, the C compiler (`apcc.py`, with `include/apara.h`), the program-to-C-header tool, and vim syntax highlighting. |
 | `compiler/include/apara_access_routines.h` | The SPARC-side C routines. |
-| `validation/apara/` | The engine's own tests, and their runner. |
-| `validation/C/apara/` | The SPARC-side tests. |
+| `validation/apara/` | The engine's own test suites, and their runner (see [Tests](running.md#tests)). |
+| `validation/sparc_apara/` | The tests of the SPARC using the engine (see [Tests](system.md#tests)). |

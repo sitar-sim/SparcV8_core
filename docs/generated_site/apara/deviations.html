@@ -1246,6 +1246,34 @@
   
   
     <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="timing_model.html" class="md-nav__link">
         
   
@@ -1423,10 +1451,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cross-checking-against-the-reference-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-checking against the reference simulator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#open-questions-in-the-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
         Open questions in the sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findings-of-the-validation-suites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Findings of the validation suites
       
     </span>
   </a>
@@ -1772,10 +1822,32 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#cross-checking-against-the-reference-simulator" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Cross-checking against the reference simulator
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#open-questions-in-the-sources" class="md-nav__link">
     <span class="md-ellipsis">
       
         Open questions in the sources
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#findings-of-the-validation-suites" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Findings of the validation suites
       
     </span>
   </a>
@@ -1807,12 +1879,21 @@
 written from the engine's documents and checked against APARA's
 reference model. Its sources, in order of authority:</p>
 <ol>
-<li><strong>The microarchitecture document</strong>, for the engine's structure and
-   timing.</li>
+<li><strong>The microarchitecture document</strong> (<em>APARA Engine: Microarchitecture
+   and Timing</em>, <code>engine_isp/docs/microarch</code> in the APARA repository), for
+   the engine's structure and timing. Its latency table gives the timing
+   model's default latencies. The timing model has been checked against
+   this document, but not yet against the hardware's own (Aa_model)
+   simulation traces.</li>
 <li><strong>The ISA document</strong> (<code>engine_isp/isa/isa.txt</code> in the APARA
    repository), for what each instruction does.</li>
 <li><strong>The reference model</strong>, McodeMachine, with its tools (<code>mcode_align</code>,
-   <code>mcode_assemble</code>, <code>mcode_run</code>).</li>
+   <code>mcode_assemble</code>, <code>mcode_run</code>). The narrow-float conversion rules
+   (see <a href="isa.html">Instruction Set</a>) are exactly its rules. Its alignment
+   (<code>mcode_align</code>) and assembly (<code>mcode_assemble</code>) steps are one step in
+   this project's assembler, which uses the same file formats, so files
+   move freely between the two sets of tools; the simulators accept
+   <code>mcode_run</code>'s options.</li>
 </ol>
 <p>For every program the reference tools handle correctly, the model gives
 the same results: the assembler writes the same object file, and a run
@@ -1822,8 +1903,8 @@ tests (see <a href="running.html#running-the-tests">Writing and Running Programs
 <p>This page lists where the model deliberately differs from the reference
 model, and why, followed by the open questions in the sources, which
 are to be reviewed with APARA's designers. Every test that depends on a
-deviation is marked with a <code>//@ deviation</code> line, and they are collected
-in <code>validation/apara/tests/</code> as <code>dev_*.mcode</code>.</p>
+deviation has a <code>DEVIATION</code> line in its <code>.vprj</code>, and the tests of the
+deviations themselves are collected in <code>validation/apara/deviations/</code>.</p>
 <hr />
 <h2 id="deviations-from-the-reference-model">Deviations from the reference model<a class="headerlink" href="#deviations-from-the-reference-model" title="Permanent link">&para;</a></h2>
 <p>Each row gives what the reference model does, what this model does
@@ -1923,6 +2004,18 @@ where it contradicts the ISA document or its own intent.</p>
 <td>the branch decoder reads <code>rs2</code> as 6 bits [5:0], including the offset's low bit</td>
 <td>bits [4:0]</td>
 <td>an odd offset selected a register 32 higher</td>
+</tr>
+<tr>
+<td>31</td>
+<td>every element-wise <code>$v</code> operation on 4-bit elements (<code>$vi4</code>, <code>$vu4</code>) gives 0</td>
+<td>computed, each element wrapping at 4 bits (<code>dev_vector4.mcode</code>)</td>
+<td>the ISA lists the 4-bit vector types; the reference's own <code>$dot ($vi4)</code> works</td>
+</tr>
+<tr>
+<td>32</td>
+<td>a non-negative operand of a narrow signed type keeps the bits above the type's width (<code>($i8)</code> 0x105 + 0 = 0x105), in the ALU, branches and <code>$cmov</code></td>
+<td>only the type's width is read (5) (<code>dev_narrow_signed.mcode</code>)</td>
+<td>"r1 and r2 are i8"; negative values were already sign-extended</td>
 </tr>
 </tbody>
 </table>
@@ -2067,6 +2160,18 @@ where it contradicts the ISA document or its own intent.</p>
 the engine's own DMEM window is local, and every other address goes out
 to the system. The reference model aliases every address into DMEM, and
 the standalone <code>apara</code> configuration keeps that behavior.</p>
+<p>The system's physical addresses (see <a href="system.html#address-map">The Engine in a
+System</a>) follow the AJIT_APARA layout, with the
+addresses APARA's parameter template gives engine 0 of cluster 0.</p>
+<hr />
+<h2 id="cross-checking-against-the-reference-simulator">Cross-checking against the reference simulator<a class="headerlink" href="#cross-checking-against-the-reference-simulator" title="Permanent link">&para;</a></h2>
+<p><code>validation/apara/run_tests.py --reference --mcode-run &lt;path to
+mcode_run&gt;</code> also cross-checks the model against the reference
+simulator. For every test without a <code>DEVIATION</code> line, the model writes
+its final state (the PC, every register, and every DMEM word that is or
+was non-zero) as a results file, and the reference simulator, given the
+same program and inputs, must reach exactly that state. This checks the
+model and the test's own expectations at the same time.</p>
 <hr />
 <h2 id="open-questions-in-the-sources">Open questions in the sources<a class="headerlink" href="#open-questions-in-the-sources" title="Permanent link">&para;</a></h2>
 <p>Where the sources disagree or are silent, the model makes an explicit
@@ -2107,6 +2212,17 @@ sources, the rest from the findings since.</p>
   daemon. The model follows the text; with two tokens it is the version
   that sustains one bundle per cycle.</li>
 </ul>
+<hr />
+<h2 id="findings-of-the-validation-suites">Findings of the validation suites<a class="headerlink" href="#findings-of-the-validation-suites" title="Permanent link">&para;</a></h2>
+<p>The validation suites (<code>validation/apara/</code>, <code>validation/sparc_apara/</code>)
+also turned up places where the engine's ISA and microarchitecture
+documents are contradictory, ambiguous, or describe a design property
+worth a decision: for example, whether <code>$set</code> inserts or replaces, the
+limits of <code>$pack</code> and <code>$dot</code>, the branch predictor training only on
+mispredicts, returns being predicted by the BTB alone, the throughput
+limit of two REGFILE tokens, and the lack of an atomic read-modify-write.
+They are listed, each with the test that shows it, in
+<code>docs/compliance/apara_specification_findings.md</code>.</p>
 
 
 

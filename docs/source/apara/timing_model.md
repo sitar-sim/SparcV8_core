@@ -1,10 +1,8 @@
 # APARA Timing Model
 
 The sitar_model of the `apara` configuration is a cycle-level model of
-the engine's pipeline. It is built from the APARA microarchitecture
-document (*APARA Engine: Microarchitecture and Timing*, in the APARA
-repository's `engine_isp/docs/microarch`), and is the same pipeline
-`sparc_apara` uses.
+the engine's pipeline, following the APARA microarchitecture document,
+and is the same pipeline `sparc_apara` uses.
 
 As everywhere in this project, the model keeps function and timing
 apart. What each bundle does comes from the same C++ class the fast
@@ -72,8 +70,7 @@ independent bundles completes at one bundle per cycle.
 
 A bundle's time in EXEC is the latency of its slowest instruction, or
 the time of its memory accesses if that is longer. The latencies come
-from a table, by instruction class. The defaults are the
-microarchitecture document's table:
+from a table, by instruction class. The defaults:
 
 | Entry | Cycles | Covers |
 |---|---|---|
@@ -114,10 +111,9 @@ that needs it waits in EXEC until the previous user has finished.
 ### EXEC
 
 By default EXEC is internally pipelined: it takes a new bundle every
-cycle, and results leave it in order, one per cycle. The microarchitecture
-document also allows reading it as a stage that holds one bundle for its
-whole latency, and the `pipelined` knob selects that instead (see
-[Deviations and Findings](deviations.md#open-questions-in-the-sources)).
+cycle, and results leave it in order, one per cycle. The `pipelined`
+knob selects instead a stage that holds one bundle for its whole
+latency.
 
 ### Register locks and tokens
 
@@ -142,6 +138,22 @@ and the counter is below 3, and otherwise the next bundle.
 Only PC corrections train the BTB: a correction to a taken branch lowers
 the counter and sets the target, one to a not-taken branch raises the
 counter, and a new entry starts at 0 or 3 accordingly.
+
+Calls and returns are predicted the same way, by their BTB entry: a
+`$return` is predicted to go where it went last time. Some consequences
+for programs, each measured by a test in `validation/apara/predictor/`:
+
+- A loop's closing branch mispredicts once per run of the loop, at its
+  exit, once the BTB has learned it.
+- A correctly predicted branch never trains its entry. So a loop that
+  is entered again and again (an inner loop) pulls its counter up by one
+  at each exit, and after three exits the entry predicts "not taken":
+  from then on every run of the inner loop mispredicts twice, at its
+  first pass and at its exit (`nested_loops`).
+- A function called from several places mispredicts its return whenever
+  the caller changes (`call_sites`).
+- Two branches whose PCs share their low 8 bits share an entry, and
+  evict each other (`alias`).
 
 ### Mispredicts
 
@@ -168,37 +180,47 @@ All the timing knobs are set in one place, `Top.sitar` in `apara`
 | `engine.exec.pipelined` | true | false: EXEC holds one bundle for its whole latency. |
 | `engine.exec.latency.bankConflictCycles` | 1 | Cycles per extra same-bank access in a bundle. |
 | `engine.regfile.tokens` | 2 | How many bundles may be in EXEC at once. |
+| `engine.regfile.interlock` | true | false: REGFILE ignores its register locks, to show which reads would be hazards without them (see [Hazards](running.md#hazards)). Not a hardware option. |
 
 `--stats` prints the pipeline's counters: bundles fetched, executed, and
 skipped, mispredicts, fetches that followed a BTB prediction, the cycles
-lost to register locks, to tokens, and to the divider, and bank
-conflicts (see [Performance
+lost to register locks, to tokens, and to the divider, bank
+conflicts, and the two hazard checks (see [Performance
 Modeling](../performance_modeling.md#apara-engine)).
 
 ---
 
 ## Validation
 
-`validation/apara/timing/` holds microbenchmarks, each with its cycle
-count derived by hand from the rules above and written in its header:
+The timing model is checked by three suites in `validation/apara/`,
+each count derived by hand from the rules above, and written in the
+test's header:
 
-- one bundle (6 cycles), and a stream of bundles at full rate,
-- latency, and a read-after-write stall against the independent case,
-- the shared divider,
-- a bank conflict against the same accesses on two banks,
-- a mispredict,
-- two threads sharing the pipeline.
+- **`timing/`**, microbenchmarks with exact cycle counts: one bundle (6
+  cycles), a stream of bundles at full rate, latency, a read-after-write
+  stall against the independent case, the shared divider, a bank
+  conflict against the same accesses on two banks, a mispredict, and two
+  threads sharing the pipeline.
+- **`predictor/`**, exact mispredict counts for loops, nested loops,
+  aliasing entries, and calls and returns.
+- **`hazards/`**, the register interlock (see
+  [Hazards](running.md#hazards)).
 
 `run_tests.py --sitar` checks every count exactly. The counts are
 derived for the default knob values and latency table, so the suite
-checks the timing model at those settings only. When the knobs were
-added, each one was also checked once by hand, by changing it alone:
-every count moved by exactly the amount the rules predict (for example,
-`imemDelay = 1` adds one cycle per IMEM line, and `tokens = 1` halves
-the issue rate). Those checks are not part of the suite.
+checks the timing model at those settings only. Each knob was also
+checked by setting it to several values, one at a time: every count
+moved by exactly the amount the rules predict. `timing/README.md` has
+those counts, and how to set the knobs back to their defaults
+afterwards.
 
-The model has been checked against the microarchitecture document, but
-not yet against the hardware's own (Aa_model) simulation traces. Its
-open items, such as the latencies marked above, EXEC's structure, and
-the order of same-bank accesses, are listed in [Deviations and
+The kernels and C programs of the other suites run on the timing model
+too, and their `--stats` show where a larger program spends its
+cycles. For example, an 8x8 matrix product (`kernels/matmul_i8`) takes
+122 cycles on one thread and 112 on four: its memory-heavy bundles stay
+in EXEC 3 cycles or more, so the two REGFILE tokens, not the threads,
+limit its throughput.
+
+The open items, such as the latencies marked above, EXEC's structure,
+and the order of same-bank accesses, are listed in [Deviations and
 Findings](deviations.md).

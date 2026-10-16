@@ -1246,6 +1246,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -2063,6 +2091,12 @@ APARA engine's.</p>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaTiming.h"><code>AparaTimingStats</code></a></td>
 <td>same</td>
 <td>Cycles a ready bundle waited because a register it uses was still being written, because the maximum number of bundles was already in EXEC, or because the shared divider was busy, and the extra accesses to an already-used data-memory bank. See <a href="apara/timing_model.html">APARA Timing Model</a> for each rule.</td>
+</tr>
+<tr>
+<td><strong>Hazard checks</strong><br>(<code>REGFILE interlock</code>, <code>RAW hazards</code>, <code>lock-mask violations</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/apara/AparaTiming.h"><code>AparaTimingStats</code></a></td>
+<td>same</td>
+<td>Whether REGFILE's register interlock is on (the <code>engine.regfile.interlock</code> knob), the bundles issued while a register they read still had an older write outstanding (0 with the interlock on), and the bundles that used a register outside the masks DECODE locked (must be 0: each one is also printed as an internal error). See <a href="apara/running.html#hazards">Hazards</a>.</td>
 </tr>
 </tbody>
 </table>

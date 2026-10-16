@@ -1447,6 +1447,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -2243,8 +2271,11 @@ tests, and the scripts to run them, are included in <code>validation/</code>.</p
     small family of closely related ones).</li>
 <li><strong>C tests</strong><br />
     The <code>C/</code> folder contains self-checking C programs, each computing
-    some integer or floating-point operation and comparing the result
-    against a known value.</li>
+    an integer result (a sort, a fixed-point FFT, a checksum) and
+    comparing it against a known value.</li>
+<li><strong>Component tests</strong><br />
+    Further folders test the MMU, the devices, the caches, and the APARA
+    engine. They need a configuration that has these components.</li>
 <li><strong>A test runner</strong><br />
 <code>validation/run_tests.py</code> runs them all and reports a pass/fail
     summary.</li>
@@ -2270,14 +2301,21 @@ Example, a small subset first:</p>
 folder:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>validation/run_tests.py<span class="w"> </span>validation
 </span></code></pre></div>
+<p>It runs every test the configuration can run, and lists the folders it
+skipped, the tests of components the configuration does not have:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>skipped 4 test(s) under validation/C/caches: core_only has no caches
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>...
+</span><span id="__span-15-3"><a id="__codelineno-15-3" name="__codelineno-15-3" href="#__codelineno-15-3"></a>241/241 tests passed (158 skipped)
+</span></code></pre></div>
 <p>The script runs against <code>core_only</code> by default. Pass <code>--config
 core_mmu</code> to run it against another configuration instead. It also
 runs the C++ model by default. Pass <code>--sitar</code> to run the Sitar model
 instead. Add <code>-v</code> to show every check's result, not just failures:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
 </span></code></pre></div>
-<p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test, the
-full list of options, and how to add a new test to the suite.</p>
+<p>See <a href="validation_suite.html">Validation Suite</a> for what's in a test, which
+tests run on which configuration, the full list of options, and how to
+add a new test to the suite.</p>
 <hr />
 <h2 id="debugging">Debugging<a class="headerlink" href="#debugging" title="Permanent link">&para;</a></h2>
 <p>Logging suits a small test program well, but a long-running one can
@@ -2293,15 +2331,15 @@ to them directly, no cross-debugger or special protocol needed. Using it
 well does still need some familiarity with the model's own source, to
 know which variables hold the simulated architectural state.</p>
 <p>Build with <code>--debug</code> first:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--debug
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>model/system_models/core_only/cpp_model/build.sh<span class="w"> </span>--debug
+</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>model/system_models/core_only/sitar_model/build.sh<span class="w"> </span>--debug
 </span></code></pre></div>
 <p>To make this convenient, <code>debug/sparc.gdb</code> provides a large set of
 shortcut commands. For example, setting a breakpoint at a specific PC, a
 watchpoint on a memory location, or printing one register:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>(gdb) sparc-break pc=0x203c
-</span><span id="__span-17-2"><a id="__codelineno-17-2" name="__codelineno-17-2" href="#__codelineno-17-2"></a>(gdb) sparc-watch-mem addr=0xfffffe0
-</span><span id="__span-17-3"><a id="__codelineno-17-3" name="__codelineno-17-3" href="#__codelineno-17-3"></a>(gdb) sparc-print-reg o0
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>(gdb) sparc-watch-mem addr=0xfffffe0
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>(gdb) sparc-print-reg o0
 </span></code></pre></div>
 <p>See <a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
 for the full command reference and a complete walkthrough.</p>

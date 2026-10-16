@@ -68,10 +68,11 @@ progressively larger systems, one folder per configuration under
   caches.
 - `apara` -- an APARA engine on its own: a four-threaded vector compute
   engine, designed at IIT Bombay to work alongside a SPARC (AJIT)
-  processor as an accelerator, with its own assembler
-  (`compiler/apara/`) and test suite (`validation/apara/`).
+  processor as an accelerator, with its own assembler and C compiler
+  (`compiler/apara/`) and test suites (`validation/apara/`).
 - `sparc_apara` -- `core_l1cache_mmu_devices` plus one APARA engine,
-  which the SPARC program loads, runs, and exchanges data with.
+  which the SPARC program loads, runs, and exchanges data with (tests:
+  `validation/sparc_apara/`).
 
 See the documentation's Model Configurations page for a block diagram
 of each one.
@@ -90,13 +91,16 @@ https://sitar-sim.github.io/SparcV8_core/
   `model/README.md`.
 - `validation/` -- the instruction-level test suite (`asm/`, hand-written
   assembly; `C/`, bare-metal C, including the component suites for the
-  MMU, devices, caches, and APARA engine), the APARA engine's own tests
-  (`apara/`), and the scripts that build and run them.
+  MMU, devices, and caches), the tests of the SPARC using the APARA
+  engine (`sparc_apara/`), the APARA engine's own suites (`apara/`), and
+  the scripts that build and run them. `run_tests.py --config <config>`
+  runs the suites that configuration can run, and skips the rest (see
+  `validation/README.md`).
 - `compiler/` -- the SPARC V8 cross-toolchain (assembler/linker/objdump,
   plus a minimal bundled C compiler for `validation/C/`) used to build
   test programs, and the scripts that drive it; bare-metal C routines
   for the devices and the APARA engine (`include/`); and the APARA
-  engine's assembler and disassembler (`apara/`).
+  engine's assembler, disassembler and C compiler (`apara/`).
 - `log_viewer/` -- a self-contained, offline browser tool for viewing the
   instruction/state trace either model can produce (`--logging` builds --
   see `model/system_models/core_only/cpp_model/README.md`/
@@ -107,7 +111,8 @@ https://sitar-sim.github.io/SparcV8_core/
   (`sitar_pygments_lexer/`, `sparc_pygments_lexer/`,
   `mcode_pygments_lexer/`), and
   `compliance/` (documented, specific divergences between this model's
-  behavior and the AJIT project's own reference test results; see below).
+  behavior and the AJIT project's own reference test results, see
+  below, and the findings in the APARA engine's specification).
 
 ## Acknowledgments
 

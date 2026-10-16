@@ -3,8 +3,8 @@
 Validating a processor model can mean different things: functional
 (does each instruction do the right thing), timing or microarchitectural
 (does it take the right number of cycles, in the right order), or both.
-This project's SPARC suite, in `validation/`, is purely **functional**.
-There are no SPARC timing tests here. Both models drive the exact same `SparcCore` (see
+This project's SPARC suite, in `validation/asm/` and `validation/C/`, is
+purely **functional**. There are no SPARC timing tests here. Both models drive the exact same `SparcCore` (see
 [Models](index.md#models)), so this one suite validates both, and
 catches a regression in either.
 
@@ -20,6 +20,13 @@ manual, in two ways:
 It consists of two things: the tests themselves (see "What's in a test"
 below), and a script, `validation/run_tests.py`, that runs them all and
 prints a pass/fail summary (see "The validation script" below).
+
+Beside the SPARC suite, further suites test the components of the
+larger configurations: the MMU, the peripheral devices, the caches, and
+the APARA engine, both on its own (with timing tests too) and driven by
+a SPARC program. Each suite runs only on the configurations that have
+its components (see [Which tests run on which
+configuration](#which-tests-run-on-which-configuration)).
 
 This page covers how a test is put together, how to run the suite, and
 how to add a new one. For actually *writing* a test program (the trap
@@ -79,22 +86,26 @@ o2=0xFFFFFFFB
   (`m[0x148] = 0x00000021 0x00000021` checks only the bits set in the
   mask. See `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`
   for a real example distinguishing individual FSR bits.)
-- `asi = ...` lines (an AJIT-format leftover) are recognized and ignored.
+- `asi = ...` lines are recognized and ignored.
   `MemCore` is a single flat address space with no ASI distinction.
 
 Before running a test, `run_tests.py` parses this and normalizes it into
 the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
 [mask]` format, writing it to a `.expected` file alongside the test.
 
-Three optional lines, used by the device and APARA tests:
+Four optional lines, used by the device and APARA tests:
 
 - `STARTUP = crt0_interrupts.s`, before `RESULTS`, links that startup
   file instead of `compiler/crt0.s` (C tests only).
 - `MCODE = kernel.mcode`, before `RESULTS`, names an APARA engine
-  program the test carries. Before compiling, `build_hex.py` assembles
-  it and writes it out as a C array, `kernel.mcode.h`, for the test to
-  `#include` (C tests only, may be repeated). See [The Engine in a
-  System](apara/system.md#software).
+  program the test carries, in mcode or in C (`MCODE = kernel.c`).
+  Before compiling, `build_hex.py` assembles or compiles it, and writes
+  it out as a C header, `kernel.mcode.h` (or `kernel.c.h`), for the test
+  to `#include` (C tests only, may be repeated). See [The Engine in a
+  System](apara/system.md#carrying-the-engines-program).
+- `MAX_CYCLES = 1000000`, before `RESULTS`, raises the cycle limit for
+  a test that legitimately runs long (the runner uses the larger of this
+  and its `--max-cycles`).
 - `serial_out = "text"`, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   `\n` and `\x41` work). Only configurations with devices check it.
@@ -137,13 +148,16 @@ validation/run_tests.py validation/asm/floating_point
 validation/run_tests.py validation/C
 ```
 
-It recurses to find `.vprj` files, so nesting is free.
+It recurses to find `.vprj` files, so nesting is free. Tests the
+configuration cannot run are skipped, and listed at the end (see [Which
+tests run on which
+configuration](#which-tests-run-on-which-configuration)).
 
 ### Options
 
 | Option | Does |
 |---|---|
-| `--config NAME` | Which `system_models` configuration to run against, default `core_only`. E.g. `--config core_mmu` runs against `model/system_models/core_mmu/`'s own executables instead. |
+| `--config NAME` | Which `system_models` configuration to run against, default `core_only`. E.g. `--config core_mmu` runs against `model/system_models/core_mmu/`'s own executables instead, and runs only the tests `core_mmu` can run. |
 | `--sitar` | Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
 | `--max-cycles N` | Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
 | `-v` | Show every check's result, not just failures. |
@@ -158,10 +172,71 @@ validation/run_tests.py validation/asm/control_transfer --max-cycles 50000
 
 ---
 
+## Which tests run on which configuration
+
+Not every test can run on every configuration: the MMU tests need an
+MMU, the APARA tests an engine. Two small files decide which tests a
+configuration runs, so that you can always point `run_tests.py` at the
+whole of `validation/`:
+
+- **`COMPONENTS`**, in each configuration's folder
+  (`model/system_models/<config>/COMPONENTS`), lists what the
+  configuration contains.
+- **`REQUIRES`**, in a suite's folder, lists what its tests need.
+  Requirements add up down the tree: a test needs everything its own
+  folder's and every parent folder's `REQUIRES` file lists.
+
+`run_tests.py --config <config>` runs the tests whose requirements the
+configuration has, and lists the folders it skipped, with the reason:
+
+```text
+skipped 4 test(s) under validation/C/caches: core_only has no caches
+skipped 8 test(s) under validation/C/devices: core_only has no devices
+skipped 12 test(s) under validation/C/mmu: core_only has no mmu
+skipped 108 test(s) under validation/apara: core_only has no apara_standalone
+skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
+
+241/241 tests passed (158 skipped)
+```
+
+The components, and which configuration has which:
+
+| Configuration | `COMPONENTS` |
+|---|---|
+| `core_only` | `sparc` |
+| `core_mmu` | `sparc mmu` |
+| `core_mmu_devices` | `sparc mmu devices` |
+| `core_l1cache_mmu_devices` | `sparc mmu devices caches` |
+| `sparc_apara` | `sparc mmu devices caches apara` |
+| `apara` | `apara_standalone` (the engine alone, no SPARC core) |
+
+And the suites, with what they require, and where they run:
+
+| Folder | `REQUIRES` | Runs on |
+|---|---|---|
+| `asm/`, `C/` (the benchmarks), `test_simple_ADD/` | `sparc` | every SPARC configuration |
+| `C/mmu/` | `sparc mmu` | `core_mmu` and later |
+| `C/devices/` | `sparc devices` | `core_mmu_devices` and later |
+| `C/caches/` | `sparc caches` | `core_l1cache_mmu_devices`, `sparc_apara` |
+| `sparc_apara/` | `sparc devices apara` | `sparc_apara` |
+| `apara/` | `apara_standalone` | `apara`, with its own runner, `validation/apara/run_tests.py` |
+
+The engine's own suites, in `apara/`, are engine programs rather than
+SPARC programs, so they have their own format and runner (see [Writing
+and Running APARA Programs](apara/running.md#tests)). `run_tests.py
+--config apara` says so, and stops.
+
+A new configuration needs only its `COMPONENTS` file to work with every
+existing suite. A new suite that needs more than the SPARC core gets a
+`REQUIRES` file.
+
+---
+
 ## The test collection
 
-Two sub-suites, side by side under `validation/`, both using the same
-`.vprj` format and the same two-phase pipeline above.
+The SPARC suite has two sub-suites, side by side under `validation/`,
+both using the same `.vprj` format and the same two-phase pipeline
+above. The component suites follow in the next section.
 
 - **`asm/`**  
     Hand-written assembly tests, each targeting one instruction (or a
@@ -284,26 +359,24 @@ components, each living in its own folder:
     through the caches on that configuration, and with every ordinary
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the
     environment.
-- **`validation/C/apara/`**  
-    An APARA engine driven from a SPARC program: loading its program,
-    reading and writing its registers, running its threads and learning
-    when they stop (by polling and by interrupt), its DMA unit, its data
-    memory, and the engine's own accesses to main memory. Needs
+- **`validation/sparc_apara/`**  
+    An APARA engine driven from a SPARC program, in five suites:
+    `basic/` (each part of the engine's interface), `setup/` (bringing
+    the engine up, and complete offloads by polling and by interrupt),
+    `threads/` (one to four engine threads), `interference/` (whether
+    threads, the SPARC and the DMA unit disturb one another), and
+    `linalg/` (linear algebra offloaded to the engine). Needs
     `sparc_apara`. On the sitar_model, run them with `--max-cycles
-    5000000`. See [The Engine in a System](apara/system.md).
+    50000000`. See [The Engine in a System](apara/system.md#tests).
 - **`validation/apara/`**  
-    The APARA engine on its own, with its own test format and runner:
-    one test per instruction class, threads, and bundles. Unlike the
-    SPARC suite, it also has timing tests: microbenchmarks whose cycle
-    counts, derived by hand for the default timing settings, the timing
-    model must match exactly. See [Writing and Running APARA
-    Programs](apara/running.md#tests).
-
-A component's tests only pass on a configuration that actually includes
-that component, e.g. the MMU suite needs `core_mmu` or a later
-configuration that also has an MMU, not `core_only`. See the README in
-each config's own folder, or the corresponding validation-suite folder,
-for which configurations a given component's tests run on.
+    The APARA engine on its own, with its own test format and runner,
+    in nine suites: every instruction (`isa/`), sequences, hazards, the
+    branch predictor, programs the assembler must reject, timing,
+    hand-written kernels, programs compiled from C, and the model's
+    deviations. Unlike the SPARC suite, it also checks timing: cycle
+    and mispredict counts, derived by hand for the default timing
+    settings, which the timing model must match exactly. See [Writing
+    and Running APARA Programs](apara/running.md#tests).
 
 For example, to run the MMU validation suite on `core_mmu`, build that
 configuration first (see [Getting
@@ -313,14 +386,15 @@ Started](getting_started.md#building-the-sparc-models)):
 model/system_models/core_mmu/cpp_model/build.sh
 ```
 
-then run the suite against it, the same way as any other:
+then run the suite against it:
 
 ```sh
-validation/run_tests.py validation/C/mmu
+validation/run_tests.py validation/C/mmu --config core_mmu
 ```
 
 This same suite runs unmodified on any other configuration that also
-includes an MMU, such as `core_mmu_devices`.
+includes an MMU, such as `core_mmu_devices`. Without `--config`, the
+runner uses `core_only`, which has no MMU, and skips the whole suite.
 
 ---
 

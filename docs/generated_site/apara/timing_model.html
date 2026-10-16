@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="running.html">
+        <link rel="prev" href="compiler.html">
       
       
         <link rel="next" href="system.html">
@@ -1243,6 +1243,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1948,10 +1976,8 @@
 
 <h1 id="apara-timing-model">APARA Timing Model<a class="headerlink" href="#apara-timing-model" title="Permanent link">&para;</a></h1>
 <p>The sitar_model of the <code>apara</code> configuration is a cycle-level model of
-the engine's pipeline. It is built from the APARA microarchitecture
-document (<em>APARA Engine: Microarchitecture and Timing</em>, in the APARA
-repository's <code>engine_isp/docs/microarch</code>), and is the same pipeline
-<code>sparc_apara</code> uses.</p>
+the engine's pipeline, following the APARA microarchitecture document,
+and is the same pipeline <code>sparc_apara</code> uses.</p>
 <p>As everywhere in this project, the model keeps function and timing
 apart. What each bundle does comes from the same C++ class the fast
 functional model runs, so the two models always compute the same
@@ -2009,8 +2035,7 @@ independent bundles completes at one bundle per cycle.</p>
 <h3 id="instruction-latency">Instruction latency<a class="headerlink" href="#instruction-latency" title="Permanent link">&para;</a></h3>
 <p>A bundle's time in EXEC is the latency of its slowest instruction, or
 the time of its memory accesses if that is longer. The latencies come
-from a table, by instruction class. The defaults are the
-microarchitecture document's table:</p>
+from a table, by instruction class. The defaults:</p>
 <table>
 <thead>
 <tr>
@@ -2094,10 +2119,9 @@ that are read together in different banks avoids the conflict.</p>
 that needs it waits in EXEC until the previous user has finished.</p>
 <h3 id="exec">EXEC<a class="headerlink" href="#exec" title="Permanent link">&para;</a></h3>
 <p>By default EXEC is internally pipelined: it takes a new bundle every
-cycle, and results leave it in order, one per cycle. The microarchitecture
-document also allows reading it as a stage that holds one bundle for its
-whole latency, and the <code>pipelined</code> knob selects that instead (see
-<a href="deviations.html#open-questions-in-the-sources">Deviations and Findings</a>).</p>
+cycle, and results leave it in order, one per cycle. The <code>pipelined</code>
+knob selects instead a stage that holds one bundle for its whole
+latency.</p>
 <h3 id="register-locks-and-tokens">Register locks and tokens<a class="headerlink" href="#register-locks-and-tokens" title="Permanent link">&para;</a></h3>
 <p>A bundle waits in REGFILE while any register it reads or writes is
 locked by an earlier bundle of its thread, that is, until the earlier
@@ -2116,6 +2140,22 @@ and the counter is below 3, and otherwise the next bundle.</p>
 <p>Only PC corrections train the BTB: a correction to a taken branch lowers
 the counter and sets the target, one to a not-taken branch raises the
 counter, and a new entry starts at 0 or 3 accordingly.</p>
+<p>Calls and returns are predicted the same way, by their BTB entry: a
+<code>$return</code> is predicted to go where it went last time. Some consequences
+for programs, each measured by a test in <code>validation/apara/predictor/</code>:</p>
+<ul>
+<li>A loop's closing branch mispredicts once per run of the loop, at its
+  exit, once the BTB has learned it.</li>
+<li>A correctly predicted branch never trains its entry. So a loop that
+  is entered again and again (an inner loop) pulls its counter up by one
+  at each exit, and after three exits the entry predicts "not taken":
+  from then on every run of the inner loop mispredicts twice, at its
+  first pass and at its exit (<code>nested_loops</code>).</li>
+<li>A function called from several places mispredicts its return whenever
+  the caller changes (<code>call_sites</code>).</li>
+<li>Two branches whose PCs share their low 8 bits share an entry, and
+  evict each other (<code>alias</code>).</li>
+</ul>
 <h3 id="mispredicts">Mispredicts<a class="headerlink" href="#mispredicts" title="Permanent link">&para;</a></h3>
 <p>EXEC compares each bundle's actual next PC with the one FETCH predicted.
 On a mismatch, the thread's following bundles, already fetched on the
@@ -2159,36 +2199,49 @@ then stays stopped.</p>
 <td>2</td>
 <td>How many bundles may be in EXEC at once.</td>
 </tr>
+<tr>
+<td><code>engine.regfile.interlock</code></td>
+<td>true</td>
+<td>false: REGFILE ignores its register locks, to show which reads would be hazards without them (see <a href="running.html#hazards">Hazards</a>). Not a hardware option.</td>
+</tr>
 </tbody>
 </table>
 <p><code>--stats</code> prints the pipeline's counters: bundles fetched, executed, and
 skipped, mispredicts, fetches that followed a BTB prediction, the cycles
-lost to register locks, to tokens, and to the divider, and bank
-conflicts (see <a href="../performance_modeling.html#apara-engine">Performance
+lost to register locks, to tokens, and to the divider, bank
+conflicts, and the two hazard checks (see <a href="../performance_modeling.html#apara-engine">Performance
 Modeling</a>).</p>
 <hr />
 <h2 id="validation">Validation<a class="headerlink" href="#validation" title="Permanent link">&para;</a></h2>
-<p><code>validation/apara/timing/</code> holds microbenchmarks, each with its cycle
-count derived by hand from the rules above and written in its header:</p>
+<p>The timing model is checked by three suites in <code>validation/apara/</code>,
+each count derived by hand from the rules above, and written in the
+test's header:</p>
 <ul>
-<li>one bundle (6 cycles), and a stream of bundles at full rate,</li>
-<li>latency, and a read-after-write stall against the independent case,</li>
-<li>the shared divider,</li>
-<li>a bank conflict against the same accesses on two banks,</li>
-<li>a mispredict,</li>
-<li>two threads sharing the pipeline.</li>
+<li><strong><code>timing/</code></strong>, microbenchmarks with exact cycle counts: one bundle (6
+  cycles), a stream of bundles at full rate, latency, a read-after-write
+  stall against the independent case, the shared divider, a bank
+  conflict against the same accesses on two banks, a mispredict, and two
+  threads sharing the pipeline.</li>
+<li><strong><code>predictor/</code></strong>, exact mispredict counts for loops, nested loops,
+  aliasing entries, and calls and returns.</li>
+<li><strong><code>hazards/</code></strong>, the register interlock (see
+  <a href="running.html#hazards">Hazards</a>).</li>
 </ul>
 <p><code>run_tests.py --sitar</code> checks every count exactly. The counts are
 derived for the default knob values and latency table, so the suite
-checks the timing model at those settings only. When the knobs were
-added, each one was also checked once by hand, by changing it alone:
-every count moved by exactly the amount the rules predict (for example,
-<code>imemDelay = 1</code> adds one cycle per IMEM line, and <code>tokens = 1</code> halves
-the issue rate). Those checks are not part of the suite.</p>
-<p>The model has been checked against the microarchitecture document, but
-not yet against the hardware's own (Aa_model) simulation traces. Its
-open items, such as the latencies marked above, EXEC's structure, and
-the order of same-bank accesses, are listed in <a href="deviations.html">Deviations and
+checks the timing model at those settings only. Each knob was also
+checked by setting it to several values, one at a time: every count
+moved by exactly the amount the rules predict. <code>timing/README.md</code> has
+those counts, and how to set the knobs back to their defaults
+afterwards.</p>
+<p>The kernels and C programs of the other suites run on the timing model
+too, and their <code>--stats</code> show where a larger program spends its
+cycles. For example, an 8x8 matrix product (<code>kernels/matmul_i8</code>) takes
+122 cycles on one thread and 112 on four: its memory-heavy bundles stay
+in EXEC 3 cycles or more, so the two REGFILE tokens, not the threads,
+limit its throughput.</p>
+<p>The open items, such as the latencies marked above, EXEC's structure,
+and the order of same-bank accesses, are listed in <a href="deviations.html">Deviations and
 Findings</a>.</p>
 
 

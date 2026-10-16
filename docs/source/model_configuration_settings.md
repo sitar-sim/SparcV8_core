@@ -111,6 +111,7 @@ models.
 | **`engine.exec.pipelined`** | same | Timing | Runtime | Whether EXEC is internally pipelined (takes a new bundle every cycle), or holds one bundle for its whole latency.<br>**Range:** true/false, default true. |
 | **`engine.exec.latency.bankConflictCycles`** | same | Timing | Runtime | Cycles added for each extra access, in one bundle, to the same bank of data memory.<br>**Range:** non-negative int, default 1. |
 | **`engine.regfile.tokens`** | same | Timing | Runtime | How many bundles may be in EXEC at once.<br>**Range:** positive int, default 2. |
+| **`engine.regfile.interlock`** | same | Structural (for checking only) | Runtime | Whether REGFILE holds a bundle until the registers it uses are free. `false` shows which reads would be hazards without the interlock (see [Hazards](apara/running.md#hazards)): the results stay right (the functional state runs each thread in order), but the timing is no longer the engine's.<br>**Range:** true/false, default true. |
 
 See [Performance Modeling](performance_modeling.md) for how to confirm a
 change to any of the timing knobs above actually took effect, and for

@@ -308,8 +308,11 @@ The suite contains:
     small family of closely related ones).
 - **C tests**  
     The `C/` folder contains self-checking C programs, each computing
-    some integer or floating-point operation and comparing the result
-    against a known value.
+    an integer result (a sort, a fixed-point FFT, a checksum) and
+    comparing it against a known value.
+- **Component tests**  
+    Further folders test the MMU, the devices, the caches, and the APARA
+    engine. They need a configuration that has these components.
 - **A test runner**  
     `validation/run_tests.py` runs them all and reports a pass/fail
     summary.
@@ -346,6 +349,15 @@ folder:
 validation/run_tests.py validation
 ```
 
+It runs every test the configuration can run, and lists the folders it
+skipped, the tests of components the configuration does not have:
+
+```
+skipped 4 test(s) under validation/C/caches: core_only has no caches
+...
+241/241 tests passed (158 skipped)
+```
+
 The script runs against `core_only` by default. Pass `--config
 core_mmu` to run it against another configuration instead. It also
 runs the C++ model by default. Pass `--sitar` to run the Sitar model
@@ -355,8 +367,9 @@ instead. Add `-v` to show every check's result, not just failures:
 validation/run_tests.py validation --config core_mmu --sitar -v
 ```
 
-See [Validation Suite](validation_suite.md) for what's in a test, the
-full list of options, and how to add a new test to the suite.
+See [Validation Suite](validation_suite.md) for what's in a test, which
+tests run on which configuration, the full list of options, and how to
+add a new test to the suite.
 
 ---
 

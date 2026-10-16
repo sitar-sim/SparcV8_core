@@ -1357,6 +1357,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1909,8 +1937,8 @@ common code.</p>
 <p>Because both models drive the same underlying code, a bug fix or new
 instruction in the core is automatically reflected in both.</p>
 <p>See <a href="model_components.html">Model Components</a> for how the core, the
-memory, and any other components fit together, including a stub example
-of connecting an external component such as a cache.</p>
+memory, and the other components (the MMU, the caches, the devices, the
+system bus, and the APARA engine) fit together.</p>
 <hr />
 <h2 id="configurations">Configurations<a class="headerlink" href="#configurations" title="Permanent link">&para;</a></h2>
 <ul>
@@ -1956,12 +1984,14 @@ top-level folders are organized as follows.</p>
     two testbenches that drive it (<code>cpp_model/</code>, <code>sitar_model/</code>). See
     <a href="model_components.html">Model Components</a>.</li>
 <li><strong><code>validation/</code></strong><br />
-    The functional validation suite, assembly and C tests, and the
-    APARA engine's own tests (<code>validation/apara/</code>). See <a href="validation_suite.html">Validation
-    Suite</a>.</li>
+    The functional validation suite, assembly and C tests, the
+    component suites, the tests of the SPARC using the APARA engine
+    (<code>validation/sparc_apara/</code>), and the APARA engine's own suites
+    (<code>validation/apara/</code>). Each suite runs on the configurations that
+    have its components. See <a href="validation_suite.html">Validation Suite</a>.</li>
 <li><strong><code>compiler/</code></strong><br />
     The bundled <code>sparc-elf</code> cross-toolchain and the scripts that drive it,
-    and the APARA engine's assembler and disassembler (<code>compiler/apara/</code>).
+    and the APARA engine's assembler, disassembler and C compiler (<code>compiler/apara/</code>).
     See <a href="cross_compiler.html">Cross Compiler</a>.</li>
 <li><strong><code>log_viewer/</code></strong><br />
     The trace visualizer tool. See <a href="logging.html#the-log-viewer">The log viewer</a>.</li>

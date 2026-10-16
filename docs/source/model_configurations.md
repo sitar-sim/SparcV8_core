@@ -21,8 +21,7 @@ This project provides several system configurations.
     address like main memory.
 - **`core_l1cache_mmu_devices`**  
     Adds split instruction and data L1 caches between the core and the
-    MMU. VIVT, write-through, and compatible with the AJIT processor's
-    own L1 caches.
+    MMU. VIVT and write-through.
 - **`apara`**  
     One APARA engine on its own, with no SPARC core. The APARA engine is
     a vector compute engine designed to work alongside a SPARC processor
@@ -68,6 +67,11 @@ the former and real Sitar timing in the latter.
 See [Model Components](model_components.md) for the list of all
 components, such as the SPARC Core, the MMU, and devices, that are
 included in this project.
+
+Each configuration's folder also has a `COMPONENTS` file, listing what
+it contains, so that the validation runner knows which test suites it
+can run (see [Validation
+Suite](validation_suite.md#which-tests-run-on-which-configuration)).
 
 ---
 
@@ -164,8 +168,7 @@ The core and its MMU are unchanged from `core_mmu`. Below the MMU sits
 a bridge, which reads the physical address of each access and sends it
 either to main memory or to the peripheral devices (Timer, Serial,
 Interrupt Controller). The devices are one shared set on the memory
-side, not part of the core, the same way the AJIT processor organizes
-them. That is what lets several cores share them later.
+side, not part of the core. That is what lets several cores share them later.
 
 Every arrow between modules is a net, and every net crossing costs at
 least one cycle. A memory access crosses four nets here (core to
@@ -230,7 +233,7 @@ bridge. See [Model Components](model_components.md#caches) for what the
 caches do.
 
 Nothing is cached while the MMU is disabled, unless the MMU Control
-Register's "always cacheable" bit is set (as in AJIT). A program can set
+Register's "always cacheable" bit is set. A program can set
 it itself, or the simulator can, with `--always-cacheable`.
 
 #### Model description

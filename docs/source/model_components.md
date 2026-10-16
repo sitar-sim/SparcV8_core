@@ -113,8 +113,8 @@ depending on configuration:
 Split instruction and data L1 caches, between the core and the MMU, in
 `core_l1cache_mmu_devices`. Both are virtually indexed and virtually
 tagged (VIVT): they are looked up with the virtual address, before any
-translation, which is what lets them sit above the MMU. Their
-behavior follows the AJIT processor's own L1 caches:
+translation, which is what lets them sit above the MMU. Their main
+properties:
 
 - **Organization**  
     64-byte lines. By default 512 lines (32 KB) per cache, direct mapped.
@@ -162,8 +162,7 @@ both caches and the whole policy, the same class in both models:
 ## Peripheral Devices
 
 A Timer, a multi-thread Interrupt Controller, and a Serial device, one
-shared set on the memory side of the MMU, compatible with the AJIT
-processor's own devices. The C++ class `PeripheralDevicesCore`
+shared set on the memory side of the MMU. The C++ class `PeripheralDevicesCore`
 (`model/cpp_common_code/devices/`) holds all three, the same class in
 both models. In the sitar_model the `PeripheralDevices` module wraps it,
 reached through the `SystemBridge` over nets. See [Peripheral

@@ -660,6 +660,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#which-tests-run-on-which-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which tests run on which configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-test-collection" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1402,6 +1413,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1804,6 +1843,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#which-tests-run-on-which-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Which tests run on which configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#the-test-collection" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1882,8 +1932,8 @@
 <p>Validating a processor model can mean different things: functional
 (does each instruction do the right thing), timing or microarchitectural
 (does it take the right number of cycles, in the right order), or both.
-This project's SPARC suite, in <code>validation/</code>, is purely <strong>functional</strong>.
-There are no SPARC timing tests here. Both models drive the exact same <code>SparcCore</code> (see
+This project's SPARC suite, in <code>validation/asm/</code> and <code>validation/C/</code>, is
+purely <strong>functional</strong>. There are no SPARC timing tests here. Both models drive the exact same <code>SparcCore</code> (see
 <a href="index.html#models">Models</a>), so this one suite validates both, and
 catches a regression in either.</p>
 <p>It checks the core's instruction-level behavior against the SPARC V8
@@ -1898,6 +1948,12 @@ manual, in two ways:</p>
 <p>It consists of two things: the tests themselves (see "What's in a test"
 below), and a script, <code>validation/run_tests.py</code>, that runs them all and
 prints a pass/fail summary (see "The validation script" below).</p>
+<p>Beside the SPARC suite, further suites test the components of the
+larger configurations: the MMU, the peripheral devices, the caches, and
+the APARA engine, both on its own (with timing tests too) and driven by
+a SPARC program. Each suite runs only on the configurations that have
+its components (see <a href="#which-tests-run-on-which-configuration">Which tests run on which
+configuration</a>).</p>
 <p>This page covers how a test is put together, how to run the suite, and
 how to add a new one. For actually <em>writing</em> a test program (the trap
 table, the pass-fail convention, structuring a self-validating C test),
@@ -1950,21 +2006,25 @@ never edited directly, and doesn't need to be committed to git.</p>
   (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
   mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
   for a real example distinguishing individual FSR bits.)</li>
-<li><code>asi = ...</code> lines (an AJIT-format leftover) are recognized and ignored.
+<li><code>asi = ...</code> lines are recognized and ignored.
   <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
 </ul>
 <p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
 the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
 [mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
-<p>Three optional lines, used by the device and APARA tests:</p>
+<p>Four optional lines, used by the device and APARA tests:</p>
 <ul>
 <li><code>STARTUP = crt0_interrupts.s</code>, before <code>RESULTS</code>, links that startup
   file instead of <code>compiler/crt0.s</code> (C tests only).</li>
 <li><code>MCODE = kernel.mcode</code>, before <code>RESULTS</code>, names an APARA engine
-  program the test carries. Before compiling, <code>build_hex.py</code> assembles
-  it and writes it out as a C array, <code>kernel.mcode.h</code>, for the test to
-  <code>#include</code> (C tests only, may be repeated). See <a href="apara/system.html#software">The Engine in a
+  program the test carries, in mcode or in C (<code>MCODE = kernel.c</code>).
+  Before compiling, <code>build_hex.py</code> assembles or compiles it, and writes
+  it out as a C header, <code>kernel.mcode.h</code> (or <code>kernel.c.h</code>), for the test
+  to <code>#include</code> (C tests only, may be repeated). See <a href="apara/system.html#carrying-the-engines-program">The Engine in a
   System</a>.</li>
+<li><code>MAX_CYCLES = 1000000</code>, before <code>RESULTS</code>, raises the cycle limit for
+  a test that legitimately runs long (the runner uses the larger of this
+  and its <code>--max-cycles</code>).</li>
 <li><code>serial_out = "text"</code>, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   <code>\n</code> and <code>\x41</code> work). Only configurations with devices check it.</li>
@@ -1995,7 +2055,10 @@ the existing suite. Phase 1 is only needed after adding or editing a
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>validation/run_tests.py<span class="w"> </span>validation/asm/floating_point
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>validation/run_tests.py<span class="w"> </span>validation/C
 </span></code></pre></div>
-<p>It recurses to find <code>.vprj</code> files, so nesting is free.</p>
+<p>It recurses to find <code>.vprj</code> files, so nesting is free. Tests the
+configuration cannot run are skipped, and listed at the end (see <a href="#which-tests-run-on-which-configuration">Which
+tests run on which
+configuration</a>).</p>
 <h3 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h3>
 <table>
 <thead>
@@ -2007,7 +2070,7 @@ the existing suite. Phase 1 is only needed after adding or editing a
 <tbody>
 <tr>
 <td><code>--config NAME</code></td>
-<td>Which <code>system_models</code> configuration to run against, default <code>core_only</code>. E.g. <code>--config core_mmu</code> runs against <code>model/system_models/core_mmu/</code>'s own executables instead.</td>
+<td>Which <code>system_models</code> configuration to run against, default <code>core_only</code>. E.g. <code>--config core_mmu</code> runs against <code>model/system_models/core_mmu/</code>'s own executables instead, and runs only the tests <code>core_mmu</code> can run.</td>
 </tr>
 <tr>
 <td><code>--sitar</code></td>
@@ -2029,9 +2092,118 @@ the existing suite. Phase 1 is only needed after adding or editing a
 <p><code>validation/clean.sh [folder]</code> removes generated build byproducts (<code>.o</code>,
 <code>.elf</code>, <code>.expected</code>) without touching <code>.hex</code>/<code>.s</code>/<code>.c</code>/<code>.vprj</code>/<code>.objdump</code>.</p>
 <hr />
+<h2 id="which-tests-run-on-which-configuration">Which tests run on which configuration<a class="headerlink" href="#which-tests-run-on-which-configuration" title="Permanent link">&para;</a></h2>
+<p>Not every test can run on every configuration: the MMU tests need an
+MMU, the APARA tests an engine. Two small files decide which tests a
+configuration runs, so that you can always point <code>run_tests.py</code> at the
+whole of <code>validation/</code>:</p>
+<ul>
+<li><strong><code>COMPONENTS</code></strong>, in each configuration's folder
+  (<code>model/system_models/&lt;config&gt;/COMPONENTS</code>), lists what the
+  configuration contains.</li>
+<li><strong><code>REQUIRES</code></strong>, in a suite's folder, lists what its tests need.
+  Requirements add up down the tree: a test needs everything its own
+  folder's and every parent folder's <code>REQUIRES</code> file lists.</li>
+</ul>
+<p><code>run_tests.py --config &lt;config&gt;</code> runs the tests whose requirements the
+configuration has, and lists the folders it skipped, with the reason:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>skipped 4 test(s) under validation/C/caches: core_only has no caches
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>skipped 8 test(s) under validation/C/devices: core_only has no devices
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>skipped 12 test(s) under validation/C/mmu: core_only has no mmu
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>skipped 108 test(s) under validation/apara: core_only has no apara_standalone
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>241/241 tests passed (158 skipped)
+</span></code></pre></div>
+<p>The components, and which configuration has which:</p>
+<table>
+<thead>
+<tr>
+<th>Configuration</th>
+<th><code>COMPONENTS</code></th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>core_only</code></td>
+<td><code>sparc</code></td>
+</tr>
+<tr>
+<td><code>core_mmu</code></td>
+<td><code>sparc mmu</code></td>
+</tr>
+<tr>
+<td><code>core_mmu_devices</code></td>
+<td><code>sparc mmu devices</code></td>
+</tr>
+<tr>
+<td><code>core_l1cache_mmu_devices</code></td>
+<td><code>sparc mmu devices caches</code></td>
+</tr>
+<tr>
+<td><code>sparc_apara</code></td>
+<td><code>sparc mmu devices caches apara</code></td>
+</tr>
+<tr>
+<td><code>apara</code></td>
+<td><code>apara_standalone</code> (the engine alone, no SPARC core)</td>
+</tr>
+</tbody>
+</table>
+<p>And the suites, with what they require, and where they run:</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th><code>REQUIRES</code></th>
+<th>Runs on</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>asm/</code>, <code>C/</code> (the benchmarks), <code>test_simple_ADD/</code></td>
+<td><code>sparc</code></td>
+<td>every SPARC configuration</td>
+</tr>
+<tr>
+<td><code>C/mmu/</code></td>
+<td><code>sparc mmu</code></td>
+<td><code>core_mmu</code> and later</td>
+</tr>
+<tr>
+<td><code>C/devices/</code></td>
+<td><code>sparc devices</code></td>
+<td><code>core_mmu_devices</code> and later</td>
+</tr>
+<tr>
+<td><code>C/caches/</code></td>
+<td><code>sparc caches</code></td>
+<td><code>core_l1cache_mmu_devices</code>, <code>sparc_apara</code></td>
+</tr>
+<tr>
+<td><code>sparc_apara/</code></td>
+<td><code>sparc devices apara</code></td>
+<td><code>sparc_apara</code></td>
+</tr>
+<tr>
+<td><code>apara/</code></td>
+<td><code>apara_standalone</code></td>
+<td><code>apara</code>, with its own runner, <code>validation/apara/run_tests.py</code></td>
+</tr>
+</tbody>
+</table>
+<p>The engine's own suites, in <code>apara/</code>, are engine programs rather than
+SPARC programs, so they have their own format and runner (see <a href="apara/running.html#tests">Writing
+and Running APARA Programs</a>). <code>run_tests.py
+--config apara</code> says so, and stops.</p>
+<p>A new configuration needs only its <code>COMPONENTS</code> file to work with every
+existing suite. A new suite that needs more than the SPARC core gets a
+<code>REQUIRES</code> file.</p>
+<hr />
 <h2 id="the-test-collection">The test collection<a class="headerlink" href="#the-test-collection" title="Permanent link">&para;</a></h2>
-<p>Two sub-suites, side by side under <code>validation/</code>, both using the same
-<code>.vprj</code> format and the same two-phase pipeline above.</p>
+<p>The SPARC suite has two sub-suites, side by side under <code>validation/</code>,
+both using the same <code>.vprj</code> format and the same two-phase pipeline
+above. The component suites follow in the next section.</p>
 <ul>
 <li><strong><code>asm/</code></strong><br />
     Hand-written assembly tests, each targeting one instruction (or a
@@ -2187,36 +2359,36 @@ components, each living in its own folder:</p>
     through the caches on that configuration, and with every ordinary
     access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the
     environment.</li>
-<li><strong><code>validation/C/apara/</code></strong><br />
-    An APARA engine driven from a SPARC program: loading its program,
-    reading and writing its registers, running its threads and learning
-    when they stop (by polling and by interrupt), its DMA unit, its data
-    memory, and the engine's own accesses to main memory. Needs
+<li><strong><code>validation/sparc_apara/</code></strong><br />
+    An APARA engine driven from a SPARC program, in five suites:
+    <code>basic/</code> (each part of the engine's interface), <code>setup/</code> (bringing
+    the engine up, and complete offloads by polling and by interrupt),
+    <code>threads/</code> (one to four engine threads), <code>interference/</code> (whether
+    threads, the SPARC and the DMA unit disturb one another), and
+    <code>linalg/</code> (linear algebra offloaded to the engine). Needs
     <code>sparc_apara</code>. On the sitar_model, run them with <code>--max-cycles
-    5000000</code>. See <a href="apara/system.html">The Engine in a System</a>.</li>
+    50000000</code>. See <a href="apara/system.html#tests">The Engine in a System</a>.</li>
 <li><strong><code>validation/apara/</code></strong><br />
-    The APARA engine on its own, with its own test format and runner:
-    one test per instruction class, threads, and bundles. Unlike the
-    SPARC suite, it also has timing tests: microbenchmarks whose cycle
-    counts, derived by hand for the default timing settings, the timing
-    model must match exactly. See <a href="apara/running.html#tests">Writing and Running APARA
-    Programs</a>.</li>
+    The APARA engine on its own, with its own test format and runner,
+    in nine suites: every instruction (<code>isa/</code>), sequences, hazards, the
+    branch predictor, programs the assembler must reject, timing,
+    hand-written kernels, programs compiled from C, and the model's
+    deviations. Unlike the SPARC suite, it also checks timing: cycle
+    and mispredict counts, derived by hand for the default timing
+    settings, which the timing model must match exactly. See <a href="apara/running.html#tests">Writing
+    and Running APARA Programs</a>.</li>
 </ul>
-<p>A component's tests only pass on a configuration that actually includes
-that component, e.g. the MMU suite needs <code>core_mmu</code> or a later
-configuration that also has an MMU, not <code>core_only</code>. See the README in
-each config's own folder, or the corresponding validation-suite folder,
-for which configurations a given component's tests run on.</p>
 <p>For example, to run the MMU validation suite on <code>core_mmu</code>, build that
 configuration first (see <a href="getting_started.html#building-the-sparc-models">Getting
 Started</a>):</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>model/system_models/core_mmu/cpp_model/build.sh
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>model/system_models/core_mmu/cpp_model/build.sh
 </span></code></pre></div>
-<p>then run the suite against it, the same way as any other:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>validation/run_tests.py<span class="w"> </span>validation/C/mmu
+<p>then run the suite against it:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>validation/run_tests.py<span class="w"> </span>validation/C/mmu<span class="w"> </span>--config<span class="w"> </span>core_mmu
 </span></code></pre></div>
 <p>This same suite runs unmodified on any other configuration that also
-includes an MMU, such as <code>core_mmu_devices</code>.</p>
+includes an MMU, such as <code>core_mmu_devices</code>. Without <code>--config</code>, the
+runner uses <code>core_only</code>, which has no MMU, and skips the whole suite.</p>
 <hr />
 <h2 id="credits-validation-suite-of-the-ajit-sparc-v8-processor">Credits: validation suite of the AJIT SPARC V8 processor<a class="headerlink" href="#credits-validation-suite-of-the-ajit-sparc-v8-processor" title="Permanent link">&para;</a></h2>
 <p>Most of <code>validation/asm/</code>'s tests, and the scripts that build and run

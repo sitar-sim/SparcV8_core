@@ -1,8 +1,8 @@
 # Interrupt Controller
 
 A single, shared Interrupt Controller (IRC) routes the system's
-interrupt sources to the hardware threads of every core. It is AJIT's
-multi-thread interrupt controller. It has two parts:
+interrupt sources to the hardware threads of every core. It has two
+parts:
 
 - one **slot** per hardware thread, each with its own control
   register, its own state, and its own `interrupt_level` output to that
@@ -81,9 +81,8 @@ enable bit while already enabled or interrupting only updates the mask.
 
 ## Handling an interrupt
 
-The usual sequence, which AJIT's own bare-metal routines follow (and
-which `compiler/include/ajit_mt_irc.h` implements, see [C
-Programs](writing_and_running_c_programs.md)):
+The usual sequence, which the routines in `compiler/include/ajit_mt_irc.h`
+implement (see [C Programs](writing_and_running_c_programs.md)):
 
 1. The interrupt trap for level `L` is taken.
 2. The handler disables its own slot, which drops `interrupt_level`.
@@ -108,6 +107,6 @@ and the value. To interrupt another thread, a thread writes a message
 for it, then sets its bit in the value register (and in the mask, if
 not already set). The interrupted thread reads its message and clears
 its value bit. Locking around these steps, with the lock word or
-otherwise, is up to software, exactly as in AJIT. The routines in
+otherwise, is up to software. The routines in
 `compiler/include/ajit_ipi.h` (`__ajit_set_ipi_interrupt__()` and
 friends) do the register work.

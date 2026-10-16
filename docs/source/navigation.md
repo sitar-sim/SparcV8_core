@@ -19,7 +19,7 @@ hide:
 |---|---|
 | [Assembly Programs](writing_and_running_assembly_programs.md) | How to write, assemble, and run your own assembly test programs. |
 | [C Programs](writing_and_running_c_programs.md) | How to write, compile, and run freestanding C test programs. |
-| [Validation Suite](validation_suite.md) | What's in a test, how to run the suite, and how to add a new test. |
+| [Validation Suite](validation_suite.md) | What's in a test, which suites run on which configuration, how to run them, and how to add a new test. |
 | [Cross Compiler](cross_compiler.md) | The bundled `sparc-elf` toolchain used to assemble and compile test programs. |
 
 ## Logging and Monitoring
@@ -45,10 +45,11 @@ hide:
 | [The APARA Engine](apara/index.md) | Overview of the APARA vector compute engine, and its two configurations. |
 | [APARA Instruction Set](apara/isa.md) | The engine's state, data types, bundles, and every instruction. |
 | [APARA Assembly Language and Tools](apara/assembly_and_tools.md) | mcode, the assembler and disassembler, and the file formats. |
-| [Writing and Running APARA Programs](apara/running.md) | Running an engine program on its own, and the engine's test suite. |
+| [Writing and Running APARA Programs](apara/running.md) | Running an engine program on its own, the engine's test suites, and how the pipeline handles hazards. |
+| [The APARA C Compiler](apara/compiler.md) | `apcc.py`: the C subset, the intrinsics and inline mcode, and running linear algebra programs on the engine. |
 | [APARA Timing Model](apara/timing_model.md) | The engine's five-stage pipeline in the Sitar model, and its timing rules and knobs. |
-| [The Engine in a System](apara/system.md) | `sparc_apara`: the SPARC program's view of the engine, its control and DMA units, and the C routines. |
-| [APARA Deviations and Findings](apara/deviations.md) | Where the model differs from the APARA reference model, and the open questions. |
+| [The Engine in a System](apara/system.md) | `sparc_apara`: how the SPARC and the engine are connected and communicate, the setup protocol, the control and DMA units, the C routines, and the tests. |
+| [APARA Deviations and Findings](apara/deviations.md) | The model's sources, where it deliberately departs from them, and the open questions (for the model's authors). |
 | [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
 | [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
 | [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |

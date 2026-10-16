@@ -99,6 +99,7 @@ nav:
           - Instruction Set: apara/isa.md
           - Assembly Language and Tools: apara/assembly_and_tools.md
           - Writing and Running Programs: apara/running.md
+          - The C Compiler: apara/compiler.md
           - Timing Model: apara/timing_model.md
           - The Engine in a System: apara/system.md
           - Deviations and Findings: apara/deviations.md

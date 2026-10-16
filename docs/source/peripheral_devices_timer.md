@@ -15,8 +15,8 @@ and the full address map.
 | `[0]` | `Timer_en` | Enable bit. Writing 1 starts the timer, writing 0 disables it. |
 | `[31:1]` | `Timer_max_count` | The number of ticks to count, set on the same write that enables the timer. |
 
-A read of the Control register returns it as last written, the same as
-AJIT. The live count is not readable. Byte stores update only the bytes
+A read of the Control register returns it as last written. The live
+count is not readable. Byte stores update only the bytes
 they select.
 
 ## Behavior

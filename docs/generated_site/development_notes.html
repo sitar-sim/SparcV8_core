@@ -1242,6 +1242,34 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/timing_model.html" class="md-nav__link">
         
   
@@ -1829,20 +1857,21 @@ tests, or building on this model for a larger system.</p>
 </span><span id="__span-0-12"><a id="__codelineno-0-12" name="__codelineno-0-12" href="#__codelineno-0-12"></a>  validation/
 </span><span id="__span-0-13"><a id="__codelineno-0-13" name="__codelineno-0-13" href="#__codelineno-0-13"></a>    asm/                Instruction-level assembly test suite.
 </span><span id="__span-0-14"><a id="__codelineno-0-14" name="__codelineno-0-14" href="#__codelineno-0-14"></a>    C/                  Self-validating bare-metal C mini-benchmark suite, including the
-</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                          component suites C/mmu/, C/devices/, C/caches/ and C/apara/.
-</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    apara/              The APARA engine&#39;s own test suite and its runner.
-</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
-</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
-</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>    include/                Bare-metal C routines for the devices and the APARA engine.
-</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    apara/                  The APARA engine&#39;s assembler and disassembler (mcode).
-</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
-</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  docs/                    This documentation site.
-</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
-</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    generated_site/           Prebuilt, committed output. See &quot;Building the docs site&quot; below.
-</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    mkdocs.yml, requirements.txt, *_pygments_lexer/  Build config, pinned dependencies, and
-</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>      vendored syntax lexers (Sitar, SPARC assembly, APARA mcode).
-</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
-</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
+</span><span id="__span-0-15"><a id="__codelineno-0-15" name="__codelineno-0-15" href="#__codelineno-0-15"></a>                          component suites C/mmu/, C/devices/ and C/caches/.
+</span><span id="__span-0-16"><a id="__codelineno-0-16" name="__codelineno-0-16" href="#__codelineno-0-16"></a>    sparc_apara/        The SPARC using the APARA engine (sparc_apara only).
+</span><span id="__span-0-17"><a id="__codelineno-0-17" name="__codelineno-0-17" href="#__codelineno-0-17"></a>    apara/              The APARA engine&#39;s own test suites and their runner (apara only).
+</span><span id="__span-0-18"><a id="__codelineno-0-18" name="__codelineno-0-18" href="#__codelineno-0-18"></a>    test_simple_ADD/    Canonical copy of the bundled walkthrough example.
+</span><span id="__span-0-19"><a id="__codelineno-0-19" name="__codelineno-0-19" href="#__codelineno-0-19"></a>  compiler/               SPARC V8 cross-toolchain + build scripts.
+</span><span id="__span-0-20"><a id="__codelineno-0-20" name="__codelineno-0-20" href="#__codelineno-0-20"></a>    include/                Bare-metal C routines for the devices and the APARA engine.
+</span><span id="__span-0-21"><a id="__codelineno-0-21" name="__codelineno-0-21" href="#__codelineno-0-21"></a>    apara/                  The APARA engine&#39;s assembler, disassembler and C compiler.
+</span><span id="__span-0-22"><a id="__codelineno-0-22" name="__codelineno-0-22" href="#__codelineno-0-22"></a>  debug/                   gdb convenience commands (sparc.gdb) for runtime inspection.
+</span><span id="__span-0-23"><a id="__codelineno-0-23" name="__codelineno-0-23" href="#__codelineno-0-23"></a>  docs/                    This documentation site.
+</span><span id="__span-0-24"><a id="__codelineno-0-24" name="__codelineno-0-24" href="#__codelineno-0-24"></a>    source/                  The .md pages you&#39;re reading (MkDocs docs_dir).
+</span><span id="__span-0-25"><a id="__codelineno-0-25" name="__codelineno-0-25" href="#__codelineno-0-25"></a>    generated_site/           Prebuilt, committed output. See &quot;Building the docs site&quot; below.
+</span><span id="__span-0-26"><a id="__codelineno-0-26" name="__codelineno-0-26" href="#__codelineno-0-26"></a>    mkdocs.yml, requirements.txt, *_pygments_lexer/  Build config, pinned dependencies, and
+</span><span id="__span-0-27"><a id="__codelineno-0-27" name="__codelineno-0-27" href="#__codelineno-0-27"></a>      vendored syntax lexers (Sitar, SPARC assembly, APARA mcode).
+</span><span id="__span-0-28"><a id="__codelineno-0-28" name="__codelineno-0-28" href="#__codelineno-0-28"></a>    compliance/               Documented, specific divergences from AJIT&#39;s own reference results.
+</span><span id="__span-0-29"><a id="__codelineno-0-29" name="__codelineno-0-29" href="#__codelineno-0-29"></a>  log_viewer/              Offline browser tool for viewing an instruction/state trace.
 </span></code></pre></div>
 <p>Each of <code>model/cpp_common_code/</code>, <code>model/sitar_component_models/</code>, and
 every <code>model/system_models/&lt;config&gt;/{cpp_model,sitar_model}/</code> has its own
@@ -1907,6 +1936,11 @@ you're reading existing tests rather than writing new ones:</p>
 <li>Every test always halts via <code>ta 0</code> with traps disabled, landing the
   core in <code>error_mode</code>. This is the deliberate, universal "done" signal
   described on that page, not a failure indicator by itself.</li>
+<li>A new configuration lists what it contains in a <code>COMPONENTS</code> file in
+  its folder, and a new suite folder that needs more than the SPARC core
+  says so in a <code>REQUIRES</code> file, so that <code>validation/run_tests.py</code> runs
+  each suite only on the configurations that can run it (see <a href="validation_suite.html#which-tests-run-on-which-configuration">Validation
+  Suite</a>).</li>
 </ul>
 <hr />
 <h2 id="compatibility-with-the-ajit-processor">Compatibility with the AJIT Processor<a class="headerlink" href="#compatibility-with-the-ajit-processor" title="Permanent link">&para;</a></h2>

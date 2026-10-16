@@ -39,7 +39,7 @@ address returns the received byte.
 | `[2]` | `Rx_interrupt_enable` | If set, receiving a byte raises an interrupt. |
 | `[3]` | `Tx_full` (read-only) | Set once the CPU writes Tx, cleared once it is transmitted. |
 | `[4]` | `Rx_full` (read-only) | Set once a byte is received into Rx, cleared once the CPU reads it. |
-| `[5]` | `UART_reset` | Writing 1 resets both state machines to their reset state (a byte still being transmitted is dropped). Always reads 0. Present only in the newest of the AJIT references consulted, see the deviations list on the [Peripheral Devices](peripheral_devices.md#deviations-from-the-ajit-processor) page. |
+| `[5]` | `UART_reset` | Writing 1 resets both state machines to their reset state (a byte still being transmitted is dropped). Always reads 0. |
 
 ## Baud rate
 
