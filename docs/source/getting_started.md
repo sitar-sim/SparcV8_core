@@ -237,7 +237,15 @@ program produces the following events:
 
 To view another trace, open `$SPARC_HOME/log_viewer/viewer.html` in a
 browser. The **Load trace** button selects the `.log` file, and the
-**Load objdump** button selects its disassembly.
+**Load objdump** button selects the `.objdump` file. The two files must
+come from the same program, and from the same build of it. The viewer
+matches each line of the trace to the disassembly by its PC, and does
+not check that the two files belong together. With the disassembly of
+another program, or of an older build, the highlighted instruction is
+wrong or missing. A trace is named after its `.hex` file, and the
+`.objdump` is written next to the `.hex`, so `my_add.log` belongs with
+`my_add.objdump`. See [The log viewer](logging.md#the-log-viewer) for
+more on the viewer.
 
 !!! note "Memory isn't in the trace"
     The trace and the viewer show the registers, but not the contents
@@ -248,7 +256,7 @@ browser. The **Load trace** button selects the `.log` file, and the
 
 ## The Sitar timing model
 
-*This section needs Sitar (step 3 of Installation).*
+*This section needs Sitar ([step 3 of Installation](installation.md#3-optional-install-sitar)).*
 
 The Sitar model runs the same core, and adds the timing of each
 instruction, memory access and interconnect. It is built and run in the
@@ -386,7 +394,7 @@ tests, the runner's options, and how to add a new test.
 
 ## Compile a new program
 
-*This section needs the cross-toolchain (step 4 of Installation).*
+*This section needs the cross-toolchain ([step 4 of Installation](installation.md#4-optional-install-the-sparc-cross-toolchain)).*
 
 A modified or new program must be compiled into a memory image before
 it can run. The following commands create a separate working folder,
@@ -428,7 +436,7 @@ continue from here.
 
 ## Debug with gdb
 
-*This section needs gdb (step 5 of Installation).*
+*This section needs gdb ([step 5 of Installation](installation.md#5-optional-install-gdb)).*
 
 A trace suits a short program, but the trace of a long program is too
 large to read. With gdb, the model can instead be stopped at a chosen
@@ -436,9 +444,20 @@ point, and its registers and memory examined there. The models are
 ordinary programs on the host machine, so the host's own `gdb` debugs
 them directly.
 
-The following commands build the model with debug symbols, and start it
-in gdb with the repository's SPARC commands loaded from
-`debug/sparc.gdb`:
+A model runs under gdb with a command of the following general form:
+
+```
+gdb -x $SPARC_HOME/debug/sparc.gdb --args <executable> <hex file>
+```
+
+Here `sparc.gdb` is a set of shortcuts, provided by this project, for
+viewing the model's state in SPARC terms. With them, registers and
+breakpoints are named as in the SPARC program, without knowledge of the
+variable names in the model's code. `<executable>` is a model built
+with `./build.sh --debug`, and `<hex file>` is the program to run.
+
+The following commands build the C++ model of `core_only` with debug
+symbols, and start it in gdb on the first program:
 
 ```sh
 cd $SPARC_HOME/model/system_models/core_only/cpp_model
