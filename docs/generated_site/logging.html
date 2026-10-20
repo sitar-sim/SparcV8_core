@@ -1982,13 +1982,19 @@ example) so you can explore it right away, no build required.</p>
   </a>
 </p>
 
-<p>To view a trace of your own, open <code>log_viewer/viewer.html</code> from your own
-clone instead, and use its <code>Load trace</code>/<code>Load objdump</code> buttons (top
-right) to pick a trace file you produced yourself (see "Compile-time
-on/off" above) and its matching <code>.objdump</code>. See
-<code>log_viewer/README.md</code> for the full reference, including how to serve it
-locally so a fresh trace auto-loads from a URL, the same way the embedded
-copy above does.</p>
+<p>To view a trace of one's own, open <code>log_viewer/viewer.html</code> from the
+local clone, and use its <strong>Load trace</strong> and <strong>Load objdump</strong> buttons (top
+right). A trace is produced as described in "Compile-time on/off" above,
+and is named after its <code>.hex</code> file. The <code>.objdump</code> must come from the
+same program, and from the same build of it. The viewer matches each
+trace line to the disassembly by its PC, and does not check that the two
+files belong together. With a mismatched pair, the highlighted
+instruction is wrong or missing, and no error is shown.</p>
+<p>When the viewer is served over http, a trace named in its URL
+(<code>viewer.html?trace=X.log</code>) loads automatically, and the viewer also
+fetches <code>X.objdump</code> from the same folder. The embedded copy above works
+this way. See <code>log_viewer/README.md</code> for how to serve the viewer
+locally.</p>
 
 
 

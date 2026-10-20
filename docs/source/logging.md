@@ -171,10 +171,17 @@ example) so you can explore it right away, no build required.
   </a>
 </p>
 
-To view a trace of your own, open `log_viewer/viewer.html` from your own
-clone instead, and use its `Load trace`/`Load objdump` buttons (top
-right) to pick a trace file you produced yourself (see "Compile-time
-on/off" above) and its matching `.objdump`. See
-`log_viewer/README.md` for the full reference, including how to serve it
-locally so a fresh trace auto-loads from a URL, the same way the embedded
-copy above does.
+To view a trace of one's own, open `log_viewer/viewer.html` from the
+local clone, and use its **Load trace** and **Load objdump** buttons (top
+right). A trace is produced as described in "Compile-time on/off" above,
+and is named after its `.hex` file. The `.objdump` must come from the
+same program, and from the same build of it. The viewer matches each
+trace line to the disassembly by its PC, and does not check that the two
+files belong together. With a mismatched pair, the highlighted
+instruction is wrong or missing, and no error is shown.
+
+When the viewer is served over http, a trace named in its URL
+(`viewer.html?trace=X.log`) loads automatically, and the viewer also
+fetches `X.objdump` from the same folder. The embedded copy above works
+this way. See `log_viewer/README.md` for how to serve the viewer
+locally.
