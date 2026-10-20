@@ -32,6 +32,7 @@
 #include <cctype>
 #include <cstdlib>
 
+#ifdef SPARC_LOGGING_ENABLED
 static std::string traceFileName(const std::string& hexFile)
 {
 	std::string base = hexFile;
@@ -46,6 +47,7 @@ static std::string traceFileName(const std::string& hexFile)
 
 	return base + ".log";
 }
+#endif
 
 static bool getRegisterValue(Registers& reg, const std::string& name, uint32_t& value)
 {
@@ -135,7 +137,7 @@ int main(int argc, char** argv)
 	{
 		core.logger.init(core, &logFile, true);
 		mmu.setLogger(&core.logger, &runner.cyclesExecuted);
-		std::cout << "Logging instruction trace to " << traceFile << "\n";
+		std::cout << "\nLogging instruction trace to " << traceFile << "\n";
 	}
 	else
 	{
@@ -146,7 +148,7 @@ int main(int argc, char** argv)
 	runner.run(maxCycles);
 
 	if (printStats)
-		std::cout << core.stats.toString() << mmu.stats.toString() << mem.stats.toString();
+		std::cout << "\n" << core.stats.toString() << mmu.stats.toString() << mem.stats.toString();
 
 	if (expectedFile.empty())
 	{

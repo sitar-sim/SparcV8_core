@@ -13,7 +13,7 @@ release:
 - **`sparc-elf-gcc`** (GCC 4.4.3), a minimal freestanding C compiler.
 - **`objdump`**, **`readelf`**.
 
-See [Installation](installation.md) step 5 to install it.
+See [Installation](installation.md) step 4 to install it.
 
 It exists for one narrow purpose: building this project's own
 `validation/asm/` and `validation/C/` tests, with no setup beyond

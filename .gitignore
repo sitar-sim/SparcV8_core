@@ -12,6 +12,9 @@
 /Notes_*.md
 /Plan_*.md
 
+# Local backups of docs pages before a rewrite, kept only for reverting.
+/docs/backup/
+
 # Project-local Claude Code skill, not part of the public repository.
 /.claude/skills/sitar-procedure-composition/
 

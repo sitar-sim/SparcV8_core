@@ -59,7 +59,7 @@ script" below for why):
 - **`<name>.expected`**, the `.vprj`'s checks rewritten into the plain
   format the checker executables themselves take as a direct
   command-line argument, see
-  [Getting Started](getting_started.md#running-the-simulator).
+  [Getting Started](getting_started.md#check-the-result-automatically).
 
 In short, `.vprj` is what you write, once, by hand. `.expected` is what
 `run_tests.py` generates from it, fresh, every time the test runs. It's
@@ -158,8 +158,8 @@ configuration](#which-tests-run-on-which-configuration)).
 | Option | Does |
 |---|---|
 | `--config NAME` | Which `system_models` configuration to run against, default `core_only`. E.g. `--config core_mmu` runs against `model/system_models/core_mmu/`'s own executables instead, and runs only the tests `core_mmu` can run. |
-| `--sitar` | Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Installation](installation.md) step 3 to build it. |
-| `--max-cycles N` | Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#building-the-sparc-models). |
+| `--sitar` | Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same `.vprj` format, same PASS/FAIL/OVERALL output either way. See [Getting Started](getting_started.md#the-sitar-timing-model) to build it. |
+| `--max-cycles N` | Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see [Getting Started](getting_started.md#the-sitar-timing-model). |
 | `-v` | Show every check's result, not just failures. |
 
 ```sh
@@ -380,7 +380,7 @@ components, each living in its own folder:
 
 For example, to run the MMU validation suite on `core_mmu`, build that
 configuration first (see [Getting
-Started](getting_started.md#building-the-sparc-models)):
+Started](getting_started.md#the-other-configurations)):
 
 ```sh
 model/system_models/core_mmu/cpp_model/build.sh

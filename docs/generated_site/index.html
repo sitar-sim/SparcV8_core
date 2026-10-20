@@ -1943,37 +1943,32 @@ memory, and the other components (the MMU, the caches, the devices, the
 system bus, and the APARA engine) fit together.</p>
 <hr />
 <h2 id="configurations">Configurations<a class="headerlink" href="#configurations" title="Permanent link">&para;</a></h2>
+<p>See <a href="model_configurations.html">Model Configurations</a> for a block diagram
+of each one.</p>
 <ul>
 <li><strong><code>core_only</code></strong><br />
-    The core plus main memory, no MMU, devices, or caches. See <a href="model_configurations.html#configuration-core_only">Model
-    Configurations</a>.</li>
+    The core plus main memory, no MMU, devices, or caches.</li>
 <li><strong><code>core_mmu</code></strong><br />
     Adds a Memory Management Unit (MMU), the <a href="sparcv8_Architecture_reference_Manual.pdf#page=236">SPARC Reference
     MMU</a> described in
-    Appendix H of the manual. See <a href="model_configurations.html#configuration-core_mmu">Model
-    Configurations</a>.</li>
+    Appendix H of the manual.</li>
 <li><strong><code>core_mmu_devices</code></strong><br />
-    Adds a timer, an interrupt controller, and a serial device. See
-    <a href="model_configurations.html#configuration-core_mmu_devices">Model
-    Configurations</a>.</li>
+    Adds a timer, an interrupt controller, and a serial device.</li>
 <li><strong><code>core_l1cache_mmu_devices</code></strong><br />
-    Adds split instruction and data L1 caches. See <a href="model_configurations.html#configuration-core_l1cache_mmu_devices">Model
-    Configurations</a>.</li>
+    Adds split instruction and data L1 caches.</li>
 </ul>
 <p>Two further configurations model the <strong>APARA engine</strong>, a vector
 compute engine designed to work alongside a SPARC processor as an
-accelerator:</p>
+accelerator. See <a href="apara/index.html">The APARA Accelerator</a> section for
+both.</p>
 <ul>
 <li><strong><code>apara</code></strong><br />
     One APARA engine on its own, with no SPARC core, for writing and
-    running engine programs. See <a href="apara/index.html">The APARA Engine</a>.</li>
+    running engine programs.</li>
 <li><strong><code>sparc_apara</code></strong><br />
 <code>core_l1cache_mmu_devices</code> plus one APARA engine, which the SPARC
-    program loads, starts, and exchanges data with. See <a href="apara/system.html">The Engine in a
-    System</a>.</li>
+    program loads, starts, and exchanges data with.</li>
 </ul>
-<p>See <a href="model_configurations.html">Model Configurations</a> for a block diagram
-of each one.</p>
 <hr />
 <h2 id="organization">Organization<a class="headerlink" href="#organization" title="Permanent link">&para;</a></h2>
 <p>In the <a href="https://github.com/sitar-sim/SparcV8_core">source repository</a>,

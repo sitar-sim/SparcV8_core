@@ -132,36 +132,31 @@ system bus, and the APARA engine) fit together.
 
 ## Configurations
 
+See [Model Configurations](model_configurations.md) for a block diagram
+of each one.
+
 - **`core_only`**  
-    The core plus main memory, no MMU, devices, or caches. See [Model
-    Configurations](model_configurations.md#configuration-core_only).
+    The core plus main memory, no MMU, devices, or caches.
 - **`core_mmu`**  
     Adds a Memory Management Unit (MMU), the [SPARC Reference
     MMU](sparcv8_Architecture_reference_Manual.pdf#page=236) described in
-    Appendix H of the manual. See [Model
-    Configurations](model_configurations.md#configuration-core_mmu).
+    Appendix H of the manual.
 - **`core_mmu_devices`**  
-    Adds a timer, an interrupt controller, and a serial device. See
-    [Model
-    Configurations](model_configurations.md#configuration-core_mmu_devices).
+    Adds a timer, an interrupt controller, and a serial device.
 - **`core_l1cache_mmu_devices`**  
-    Adds split instruction and data L1 caches. See [Model
-    Configurations](model_configurations.md#configuration-core_l1cache_mmu_devices).
+    Adds split instruction and data L1 caches.
 
 Two further configurations model the **APARA engine**, a vector
 compute engine designed to work alongside a SPARC processor as an
-accelerator:
+accelerator. See [The APARA Accelerator](apara/index.md) section for
+both.
 
 - **`apara`**  
     One APARA engine on its own, with no SPARC core, for writing and
-    running engine programs. See [The APARA Engine](apara/index.md).
+    running engine programs.
 - **`sparc_apara`**  
     `core_l1cache_mmu_devices` plus one APARA engine, which the SPARC
-    program loads, starts, and exchanges data with. See [The Engine in a
-    System](apara/system.md).
-
-See [Model Configurations](model_configurations.md) for a block diagram
-of each one.
+    program loads, starts, and exchanges data with.
 
 ---
 

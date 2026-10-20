@@ -48,6 +48,7 @@ static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
 }
 #endif
 
+#ifdef SITAR_ENABLE_LOGGING
 //Derives the trace filename from the hex file's own name. (Identical to
 //cpp_model's sparc_sim.cpp copy, see that one's own comment for why.)
 static std::string traceFileName(const std::string& hexFile)
@@ -64,6 +65,7 @@ static std::string traceFileName(const std::string& hexFile)
 
 	return base + ".log";
 }
+#endif
 
 //Maps a RESULTS-block register mnemonic to its value in the current window.
 //Returns false if the name isn't recognized. (Identical to cpp_model's
@@ -199,7 +201,7 @@ int main(int argc, char** argv)
 	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
 
 	if (printStats)
-		std::cout << TOP->core.sparcThread.core.stats.toString();
+		std::cout << "\n" << TOP->core.sparcThread.core.stats.toString();
 
 	//No expected-results file: just run the program and report the
 	//final state, the same idea as cpp_model's sparc_sim_cpp. Nothing

@@ -15,7 +15,7 @@ memory hex file, and the expected-results file are already included.
 4. the standard format for writing a test for inclusion in this project's validation framework.
 
 This section assumes that you have built the models and the
-toolchain release. See steps 2 and 5 in [Installation](installation.md).
+toolchain release. See steps 2 and 4 in [Installation](installation.md).
 
 Let's create a copy of the given simple asm program `test_simple_ADD`,
 and modify it, for example, using `sub` instead of `add`.
@@ -32,7 +32,7 @@ cp ../validation/test_simple_ADD/test_simple_ADD.s test_simple_SUB.s
 
 The conversion of asm/C programs to a memory image requires a cross-compiler toolchain, consisting of an assembler, utilities such as objdump/readelf, and also a compiler (for compiling C to asm).
 
-If not already done in [Installation](installation.md) (step 5), run `compiler/install_toolchain.sh` to create a release.
+If not already done in [Installation](installation.md) (step 4), run `compiler/install_toolchain.sh` to create a release.
 
 The toolchain release lives at `compiler/toolchain/`. Add it to your PATH variable (on Linux systems) by sourcing `compiler/toolchain_env.sh`, so that its binaries and libraries can be accessed from any location:
 
@@ -73,7 +73,7 @@ model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_loggi
 ```
 
 This prints the final register state once the program halts, see
-[Getting Started](getting_started.md#running-the-simulator) for the
+[Getting Started](getting_started.md#run-the-program) for the
 full walkthrough, including the Sitar-timed model (which takes the
 identical CLI) and observing the trace in the log viewer.
 

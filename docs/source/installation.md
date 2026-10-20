@@ -1,235 +1,202 @@
 # Installation
 
-## Prerequisites
+The tools to install depend on how the models will be used. Steps 1 and
+2 are required for every use, and they are sufficient to build and run
+the C++ models. Each later step is optional and independent of the
+others. A step can be skipped until the tool it installs is needed.
 
-In the following table, steps up to 2 are the minimal requirements for
-building the C++ model and running it. Everything past that is optional,
-needed only for the step listed.
+| Goal | Steps |
+|---|---|
+| Build and run the C++ models, and run the validation suite | 1, 2 |
+| Also build and run the Sitar timing models | 1, 2, 3 |
+| Write new SPARC programs in assembly or C, and run them | 1, 2, 4 |
+| Examine a running model with gdb | 1, 2, 5 |
+| Modify the models and rebuild them | 1, 2, and 3 for the Sitar models |
+| Edit and rebuild this documentation | 1, 2, 6 |
 
-| Step | Tool | Purpose |
-|---|---|---|
-| 2 | Linux, x86_64 | Development platform |
-| 2 | g++ (C++11) | Compiling the C++ model |
-| 2 | Python 3 | Build scripts |
-| 2 | `libquadmath` | Quad-precision floating point support. Ships with a standard `gcc`/`g++` install on most Linux distributions, so no separate install step is usually needed. |
-| 3 | [Sitar](https://sitar-sim.github.io/sitar/) CLI | Building and running the cycle-timed Sitar model |
-| 4 | [gdb](https://en.wikipedia.org/wiki/GNU_Debugger) | Examining a running model's state directly, see [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md) |
-| 5 | `sparc-elf` cross-toolchain | Writing and compiling your own test programs. A prebuilt release is bundled, only build your own if it doesn't suit your host, see [Cross Compiler](cross_compiler.md). |
-| 6 | MkDocs | Editing and rebuilding this documentation |
+These steps assume Linux on an x86_64 machine, and use the package names
+of Debian and Ubuntu. Other distributions provide the same tools through
+their own package managers.
 
 ---
 
-## 1. Clone the repository
+## 1. Check the basic tools
+
+The models need `git`, a C++ compiler with C++11 support (`g++`), and
+Python 3. The following commands check that each of them is installed:
+
+```sh
+git --version
+g++ --version
+python3 --version
+```
+
+A missing tool can be installed with the following command:
+
+```sh
+sudo apt install git g++ python3
+```
+
+The models also use `libquadmath` for quad-precision floating point.
+Most Linux distributions include it with `g++`, so it rarely needs a
+separate installation.
+
+---
+
+## 2. Get the code
+
+The following commands clone the repository and enter its folder:
 
 ```sh
 git clone https://github.com/sitar-sim/SparcV8_core.git
 cd SparcV8_core
 ```
 
----
-
-## 2. Build and run the plain C++ model
-
-No further dependencies are needed. This model has no Sitar dependency at
-all.
-
-From the repo root:
+Each command block in these pages begins with a `cd` into the folder
+where it runs. These folders are written relative to `$SPARC_HOME`,
+which is the repository's folder. The following command sets this
+variable, and must be run from inside the repository's folder:
 
 ```sh
-cd model/system_models/core_only/cpp_model
-./build.sh --logging
+export SPARC_HOME=$(pwd)
 ```
 
-This builds an executable, `sparc_sim_cpp_core_only_logging`, inside
-`executable/`.
-
-Let's try it. The executable expects the name of a test program compiled
-to a memory image (a `.hex` file). A minimal example program,
-`validation/test_simple_ADD/test_simple_ADD.s`, is bundled in the repo
-for a quick test of the model, along with its already-assembled memory
-image. It adds two numbers and puts the result in a register, then
-halts. View it first:
+A variable set in this way lasts only for the current terminal. The
+following command adds it to `~/.bashrc`, so that every new terminal
+has it:
 
 ```sh
-cat ../../../../validation/test_simple_ADD/test_simple_ADD.s
+echo "export SPARC_HOME=$SPARC_HOME" >> ~/.bashrc
 ```
 
-Then run it:
-
-```sh
-./executable/sparc_sim_cpp_core_only_logging \
-    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
-```
-
-The run generates an output:
-
-```
-PROCESSOR STATE: ERROR
-PSR.impl 0b0000
-...
-PC  0x1c
-nPC 0x20
-...
-o0 0xc
-...
-Simulation halted after 9 cycles.
-```
-
-This prints every register's final value once the program halts. `o0` is
-`0xc` (12), the sum of the two numbers the program added. Here, "9
-cycles" just means 9 complete instructions executed. This is a plain
-functional model with no timing.
-
-When built with the `--logging` option (the default is without it, for
-faster runs), a simulation run also generates a detailed text log of
-every event, in `test_simple_ADD.log` (a trace file is always named
-after the hex file it ran, see [Logging](logging.md#the-current-scheme)).
-
-Although the generated log is a plain text file in tab-separated value (tsv) format,
-and can be viewed in any editor, this project provides a graphical trace visualizer
-to step through the execution and watch the processor state evolve. 
-
-### Try the trace viewer here
-
-**[log viewer, preloaded with the trace for the test_simple_ADD example](log_viewer/viewer.html?trace=test_simple_ADD.log)**.
-
-<p align="center">
-  <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
-    <img src="images/trace_viewer.png" alt="Screenshot of the trace viewer" title="Screenshot of the trace viewer" width="700">
-  </a>
-</p>
+The C++ models need nothing more. This documentation is also part of
+the repository, and can be read offline by opening
+`docs/generated_site/index.html` in a browser.
 
 ---
 
-## 3. (Optional) Install Sitar, and build the timing model
+## 3. (Optional) Install Sitar
 
-Only needed if you want the cycle-timed Sitar model, not just the plain
-C++ one. Follow Sitar's own
-[installation instructions](https://sitar-sim.github.io/sitar/getting_started.html)
-first, to build the `sitar` CLI and put it on your `PATH`. Check it's
-correctly installed, from any location:
+This step is needed only for the Sitar timing models. These models
+describe the same core as the C++ models, with cycle-level timing added.
+They are built with the [Sitar](https://sitar-sim.github.io/sitar/)
+simulation framework.
+
+Sitar's [installation
+instructions](https://sitar-sim.github.io/sitar/getting_started.html)
+describe how to install it and put the `sitar` command on the `PATH`.
+After the installation, the following command should run from any
+folder:
 
 ```sh
 sitar -h
 ```
 
-From the repo root:
+---
+
+## 4. (Optional) Install the SPARC cross-toolchain
+
+This step is needed only to compile new programs. The simulator runs a
+program from its memory image, which is a `.hex` file. The programs in
+this repository come with their memory images, so they run without this
+step.
+
+A cross-toolchain is a compiler, assembler and linker that run on the
+host machine but produce code for SPARC. The repository includes a
+prebuilt toolchain. The following commands unpack it and add it to the
+`PATH`:
 
 ```sh
-cd model/system_models/core_only/sitar_model
-./build.sh --logging
+cd $SPARC_HOME
+compiler/install_toolchain.sh
+source compiler/toolchain_env.sh
 ```
 
-This builds an executable, `sparc_sim_sitar_core_only_logging`, inside
-`executable/`.
+The first command unpacks the toolchain into `compiler/toolchain/`. It
+needs the `unzip` tool, which is installed with `sudo apt install unzip`.
+The second command adds the toolchain to the `PATH` for the current
+terminal only. The following commands check that the toolchain runs:
 
 ```sh
-./executable/sparc_sim_sitar_core_only_logging \
-    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
+sparc-elf-as --version
+sparc-elf-gcc --version
 ```
 
-The run generates an output, the same shape as step 2 above:
+The following command adds the second command to `~/.bashrc`, so that
+every new terminal has the toolchain on its `PATH`:
 
-```
-PROCESSOR STATE: ERROR
-PSR.impl 0b0000
-...
-PC  0x1c
-nPC 0x20
-...
-o0 0xc
-...
-Simulation halted after 8 cycles.
+```sh
+echo "source $SPARC_HOME/compiler/toolchain_env.sh" >> ~/.bashrc
 ```
 
-As in step 2, this also writes `test_simple_ADD.log` (viewable in the
-same [log viewer](logging.md#the-log-viewer)), plus a second file,
-`sitar.log` (Sitar's own lower-level per-request/response messages).
+!!! note "If the toolchain doesn't run"
+    The bundled toolchain is built for 32-bit x86 (i386). On a 64-bit
+    Debian or Ubuntu machine, it needs the 32-bit C library, which the
+    following commands install:
+
+    ```sh
+    sudo dpkg --add-architecture i386
+    sudo apt update
+    sudo apt install libc6-i386 zlib1g:i386
+    ```
+
+    The toolchain cannot run on a machine that is not x86, such as an
+    Apple Silicon Mac. On such a machine, a Linux x86_64 virtual machine
+    can be used instead. Another option is to build a new toolchain with
+    Buildroot, as described in [Cross Compiler](cross_compiler.md).
 
 ---
 
-## 4. (Optional) Install gdb
+## 5. (Optional) Install gdb
 
-[gdb](https://en.wikipedia.org/wiki/GNU_Debugger) is the standard GNU
-command-line debugger for compiled programs.
-
-Only needed if you want to examine a running model's state directly with
-gdb, instead of (or alongside) logging. This is your host's own `gdb`,
-attaching directly to the model's own process. No cross-debugger is
-needed.
+This step is needed only to examine a running model with
+[gdb](https://en.wikipedia.org/wiki/GNU_Debugger), the GNU debugger.
+With gdb, a model can be stopped at a chosen instruction, and its
+registers and memory can be examined. The models are ordinary programs
+on the host machine, so the host's own `gdb` is sufficient. The
+following commands install it and check its version:
 
 ```sh
 sudo apt install gdb
+gdb --version
 ```
-
-See [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md)
-for how to build with debug symbols and use it.
-
----
-
-## 5. (Optional) Install the SPARC V8 cross-toolchain
-
-Only needed if you want to write and compile your own test programs,
-rather than just running the bundled example and the existing validation
-suite. A prebuilt **32-bit x86 (i386)** assembler and linker is bundled,
-which will work for most host setups.
-
-From the repo root:
-
-```sh
-compiler/install_toolchain.sh          # unzips into compiler/toolchain/
-source compiler/toolchain_env.sh       # adds it to PATH, this shell session
-```
-
-Add `source /path/to/compiler/toolchain_env.sh` to your shell rc file to
-make this permanent.
-
-!!! note "64-bit hosts"
-    The bundled binaries are 32-bit (i386). On a 64-bit host you may need
-    i386 compatibility libraries. On Debian/Ubuntu, run
-    `sudo dpkg --add-architecture i386 && sudo apt update && sudo apt install libc6-i386 zlib1g:i386`.
-    They won't run natively on non-x86 hosts, such as Apple Silicon Macs.
-    Use a Linux x86_64 VM instead, or see [Cross Compiler](cross_compiler.md)
-    for building your own cross-toolchain with Buildroot.
 
 ---
 
 ## 6. (Optional) Install MkDocs
 
-Only needed if you want to edit and rebuild this documentation. The
-rendered site is already committed at `docs/generated_site/index.html`,
-so this step isn't needed just to read the docs.
+This step is needed only to edit this documentation and rebuild the
+site. Reading the documentation needs nothing more than a browser, by
+opening `docs/generated_site/index.html`.
 
-One-time setup, from the `docs/` directory:
+The site is built with [MkDocs](https://www.mkdocs.org/). The following
+commands install MkDocs and the packages it uses into a Python virtual
+environment in `docs/`. They need to be run only once:
 
 ```sh
-cd docs
+cd $SPARC_HOME/docs
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-`pip install` also pulls in the three vendored Pygments lexers used for
-Sitar, SPARC assembly, and APARA mcode syntax highlighting.
-
-With the venv active, still from `docs/`, rebuild the site:
+The pages are the Markdown files in `docs/source/`. After they are
+edited, the following commands rebuild the site, with the virtual
+environment active:
 
 ```sh
+cd $SPARC_HOME/docs
+source .venv/bin/activate
 mkdocs build
 ```
 
-The output goes to `generated_site/`, commit it along with your `.md`
-changes. Or, to preview edits live in a browser as you make them:
-
-```sh
-mkdocs serve
-```
-
-See `docs/README.md` for more detail.
+The site is written to `docs/generated_site/`. The command `mkdocs
+serve` can be used instead of `mkdocs build` to preview edits in a
+browser as they are made. It prints the address to open.
 
 ---
 
-## Next: Getting Started
+## Next
 
-Once you've built at least the plain C++ model (step 2), continue to
-[Getting Started](getting_started.md) for a detailed walkthrough.
+The next page, [Getting Started](getting_started.md), builds the C++
+model, runs a first program on it, and continues from there.

@@ -76,6 +76,7 @@
 #include <cctype>
 #include <cstdlib>
 
+#ifdef SPARC_LOGGING_ENABLED
 static std::string traceFileName(const std::string& hexFile)
 {
 	std::string base = hexFile;
@@ -90,6 +91,7 @@ static std::string traceFileName(const std::string& hexFile)
 
 	return base + ".log";
 }
+#endif
 
 //<hex_file> with .hex replaced by .serial_in, if that file exists, else "".
 static std::string defaultSerialInputFile(const std::string& hexFile)
@@ -269,7 +271,7 @@ int main(int argc, char** argv)
 	{
 		core.logger.init(core, &logFile, true);
 		mmu.setLogger(&core.logger, &runner.cyclesExecuted);
-		std::cout << "Logging instruction trace to " << traceFile << "\n";
+		std::cout << "\nLogging instruction trace to " << traceFile << "\n";
 	}
 	else
 	{
@@ -280,7 +282,7 @@ int main(int argc, char** argv)
 	runner.run(maxCycles);
 
 	if (printStats)
-		std::cout << core.stats.toString() << caches.statsToString() << mmu.stats.toString() << mem.stats.toString()
+		std::cout << "\n" << core.stats.toString() << caches.statsToString() << mmu.stats.toString() << mem.stats.toString()
 		          << devices.stats.toString()
 		          << "APARA engine: " << apara.bundles << " bundles\n";
 

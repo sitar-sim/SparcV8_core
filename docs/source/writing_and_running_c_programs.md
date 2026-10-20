@@ -109,7 +109,7 @@ check that `%o0` is `1`:
 
 A minimal, freestanding C compiler (GCC 4.4.3) is bundled alongside the
 existing `sparc-elf` assembler, linker, `readelf`, and `objdump`,
-installed together by [Installation](installation.md) step 5, if you
+installed together by [Installation](installation.md) step 4, if you
 haven't already. See [Cross Compiler](cross_compiler.md) for what's
 bundled and why, and for building your own, more modern cross-toolchain
 instead.

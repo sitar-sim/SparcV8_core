@@ -10,8 +10,8 @@ hide:
 | Page | Description |
 |---|---|
 | [Overview](index.md) | What this project is, the two models it provides, and how the repository is organized. |
-| [Installation](installation.md) | Prerequisites and setup steps for building and running the models. |
-| [Getting Started](getting_started.md) | A hands-on walkthrough: build both models, run a simple test, view the trace, and run the validation suite. |
+| [Installation](installation.md) | What to install for what you want to do: the basic tools and the code, then, optionally, Sitar, the cross-toolchain, gdb, and MkDocs. |
+| [Getting Started](getting_started.md) | A hands-on walkthrough: build the models, run a first program, view its trace, run the validation suite, compile a program yourself, and debug with gdb. |
 
 ## Writing and Running Programs
 

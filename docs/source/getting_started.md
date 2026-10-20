@@ -1,185 +1,138 @@
 # Getting Started
 
-This page assumes you've completed [Installation](installation.md). It
-walks through the whole toolchain hands-on: a simple test program,
-building both models, running the simulator against it, observing the
-resulting trace in the log viewer, running the full validation suite,
-and debugging with gdb.
+This page builds the C++ model of the SPARC core, runs a first program
+on it, and traces the run. It then introduces the Sitar timing model,
+the other configurations, the validation suite, the compilation of new
+programs, and debugging with gdb. The sections are meant to be read in
+order. A section that needs an optional tool says so at its start, and
+can be skipped if that tool is not installed.
 
-## SPARC V8
-
-SPARC V8 is the 32-bit RISC instruction set architecture this project
-models, standardized as ANSI/IEEE Std 1754-1994. See [SPARC V8
-Architecture](sparcv8_architecture.md) for what makes it distinctive and
-a page-indexed guide to the authoritative manual, bundled in this
-repository.
+The commands use `$SPARC_HOME`, the repository's folder, which is set
+in step 2 of Installation.
 
 ---
 
-## A simple program
+## SPARC V8
 
-Let's consider a simple assembly-level program: put two numbers in
-registers, and add them. It's already present at
-`validation/test_simple_ADD/test_simple_ADD.s`:
+SPARC V8 is the 32-bit RISC instruction set architecture that this
+project models. It is standardized as ANSI/IEEE Std 1754-1994. See
+[SPARC V8 Architecture](sparcv8_architecture.md) for what makes it
+distinctive, and for a page-indexed guide to its authoritative manual,
+which is bundled in this repository.
+
+---
+
+## How the models are organized
+
+Each configuration of the system, such as the core alone or the core
+with an MMU, has its own folder under `model/system_models/`. This page
+starts with the simplest configuration, `core_only`, which consists of
+the SPARC core and a main memory.
+
+Each configuration folder holds two models. Each model is in its own
+folder, with its own build script:
+
+- **`cpp_model/`** holds the C++ model. It is fast and purely
+  functional, with no notion of time.
+- **`sitar_model/`** holds the Sitar model. It describes the same core,
+  with cycle-level timing.
+
+A build writes its executable into an `executable/` folder beside the
+build script.
+
+---
+
+## A first program
+
+The following small SPARC assembly program puts two numbers in
+registers and adds them. It is in
+`$SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.s`:
 
 ```sparc
 --8<-- "validation/test_simple_ADD/test_simple_ADD.s"
 ```
 
-The first step after writing a program like this is to convert it into
-machine code and load it into the simulated processor's memory. A memory
-image is already present too, at
-`validation/test_simple_ADD/test_simple_ADD.hex`, along with its
-disassembly at `validation/test_simple_ADD/test_simple_ADD.objdump`.
-We'll point the simulator straight at the `.hex` file.
-
-Later, to modify this test or write your own, you'll need to compile it
-into a memory image (`.hex`) yourself. See
-[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
-or [Writing and Running C Programs](writing_and_running_c_programs.md).
+The simulator does not run assembly directly. It runs a memory image,
+which is a `.hex` file holding the program's machine code. The memory
+image of this program, `test_simple_ADD.hex`, is already in the same
+folder, so the program can run without a cross-toolchain. The folder
+also holds its disassembly, `test_simple_ADD.objdump`.
 
 ---
 
-## Building the SPARC models
+## Build the C++ model
 
-The models under `model/` are available in several configurations, each
-in its own folder under `model/system_models/` (`core_only`, `core_mmu`,
-and more, see [Configurations](index.md#configurations)). Each
-configuration's folder contains two testbenches, `cpp_model/` and
-`sitar_model/` (see [Models](index.md#models)), each with its own
-`build.sh`. A build's resulting executable is written into that
-testbench's own `executable/` subfolder.
-
-To build a particular configuration, say `core_only`, from the repo
-root:
+The following commands go to the folder of the `core_only` C++ model
+and build it:
 
 ```sh
-cd model/system_models/core_only/cpp_model
+cd $SPARC_HOME/model/system_models/core_only/cpp_model
 ./build.sh
-./build.sh --logging
 ```
 
-The first produces the plain, fast executable
-(`executable/sparc_sim_cpp_core_only`), used by `run_simple_test.sh`
-below and by the validation suite. The second, in addition, produces a
-`_logging`-suffixed executable
-(`executable/sparc_sim_cpp_core_only_logging`) that writes an
-instruction trace when run, used in "Observing the simulation log"
-below. Logging defaults to off (see "Build options" below), so
-building it explicitly is the only way to get a trace.
-
-Build the Sitar-timed model the same way, from the repo root:
-
-```sh
-cd model/system_models/core_only/sitar_model
-./build.sh
-./build.sh --logging
-```
-
-In comparison to the C++ model, the Sitar model drives the exact same
-core through [Sitar](https://sitar-sim.github.io/sitar/) instead of the
-plain functional loop, adding real per-opcode, interconnect, and memory
-timing.
-
-### Build options
-
-Both build scripts take the same options:
-
-- **`--logging` / `--no-logging`** (default: off)  
-    Whether the model writes an instruction trace when run, see
-    "Observing the simulation log" below.
-- **`--debug` / `--debug-o0` / `--no-debug`** (default: off)  
-    Whether to build with debug symbols, for examining a running model
-    with gdb, see [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
-
-Build each of the other configurations the same way, substituting its
-own folder:
-
-```sh
-cd model/system_models/core_mmu/cpp_model
-./build.sh
-./build.sh --logging
-
-cd model/system_models/core_mmu/sitar_model
-./build.sh
-./build.sh --logging
-```
-
-The same goes for `core_mmu_devices`, `core_l1cache_mmu_devices`, and
-`sparc_apara`. Each executable is named after its configuration, e.g.
-`executable/sparc_sim_cpp_core_mmu_devices`. See [Model
-Configurations](model_configurations.md) for what each one contains.
-
-The `apara` configuration, the APARA engine on its own, also builds
-this way, but it runs APARA engine programs rather than SPARC ones, so
-it has its own executables and its own walkthrough, see [Writing and
-Running APARA Programs](apara/running.md).
+The build produces `executable/sparc_sim_cpp_core_only`.
 
 ---
 
-## Running the simulator
+## Run the program
 
-The process is: first build a configuration (previous section), then
-run its simulator executable, pointing it at a hex file. A hex file is
-a memory image, the machine code for the program to run on the
-simulator.
-
-To run the C++ model against a memory image, from the repo root:
+The following command, run in the same folder, runs the executable on
+the program's memory image:
 
 ```sh
-cd model/system_models/core_only/cpp_model
-./executable/sparc_sim_cpp_core_only ../../../../validation/test_simple_ADD/test_simple_ADD.hex
+./executable/sparc_sim_cpp_core_only $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
-Similarly, for the Sitar-timed model, from the repo root:
-
-```sh
-cd model/system_models/core_only/sitar_model
-./executable/sparc_sim_sitar_core_only ../../../../validation/test_simple_ADD/test_simple_ADD.hex
-```
-
-The simulation executable expects the following arguments:
+The executable loads the image, runs the program until it halts, and
+prints the final state of the processor:
 
 ```
-sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles] [--stats]
+Total Main Memory size :0x10000000
+Initializing memory from hex-dump file...
+Last address written = 20
+PROCESSOR STATE: ERROR
+PSR.impl 0b0000
+...
+PC  0x1c
+nPC 0x20
+...
+o0 0xc
+...
+Simulation halted after 9 cycles.
 ```
 
-- **`hex_file`** (required)  
-    The memory image to run.
-- **`expected_results_file`** (optional)  
-    A file listing the expected final register values, see
-    [Format for the expected-results file](writing_and_running_assembly_programs.md#format-for-the-expected-results-file)
-    for its format. If given, once the program halts, the final
-    processor state is checked against it and the executable prints a
-    PASS/FAIL verdict per check plus an OVERALL result, instead of the
-    detailed state.
-- **`max_cycles`** (optional)  
-    Caps how long the simulator runs before giving up, in case the
-    program never halts (a bug, or a genuine infinite loop). Defaults
-    to 1 million cycles. Pass a smaller number to fail fast on a quick
-    test, or a larger one for a program that legitimately needs more
-    cycles than that to finish.
-- **`--stats`** (optional, can appear anywhere among the arguments)  
-    Prints the model's own performance measures (core statistics, and,
-    where present, MMU and physical-memory statistics) once the run
-    finishes. Off by default. See [Performance
-    Modeling](performance_modeling.md#printing-the-performance-measures).
+- **`o0 0xc`** shows that register `%o0` holds 12, the sum of 5 and 7.
+- **`PROCESSOR STATE: ERROR`** is expected. Every program in this
+  repository halts in this way. The last instruction of the program,
+  `ta 0`, is a trap instruction executed with traps disabled. It puts
+  the processor in its error mode, which stops it.
+- **`9 cycles`** counts instructions, because the C++ model has no
+  timing. Each "cycle" of this model is one instruction.
 
-For example, checking the same run against its expected-results file,
-with `--stats` added, back in `model/system_models/core_only/cpp_model`:
+---
+
+## Check the result automatically
+
+Instead of reading the final state by eye, the executable can be given
+the expected values to check. The program's folder holds them in
+`test_simple_ADD.expected`. The following command runs the check:
 
 ```sh
 ./executable/sparc_sim_cpp_core_only \
-    ../../../../validation/test_simple_ADD/test_simple_ADD.hex \
-    ../../../../validation/test_simple_ADD/test_simple_ADD.expected \
-    1000 --stats
+    $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex \
+    $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.expected \
+    --stats
 ```
+
+The executable then prints PASS or FAIL for each expected value, and an
+overall result. The `--stats` option adds the model's counters, which
+include the numbers of instructions, loads, stores and traps:
 
 ```
 Core statistics:
   Instructions fetched             = 8
   Loads                            = 0
-  ... (more counters, all 0 for this simple test)
+  ... (more counters, all 0 for this program)
 
 PASS: o0 = 0xc
 PASS: l0 = 0x5
@@ -187,52 +140,61 @@ PASS: l1 = 0x7
 OVERALL: PASS (3 checks)
 ```
 
-### Running the existing simple test
+The executable takes the following arguments:
 
-The same check has a shortcut, `run_simple_test.sh`, bundled in every
-SPARC configuration's testbench folders. `cd` to the same level as the build script (the
-testbench folder, e.g. `model/system_models/core_only/cpp_model`) and
-run it directly:
+```
+sparc_sim_cpp_core_only <hex_file> [expected_results_file] [max_cycles] [--stats]
+```
+
+- **`hex_file`** is the memory image to run.
+- **`expected_results_file`** is optional, and holds the values to
+  check at the end. Without it, the executable prints the final state
+  instead.
+- **`max_cycles`** is optional, and stops the run after this many
+  cycles, in case the program never halts. The default is 1,000,000.
+- **`--stats`** is optional, and prints the model's counters at the
+  end. It can appear anywhere among the arguments.
+
+Each model's folder also has a script for this check,
+`run_simple_test.sh`. It runs the same program against its expected
+values, with `--stats`:
 
 ```sh
 ./run_simple_test.sh
 ```
 
-A fixed, minimal wrapper around the same hex-file-plus-expected-results
-check above, with `--stats` always on. Always against the plain,
-non-logging build, so it doesn't produce a `.log` file itself. For a
-simulation log of this same
-run, see "Observing the simulation log" below, which runs the
-`_logging` executable directly against the same hex file instead.
-
 ---
 
-## Observing the simulation log
+## Trace a run
 
-Run the `_logging` executable built earlier (see "Building the SPARC
-models" above), still in `model/system_models/core_only/cpp_model`:
+The model can also write a trace of the run, with one line per event
+and the processor's state after each event. Tracing is off by default,
+because it slows down long runs. The following command, run in the same
+folder, builds the version of the model that writes the trace:
 
 ```sh
-./executable/sparc_sim_cpp_core_only_logging \
-    ../../../../validation/test_simple_ADD/test_simple_ADD.hex
+./build.sh --logging
 ```
 
-A `--logging` build gets its own executable name (with a `_logging`
-suffix), so it coexists in `executable/` alongside the plain default
-build from the section above, rather than replacing it. Running it
-produces a `.log` file in the current directory, containing a detailed
-simulation trace showing the processor state at the end of each
-instruction cycle.
+This build produces a second executable,
+`executable/sparc_sim_cpp_core_only_logging`, beside the first. The
+following command runs it on the program:
 
-The generated log file has the same name as the `.hex` file, but with a
-`.log` extension. Although it's a plain text file in tab-separated value
-(tsv) format, and can be viewed in any editor, this project provides a
-graphical trace visualizer to step through the execution and watch the
-processor state evolve.
+```sh
+./executable/sparc_sim_cpp_core_only_logging $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex
+```
 
-### Try the trace viewer here
+In addition to the same output as before, this executable writes the
+trace to `test_simple_ADD.log` in the current folder. The trace file is
+always named after the `.hex` file.
 
-**[log viewer, preloaded with the trace for the test_simple_ADD example](log_viewer/viewer.html?trace=test_simple_ADD.log)**.
+The trace is a plain text file with tab-separated columns, and can be
+read in any editor. The repository also includes a trace viewer, which
+steps through the run and shows how the processor's state changes.
+
+### Try the trace viewer
+
+**[The trace viewer, with this program's trace loaded](log_viewer/viewer.html?trace=test_simple_ADD.log)**
 
 <p align="center">
   <a href="log_viewer/viewer.html?trace=test_simple_ADD.log">
@@ -240,117 +202,166 @@ processor state evolve.
   </a>
 </p>
 
-The viewer allows the user to simultaneously view:
+The viewer shows three panels side by side:
 
-- the simulation event trace (`.log`)
-- the assembly code being run (`.objdump`)
-- and the processor state at the end of each traced event, showing the register values.
+- The trace, from the `.log` file.
+- The program's disassembly, from the `.objdump` file.
+- The processor's registers after the selected event.
 
-#### Using the viewer
+The viewer is used as follows:
 
-- Clicking on a line in the trace automatically highlights the
-  corresponding line in the disassembly and shows the processor state
-  for that event. The `up` and `down` arrow keys can be used to step
-  forwards and backwards through the execution trace.
-- Register values that change at each step are highlighted.
-- A search bar at the top lets you search for a specific PC or register
-  value in the event trace and jump to it. The `Next` and `Prev` buttons
-  step through multiple matches.
+- Clicking a line of the trace selects it. The viewer highlights the
+  matching line of the disassembly, and shows the registers after that
+  event. The `up` and `down` arrow keys step through the trace.
+- Registers that changed at the selected event are highlighted.
+- The search bar at the top finds a PC or a register value in the
+  trace. The `Next` and `Prev` buttons step through the matches.
 
-Each row in the generated log records a sequence number, time, PC, event
-type, an event-specific detail, and the full processor state. The event
-types are:
+Each line of the trace holds a sequence number, the time, the PC, the
+event type, a detail for the event, and the processor's state. This
+program produces the following events:
 
-- **`RESET` then `TRAP_ENTER`**  
-    At the very start of every run. The model always boots by taking an
-    implicit reset trap into the first instruction. You didn't write
-    this, it's automatic.
-- **`FETCH` then `EXECUTED`, one pair per instruction**  
-    `FETCH` shows the opcode about to run, with the current-window
-    register state still as it was *before* this instruction. `EXECUTED`
-    (the very next row, same PC) shows that state *after*, with whatever
-    changed highlighted. Watch `%l0`/`%l1`/`%o0` fill in, on the
-    `EXECUTED` row of each `mov`/`mov`/`add` pair, as the sequence runs.
-- **`TRAP_RAISED` then `HALT`**  
-    At the end. The final `ta 0` is executed with traps already disabled
-    (that's what the `wr %g0, %psr` at the top did), so it has no
-    handler to jump to. The processor forces itself into `error_mode`
-    instead. This is this project's halt convention, used by every test
-    program in the repository. It's what the executable's
-    `PROCESSOR STATE: ERROR` and `Simulation halted after N cycles.`
-    output means, and it's expected, not a bug.
+- **`RESET`, then `TRAP_ENTER`**  
+    These events begin every run. The processor starts by taking a
+    reset trap into the program's first instruction.
+- **`FETCH`, then `EXECUTED`, for each instruction**  
+    The `FETCH` line shows the instruction about to run, with the
+    registers as they were before it. The `EXECUTED` line that follows,
+    with the same PC, shows the registers after it, with the changes
+    highlighted. The registers `%l0`, `%l1` and `%o0` change at the
+    `EXECUTED` lines of the two `mov` instructions and the `add`.
+- **`TRAP_RAISED`, then `HALT`**  
+    These events end the run. The `ta 0` instruction, executed with
+    traps disabled, puts the processor in its error mode, and the run
+    stops.
 
-To view a different log file, open `log_viewer/viewer.html` directly in
-a browser, then click **Load trace** to pick the log file and
-**Load objdump** to pick its matching disassembly file.
+To view another trace, open `$SPARC_HOME/log_viewer/viewer.html` in a
+browser. The **Load trace** button selects the `.log` file, and the
+**Load objdump** button selects its disassembly.
 
-!!! note "Viewing memory state"
-    The generated log and viewer don't currently track memory state,
-    even though the trace may contain load/store event details.
-
-    For examining or probing memory state during execution, see
-    [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md).
+!!! note "Memory isn't in the trace"
+    The trace and the viewer show the registers, but not the contents
+    of memory. Memory can be examined during a run with gdb. See
+    [Debug with gdb](#debug-with-gdb) below.
 
 ---
 
-## Running a validation suite
+## The Sitar timing model
 
-This project includes a large, well-curated suite of tests for
-functional validation of the models. Each test is a small program
-(assembly or C) paired with a description of its expected result. The
-tests, and the scripts to run them, are included in `validation/`.
+*This section needs Sitar (step 3 of Installation).*
 
-The suite contains:
-
-- **Assembly tests**  
-    The `asm/` folder contains several hundred assembly tests, organized
-    into instruction-type clusters, each targeting one instruction (or a
-    small family of closely related ones).
-- **C tests**  
-    The `C/` folder contains self-checking C programs, each computing
-    an integer result (a sort, a fixed-point FFT, a checksum) and
-    comparing it against a known value.
-- **Component tests**  
-    Further folders test the MMU, the devices, the caches, and the APARA
-    engine. They need a configuration that has these components.
-- **A test runner**  
-    `validation/run_tests.py` runs them all and reports a pass/fail
-    summary.
-
-It's worth running whenever you change the model itself, to check
-nothing broke. `validation/run_tests.py` drives each model's plain
-default build (no `--logging`, no `--debug`), the one already built in
-"Building the SPARC models" above. Some tests run long, and logging
-isn't needed here. Rebuild it if you've made changes since:
+The Sitar model runs the same core, and adds the timing of each
+instruction, memory access and interconnect. It is built and run in the
+same way, in its own folder, with the following commands:
 
 ```sh
-model/system_models/core_only/cpp_model/build.sh
-model/system_models/core_only/sitar_model/build.sh
+cd $SPARC_HOME/model/system_models/core_only/sitar_model
+./build.sh
+./executable/sparc_sim_sitar_core_only $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex
 ```
 
-Then run `validation/run_tests.py`, pointing it at a folder of tests.
-Example, a small subset first:
+The output has the same form:
+
+```
+...
+o0 0xc
+...
+Simulation halted after 8 cycles.
+```
+
+In this model, a cycle is a clock cycle of the modeled hardware. The
+cycle count therefore depends on the timing settings, and is not the
+number of instructions. The Sitar executable takes the same arguments
+as the C++ executable, and its folder has its own `run_simple_test.sh`.
+
+The command `./build.sh --logging` builds
+`executable/sparc_sim_sitar_core_only_logging`. This executable writes
+the same trace, `test_simple_ADD.log`. It also writes `sitar.log`,
+which is Sitar's own lower-level log of the simulation.
+
+---
+
+## Build options
+
+Both build scripts accept the following options, in any combination:
+
+| Option | Builds | Purpose |
+|---|---|---|
+| (none) | `sparc_sim_<model>_<configuration>` | Normal runs, and the validation suite. |
+| `--logging` | The same name, ending in `_logging` | Writing a trace of each run. |
+| `--debug` | The same name, ending in `_debug` | Examining a run with gdb. It adds debug symbols, and keeps optimization. |
+| `--debug-o0` | The same name, ending in `_debugo0` | Examining a run with gdb, without optimization, so that gdb can show every variable. |
+
+Here `<model>` is `cpp` or `sitar`. Each option builds its own
+executable, so the builds sit side by side in `executable/` and do not
+replace each other.
+
+---
+
+## The other configurations
+
+The other configurations add components to the core. Each one is a
+folder under `model/system_models/`:
+
+- **`core_mmu`** adds a Memory Management Unit (MMU), which translates
+  each address that the program uses into a physical address.
+- **`core_mmu_devices`** adds peripheral devices, which are a timer, a
+  serial device and an interrupt controller.
+- **`core_l1cache_mmu_devices`** adds instruction and data L1 caches.
+- **`sparc_apara`** adds an APARA engine, a vector accelerator, beside
+  the core.
+- **`apara`** is the APARA engine on its own, with no SPARC core. It
+  runs engine programs rather than SPARC programs. It is described in
+  its own section, [The APARA Accelerator](apara/index.md).
+
+Each configuration is built and run in the same way as `core_only`, in
+its own folder, and its executables are named after it. For example,
+the following commands build and run the C++ model of `core_mmu`:
 
 ```sh
-validation/run_tests.py validation/asm/misc/
+cd $SPARC_HOME/model/system_models/core_mmu/cpp_model
+./build.sh
+./executable/sparc_sim_cpp_core_mmu $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex
+```
+
+---
+
+## Run the validation suite
+
+The repository has a large suite of test programs that check the
+models. It contains several hundred assembly tests, each for one
+instruction or a small family of instructions. It also contains
+self-checking C programs, and tests of the MMU, the devices, the caches
+and the APARA engine. Each test has its expected result. The suite is
+in `$SPARC_HOME/validation/`, together with its runner, `run_tests.py`.
+
+The runner uses the plain build of a model, made by `./build.sh` with
+no options. That build must therefore exist for each model under test.
+The runner is run from the repository's folder, and is given a folder
+of tests. The following command runs a small folder first:
+
+```sh
+cd $SPARC_HOME
+validation/run_tests.py validation/asm/misc
 ```
 
 ```
-[PASS] validation/asm/misc/save_restore/SAVE.vprj
+[PASS] validation/asm/misc/flush/FLUSH.vprj
+...
 [PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
 
-<passed>/<total> tests passed
+13/13 tests passed
 ```
 
-Point it at `validation` itself to run the entire suite instead of one
-folder:
+The following command then runs the whole suite:
 
 ```sh
 validation/run_tests.py validation
 ```
 
-It runs every test the configuration can run, and lists the folders it
-skipped, the tests of components the configuration does not have:
+The runner runs every test that the configuration supports. It also
+lists the folders it skips, which hold tests of components that the
+configuration does not have:
 
 ```
 skipped 4 test(s) under validation/C/caches: core_only has no caches
@@ -358,60 +369,112 @@ skipped 4 test(s) under validation/C/caches: core_only has no caches
 241/241 tests passed (158 skipped)
 ```
 
-The script runs against `core_only` by default. Pass `--config
-core_mmu` to run it against another configuration instead. It also
-runs the C++ model by default. Pass `--sitar` to run the Sitar model
-instead. Add `-v` to show every check's result, not just failures:
+By default, the runner tests the C++ model of `core_only`. The
+`--config` option selects another configuration, and the `--sitar`
+option selects the Sitar model. The `-v` option shows every check,
+rather than only the failures:
 
 ```sh
 validation/run_tests.py validation --config core_mmu --sitar -v
 ```
 
-See [Validation Suite](validation_suite.md) for what's in a test, which
-tests run on which configuration, the full list of options, and how to
-add a new test to the suite.
+The suite should be run after every change to a model, to check that
+nothing broke. [Validation Suite](validation_suite.md) describes the
+tests, the runner's options, and how to add a new test.
 
 ---
 
-## Debugging
+## Compile a new program
 
-Logging suits a small test program well, but a long-running one can
-produce a log file too large to comfortably read through. Even with
-logging selectively turned on and off, the exact condition or bug you're
-chasing can be hard to pin down or trace this way. This is where a
-debugger becomes useful: it lets you surgically track a specific change,
-or inspect state at a specific point or condition at runtime, without
-printing large volumes of log output.
+*This section needs the cross-toolchain (step 4 of Installation).*
 
-GNU's `gdb`, the standard debugger, is enough for this. Both models are,
-underneath everything else, plain host C++ programs, so `gdb` attaches
-to them directly, no cross-debugger or special protocol needed. Using it
-well does still need some familiarity with the model's own source, to
-know which variables hold the simulated architectural state.
-
-Build with `--debug` first:
+A modified or new program must be compiled into a memory image before
+it can run. The following commands create a separate working folder,
+outside the repository, and copy the first program into it:
 
 ```sh
-model/system_models/core_only/cpp_model/build.sh --debug
-model/system_models/core_only/sitar_model/build.sh --debug
+mkdir -p ~/sparc_programs
+cd ~/sparc_programs
+cp $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.s my_add.s
 ```
 
-To make this convenient, `debug/sparc.gdb` provides a large set of
-shortcut commands. For example, setting a breakpoint at a specific PC, a
-watchpoint on a memory location, or printing one register:
+In `my_add.s`, change the line `mov 7, %l1` to `mov 30, %l1` with any
+text editor. The following commands then assemble the program and run
+it:
+
+```sh
+$SPARC_HOME/compiler/assemble.sh my_add.s
+$SPARC_HOME/model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only my_add.hex
+```
+
+The script `assemble.sh` writes the memory image `my_add.hex` and the
+disassembly `my_add.objdump`. It may warn that the sections `.data` and
+`.rodata` do not exist. This warning is expected, because the program
+has no data. At the end of the run, `%o0` holds 35:
 
 ```
-(gdb) sparc-break pc=0x203c
-(gdb) sparc-watch-mem addr=0xfffffe0
-(gdb) sparc-print-reg o0
+o0 0x23
+...
+Simulation halted after 9 cycles.
 ```
 
-See [Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md)
-for the full command reference and a complete walkthrough.
+A C program is compiled in the same way, with the command
+`$SPARC_HOME/compiler/compile_c.sh my_program.c`. The next pages,
+[Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
+and [Writing and Running C Programs](writing_and_running_c_programs.md),
+continue from here.
 
 ---
 
-## What's next
+## Debug with gdb
 
-Write your own test program: [Writing and Running Assembly Programs](writing_and_running_assembly_programs.md)
-or [Writing and Running C Programs](writing_and_running_c_programs.md).
+*This section needs gdb (step 5 of Installation).*
+
+A trace suits a short program, but the trace of a long program is too
+large to read. With gdb, the model can instead be stopped at a chosen
+point, and its registers and memory examined there. The models are
+ordinary programs on the host machine, so the host's own `gdb` debugs
+them directly.
+
+The following commands build the model with debug symbols, and start it
+in gdb with the repository's SPARC commands loaded from
+`debug/sparc.gdb`:
+
+```sh
+cd $SPARC_HOME/model/system_models/core_only/cpp_model
+./build.sh --debug
+gdb -x $SPARC_HOME/debug/sparc.gdb --args \
+    ./executable/sparc_sim_cpp_core_only_debug $SPARC_HOME/validation/test_simple_ADD/test_simple_ADD.hex
+```
+
+The following gdb session stops the model after the `add` instruction,
+which is at PC `0x18` in the disassembly. It then prints three
+registers, and lets the run continue:
+
+```
+(gdb) sparc-break pc=0x18
+(gdb) run
+(gdb) sparc-print-reg l0
+l0 = 0x5 (5)
+(gdb) sparc-print-reg l1
+l1 = 0x7 (7)
+(gdb) sparc-print-reg o0
+o0 = 0xc (12)
+(gdb) continue
+```
+
+[Examining Core State at Runtime Using GDB](examining_core_state_with_gdb.md)
+describes further examples, and [GDB Command Reference](gdb_command_reference.md)
+lists every command.
+
+---
+
+## Changing the models
+
+The source of the models is in `$SPARC_HOME/model/`. The core and the
+other components are written in plain C++ in `cpp_common_code/`. The
+Sitar modules are in `sitar_component_models/`, and each configuration
+is in `system_models/`. After a change, the model is rebuilt with
+`./build.sh` in its folder, and the validation suite checks that
+nothing broke. The Model section of this documentation describes how
+the models are built.

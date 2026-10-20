@@ -1984,7 +1984,7 @@ script" below for why):</p>
 <li><strong><code>&lt;name&gt;.expected</code></strong>, the <code>.vprj</code>'s checks rewritten into the plain
   format the checker executables themselves take as a direct
   command-line argument, see
-  <a href="getting_started.html#running-the-simulator">Getting Started</a>.</li>
+  <a href="getting_started.html#check-the-result-automatically">Getting Started</a>.</li>
 </ul>
 <p>In short, <code>.vprj</code> is what you write, once, by hand. <code>.expected</code> is what
 <code>run_tests.py</code> generates from it, fresh, every time the test runs. It's
@@ -2076,11 +2076,11 @@ configuration</a>).</p>
 </tr>
 <tr>
 <td><code>--sitar</code></td>
-<td>Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="installation.html">Installation</a> step 3 to build it.</td>
+<td>Run against the chosen configuration's Sitar-timed model instead of its plain C++ model (the default). Same CLI, same <code>.vprj</code> format, same PASS/FAIL/OVERALL output either way. See <a href="getting_started.html#the-sitar-timing-model">Getting Started</a> to build it.</td>
 </tr>
 <tr>
 <td><code>--max-cycles N</code></td>
-<td>Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#building-the-sparc-models">Getting Started</a>.</td>
+<td>Per-test cycle limit, default 200,000. A test that hasn't halted by then is reported as a failure, rather than hanging forever on a genuine bug. A "cycle" means one complete instruction executed against the plain C++ model, and an actual clock cycle against the Sitar-timed model, see <a href="getting_started.html#the-sitar-timing-model">Getting Started</a>.</td>
 </tr>
 <tr>
 <td><code>-v</code></td>
@@ -2381,7 +2381,7 @@ components, each living in its own folder:</p>
     and Running APARA Programs</a>.</li>
 </ul>
 <p>For example, to run the MMU validation suite on <code>core_mmu</code>, build that
-configuration first (see <a href="getting_started.html#building-the-sparc-models">Getting
+configuration first (see <a href="getting_started.html#the-other-configurations">Getting
 Started</a>):</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>model/system_models/core_mmu/cpp_model/build.sh
 </span></code></pre></div>

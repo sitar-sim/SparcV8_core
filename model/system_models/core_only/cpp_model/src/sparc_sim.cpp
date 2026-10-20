@@ -44,6 +44,7 @@
 #include <cctype>
 #include <cstdlib>
 
+#ifdef SPARC_LOGGING_ENABLED
 //Derives the trace filename from the hex file's own name: the same
 //basename, with a trailing ".hex" replaced by ".log" (or just ".log"
 //appended, if for some reason it doesn't end in ".hex"). Lets multiple
@@ -63,6 +64,7 @@ static std::string traceFileName(const std::string& hexFile)
 
 	return base + ".log";
 }
+#endif
 
 //Maps a RESULTS-block register mnemonic to its value in the current window.
 //Returns false if the name isn't recognized.
@@ -145,7 +147,7 @@ int main(int argc, char** argv)
 	if (logFile.is_open())
 	{
 		core.logger.init(core, &logFile, true);
-		std::cout << "Logging instruction trace to " << traceFile << "\n";
+		std::cout << "\nLogging instruction trace to " << traceFile << "\n";
 	}
 	else
 	{
@@ -156,7 +158,7 @@ int main(int argc, char** argv)
 	runner.run(maxCycles);
 
 	if (printStats)
-		std::cout << core.stats.toString();
+		std::cout << "\n" << core.stats.toString();
 
 	//No expected-results file: just run the program and report the
 	//final state. Nothing here is a pass/fail check, so PASS/FAIL/OVERALL

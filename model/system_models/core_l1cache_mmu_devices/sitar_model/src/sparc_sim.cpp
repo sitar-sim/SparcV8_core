@@ -58,6 +58,7 @@ static void setHierarchicalOstream(sitar::module* m, std::ostream* stream)
 }
 #endif
 
+#ifdef SITAR_ENABLE_LOGGING
 //Derives the trace filename from the hex file's own name. (Identical to
 //cpp_model's sparc_sim.cpp copy, see that one's own comment for why.)
 static std::string traceFileName(const std::string& hexFile)
@@ -74,6 +75,7 @@ static std::string traceFileName(const std::string& hexFile)
 
 	return base + ".log";
 }
+#endif
 
 //<hex_file> with .hex replaced by .serial_in, if that file exists, else "".
 static std::string defaultSerialInputFile(const std::string& hexFile)
@@ -257,7 +259,7 @@ int main(int argc, char** argv)
 	unsigned long cyclesExecuted = (unsigned long)(simulation_time / 2);
 
 	if (printStats)
-		std::cout << TOP->system.core.sparcThread.core.stats.toString()
+		std::cout << "\n" << TOP->system.core.sparcThread.core.stats.toString()
 		           << TOP->system.core.caches.caches.statsToString()
 		           << TOP->system.core.mmu.mmu.stats.toString()
 		           << TOP->system.mainMemory.mem.stats.toString()

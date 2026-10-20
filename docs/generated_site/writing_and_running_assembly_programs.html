@@ -1889,7 +1889,7 @@ memory hex file, and the expected-results file are already included.</p>
 <li>the standard format for writing a test for inclusion in this project's validation framework.</li>
 </ol>
 <p>This section assumes that you have built the models and the
-toolchain release. See steps 2 and 5 in <a href="installation.html">Installation</a>.</p>
+toolchain release. See steps 2 and 4 in <a href="installation.html">Installation</a>.</p>
 <p>Let's create a copy of the given simple asm program <code>test_simple_ADD</code>,
 and modify it, for example, using <code>sub</code> instead of <code>add</code>.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>mkdir<span class="w"> </span>temp_asm
@@ -1899,7 +1899,7 @@ and modify it, for example, using <code>sub</code> instead of <code>add</code>.<
 <hr />
 <h2 id="assembling-to-generate-a-memory-image-hex">Assembling to generate a memory image (.hex)<a class="headerlink" href="#assembling-to-generate-a-memory-image-hex" title="Permanent link">&para;</a></h2>
 <p>The conversion of asm/C programs to a memory image requires a cross-compiler toolchain, consisting of an assembler, utilities such as objdump/readelf, and also a compiler (for compiling C to asm).</p>
-<p>If not already done in <a href="installation.html">Installation</a> (step 5), run <code>compiler/install_toolchain.sh</code> to create a release.</p>
+<p>If not already done in <a href="installation.html">Installation</a> (step 4), run <code>compiler/install_toolchain.sh</code> to create a release.</p>
 <p>The toolchain release lives at <code>compiler/toolchain/</code>. Add it to your PATH variable (on Linux systems) by sourcing <code>compiler/toolchain_env.sh</code>, so that its binaries and libraries can be accessed from any location:</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="nb">source</span><span class="w"> </span>compiler/toolchain_env.sh
 </span></code></pre></div>
@@ -1923,7 +1923,7 @@ the repo root:</p>
 </span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only_logging<span class="w"> </span>temp_asm/test_simple_SUB.hex
 </span></code></pre></div>
 <p>This prints the final register state once the program halts, see
-<a href="getting_started.html#running-the-simulator">Getting Started</a> for the
+<a href="getting_started.html#run-the-program">Getting Started</a> for the
 full walkthrough, including the Sitar-timed model (which takes the
 identical CLI) and observing the trace in the log viewer.</p>
 <hr />
