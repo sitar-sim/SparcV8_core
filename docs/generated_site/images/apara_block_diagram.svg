@@ -1,0 +1,183 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1320 940" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="1320" height="940" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#000000"/>
+    </marker>
+    <marker id="arrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8a8a8a"/>
+    </marker>
+    <style>
+      .box    { stroke: #000000; stroke-width: 1.5; }
+      .engine { fill: #faf8fd; stroke: #000000; stroke-width: 2; }
+      .stage  { fill: #e8e0f5; }
+      .mem    { fill: #e2f0d9; }
+      .state  { fill: #fbe5cf; }
+      .host   { fill: #f9e0e0; }
+      .hostbg { fill: #ffffff; stroke: #666666; stroke-width: 1.5; stroke-dasharray: 6 4; }
+      .cpu    { fill: #dbe9f7; }
+      .dev    { fill: #fdf1d6; }
+      .big    { font-size: 22px; font-weight: bold; }
+      .title  { font-size: 17px; font-weight: bold; text-anchor: middle; }
+      .pin    { font-size: 13px; text-anchor: middle; fill: #333333; }
+      .sig    { font-size: 14px; text-anchor: middle; fill: #000000; }
+      .lbl    { font-size: 13px; fill: #333333; }
+      .note   { font-size: 12px; fill: #666666; }
+      .bus    { stroke: #8a8a8a; stroke-width: 5; }
+      .tap    { stroke: #8a8a8a; stroke-width: 5; marker-start: url(#arrowGrey); marker-end: url(#arrowGrey); }
+      .wire   { stroke: #000000; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+      .wire2  { stroke: #000000; stroke-width: 2; fill: none; marker-start: url(#arrow); marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <!-- ================= The engine ================= -->
+  <rect class="engine" x="30" y="30" width="1260" height="570"/>
+  <text class="big" x="50" y="62">APARA Engine</text>
+
+  <!-- ===== Pipeline: FETCH, DECODE, REGFILE, WRITEBACK, with EXEC below REGFILE ===== -->
+  <rect class="box stage" x="60" y="110" width="190" height="90"/>
+  <text class="title" x="155" y="140">FETCH</text>
+  <text class="pin" x="155" y="163">picks a thread, round robin</text>
+  <text class="pin" x="155" y="181">BTB predicts the next PC</text>
+
+  <rect class="box stage" x="310" y="110" width="190" height="90"/>
+  <text class="title" x="405" y="140">DECODE</text>
+  <text class="pin" x="405" y="163">registers, latency,</text>
+  <text class="pin" x="405" y="181">divider use</text>
+
+  <rect class="box stage" x="560" y="110" width="220" height="90"/>
+  <text class="title" x="670" y="140">REGFILE</text>
+  <text class="pin" x="670" y="163">one waiting bundle per thread</text>
+  <text class="pin" x="670" y="181">register locks, 2 tokens</text>
+
+  <rect class="box stage" x="1070" y="110" width="190" height="90"/>
+  <text class="title" x="1165" y="140">WRITEBACK</text>
+  <text class="pin" x="1165" y="163">retires bundles,</text>
+  <text class="pin" x="1165" y="181">corrects mispredictions</text>
+
+  <rect class="box stage" x="560" y="270" width="220" height="100"/>
+  <text class="title" x="670" y="298">EXEC</text>
+  <text class="pin" x="670" y="321">executes a bundle, and holds</text>
+  <text class="pin" x="670" y="339">it for its latency, shared divider,</text>
+  <text class="pin" x="670" y="357">owns the engine's state</text>
+
+  <!-- pipeline flow -->
+  <path class="wire" d="M 250,155 H 310"/>
+  <text class="note" x="280" y="146" text-anchor="middle">bundles</text>
+  <path class="wire" d="M 500,155 H 560"/>
+  <text class="note" x="530" y="146" text-anchor="middle">×4</text>
+  <path class="wire" d="M 780,155 H 1070"/>
+  <text class="sig" x="925" y="146">retired bundles</text>
+
+  <path class="wire" d="M 640,200 V 270"/>
+  <text class="lbl" x="632" y="240" text-anchor="end">issue</text>
+  <path class="wire" d="M 700,270 V 200"/>
+  <text class="lbl" x="708" y="240">results</text>
+
+  <!-- WRITEBACK -> FETCH -->
+  <path class="wire" d="M 1165,110 V 85 H 155 V 110"/>
+  <text class="sig" x="660" y="78">PC corrections and thread-stop notices</text>
+
+  <!-- EXEC -> FETCH -->
+  <path class="wire" d="M 560,355 H 530 V 410 H 230 V 200"/>
+  <text class="sig" x="385" y="402">thread starts and resets</text>
+
+  <!-- ===== IMEM ===== -->
+  <rect class="box mem" x="60" y="270" width="140" height="100"/>
+  <text class="title" x="130" y="305">IMEM</text>
+  <text class="pin" x="130" y="328">16 KB</text>
+  <text class="pin" x="130" y="346">4096 words</text>
+  <path class="wire" d="M 130,270 V 200"/>
+  <text class="note" x="122" y="232" text-anchor="end">8-word</text>
+  <text class="note" x="122" y="247" text-anchor="end">lines</text>
+
+  <!-- ===== Thread state ===== -->
+  <rect class="box state" x="280" y="270" width="220" height="100"/>
+  <text class="title" x="390" y="298">Thread State, ×4</text>
+  <text class="pin" x="390" y="321">PC, $r0 .. $r31 (64 bits)</text>
+  <text class="pin" x="390" y="339">return-address stack</text>
+  <text class="pin" x="390" y="357">ERROR</text>
+  <path class="wire2" d="M 500,315 H 560"/>
+
+  <!-- ===== DMEM ===== -->
+  <rect class="box mem" x="520" y="450" width="300" height="135"/>
+  <rect class="box mem" x="535" y="465" width="125" height="65"/>
+  <text class="title" x="597" y="492">Bank 0</text>
+  <text class="pin" x="597" y="513">32 KB</text>
+  <rect class="box mem" x="680" y="465" width="125" height="65"/>
+  <text class="title" x="742" y="492">Bank 1</text>
+  <text class="pin" x="742" y="513">32 KB</text>
+  <text class="title" x="670" y="556">DMEM, 64 KB</text>
+  <text class="note" x="670" y="574" text-anchor="middle">address bit 15 selects the bank</text>
+  <path class="wire2" d="M 610,370 V 465"/>
+  <path class="wire2" d="M 740,370 V 465"/>
+  <text class="note" x="752" y="414">one 256-bit</text>
+  <text class="note" x="752" y="429">port per bank</text>
+
+  <!-- ===== Host side ===== -->
+  <rect class="hostbg" x="900" y="245" width="360" height="340"/>
+  <text class="lbl" x="1080" y="268" text-anchor="middle" font-weight="bold">Host side, in sparc_apara</text>
+
+  <rect class="box host" x="920" y="285" width="320" height="100"/>
+  <text class="title" x="1080" y="312">Control Unit (CCU)</text>
+  <text class="pin" x="1080" y="335">8 registers per thread</text>
+  <text class="pin" x="1080" y="353">loads IMEM, sets registers,</text>
+  <text class="pin" x="1080" y="371">starts, resets and queries threads</text>
+
+  <rect class="box host" x="920" y="410" width="320" height="100"/>
+  <text class="title" x="1080" y="437">DMA Unit</text>
+  <text class="pin" x="1080" y="460">4 channels</text>
+  <text class="pin" x="1080" y="478">copies bursts between</text>
+  <text class="pin" x="1080" y="496">main memory and DMEM</text>
+
+  <text class="note" x="1080" y="540" text-anchor="middle">answers the SPARC's accesses to the CCU,</text>
+  <text class="note" x="1080" y="556" text-anchor="middle">DMA and DMEM windows</text>
+
+  <!-- engine <-> host side -->
+  <path class="wire" d="M 900,300 H 780"/>
+  <text class="note" x="840" y="279" text-anchor="middle">requests: IMEM,</text>
+  <text class="note" x="840" y="293" text-anchor="middle">DMEM, registers</text>
+  <path class="wire" d="M 780,340 H 900"/>
+  <text class="note" x="840" y="358" text-anchor="middle">off-island loads</text>
+  <text class="note" x="840" y="372" text-anchor="middle">and stores, stops</text>
+
+  <!-- ================= The system ================= -->
+  <line class="bus" x1="40" y1="700" x2="1280" y2="700"/>
+  <text x="50" y="688" font-size="16" fill="#333333">System bus</text>
+  <text class="note" x="140" y="688">one transaction at a time, its two masters taken round robin</text>
+
+  <!-- host side: target and master 2 -->
+  <line class="tap" x1="990" y1="585" x2="990" y2="700"/>
+  <text class="lbl" x="978" y="640" text-anchor="end">the SPARC's accesses</text>
+  <text class="note" x="978" y="656" text-anchor="end">to the three windows</text>
+
+  <line class="tap" x1="1170" y1="585" x2="1170" y2="700"/>
+  <text class="lbl" x="1158" y="632" text-anchor="end">master 2</text>
+  <text class="note" x="1158" y="648" text-anchor="end">DMA copies, and</text>
+  <text class="note" x="1158" y="664" text-anchor="end">off-island loads</text>
+  <text class="note" x="1158" y="680" text-anchor="end">and stores</text>
+
+  <!-- core, memory, devices -->
+  <line class="tap" x1="210" y1="700" x2="210" y2="760"/>
+  <text class="lbl" x="222" y="736">master 1</text>
+  <rect class="box cpu" x="60" y="760" width="300" height="90"/>
+  <text class="title" x="210" y="798">SPARC V8 Core</text>
+  <text class="pin" x="210" y="822">with its L1 caches and MMU</text>
+
+  <line class="tap" x1="530" y1="700" x2="530" y2="760"/>
+  <rect class="box mem" x="420" y="760" width="220" height="90"/>
+  <text class="title" x="530" y="798">Main Memory</text>
+  <text class="pin" x="530" y="822">256 MB</text>
+
+  <line class="tap" x1="850" y1="700" x2="850" y2="760"/>
+  <rect class="box dev" x="700" y="760" width="300" height="90"/>
+  <text class="title" x="850" y="798">Peripheral Devices</text>
+  <text class="pin" x="850" y="822">Timer, Serial, Interrupt Controller</text>
+
+  <!-- interrupts -->
+  <path class="wire" d="M 1260,560 H 1305 V 915 H 940 V 850"/>
+  <text class="sig" x="1120" y="907">engine interrupt (IRL 14)</text>
+  <path class="wire" d="M 760,850 V 895 H 210 V 850"/>
+  <text class="sig" x="485" y="887">interrupt level</text>
+</svg>

@@ -92,115 +92,16 @@ thread 1: stopped at 0x8 by an exception: slot 4 unaligned memory address;
 
 ## Tests
 
-`validation/apara/` holds the engine's own test suites, one folder each:
+The engine's own test suites are in `validation/apara/`, with their own
+runner. [APARA Validation Suite](validation.md) describes what the
+suites contain, the format of a test, how to run the suites on both
+models, and how to add a test. The following command runs every suite
+on the C++ model:
 
-| Folder | Tests | What they check |
-|---|---|---|
-| `isa/` | 29 | Every instruction, in one subfolder per class (`alu_int`, `alu_float`, `vector`, `cast`, `bits`, `cmov`, `memory`, `control`): each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception. |
-| `sequences/` | 7 | Instructions working together: full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, one thread's fault not stopping the others. |
-| `hazards/` | 10 | The pipeline's handling of dependences between bundles (see [Hazards](#hazards)). |
-| `predictor/` | 6 | The branch predictor: loops, nested loops, two branches sharing a predictor entry, calls and returns. Each test's mispredict count is derived from the [predictor's rules](timing_model.md#branch-prediction). |
-| `asm_errors/` | 21 | Programs the assembler must reject: a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, invalid types. |
-| `timing/` | 10 | Microbenchmarks with exact cycle counts, derived by hand from the [timing rules](timing_model.md#timing-rules). Its `README.md` also has each test's counts for other settings of the [knobs](timing_model.md#knobs). |
-| `kernels/` | 6 | Larger hand-scheduled programs: dot product, vector addition, SAXPY, reduction, and matrix products on one and four threads. |
-| `c_programs/` | 11 | Programs compiled from C with the [C compiler](compiler.md): the language's features, sorting, a prime sieve, and linear algebra. |
-| `deviations/` | 8 | Behavior where the model departs, on purpose, from the engine's reference model (see [Deviations and Findings](deviations.md)). |
-
-Each folder has a `README.md` describing its tests.
-
-### A test
-
-A test is a source file and a `.vprj` file of the same name, in the
-same spirit as the SPARC tests (see [Validation
-Suite](../validation_suite.md)). The `.vprj` says how to run the program
-and what to expect. For example, the timing test
-`timing/t3_latency`:
-
-```mcode
---8<-- "validation/apara/timing/t3_latency.mcode"
+```sh
+cd $SPARC_HOME
+python3 validation/apara/run_tests.py
 ```
-
-```text
---8<-- "validation/apara/timing/t3_latency.vprj"
-```
-
-The source's header explains where the expected count comes from. A
-functional test sets registers and memory in `INIT`, and lists the
-expected results in `RESULTS`. From `isa/control/control.vprj`:
-
-```text
-SOURCES = control.mcode
-
-INIT =
-r1 = 5
-r3 = 0xbfc00000
-
-RESULTS =
-r1 = 0xffffffffffffffff
-r2 = 0xf
-```
-
-The lines of `INIT` and `RESULTS`:
-
-| Line | Meaning |
-|---|---|
-| `r3 = 0x10` | Thread 0's `$r3`. |
-| `t1.r3 = 0x10` | Thread 1's `$r3`. |
-| `m[0x80] = 0x0102030405060708` | The DMEM dword (8 bytes) at byte address 0x80. |
-| `m[C+0x8] = 0x2f2` | In a C test: a dword of the global `C`. |
-| `t1.pc = 0x9` | (`RESULTS` only) Where thread 1 stopped. |
-| `error = 0x2000000` | (`RESULTS` only) Thread 0's ERROR register: 0x2000000 is a `$halt`. |
-
-A value in `RESULTS` may be followed by a mask, which selects the bits
-compared.
-
-The other keys:
-
-| Key | Meaning |
-|---|---|
-| `SOURCES = prog.mcode` | The program: mcode, C (`.c`, compiled first), or an object file (`.obj`). |
-| `THREADS = 0x0 worker` | Start a thread at each of these IMEM addresses or labels. Default: one thread at 0x0. |
-| `CYCLES = 12` | The exact cycle count on the timing model, with the default timing settings. |
-| `MISPREDICTS = 2`, `BTB_PREDICTIONS = 3` | The exact branch predictor counts on the timing model. |
-| `HAZARDS_UNLOCKED = 1` | The hazards the timing model must count when built without the interlock (see [Hazards](#hazards)). |
-| `ASM_ERROR = written twice` | The program must not assemble, and the error message must contain this text. |
-| `DEVIATION = <why>` | The test depends on one of the model's [deviations](deviations.md). |
-| `MAX_CYCLES = 100000` | A larger limit, for a long test. |
-| `APCC_FLAGS = -O0` | Options for the C compiler. |
-
-### Running the tests
-
-```bash
-python3 validation/apara/run_tests.py                          # every suite, on the cpp_model
-python3 validation/apara/run_tests.py --sitar                  # on the sitar_model, also checking the timing keys
-python3 validation/apara/run_tests.py validation/apara/hazards --sitar   # one suite (or one .vprj)
-```
-
-The runner compiles or assembles each test, writes its files into
-`validation/apara/build/<test>/`, runs it, and prints `PASS` or `FAIL`
-for each, then a summary per suite:
-
-```text
-PASS  timing/t1_halt.vprj
-...
-  asm_errors     21/21 passed
-  c_programs     11/11 passed
-...
-  timing         10/10 passed
-OVERALL: 108 passed, 0 failed
-```
-
-The `apara` configuration runs only these suites: the SPARC suites need
-a SPARC core (see [Validation Suite](../validation_suite.md#which-tests-run-on-which-configuration)).
-
-### Adding a test
-
-Write a source file and its `.vprj` in a suite's folder, and run the
-suite. There is nothing to register: the runner finds every `.vprj`
-file in the folders it is given. To find the expected values of a new
-test, run it once with `--dump-results -` (see [Running a
-program](#running-a-program)), and check every value by hand, or with an
-independent calculation, before writing it down.
 
 ---
 

@@ -24,7 +24,7 @@ For every program the reference tools handle correctly, the model gives
 the same results: the assembler writes the same object file, and a run
 reaches the same final state (PC, registers, DMEM). This was checked on
 every valid program of the APARA repository, and on this project's own
-tests (see [Writing and Running Programs](running.md#running-the-tests)).
+tests (see [APARA Validation Suite](validation.md#running-the-tests)).
 
 This page lists where the model deliberately differs from the reference
 model, and why, followed by the open questions in the sources, which

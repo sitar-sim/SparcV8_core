@@ -1513,6 +1513,62 @@
   
   
     <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="deviations.html" class="md-nav__link">
         
   
@@ -1788,6 +1844,11 @@ project models it in the same two ways as the SPARC core: a fast functional mode
 timing model of its pipeline.</p>
 <hr />
 <h2 id="the-engine-at-a-glance">The engine at a glance<a class="headerlink" href="#the-engine-at-a-glance" title="Permanent link">&para;</a></h2>
+<p>The block diagram below shows the engine's memories, its pipeline and
+thread state, and its host side, which connects it to a SPARC system.
+The host side, with its control unit and DMA unit, is present only in
+the <code>sparc_apara</code> configuration.</p>
+<p><img src="../images/apara_block_diagram.svg" alt="Block diagram of the APARA engine: IMEM, DMEM, the pipeline, the thread state, and the host side with its control unit and DMA unit, connected over the system bus to the SPARC core, main memory and the peripheral devices" title="APARA engine block diagram"></p>
 <ul>
 <li><strong>Bundles</strong><br />
     The engine is a VLIW machine. Instead of one instruction at a time,
@@ -1831,7 +1892,11 @@ timing model of its pipeline.</p>
 <li><strong>To write engine programs in C</strong>, such as linear algebra kernels,
   read <a href="compiler.html">The C Compiler</a>.</li>
 <li><strong>To use the engine from a SPARC program</strong>, read <a href="system.html">The Engine in a
-  System</a>.</li>
+  System</a> for the hardware, then <a href="system_programming.html">Programming the
+  System</a>, which walks through an example and
+  builds a new program step by step.</li>
+<li><strong>To run the engine's tests, or add one</strong>, read <a href="validation.html">APARA Validation
+  Suite</a>.</li>
 <li><strong>To study or change the engine's timing</strong>, read the <a href="timing_model.html">Timing
   Model</a>.</li>
 <li><strong>For the model's sources, where it deliberately departs from them,
@@ -1874,11 +1939,11 @@ timing model of its pipeline.</p>
 </tr>
 <tr>
 <td><code>validation/apara/</code></td>
-<td>The engine's own test suites, and their runner (see <a href="running.html#tests">Tests</a>).</td>
+<td>The engine's own test suites, and their runner (see <a href="validation.html#the-engine-suites-validationapara">APARA Validation Suite</a>).</td>
 </tr>
 <tr>
 <td><code>validation/sparc_apara/</code></td>
-<td>The tests of the SPARC using the engine (see <a href="system.html#tests">Tests</a>).</td>
+<td>The tests of the SPARC using the engine (see <a href="validation.html#the-system-suites-validationsparc_apara">APARA Validation Suite</a>).</td>
 </tr>
 </tbody>
 </table>

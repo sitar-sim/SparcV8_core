@@ -106,6 +106,8 @@ nav:
       - The C Compiler: apara/compiler.md
       - Timing Model: apara/timing_model.md
       - The Engine in a System: apara/system.md
+      - Programming the System: apara/system_programming.md
+      - Validation Suite: apara/validation.md
       - Deviations and Findings: apara/deviations.md
 
   - More:

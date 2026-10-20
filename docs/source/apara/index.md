@@ -17,6 +17,13 @@ timing model of its pipeline.
 
 ## The engine at a glance
 
+The block diagram below shows the engine's memories, its pipeline and
+thread state, and its host side, which connects it to a SPARC system.
+The host side, with its control unit and DMA unit, is present only in
+the `sparc_apara` configuration.
+
+<img src="../images/apara_block_diagram.svg" alt="Block diagram of the APARA engine: IMEM, DMEM, the pipeline, the thread state, and the host side with its control unit and DMA unit, connected over the system bus to the SPARC core, main memory and the peripheral devices" title="APARA engine block diagram">
+
 - **Bundles**  
     The engine is a VLIW machine. Instead of one instruction at a time,
     it executes *bundles* of up to 8 instructions, which the program has
@@ -62,7 +69,11 @@ Both come with functional and timing models, tests, and tools.
 - **To write engine programs in C**, such as linear algebra kernels,
   read [The C Compiler](compiler.md).
 - **To use the engine from a SPARC program**, read [The Engine in a
-  System](system.md).
+  System](system.md) for the hardware, then [Programming the
+  System](system_programming.md), which walks through an example and
+  builds a new program step by step.
+- **To run the engine's tests, or add one**, read [APARA Validation
+  Suite](validation.md).
 - **To study or change the engine's timing**, read the [Timing
   Model](timing_model.md).
 - **For the model's sources, where it deliberately departs from them,
@@ -81,5 +92,5 @@ Both come with functional and timing models, tests, and tools.
 | `model/system_models/apara/`, `model/system_models/sparc_apara/` | The two configurations, each with its `cpp_model/` and `sitar_model/`. |
 | `compiler/apara/` | The assembler, the disassembler, the C compiler (`apcc.py`, with `include/apara.h`), the program-to-C-header tool, and vim syntax highlighting. |
 | `compiler/include/apara_access_routines.h` | The SPARC-side C routines. |
-| `validation/apara/` | The engine's own test suites, and their runner (see [Tests](running.md#tests)). |
-| `validation/sparc_apara/` | The tests of the SPARC using the engine (see [Tests](system.md#tests)). |
+| `validation/apara/` | The engine's own test suites, and their runner (see [APARA Validation Suite](validation.md#the-engine-suites-validationapara)). |
+| `validation/sparc_apara/` | The tests of the SPARC using the engine (see [APARA Validation Suite](validation.md#the-system-suites-validationsparc_apara)). |

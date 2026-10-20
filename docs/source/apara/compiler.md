@@ -200,7 +200,7 @@ __entry void rows(int64_t first, int64_t count)
 Every thread has its own registers, so each has its own `i`, `j`, `k`
 and `sum`. They share the global arrays, so each must write only its own
 part of them: the engine has no atomic operations (see [Threads sharing
-data](system.md#threads-sharing-data)).
+data](system_programming.md#threads-sharing-data)).
 
 ### Limits
 
@@ -339,7 +339,7 @@ algebra kernel gets that speed when its inner loop works on whole
 
 The test folder `validation/apara/c_programs/` has each of these, with
 expected results computed independently. Running one is the quickest
-way to start (see [Writing and Running Programs](running.md#tests)).
+way to start (see [APARA Validation Suite](validation.md#the-engine-suites-validationapara)).
 For example, `matmul_threads.c` on three threads, on the timing model,
 reports its cycles and how the pipeline spent them:
 

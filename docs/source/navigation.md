@@ -57,10 +57,12 @@ processor as an accelerator. These pages cover the engine on its own
 | [The APARA Engine](apara/index.md) | Overview of the APARA vector compute engine, and its two configurations. |
 | [APARA Instruction Set](apara/isa.md) | The engine's state, data types, bundles, and every instruction. |
 | [APARA Assembly Language and Tools](apara/assembly_and_tools.md) | mcode, the assembler and disassembler, and the file formats. |
-| [Writing and Running APARA Programs](apara/running.md) | Running an engine program on its own, the engine's test suites, and how the pipeline handles hazards. |
+| [Writing and Running APARA Programs](apara/running.md) | Running an engine program on its own, and how the pipeline handles hazards. |
 | [The APARA C Compiler](apara/compiler.md) | `apcc.py`: the C subset, the intrinsics and inline mcode, and running linear algebra programs on the engine. |
 | [APARA Timing Model](apara/timing_model.md) | The engine's five-stage pipeline in the Sitar model, and its timing rules and knobs. |
-| [The Engine in a System](apara/system.md) | `sparc_apara`: how the SPARC and the engine are connected and communicate, the setup protocol, the control and DMA units, the C routines, and the tests. |
+| [The Engine in a System](apara/system.md) | The hardware of `sparc_apara`. Its components, how they are connected, the address map, the control and DMA units, the interrupt, and the two models. |
+| [Programming the System](apara/system_programming.md) | How a SPARC program uses the engine. An example offload explained, the ready-made routines, the setup protocol, and a new program built step by step. |
+| [APARA Validation Suite](apara/validation.md) | The engine suites and the system suites. What they contain, how to run them on both models, and how to add a test. |
 | [APARA Deviations and Findings](apara/deviations.md) | The model's sources, where it deliberately departs from them, and the open questions (for the model's authors). |
 
 ## More

@@ -1591,6 +1591,62 @@
   
   
     <li class="md-nav__item">
+      <a href="apara/system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="apara/validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="apara/deviations.html" class="md-nav__link">
         
   
@@ -2022,7 +2078,7 @@ the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt
   program the test carries, in mcode or in C (<code>MCODE = kernel.c</code>).
   Before compiling, <code>build_hex.py</code> assembles or compiles it, and writes
   it out as a C header, <code>kernel.mcode.h</code> (or <code>kernel.c.h</code>), for the test
-  to <code>#include</code> (C tests only, may be repeated). See <a href="apara/system.html#carrying-the-engines-program">The Engine in a
+  to <code>#include</code> (C tests only, may be repeated). See <a href="apara/system_programming.html#carrying-the-engines-program">Programming the
   System</a>.</li>
 <li><code>MAX_CYCLES = 1000000</code>, before <code>RESULTS</code>, raises the cycle limit for
   a test that legitimately runs long (the runner uses the larger of this
@@ -2195,8 +2251,8 @@ configuration has, and lists the folders it skipped, with the reason:</p>
 </tbody>
 </table>
 <p>The engine's own suites, in <code>apara/</code>, are engine programs rather than
-SPARC programs, so they have their own format and runner (see <a href="apara/running.html#tests">Writing
-and Running APARA Programs</a>). <code>run_tests.py
+SPARC programs, so they have their own format and runner (see <a href="apara/validation.html#the-engine-suites-validationapara">APARA
+Validation Suite</a>). <code>run_tests.py
 --config apara</code> says so, and stops.</p>
 <p>A new configuration needs only its <code>COMPONENTS</code> file to work with every
 existing suite. A new suite that needs more than the SPARC core gets a
@@ -2369,7 +2425,7 @@ components, each living in its own folder:</p>
     threads, the SPARC and the DMA unit disturb one another), and
     <code>linalg/</code> (linear algebra offloaded to the engine). Needs
     <code>sparc_apara</code>. On the sitar_model, run them with <code>--max-cycles
-    50000000</code>. See <a href="apara/system.html#tests">The Engine in a System</a>.</li>
+    50000000</code>. See <a href="apara/validation.html#the-system-suites-validationsparc_apara">APARA Validation Suite</a>.</li>
 <li><strong><code>validation/apara/</code></strong><br />
     The APARA engine on its own, with its own test format and runner,
     in nine suites: every instruction (<code>isa/</code>), sequences, hazards, the
@@ -2377,8 +2433,8 @@ components, each living in its own folder:</p>
     hand-written kernels, programs compiled from C, and the model's
     deviations. Unlike the SPARC suite, it also checks timing: cycle
     and mispredict counts, derived by hand for the default timing
-    settings, which the timing model must match exactly. See <a href="apara/running.html#tests">Writing
-    and Running APARA Programs</a>.</li>
+    settings, which the timing model must match exactly. See <a href="apara/validation.html#the-engine-suites-validationapara">APARA
+    Validation Suite</a>.</li>
 </ul>
 <p>For example, to run the MMU validation suite on <code>core_mmu</code>, build that
 configuration first (see <a href="getting_started.html#the-other-configurations">Getting

@@ -39,8 +39,8 @@ The program's three bundles run one after another:
 
 `$r1` is set before the run: by a registers file given to the
 simulator (see [File formats](#file-formats)), or, in a test, by the
-`INIT` section of its `.vprj` (see [Writing and Running
-Programs](running.md#a-test)).
+`INIT` section of its `.vprj` (see [APARA Validation
+Suite](validation.md#a-test)).
 
 ### Program structure
 
@@ -104,8 +104,8 @@ python3 compiler/apara/apara_dis.py prog.obj                  # mcode, to standa
 - **`apara_obj_to_c.py`**, for programs the SPARC loads into the engine
   (in `sparc_apara`). It writes an engine program, in mcode or in C, as
   a C header, containing the program as an array and each label's
-  address as a `#define`. See [The Engine in a
-  System](system.md#carrying-the-engines-program).
+  address as a `#define`. See [Programming the
+  System](system_programming.md#carrying-the-engines-program).
 - **`apcc.py`**, the C compiler, see [The C Compiler](compiler.md).
 
 `python3 compiler/apara/test_mcode.py` runs the assembler's and

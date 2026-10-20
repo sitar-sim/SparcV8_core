@@ -1417,45 +1417,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Tests">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A test
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#running-the-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running the tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#adding-a-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Adding a test
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1549,6 +1510,62 @@
     
   
     The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
   
 
     
@@ -1814,45 +1831,6 @@
     </span>
   </a>
   
-    <nav class="md-nav" aria-label="Tests">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#a-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        A test
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#running-the-tests" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Running the tests
-      
-    </span>
-  </a>
-  
-</li>
-        
-          <li class="md-nav__item">
-  <a href="#adding-a-test" class="md-nav__link">
-    <span class="md-ellipsis">
-      
-        Adding a test
-      
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
 </li>
       
         <li class="md-nav__item">
@@ -1990,205 +1968,14 @@ cause:</p>
 </span></code></pre></div>
 <hr />
 <h2 id="tests">Tests<a class="headerlink" href="#tests" title="Permanent link">&para;</a></h2>
-<p><code>validation/apara/</code> holds the engine's own test suites, one folder each:</p>
-<table>
-<thead>
-<tr>
-<th>Folder</th>
-<th>Tests</th>
-<th>What they check</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>isa/</code></td>
-<td>29</td>
-<td>Every instruction, in one subfolder per class (<code>alu_int</code>, <code>alu_float</code>, <code>vector</code>, <code>cast</code>, <code>bits</code>, <code>cmov</code>, <code>memory</code>, <code>control</code>): each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception.</td>
-</tr>
-<tr>
-<td><code>sequences/</code></td>
-<td>7</td>
-<td>Instructions working together: full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, one thread's fault not stopping the others.</td>
-</tr>
-<tr>
-<td><code>hazards/</code></td>
-<td>10</td>
-<td>The pipeline's handling of dependences between bundles (see <a href="#hazards">Hazards</a>).</td>
-</tr>
-<tr>
-<td><code>predictor/</code></td>
-<td>6</td>
-<td>The branch predictor: loops, nested loops, two branches sharing a predictor entry, calls and returns. Each test's mispredict count is derived from the <a href="timing_model.html#branch-prediction">predictor's rules</a>.</td>
-</tr>
-<tr>
-<td><code>asm_errors/</code></td>
-<td>21</td>
-<td>Programs the assembler must reject: a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, invalid types.</td>
-</tr>
-<tr>
-<td><code>timing/</code></td>
-<td>10</td>
-<td>Microbenchmarks with exact cycle counts, derived by hand from the <a href="timing_model.html#timing-rules">timing rules</a>. Its <code>README.md</code> also has each test's counts for other settings of the <a href="timing_model.html#knobs">knobs</a>.</td>
-</tr>
-<tr>
-<td><code>kernels/</code></td>
-<td>6</td>
-<td>Larger hand-scheduled programs: dot product, vector addition, SAXPY, reduction, and matrix products on one and four threads.</td>
-</tr>
-<tr>
-<td><code>c_programs/</code></td>
-<td>11</td>
-<td>Programs compiled from C with the <a href="compiler.html">C compiler</a>: the language's features, sorting, a prime sieve, and linear algebra.</td>
-</tr>
-<tr>
-<td><code>deviations/</code></td>
-<td>8</td>
-<td>Behavior where the model departs, on purpose, from the engine's reference model (see <a href="deviations.html">Deviations and Findings</a>).</td>
-</tr>
-</tbody>
-</table>
-<p>Each folder has a <code>README.md</code> describing its tests.</p>
-<h3 id="a-test">A test<a class="headerlink" href="#a-test" title="Permanent link">&para;</a></h3>
-<p>A test is a source file and a <code>.vprj</code> file of the same name, in the
-same spirit as the SPARC tests (see <a href="../validation_suite.html">Validation
-Suite</a>). The <code>.vprj</code> says how to run the program
-and what to expect. For example, the timing test
-<code>timing/t3_latency</code>:</p>
-<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="c1">// Timing: EXEC latency. An f32 add takes 3 cycles in EXEC (cycles 3-5).</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="c1">// The $halt behind it enters EXEC in cycle 4 but results leave in order,</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="c1">// one per cycle: the add&#39;s in cycle 5, the halt&#39;s in 6; WRITEBACK in 8:</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="c1">// 9 cycles.</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="c1">//</span>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r1</span> <span class="p">(</span><span class="kt">$f32</span><span class="p">)</span> <span class="nv">$r2</span> <span class="nv">$r3</span> <span class="kp">;</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
+<p>The engine's own test suites are in <code>validation/apara/</code>, with their own
+runner. <a href="validation.html">APARA Validation Suite</a> describes what the
+suites contain, the format of a test, how to run the suites on both
+models, and how to add a test. The following command runs every suite
+on the C++ model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>SOURCES = t3_latency.mcode
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>CYCLES = 9
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>RESULTS =
-</span></code></pre></div>
-<p>The source's header explains where the expected count comes from. A
-functional test sets registers and memory in <code>INIT</code>, and lists the
-expected results in <code>RESULTS</code>. From <code>isa/control/control.vprj</code>:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>SOURCES = control.mcode
-</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>
-</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>INIT =
-</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>r1 = 5
-</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>r3 = 0xbfc00000
-</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>
-</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>RESULTS =
-</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>r1 = 0xffffffffffffffff
-</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>r2 = 0xf
-</span></code></pre></div>
-<p>The lines of <code>INIT</code> and <code>RESULTS</code>:</p>
-<table>
-<thead>
-<tr>
-<th>Line</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>r3 = 0x10</code></td>
-<td>Thread 0's <code>$r3</code>.</td>
-</tr>
-<tr>
-<td><code>t1.r3 = 0x10</code></td>
-<td>Thread 1's <code>$r3</code>.</td>
-</tr>
-<tr>
-<td><code>m[0x80] = 0x0102030405060708</code></td>
-<td>The DMEM dword (8 bytes) at byte address 0x80.</td>
-</tr>
-<tr>
-<td><code>m[C+0x8] = 0x2f2</code></td>
-<td>In a C test: a dword of the global <code>C</code>.</td>
-</tr>
-<tr>
-<td><code>t1.pc = 0x9</code></td>
-<td>(<code>RESULTS</code> only) Where thread 1 stopped.</td>
-</tr>
-<tr>
-<td><code>error = 0x2000000</code></td>
-<td>(<code>RESULTS</code> only) Thread 0's ERROR register: 0x2000000 is a <code>$halt</code>.</td>
-</tr>
-</tbody>
-</table>
-<p>A value in <code>RESULTS</code> may be followed by a mask, which selects the bits
-compared.</p>
-<p>The other keys:</p>
-<table>
-<thead>
-<tr>
-<th>Key</th>
-<th>Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>SOURCES = prog.mcode</code></td>
-<td>The program: mcode, C (<code>.c</code>, compiled first), or an object file (<code>.obj</code>).</td>
-</tr>
-<tr>
-<td><code>THREADS = 0x0 worker</code></td>
-<td>Start a thread at each of these IMEM addresses or labels. Default: one thread at 0x0.</td>
-</tr>
-<tr>
-<td><code>CYCLES = 12</code></td>
-<td>The exact cycle count on the timing model, with the default timing settings.</td>
-</tr>
-<tr>
-<td><code>MISPREDICTS = 2</code>, <code>BTB_PREDICTIONS = 3</code></td>
-<td>The exact branch predictor counts on the timing model.</td>
-</tr>
-<tr>
-<td><code>HAZARDS_UNLOCKED = 1</code></td>
-<td>The hazards the timing model must count when built without the interlock (see <a href="#hazards">Hazards</a>).</td>
-</tr>
-<tr>
-<td><code>ASM_ERROR = written twice</code></td>
-<td>The program must not assemble, and the error message must contain this text.</td>
-</tr>
-<tr>
-<td><code>DEVIATION = &lt;why&gt;</code></td>
-<td>The test depends on one of the model's <a href="deviations.html">deviations</a>.</td>
-</tr>
-<tr>
-<td><code>MAX_CYCLES = 100000</code></td>
-<td>A larger limit, for a long test.</td>
-</tr>
-<tr>
-<td><code>APCC_FLAGS = -O0</code></td>
-<td>Options for the C compiler.</td>
-</tr>
-</tbody>
-</table>
-<h3 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h3>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w">                          </span><span class="c1"># every suite, on the cpp_model</span>
-</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>--sitar<span class="w">                  </span><span class="c1"># on the sitar_model, also checking the timing keys</span>
-</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>validation/apara/hazards<span class="w"> </span>--sitar<span class="w">   </span><span class="c1"># one suite (or one .vprj)</span>
-</span></code></pre></div>
-<p>The runner compiles or assembles each test, writes its files into
-<code>validation/apara/build/&lt;test&gt;/</code>, runs it, and prints <code>PASS</code> or <code>FAIL</code>
-for each, then a summary per suite:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>PASS  timing/t1_halt.vprj
-</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>...
-</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>  asm_errors     21/21 passed
-</span><span id="__span-8-4"><a id="__codelineno-8-4" name="__codelineno-8-4" href="#__codelineno-8-4"></a>  c_programs     11/11 passed
-</span><span id="__span-8-5"><a id="__codelineno-8-5" name="__codelineno-8-5" href="#__codelineno-8-5"></a>...
-</span><span id="__span-8-6"><a id="__codelineno-8-6" name="__codelineno-8-6" href="#__codelineno-8-6"></a>  timing         10/10 passed
-</span><span id="__span-8-7"><a id="__codelineno-8-7" name="__codelineno-8-7" href="#__codelineno-8-7"></a>OVERALL: 108 passed, 0 failed
-</span></code></pre></div>
-<p>The <code>apara</code> configuration runs only these suites: the SPARC suites need
-a SPARC core (see <a href="../validation_suite.html#which-tests-run-on-which-configuration">Validation Suite</a>).</p>
-<h3 id="adding-a-test">Adding a test<a class="headerlink" href="#adding-a-test" title="Permanent link">&para;</a></h3>
-<p>Write a source file and its <code>.vprj</code> in a suite's folder, and run the
-suite. There is nothing to register: the runner finds every <code>.vprj</code>
-file in the folders it is given. To find the expected values of a new
-test, run it once with <code>--dump-results -</code> (see <a href="#running-a-program">Running a
-program</a>), and check every value by hand, or with an
-independent calculation, before writing it down.</p>
 <hr />
 <h2 id="hazards">Hazards<a class="headerlink" href="#hazards" title="Permanent link">&para;</a></h2>
 <p>A <strong>hazard</strong> is a bundle reading a register before an older bundle of

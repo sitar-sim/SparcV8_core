@@ -1,0 +1,13 @@
+// vadd.mcode: Z = X + Y on 32 int16 elements, 16 elements per loop pass.
+// $r9 holds the address of DMEM's window, set by the SPARC.
+// X is at DMEM offset 0, Y at offset 64, and Z at offset 128.
+
+start:
+    || + $r20 ($i64) $r9 0  + $r22 ($i64) $r0 1 ;     // $r20 walks the arrays, 2 passes
+loop:
+    || $ld ($u256) $r1 [$r20 + 0]  $ld ($u256) $r5 [$r20 + 64] ;
+    || $v + $r11 ($vi16) $r1 $r5   $v + $r12 ($vi16) $r2 $r6
+       $v + $r13 ($vi16) $r3 $r7   $v + $r14 ($vi16) $r4 $r8 ;
+    || $st ($u256) [$r20 + 128] $r11  + $r20 ($i64) $r20 32 ;
+    || ? ($i64) $r22 > --1 $goto loop ;
+    || $halt ;

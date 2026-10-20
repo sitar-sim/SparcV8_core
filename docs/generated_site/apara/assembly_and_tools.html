@@ -1558,6 +1558,62 @@
   
   
     <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="deviations.html" class="md-nav__link">
         
   
@@ -1898,8 +1954,8 @@ program (see <a href="#error-messages">Error messages</a>).</p>
 </ol>
 <p><code>$r1</code> is set before the run: by a registers file given to the
 simulator (see <a href="#file-formats">File formats</a>), or, in a test, by the
-<code>INIT</code> section of its <code>.vprj</code> (see <a href="running.html#a-test">Writing and Running
-Programs</a>).</p>
+<code>INIT</code> section of its <code>.vprj</code> (see <a href="validation.html#a-test">APARA Validation
+Suite</a>).</p>
 <h3 id="program-structure">Program structure<a class="headerlink" href="#program-structure" title="Permanent link">&para;</a></h3>
 <ul>
 <li><strong>Bundles</strong><br />
@@ -1959,7 +2015,7 @@ written into bundles the engine can run. It does this in seven steps:</p>
 <li><strong><code>apara_obj_to_c.py</code></strong>, for programs the SPARC loads into the engine
   (in <code>sparc_apara</code>). It writes an engine program, in mcode or in C, as
   a C header, containing the program as an array and each label's
-  address as a <code>#define</code>. See <a href="system.html#carrying-the-engines-program">The Engine in a
+  address as a <code>#define</code>. See <a href="system_programming.html#carrying-the-engines-program">Programming the
   System</a>.</li>
 <li><strong><code>apcc.py</code></strong>, the C compiler, see <a href="compiler.html">The C Compiler</a>.</li>
 </ul>

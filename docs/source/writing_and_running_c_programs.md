@@ -147,7 +147,7 @@ model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only your_
 | `ajit_access_routines.h` | Physical (MMU-bypass) loads and stores, `ajit_get_core_and_thread_id()`, and the Timer and Serial routines, e.g. `__ajit_serial_putchar_via_bypass__()`, `__ajit_serial_getchar_via_bypass__()`, `__ajit_write_timer_control_register_via_bypass__()`. |
 | `ajit_mt_irc.h` | Interrupt Controller routines (`enableInterruptController()`, `writeInterruptControlRegister()`, ...) and interrupt dispatch (`ajit_set_interrupt_handler()`). |
 | `ajit_ipi.h` | Inter-processor interrupts (`__ajit_set_ipi_interrupt__()`, ...). |
-| `apara_access_routines.h` | The APARA engine, in `sparc_apara`: loading its program, starting its threads, its DMA unit (`apara_load_program()`, `apara_start_thread()`, ...). See [The Engine in a System](apara/system.md#software). |
+| `apara_access_routines.h` | The APARA engine, in `sparc_apara`: loading its program, starting its threads, its DMA unit (`apara_load_program()`, `apara_start_thread()`, ...). See [Programming the System](apara/system_programming.md#the-routines). |
 | `stdint.h` | `uint32_t` and friends, which the bundled compiler does not provide on its own. |
 
 Printing a message:

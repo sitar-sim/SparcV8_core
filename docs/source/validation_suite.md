@@ -101,8 +101,8 @@ Four optional lines, used by the device and APARA tests:
   program the test carries, in mcode or in C (`MCODE = kernel.c`).
   Before compiling, `build_hex.py` assembles or compiles it, and writes
   it out as a C header, `kernel.mcode.h` (or `kernel.c.h`), for the test
-  to `#include` (C tests only, may be repeated). See [The Engine in a
-  System](apara/system.md#carrying-the-engines-program).
+  to `#include` (C tests only, may be repeated). See [Programming the
+  System](apara/system_programming.md#carrying-the-engines-program).
 - `MAX_CYCLES = 1000000`, before `RESULTS`, raises the cycle limit for
   a test that legitimately runs long (the runner uses the larger of this
   and its `--max-cycles`).
@@ -222,8 +222,8 @@ And the suites, with what they require, and where they run:
 | `apara/` | `apara_standalone` | `apara`, with its own runner, `validation/apara/run_tests.py` |
 
 The engine's own suites, in `apara/`, are engine programs rather than
-SPARC programs, so they have their own format and runner (see [Writing
-and Running APARA Programs](apara/running.md#tests)). `run_tests.py
+SPARC programs, so they have their own format and runner (see [APARA
+Validation Suite](apara/validation.md#the-engine-suites-validationapara)). `run_tests.py
 --config apara` says so, and stops.
 
 A new configuration needs only its `COMPONENTS` file to work with every
@@ -367,7 +367,7 @@ components, each living in its own folder:
     threads, the SPARC and the DMA unit disturb one another), and
     `linalg/` (linear algebra offloaded to the engine). Needs
     `sparc_apara`. On the sitar_model, run them with `--max-cycles
-    50000000`. See [The Engine in a System](apara/system.md#tests).
+    50000000`. See [APARA Validation Suite](apara/validation.md#the-system-suites-validationsparc_apara).
 - **`validation/apara/`**  
     The APARA engine on its own, with its own test format and runner,
     in nine suites: every instruction (`isa/`), sequences, hazards, the
@@ -375,8 +375,8 @@ components, each living in its own folder:
     hand-written kernels, programs compiled from C, and the model's
     deviations. Unlike the SPARC suite, it also checks timing: cycle
     and mispredict counts, derived by hand for the default timing
-    settings, which the timing model must match exactly. See [Writing
-    and Running APARA Programs](apara/running.md#tests).
+    settings, which the timing model must match exactly. See [APARA
+    Validation Suite](apara/validation.md#the-engine-suites-validationapara).
 
 For example, to run the MMU validation suite on `core_mmu`, build that
 configuration first (see [Getting

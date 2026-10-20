@@ -1646,6 +1646,62 @@
   
   
     <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="deviations.html" class="md-nav__link">
         
   
@@ -2247,7 +2303,7 @@ rows are split among threads:</p>
 </span></code></pre></div>
 <p>Every thread has its own registers, so each has its own <code>i</code>, <code>j</code>, <code>k</code>
 and <code>sum</code>. They share the global arrays, so each must write only its own
-part of them: the engine has no atomic operations (see <a href="system.html#threads-sharing-data">Threads sharing
+part of them: the engine has no atomic operations (see <a href="system_programming.html#threads-sharing-data">Threads sharing
 data</a>).</p>
 <h3 id="limits">Limits<a class="headerlink" href="#limits" title="Permanent link">&para;</a></h3>
 <p>The limits, by design:</p>
@@ -2409,7 +2465,7 @@ algebra kernel gets that speed when its inner loop works on whole
 </ul>
 <p>The test folder <code>validation/apara/c_programs/</code> has each of these, with
 expected results computed independently. Running one is the quickest
-way to start (see <a href="running.html#tests">Writing and Running Programs</a>).
+way to start (see <a href="validation.html#the-engine-suites-validationapara">APARA Validation Suite</a>).
 For example, <code>matmul_threads.c</code> on three threads, on the timing model,
 reports its cycles and how the pipeline spent them:</p>
 <div class="language-bash highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a>python3<span class="w"> </span>compiler/apara/apcc.py<span class="w"> </span>matmul_threads.c
