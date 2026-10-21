@@ -150,10 +150,15 @@ instantiates which, and how many instances.
       +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
            |
            +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
-
-core.requestOut  --requestNet-->  mainMemory.requestIn
-core.responseIn  <-responseNet--  mainMemory.responseOut
 </pre>
+
+Two nets connect the core to main memory. Each net carries data from an
+output port to an input port.
+
+| Net | From | To |
+|---|---|---|
+| `requestNet` | `core.requestOut` | `mainMemory.requestIn` |
+| `responseNet` | `mainMemory.responseOut` | `core.responseIn` |
 
 ---
 
@@ -204,15 +209,20 @@ instantiates which, and how many instances.
       +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
       |
       +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
-
-core.requestOut          --coreRequestNet-->     bridge.coreRequestIn
-core.responseIn          <-coreResponseNet--     bridge.coreResponseOut
-bridge.memoryRequestOut  --memoryRequestNet-->   mainMemory.requestIn
-bridge.memoryResponseIn  <-memoryResponseNet--   mainMemory.responseOut
-bridge.devicesRequestOut --devicesRequestNet-->  devices.requestIn
-bridge.devicesResponseIn <-devicesResponseNet--  devices.responseOut
-devices.interruptLevelOut --interruptLevelNet--> core.interruptLevelIn
 </pre>
+
+Seven nets connect the modules. Each net carries data from an output
+port to an input port.
+
+| Net | From | To |
+|---|---|---|
+| `coreRequestNet` | `core.requestOut` | `bridge.coreRequestIn` |
+| `coreResponseNet` | `bridge.coreResponseOut` | `core.responseIn` |
+| `memoryRequestNet` | `bridge.memoryRequestOut` | `mainMemory.requestIn` |
+| `memoryResponseNet` | `mainMemory.responseOut` | `bridge.memoryResponseIn` |
+| `devicesRequestNet` | `bridge.devicesRequestOut` | `devices.requestIn` |
+| `devicesResponseNet` | `devices.responseOut` | `bridge.devicesResponseIn` |
+| `interruptLevelNet` | `devices.interruptLevelOut` | `core.interruptLevelIn` |
 
 ---
 

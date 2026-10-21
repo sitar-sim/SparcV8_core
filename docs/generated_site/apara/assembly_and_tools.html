@@ -1996,35 +1996,67 @@ written into bundles the engine can run. It does this in seven steps:</p>
 </ol>
 <hr />
 <h2 id="the-tools">The tools<a class="headerlink" href="#the-tools" title="Permanent link">&para;</a></h2>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode<span class="w">                 </span><span class="c1"># writes prog.obj</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode<span class="w"> </span>-o<span class="w"> </span>out.obj<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="w">        </span>--aligned<span class="w"> </span>prog.aligned.mcode<span class="w"> </span>--listing<span class="w"> </span>prog.lst
-</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>python3<span class="w"> </span>compiler/apara/apara_dis.py<span class="w"> </span>prog.obj<span class="w">                  </span><span class="c1"># mcode, to standard output</span>
+<p>The tools are run with <code>python3</code>, from the repository root. The
+assembler and the disassembler translate between mcode and object files,
+which the simulators load. Two more tools build on the assembler. One
+writes a program as a C header for the SPARC side of <code>sparc_apara</code>, and
+the other is the C compiler.</p>
+<table>
+<thead>
+<tr>
+<th>Tool</th>
+<th>Reads</th>
+<th>Writes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>apara_as.py</code>, the assembler</td>
+<td>mcode</td>
+<td>an object file (<code>.obj</code>)</td>
+</tr>
+<tr>
+<td><code>apara_dis.py</code>, the disassembler</td>
+<td>an object file</td>
+<td>mcode</td>
+</tr>
+<tr>
+<td><code>apara_obj_to_c.py</code></td>
+<td>mcode, C, or an object file</td>
+<td>a C header</td>
+</tr>
+<tr>
+<td><code>apcc.py</code>, the C compiler</td>
+<td>C</td>
+<td>mcode</td>
+</tr>
+</tbody>
+</table>
+<p>The assembler names its object file after the source, so the first
+command below writes <code>prog.obj</code>. The option <code>-o</code> gives it another name.
+Two more options write extra files. <code>--aligned</code> writes the program as
+placed and arranged, with every bundle's address, which is the program
+the engine actually runs. <code>--listing</code> writes each word's address,
+encoding and instruction.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>python3<span class="w"> </span>compiler/apara/apara_as.py<span class="w"> </span>prog.mcode<span class="w"> </span>--aligned<span class="w"> </span>prog.aligned.mcode<span class="w"> </span>--listing<span class="w"> </span>prog.lst
 </span></code></pre></div>
-<ul>
-<li><strong><code>apara_as.py</code></strong>, the assembler. It writes an object file, by default
-  named after the source. Two options write more:<ul>
-<li><code>--aligned</code> writes the program as placed and arranged, every bundle
-  with its address: the program the engine actually runs.</li>
-<li><code>--listing</code> writes each word's address, encoding, and instruction.</li>
-</ul>
-</li>
-<li><strong><code>apara_dis.py</code></strong>, the disassembler. It turns an object file back
-  into mcode, naming branch and call targets <code>L_&lt;address&gt;</code>. Its output
-  assembles back to the same object file.</li>
-<li><strong><code>apara_obj_to_c.py</code></strong>, for programs the SPARC loads into the engine
-  (in <code>sparc_apara</code>). It writes an engine program, in mcode or in C, as
-  a C header, containing the program as an array and each label's
-  address as a <code>#define</code>. See <a href="system_programming.html#carrying-the-engines-program">Programming the
-  System</a>.</li>
-<li><strong><code>apcc.py</code></strong>, the C compiler, see <a href="compiler.html">The C Compiler</a>.</li>
-</ul>
+<p>The disassembler writes mcode to standard output, and names branch and
+call targets <code>L_&lt;address&gt;</code>. Its output assembles back to the same object
+file.</p>
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>python3<span class="w"> </span>compiler/apara/apara_dis.py<span class="w"> </span>prog.obj
+</span></code></pre></div>
+<p><code>apara_obj_to_c.py</code> is described in <a href="system_programming.html#carrying-the-engines-program">Programming the
+System</a>, and
+<code>apcc.py</code> in <a href="compiler.html">The C Compiler</a>.</p>
 <p><code>python3 compiler/apara/test_mcode.py</code> runs the assembler's and
-disassembler's own unit tests. The assembler's checks are also tested by
-the <code>validation/apara/asm_errors/</code> suite: programs it must reject.</p>
+disassembler's own unit tests. The <code>validation/apara/asm_errors/</code> suite
+tests the assembler's checks. Each of its programs breaks one rule on
+purpose, and passes only when the assembler rejects it with the expected
+message.</p>
 <h3 id="error-messages">Error messages<a class="headerlink" href="#error-messages" title="Permanent link">&para;</a></h3>
 <p>Any error stops the assembly, with the file, the line, and the reason:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>prog.mcode:12: error: $r2 is written twice in this bundle (also at line 11)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>prog.mcode:12: error: $r2 is written twice in this bundle (also at line 11)
 </span></code></pre></div>
 <p>Some messages, and what they mean:</p>
 <table>

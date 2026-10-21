@@ -10,8 +10,8 @@ SPARC tests, and the runner `validation/run_tests.py`, are described in
 
 | Set | Folder | Configuration | Runner | Tests |
 |---|---|---|---|---|
-| Engine suites | `validation/apara/` | `apara` | `validation/apara/run_tests.py` | 108 |
-| System suites | `validation/sparc_apara/` | `sparc_apara` | `validation/run_tests.py --config sparc_apara` | 26 |
+| Engine suites | [`validation/apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/) | `apara` | [`validation/apara/run_tests.py`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/run_tests.py) | 108 |
+| System suites | [`validation/sparc_apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/) | `sparc_apara` | [`validation/run_tests.py`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/run_tests.py) `--config sparc_apara` | 26 |
 
 The commands on this page use `$SPARC_HOME`, the repository's folder,
 as set in step 2 of [Installation](../installation.md).
@@ -57,15 +57,15 @@ images](#rebuilding-the-memory-images)).
 
 | Folder | Tests | What they check |
 |---|---|---|
-| `isa/` | 29 | Every instruction, in one subfolder per class (`alu_int`, `alu_float`, `vector`, `cast`, `bits`, `cmov`, `memory`, `control`). The tests cover each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception. |
-| `sequences/` | 7 | Instructions working together. Examples are full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, and one thread's fault not stopping the others. |
-| `hazards/` | 10 | The pipeline's handling of dependences between bundles (see [Hazards](running.md#hazards)). |
-| `predictor/` | 6 | The branch predictor, with loops, nested loops, two branches sharing a predictor entry, and calls and returns. Each test's mispredict count is derived from the [predictor's rules](timing_model.md#branch-prediction). |
-| `asm_errors/` | 21 | Programs the assembler must reject. Examples are a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, and invalid types. |
-| `timing/` | 10 | Microbenchmarks with exact cycle counts, derived by hand from the [timing rules](timing_model.md#timing-rules). Its `README.md` also has each test's counts for other settings of the [knobs](timing_model.md#knobs). |
-| `kernels/` | 6 | Larger hand-scheduled programs. These are a dot product, a vector addition, SAXPY, a reduction, and matrix products on one and four threads. |
-| `c_programs/` | 11 | Programs compiled from C with the [C compiler](compiler.md). They cover the language's features, sorting, a prime sieve, and linear algebra. |
-| `deviations/` | 8 | Behavior where the model departs, on purpose, from the engine's reference model (see [Deviations and Findings](deviations.md)). |
+| [`isa/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/isa/) | 29 | Every instruction, in one subfolder per class (`alu_int`, `alu_float`, `vector`, `cast`, `bits`, `cmov`, `memory`, `control`). The tests cover each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception. |
+| [`sequences/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/sequences/) | 7 | Instructions working together. Examples are full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, and one thread's fault not stopping the others. |
+| [`hazards/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/hazards/) | 10 | The pipeline's handling of dependences between bundles (see [Hazards](running.md#hazards)). |
+| [`predictor/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/predictor/) | 6 | The branch predictor, with loops, nested loops, two branches sharing a predictor entry, and calls and returns. Each test's mispredict count is derived from the [predictor's rules](timing_model.md#branch-prediction). |
+| [`asm_errors/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/asm_errors/) | 21 | Programs the assembler must reject. Examples are a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, and invalid types. |
+| [`timing/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/timing/) | 10 | Microbenchmarks with exact cycle counts, derived by hand from the [timing rules](timing_model.md#timing-rules). Its `README.md` also has each test's counts for other settings of the [knobs](timing_model.md#knobs). |
+| [`kernels/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/kernels/) | 6 | Larger hand-scheduled programs. These are a dot product, a vector addition, SAXPY, a reduction, and matrix products on one and four threads. |
+| [`c_programs/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/c_programs/) | 11 | Programs compiled from C with the [C compiler](compiler.md). They cover the language's features, sorting, a prime sieve, and linear algebra. |
+| [`deviations/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/deviations/) | 8 | Behavior where the model departs, on purpose, from the engine's reference model (see [Deviations and Findings](deviations.md)). |
 
 Each folder has a `README.md` describing its tests. A good way to learn
 the instruction set is to read the tests of `isa/` next to the
@@ -201,11 +201,11 @@ programs. The tests are grouped in five folders:
 
 | Folder | Tests | What they check |
 |---|---|---|
-| `basic/` | 8 | Each part of the engine's interface on its own. The tests cover IMEM and registers, running and polling, the completion interrupt, exceptions, four threads, the engine's own main-memory accesses, DMA and its interrupt, and a whole offload by DMA (`dma_dot_product`). |
-| `setup/` | 5 | Bringing the engine up, with one thread. The tests cover its state at power-up, loading and reading back its memories, complete offloads of a program compiled from C (by polling and by interrupt), and loading a second program over the first. |
-| `threads/` | 5 | The same program on 1, 2, 3 and 4 threads, each on its own slice of the data, and threads started and restarted at different times. |
-| `interference/` | 5 | Whether threads, the SPARC and the DMA unit disturb one another (see [What may happen while threads run](system_programming.md#what-may-happen-while-threads-run)), and the one real interference, a race on shared data. |
-| `linalg/` | 3 | Linear algebra offloaded to the engine. The tests are an 8x8 matrix product on four threads, SAXPY in floating point, and a four-thread dot product compiled from C. |
+| [`basic/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/basic/) | 8 | Each part of the engine's interface on its own. The tests cover IMEM and registers, running and polling, the completion interrupt, exceptions, four threads, the engine's own main-memory accesses, DMA and its interrupt, and a whole offload by DMA (`dma_dot_product`). |
+| [`setup/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/setup/) | 5 | Bringing the engine up, with one thread. The tests cover its state at power-up, loading and reading back its memories, complete offloads of a program compiled from C (by polling and by interrupt), and loading a second program over the first. |
+| [`threads/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/threads/) | 5 | The same program on 1, 2, 3 and 4 threads, each on its own slice of the data, and threads started and restarted at different times. |
+| [`interference/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/interference/) | 5 | Whether threads, the SPARC and the DMA unit disturb one another (see [What may happen while threads run](system_programming.md#what-may-happen-while-threads-run)), and the one real interference, a race on shared data. |
+| [`linalg/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/linalg/) | 3 | Linear algebra offloaded to the engine. The tests are an 8x8 matrix product on four threads, SAXPY in floating point, and a four-thread dot product compiled from C. |
 
 Each folder has a `README.md` describing its tests, and
 `validation/sparc_apara/README.md` summarizes the protocol of
@@ -222,9 +222,9 @@ following sources:
 
 | File | What |
 |---|---|
-| `dma_dot_product.c` | The SPARC program. |
-| `kernel.mcode` | The engine program. |
-| `dma_dot_product.vprj` | How to build the test, and what to expect. |
+| [`dma_dot_product.c`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/dma_dot_product.c) | The SPARC program. |
+| [`kernel.mcode`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/kernel.mcode) | The engine program. |
+| [`dma_dot_product.vprj`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/dma_dot_product.vprj) | How to build the test, and what to expect. |
 
 Its `.vprj` names the SPARC program, its engine program, and the
 expected registers:

@@ -86,31 +86,48 @@ written into bundles the engine can run. It does this in seven steps:
 
 ## The tools
 
+The tools are run with `python3`, from the repository root. The
+assembler and the disassembler translate between mcode and object files,
+which the simulators load. Two more tools build on the assembler. One
+writes a program as a C header for the SPARC side of `sparc_apara`, and
+the other is the C compiler.
+
+| Tool | Reads | Writes |
+|---|---|---|
+| `apara_as.py`, the assembler | mcode | an object file (`.obj`) |
+| `apara_dis.py`, the disassembler | an object file | mcode |
+| `apara_obj_to_c.py` | mcode, C, or an object file | a C header |
+| `apcc.py`, the C compiler | C | mcode |
+
+The assembler names its object file after the source, so the first
+command below writes `prog.obj`. The option `-o` gives it another name.
+Two more options write extra files. `--aligned` writes the program as
+placed and arranged, with every bundle's address, which is the program
+the engine actually runs. `--listing` writes each word's address,
+encoding and instruction.
+
 ```bash
-python3 compiler/apara/apara_as.py prog.mcode                 # writes prog.obj
-python3 compiler/apara/apara_as.py prog.mcode -o out.obj \
-        --aligned prog.aligned.mcode --listing prog.lst
-python3 compiler/apara/apara_dis.py prog.obj                  # mcode, to standard output
+python3 compiler/apara/apara_as.py prog.mcode
+python3 compiler/apara/apara_as.py prog.mcode --aligned prog.aligned.mcode --listing prog.lst
 ```
 
-- **`apara_as.py`**, the assembler. It writes an object file, by default
-  named after the source. Two options write more:
-    - `--aligned` writes the program as placed and arranged, every bundle
-      with its address: the program the engine actually runs.
-    - `--listing` writes each word's address, encoding, and instruction.
-- **`apara_dis.py`**, the disassembler. It turns an object file back
-  into mcode, naming branch and call targets `L_<address>`. Its output
-  assembles back to the same object file.
-- **`apara_obj_to_c.py`**, for programs the SPARC loads into the engine
-  (in `sparc_apara`). It writes an engine program, in mcode or in C, as
-  a C header, containing the program as an array and each label's
-  address as a `#define`. See [Programming the
-  System](system_programming.md#carrying-the-engines-program).
-- **`apcc.py`**, the C compiler, see [The C Compiler](compiler.md).
+The disassembler writes mcode to standard output, and names branch and
+call targets `L_<address>`. Its output assembles back to the same object
+file.
+
+```bash
+python3 compiler/apara/apara_dis.py prog.obj
+```
+
+`apara_obj_to_c.py` is described in [Programming the
+System](system_programming.md#carrying-the-engines-program), and
+`apcc.py` in [The C Compiler](compiler.md).
 
 `python3 compiler/apara/test_mcode.py` runs the assembler's and
-disassembler's own unit tests. The assembler's checks are also tested by
-the `validation/apara/asm_errors/` suite: programs it must reject.
+disassembler's own unit tests. The `validation/apara/asm_errors/` suite
+tests the assembler's checks. Each of its programs breaks one rule on
+purpose, and passes only when the assembler rejects it with the expected
+message.
 
 ### Error messages
 

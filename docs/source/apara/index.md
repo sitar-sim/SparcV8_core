@@ -86,11 +86,11 @@ Both come with functional and timing models, tests, and tools.
 
 | Where | What |
 |---|---|
-| `model/cpp_common_code/apara/` | The engine in plain C++, shared by both models: its state and execution (`AparaCore`), instruction decoding and arithmetic, the file formats and command line, and, for `sparc_apara`, the control unit, the DMA unit, and the three joined together for the cpp_model. Also the timing model's latency table and pipeline helpers (`AparaTiming.h`). |
-| `model/sitar_component_models/Apara*.sitar` | The timing model: `AparaEngine` and its five stage modules, and `AparaHost`, the engine's host side in `sparc_apara`. |
-| `model/sitar_component_models/SystemInterconnect.sitar` | `sparc_apara`'s two-master bus. |
-| `model/system_models/apara/`, `model/system_models/sparc_apara/` | The two configurations, each with its `cpp_model/` and `sitar_model/`. |
-| `compiler/apara/` | The assembler, the disassembler, the C compiler (`apcc.py`, with `include/apara.h`), the program-to-C-header tool, and vim syntax highlighting. |
-| `compiler/include/apara_access_routines.h` | The SPARC-side C routines. |
-| `validation/apara/` | The engine's own test suites, and their runner (see [APARA Validation Suite](validation.md#the-engine-suites-validationapara)). |
-| `validation/sparc_apara/` | The tests of the SPARC using the engine (see [APARA Validation Suite](validation.md#the-system-suites-validationsparc_apara)). |
+| [`model/cpp_common_code/apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/model/cpp_common_code/apara/) | The engine in plain C++, shared by both models: its state and execution (`AparaCore`), instruction decoding and arithmetic, the file formats and command line, and, for `sparc_apara`, the control unit, the DMA unit, and the three joined together for the cpp_model. Also the timing model's latency table and pipeline helpers (`AparaTiming.h`). |
+| [`model/sitar_component_models/Apara*.sitar`](https://github.com/sitar-sim/SparcV8_core/tree/main/model/sitar_component_models/) | The timing model: `AparaEngine` and its five stage modules, and `AparaHost`, the engine's host side in `sparc_apara`. |
+| [`model/sitar_component_models/SystemInterconnect.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar) | `sparc_apara`'s two-master bus. |
+| [`model/system_models/apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/), [`model/system_models/sparc_apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/) | The two configurations, each with its `cpp_model/` and `sitar_model/`. |
+| [`compiler/apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/compiler/apara/) | The assembler, the disassembler, the C compiler (`apcc.py`, with `include/apara.h`), the program-to-C-header tool, and vim syntax highlighting. |
+| [`compiler/include/apara_access_routines.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/compiler/include/apara_access_routines.h) | The SPARC-side C routines. |
+| [`validation/apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/) | The engine's own test suites, and their runner (see [APARA Validation Suite](validation.md#the-engine-suites-validationapara)). |
+| [`validation/sparc_apara/`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/) | The tests of the SPARC using the engine (see [APARA Validation Suite](validation.md#the-system-suites-validationsparc_apara)). |

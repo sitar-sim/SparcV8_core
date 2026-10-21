@@ -624,12 +624,12 @@ copied and changed in the same way as `my_vadd`.
 
 | To learn | Start from |
 |---|---|
-| Running one program on four threads, each on its own part of the data | `threads/threads_4` |
-| Writing the engine program in C | `setup/offload_poll`, with `vector_stats.c` |
-| Learning of a stop by interrupt | `basic/run_interrupt`, and `setup/offload_interrupt` |
-| Gathering strided data with one DMA copy | `basic/dma_interrupt` |
-| An exception in an engine thread, and recovering from it | `basic/exception`, and `interference/fault_isolation` |
-| A larger kernel, a matrix product on four threads | `linalg/matmul` |
+| Running one program on four threads, each on its own part of the data | [`threads/threads_4`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/threads/threads_4/) |
+| Writing the engine program in C | [`setup/offload_poll`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/setup/offload_poll/), with [`vector_stats.c`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/setup/offload_poll/vector_stats.c) |
+| Learning of a stop by interrupt | [`basic/run_interrupt`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/basic/run_interrupt/), and [`setup/offload_interrupt`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/setup/offload_interrupt/) |
+| Gathering strided data with one DMA copy | [`basic/dma_interrupt`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/basic/dma_interrupt/) |
+| An exception in an engine thread, and recovering from it | [`basic/exception`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/basic/exception/), and [`interference/fault_isolation`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/interference/fault_isolation/) |
+| A larger kernel, a matrix product on four threads | [`linalg/matmul`](https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/linalg/matmul/) |
 
 On the Sitar model, `--stats` shows where the engine's time went, for
 example in register-lock stalls or DMEM bank conflicts. The counters

@@ -1914,35 +1914,35 @@ the <code>sparc_apara</code> configuration.</p>
 </thead>
 <tbody>
 <tr>
-<td><code>model/cpp_common_code/apara/</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/cpp_common_code/apara/"><code>model/cpp_common_code/apara/</code></a></td>
 <td>The engine in plain C++, shared by both models: its state and execution (<code>AparaCore</code>), instruction decoding and arithmetic, the file formats and command line, and, for <code>sparc_apara</code>, the control unit, the DMA unit, and the three joined together for the cpp_model. Also the timing model's latency table and pipeline helpers (<code>AparaTiming.h</code>).</td>
 </tr>
 <tr>
-<td><code>model/sitar_component_models/Apara*.sitar</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/sitar_component_models/"><code>model/sitar_component_models/Apara*.sitar</code></a></td>
 <td>The timing model: <code>AparaEngine</code> and its five stage modules, and <code>AparaHost</code>, the engine's host side in <code>sparc_apara</code>.</td>
 </tr>
 <tr>
-<td><code>model/sitar_component_models/SystemInterconnect.sitar</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemInterconnect.sitar"><code>model/sitar_component_models/SystemInterconnect.sitar</code></a></td>
 <td><code>sparc_apara</code>'s two-master bus.</td>
 </tr>
 <tr>
-<td><code>model/system_models/apara/</code>, <code>model/system_models/sparc_apara/</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/"><code>model/system_models/apara/</code></a>, <a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/"><code>model/system_models/sparc_apara/</code></a></td>
 <td>The two configurations, each with its <code>cpp_model/</code> and <code>sitar_model/</code>.</td>
 </tr>
 <tr>
-<td><code>compiler/apara/</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/compiler/apara/"><code>compiler/apara/</code></a></td>
 <td>The assembler, the disassembler, the C compiler (<code>apcc.py</code>, with <code>include/apara.h</code>), the program-to-C-header tool, and vim syntax highlighting.</td>
 </tr>
 <tr>
-<td><code>compiler/include/apara_access_routines.h</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/compiler/include/apara_access_routines.h"><code>compiler/include/apara_access_routines.h</code></a></td>
 <td>The SPARC-side C routines.</td>
 </tr>
 <tr>
-<td><code>validation/apara/</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/"><code>validation/apara/</code></a></td>
 <td>The engine's own test suites, and their runner (see <a href="validation.html#the-engine-suites-validationapara">APARA Validation Suite</a>).</td>
 </tr>
 <tr>
-<td><code>validation/sparc_apara/</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/"><code>validation/sparc_apara/</code></a></td>
 <td>The tests of the SPARC using the engine (see <a href="validation.html#the-system-suites-validationsparc_apara">APARA Validation Suite</a>).</td>
 </tr>
 </tbody>

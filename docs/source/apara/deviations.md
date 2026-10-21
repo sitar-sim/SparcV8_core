@@ -44,8 +44,8 @@ where it contradicts the ISA document or its own intent.
 
 | # | Reference model | This model | Why |
 |---|---|---|---|
-| 1 | `$return` reads the top of the RAS but never pops it: only one level of calls returns correctly | `$return` pops | a stack; nested calls (`dev_control.mcode`) |
-| 2 | a 4-byte load picks the word's half by address bit 1 (its store uses bit 2) | bit 2 for both | a load at offset 4 read the wrong half (`dev_arith.mcode`) |
+| 1 | `$return` reads the top of the RAS but never pops it: only one level of calls returns correctly | `$return` pops | a stack; nested calls ([`dev_control.mcode`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_control.mcode)) |
+| 2 | a 4-byte load picks the word's half by address bit 1 (its store uses bit 2) | bit 2 for both | a load at offset 4 read the wrong half ([`dev_arith.mcode`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_arith.mcode)) |
 | 3 | `$vreduce` starts every reduction at 0, so `*` and `&` always give 0 | each starts at its operation's identity (1 for `*`, all ones for `&` and `~^`) | correct reductions |
 | 4 | `$vreduce` sign-extends unsigned elements | zero-extends them | `$vu8` 255+1 gave 0 |
 | 5 | `$cmov` writes `$rs2` back with its sign-extended test value plus the increment, even without an increment; the 2-bit increment is not sign-extended (`--1` adds 3) | `$rs2` written only with an increment, as `$rs2 + increment`, signed | an `($i8)` test clobbered a 64-bit `$rs2` |
@@ -58,8 +58,8 @@ where it contradicts the ISA document or its own intent.
 | 12 | a load/store's negative increment is added as an unsigned 32-bit value (`bytes * increment` is evaluated as `unsigned`): `--1` on an 8-byte load adds 0xFFFFFFF8 | a signed 64-bit add | a C++ promotion bug |
 | 13 | float ALU operations other than `+ - * /`, and vector ones other than `+ - *`, assert | illegal instruction (the assembler rejects them) | |
 | 14 | the branch decoder reads `rs2` as 6 bits [5:0], including the offset's low bit | bits [4:0] | an odd offset selected a register 32 higher |
-| 31 | every element-wise `$v` operation on 4-bit elements (`$vi4`, `$vu4`) gives 0 | computed, each element wrapping at 4 bits (`dev_vector4.mcode`) | the ISA lists the 4-bit vector types; the reference's own `$dot ($vi4)` works |
-| 32 | a non-negative operand of a narrow signed type keeps the bits above the type's width (`($i8)` 0x105 + 0 = 0x105), in the ALU, branches and `$cmov` | only the type's width is read (5) (`dev_narrow_signed.mcode`) | "r1 and r2 are i8"; negative values were already sign-extended |
+| 31 | every element-wise `$v` operation on 4-bit elements (`$vi4`, `$vu4`) gives 0 | computed, each element wrapping at 4 bits ([`dev_vector4.mcode`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_vector4.mcode)) | the ISA lists the 4-bit vector types; the reference's own `$dot ($vi4)` works |
+| 32 | a non-negative operand of a narrow signed type keeps the bits above the type's width (`($i8)` 0x105 + 0 = 0x105), in the ALU, branches and `$cmov` | only the type's width is read (5) ([`dev_narrow_signed.mcode`](https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_narrow_signed.mcode)) | "r1 and r2 are i8"; negative values were already sign-extended |
 
 ### Errors and limits
 

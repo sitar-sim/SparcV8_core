@@ -2297,11 +2297,31 @@ instantiates which, and how many instances.</p>
       +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
            |
            +-- <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PullAToken.sitar">PullAToken</a> / <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PushAToken.sitar">PushAToken</a> (procedure)
-
-core.requestOut  --requestNet-->  mainMemory.requestIn
-core.responseIn  <-responseNet--  mainMemory.responseOut
 </pre>
 
+<p>Two nets connect the core to main memory. Each net carries data from an
+output port to an input port.</p>
+<table>
+<thead>
+<tr>
+<th>Net</th>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>requestNet</code></td>
+<td><code>core.requestOut</code></td>
+<td><code>mainMemory.requestIn</code></td>
+</tr>
+<tr>
+<td><code>responseNet</code></td>
+<td><code>mainMemory.responseOut</code></td>
+<td><code>core.responseIn</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="configuration-core_mmu_devices">Configuration: core_mmu_devices<a class="headerlink" href="#configuration-core_mmu_devices" title="Permanent link">&para;</a></h3>
 <h4 id="structure-diagram_2">Structure diagram<a class="headerlink" href="#structure-diagram_2" title="Permanent link">&para;</a></h4>
@@ -2342,16 +2362,56 @@ instantiates which, and how many instances.</p>
       +-- mainMemory : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PhysicalMainMemory.sitar">PhysicalMainMemory</a> (module)
       |
       +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
-
-core.requestOut          --coreRequestNet-->     bridge.coreRequestIn
-core.responseIn          <-coreResponseNet--     bridge.coreResponseOut
-bridge.memoryRequestOut  --memoryRequestNet-->   mainMemory.requestIn
-bridge.memoryResponseIn  <-memoryResponseNet--   mainMemory.responseOut
-bridge.devicesRequestOut --devicesRequestNet-->  devices.requestIn
-bridge.devicesResponseIn <-devicesResponseNet--  devices.responseOut
-devices.interruptLevelOut --interruptLevelNet--> core.interruptLevelIn
 </pre>
 
+<p>Seven nets connect the modules. Each net carries data from an output
+port to an input port.</p>
+<table>
+<thead>
+<tr>
+<th>Net</th>
+<th>From</th>
+<th>To</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coreRequestNet</code></td>
+<td><code>core.requestOut</code></td>
+<td><code>bridge.coreRequestIn</code></td>
+</tr>
+<tr>
+<td><code>coreResponseNet</code></td>
+<td><code>bridge.coreResponseOut</code></td>
+<td><code>core.responseIn</code></td>
+</tr>
+<tr>
+<td><code>memoryRequestNet</code></td>
+<td><code>bridge.memoryRequestOut</code></td>
+<td><code>mainMemory.requestIn</code></td>
+</tr>
+<tr>
+<td><code>memoryResponseNet</code></td>
+<td><code>mainMemory.responseOut</code></td>
+<td><code>bridge.memoryResponseIn</code></td>
+</tr>
+<tr>
+<td><code>devicesRequestNet</code></td>
+<td><code>bridge.devicesRequestOut</code></td>
+<td><code>devices.requestIn</code></td>
+</tr>
+<tr>
+<td><code>devicesResponseNet</code></td>
+<td><code>devices.responseOut</code></td>
+<td><code>bridge.devicesResponseIn</code></td>
+</tr>
+<tr>
+<td><code>interruptLevelNet</code></td>
+<td><code>devices.interruptLevelOut</code></td>
+<td><code>core.interruptLevelIn</code></td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h3 id="configuration-core_l1cache_mmu_devices">Configuration: core_l1cache_mmu_devices<a class="headerlink" href="#configuration-core_l1cache_mmu_devices" title="Permanent link">&para;</a></h3>
 <h4 id="structure-diagram_3">Structure diagram<a class="headerlink" href="#structure-diagram_3" title="Permanent link">&para;</a></h4>

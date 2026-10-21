@@ -279,25 +279,30 @@ Controller's external input, IRL 14.
       +-- engine : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaEngine.sitar">AparaEngine</a> (module: fetch, decode, regfile, exec, writeback, as in apara)
       |
       +-- host : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/AparaHost.sitar">AparaHost</a> (module)
-
-core.requestOut                   --coreRequestNet-->       interconnect.masterRequestIn[0]
-core.responseIn                   <-coreResponseNet--       interconnect.masterResponseOut[0]
-host.masterRequestOut             --hostRequestNet-->       interconnect.masterRequestIn[1]
-host.masterResponseIn             <-hostResponseNet--       interconnect.masterResponseOut[1]
-interconnect.memoryRequestOut     --memoryRequestNet-->     mainMemory.requestIn
-interconnect.memoryResponseIn     <-memoryResponseNet--     mainMemory.responseOut
-interconnect.devicesRequestOut    --devicesRequestNet-->    devices.requestIn
-interconnect.devicesResponseIn    <-devicesResponseNet--    devices.responseOut
-interconnect.engineRequestOut     --engineRequestNet-->     host.slaveRequestIn
-interconnect.engineResponseIn     <-engineResponseNet--     host.slaveResponseOut
-devices.interruptLevelOut         --interruptLevelNet-->    core.interruptLevelIn
-host.interruptOut                 --engineInterruptNet-->   devices.externalInterruptIn
-host.serviceOut                   --serviceRequestNet-->    engine.exec.serviceIn
-host.serviceIn                    <-serviceResponseNet--    engine.exec.serviceOut
-engine.exec.offIslandOut          --offIslandRequestNet-->  host.offIslandIn
-engine.exec.offIslandIn           <-offIslandResponseNet--  host.offIslandOut
-engine.exec.stopOut               --stopNet-->              host.stopIn
 </pre>
+
+The table below lists the nets of `System`. Each net carries data from
+an output port to an input port.
+
+| Net | From | To |
+|---|---|---|
+| `coreRequestNet` | `core.requestOut` | `interconnect.masterRequestIn[0]` |
+| `coreResponseNet` | `interconnect.masterResponseOut[0]` | `core.responseIn` |
+| `hostRequestNet` | `host.masterRequestOut` | `interconnect.masterRequestIn[1]` |
+| `hostResponseNet` | `interconnect.masterResponseOut[1]` | `host.masterResponseIn` |
+| `memoryRequestNet` | `interconnect.memoryRequestOut` | `mainMemory.requestIn` |
+| `memoryResponseNet` | `mainMemory.responseOut` | `interconnect.memoryResponseIn` |
+| `devicesRequestNet` | `interconnect.devicesRequestOut` | `devices.requestIn` |
+| `devicesResponseNet` | `devices.responseOut` | `interconnect.devicesResponseIn` |
+| `engineRequestNet` | `interconnect.engineRequestOut` | `host.slaveRequestIn` |
+| `engineResponseNet` | `host.slaveResponseOut` | `interconnect.engineResponseIn` |
+| `interruptLevelNet` | `devices.interruptLevelOut` | `core.interruptLevelIn` |
+| `engineInterruptNet` | `host.interruptOut` | `devices.externalInterruptIn` |
+| `serviceRequestNet` | `host.serviceOut` | `engine.exec.serviceIn` |
+| `serviceResponseNet` | `engine.exec.serviceOut` | `host.serviceIn` |
+| `offIslandRequestNet` | `engine.exec.offIslandOut` | `host.offIslandIn` |
+| `offIslandResponseNet` | `host.offIslandOut` | `engine.exec.offIslandIn` |
+| `stopNet` | `engine.exec.stopOut` | `host.stopIn` |
 
 ---
 

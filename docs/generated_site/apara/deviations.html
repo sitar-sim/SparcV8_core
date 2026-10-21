@@ -1981,13 +1981,13 @@ where it contradicts the ISA document or its own intent.</p>
 <td>1</td>
 <td><code>$return</code> reads the top of the RAS but never pops it: only one level of calls returns correctly</td>
 <td><code>$return</code> pops</td>
-<td>a stack; nested calls (<code>dev_control.mcode</code>)</td>
+<td>a stack; nested calls (<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_control.mcode"><code>dev_control.mcode</code></a>)</td>
 </tr>
 <tr>
 <td>2</td>
 <td>a 4-byte load picks the word's half by address bit 1 (its store uses bit 2)</td>
 <td>bit 2 for both</td>
-<td>a load at offset 4 read the wrong half (<code>dev_arith.mcode</code>)</td>
+<td>a load at offset 4 read the wrong half (<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_arith.mcode"><code>dev_arith.mcode</code></a>)</td>
 </tr>
 <tr>
 <td>3</td>
@@ -2064,13 +2064,13 @@ where it contradicts the ISA document or its own intent.</p>
 <tr>
 <td>31</td>
 <td>every element-wise <code>$v</code> operation on 4-bit elements (<code>$vi4</code>, <code>$vu4</code>) gives 0</td>
-<td>computed, each element wrapping at 4 bits (<code>dev_vector4.mcode</code>)</td>
+<td>computed, each element wrapping at 4 bits (<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_vector4.mcode"><code>dev_vector4.mcode</code></a>)</td>
 <td>the ISA lists the 4-bit vector types; the reference's own <code>$dot ($vi4)</code> works</td>
 </tr>
 <tr>
 <td>32</td>
 <td>a non-negative operand of a narrow signed type keeps the bits above the type's width (<code>($i8)</code> 0x105 + 0 = 0x105), in the ALU, branches and <code>$cmov</code></td>
-<td>only the type's width is read (5) (<code>dev_narrow_signed.mcode</code>)</td>
+<td>only the type's width is read (5) (<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/deviations/dev_narrow_signed.mcode"><code>dev_narrow_signed.mcode</code></a>)</td>
 <td>"r1 and r2 are i8"; negative values were already sign-extended</td>
 </tr>
 </tbody>
