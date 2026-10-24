@@ -114,8 +114,19 @@ Simulation halted after 9 cycles.
 ## Check the result automatically
 
 Instead of reading the final state by eye, the executable can be given
-the expected values to check. The program's folder holds them in
-`test_simple_ADD.expected`. The following command runs the check:
+the expected values to check. These values are written by hand in the
+program's `.vprj` file, `test_simple_ADD.vprj`, under `RESULTS`:
+
+```
+RESULTS =
+o0=0x0000000C
+l0=0x00000005
+l1=0x00000007
+```
+
+The executable does not read the `.vprj` file itself. It reads the same
+checks from a plain `.expected` file, `test_simple_ADD.expected`, in the
+same folder. The following command runs the check:
 
 ```sh
 ./executable/sparc_sim_cpp_core_only \
@@ -162,6 +173,21 @@ values, with `--stats`:
 ```sh
 ./run_simple_test.sh
 ```
+
+For most programs in the repository, the `.expected` file is not part
+of the clone. The validation runner, `run_tests.py`, writes it beside
+each test from the test's `.vprj` file every time it runs that test.
+`test_simple_ADD.expected` is committed as an exception, so that this
+page works right after cloning. The following command runs the runner
+once over the whole suite, which writes the `.expected` file of every
+test. It takes about a minute:
+
+```sh
+$SPARC_HOME/validation/run_tests.py $SPARC_HOME/validation
+```
+
+[Run the validation suite](#run-the-validation-suite) below describes
+the runner and its output.
 
 ---
 

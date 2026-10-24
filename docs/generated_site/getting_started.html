@@ -2196,28 +2196,36 @@ prints the final state of the processor:</p>
 <hr />
 <h2 id="check-the-result-automatically">Check the result automatically<a class="headerlink" href="#check-the-result-automatically" title="Permanent link">&para;</a></h2>
 <p>Instead of reading the final state by eye, the executable can be given
-the expected values to check. The program's folder holds them in
-<code>test_simple_ADD.expected</code>. The following command runs the check:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="w">    </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="w">    </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.expected<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="w">    </span>--stats
+the expected values to check. These values are written by hand in the
+program's <code>.vprj</code> file, <code>test_simple_ADD.vprj</code>, under <code>RESULTS</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>RESULTS =
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>o0=0x0000000C
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>l0=0x00000005
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>l1=0x00000007
+</span></code></pre></div>
+<p>The executable does not read the <code>.vprj</code> file itself. It reads the same
+checks from a plain <code>.expected</code> file, <code>test_simple_ADD.expected</code>, in the
+same folder. The following command runs the check:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>./executable/sparc_sim_cpp_core_only<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="w">    </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="w">    </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.expected<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="w">    </span>--stats
 </span></code></pre></div>
 <p>The executable then prints PASS or FAIL for each expected value, and an
 overall result. The <code>--stats</code> option adds the model's counters, which
 include the numbers of instructions, loads, stores and traps:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>Core statistics:
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>  Instructions fetched             = 8
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  Loads                            = 0
-</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  ... (more counters, all 0 for this program)
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>PASS: o0 = 0xc
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>PASS: l0 = 0x5
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>PASS: l1 = 0x7
-</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>OVERALL: PASS (3 checks)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>Core statistics:
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>  Instructions fetched             = 8
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>  Loads                            = 0
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a>  ... (more counters, all 0 for this program)
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a>PASS: o0 = 0xc
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>PASS: l0 = 0x5
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a>PASS: l1 = 0x7
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a>OVERALL: PASS (3 checks)
 </span></code></pre></div>
 <p>The executable takes the following arguments:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles] [--stats]
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>sparc_sim_cpp_core_only &lt;hex_file&gt; [expected_results_file] [max_cycles] [--stats]
 </span></code></pre></div>
 <ul>
 <li><strong><code>hex_file</code></strong> is the memory image to run.</li>
@@ -2232,20 +2240,31 @@ include the numbers of instructions, loads, stores and traps:</p>
 <p>Each model's folder also has a script for this check,
 <code>run_simple_test.sh</code>. It runs the same program against its expected
 values, with <code>--stats</code>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>./run_simple_test.sh
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./run_simple_test.sh
 </span></code></pre></div>
+<p>For most programs in the repository, the <code>.expected</code> file is not part
+of the clone. The validation runner, <code>run_tests.py</code>, writes it beside
+each test from the test's <code>.vprj</code> file every time it runs that test.
+<code>test_simple_ADD.expected</code> is committed as an exception, so that this
+page works right after cloning. The following command runs the runner
+once over the whole suite, which writes the <code>.expected</code> file of every
+test. It takes about a minute:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a><span class="nv">$SPARC_HOME</span>/validation/run_tests.py<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation
+</span></code></pre></div>
+<p><a href="#run-the-validation-suite">Run the validation suite</a> below describes
+the runner and its output.</p>
 <hr />
 <h2 id="trace-a-run">Trace a run<a class="headerlink" href="#trace-a-run" title="Permanent link">&para;</a></h2>
 <p>The model can also write a trace of the run, with one line per event
 and the processor's state after each event. Tracing is off by default,
 because it slows down long runs. The following command, run in the same
 folder, builds the version of the model that writes the trace:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a>./build.sh<span class="w"> </span>--logging
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a>./build.sh<span class="w"> </span>--logging
 </span></code></pre></div>
 <p>This build produces a second executable,
 <code>executable/sparc_sim_cpp_core_only_logging</code>, beside the first. The
 following command runs it on the program:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>./executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>./executable/sparc_sim_cpp_core_only_logging<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>In addition to the same output as before, this executable writes the
 trace to <code>test_simple_ADD.log</code> in the current folder. The trace file is
@@ -2317,15 +2336,15 @@ of memory. Memory can be examined during a run with gdb. See
 <p>The Sitar model runs the same core, and adds the timing of each
 instruction, memory access and interconnect. It is built and run in the
 same way, in its own folder, with the following commands:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/sitar_model
-</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>./build.sh
-</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>./executable/sparc_sim_sitar_core_only<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/sitar_model
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>./build.sh
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>./executable/sparc_sim_sitar_core_only<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>The output has the same form:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a>...
-</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>o0 0xc
-</span><span id="__span-11-3"><a id="__codelineno-11-3" name="__codelineno-11-3" href="#__codelineno-11-3"></a>...
-</span><span id="__span-11-4"><a id="__codelineno-11-4" name="__codelineno-11-4" href="#__codelineno-11-4"></a>Simulation halted after 8 cycles.
+<div class="language-text highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a>...
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>o0 0xc
+</span><span id="__span-13-3"><a id="__codelineno-13-3" name="__codelineno-13-3" href="#__codelineno-13-3"></a>...
+</span><span id="__span-13-4"><a id="__codelineno-13-4" name="__codelineno-13-4" href="#__codelineno-13-4"></a>Simulation halted after 8 cycles.
 </span></code></pre></div>
 <p>In this model, a cycle is a clock cycle of the modeled hardware. The
 cycle count therefore depends on the timing settings, and is not the
@@ -2391,9 +2410,9 @@ folder under <code>model/system_models/</code>:</p>
 <p>Each configuration is built and run in the same way as <code>core_only</code>, in
 its own folder, and its executables are named after it. For example,
 the following commands build and run the C++ model of <code>core_mmu</code>:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_mmu/cpp_model
-</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>./build.sh
-</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>./executable/sparc_sim_cpp_core_mmu<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_mmu/cpp_model
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>./build.sh
+</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>./executable/sparc_sim_cpp_core_mmu<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <hr />
 <h2 id="run-the-validation-suite">Run the validation suite<a class="headerlink" href="#run-the-validation-suite" title="Permanent link">&para;</a></h2>
@@ -2407,30 +2426,30 @@ in <code>$SPARC_HOME/validation/</code>, together with its runner, <code>run_tes
 no options. That build must therefore exist for each model under test.
 The runner is run from the repository's folder, and is given a folder
 of tests. The following command runs a small folder first:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
-</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm/misc
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-15-2"><a id="__codelineno-15-2" name="__codelineno-15-2" href="#__codelineno-15-2"></a>validation/run_tests.py<span class="w"> </span>validation/asm/misc
 </span></code></pre></div>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>[PASS] validation/asm/misc/flush/FLUSH.vprj
-</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>...
-</span><span id="__span-14-3"><a id="__codelineno-14-3" name="__codelineno-14-3" href="#__codelineno-14-3"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
-</span><span id="__span-14-4"><a id="__codelineno-14-4" name="__codelineno-14-4" href="#__codelineno-14-4"></a>
-</span><span id="__span-14-5"><a id="__codelineno-14-5" name="__codelineno-14-5" href="#__codelineno-14-5"></a>13/13 tests passed
+<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>[PASS] validation/asm/misc/flush/FLUSH.vprj
+</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>...
+</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>[PASS] validation/asm/misc/stbar_unimp_nop_sethi/STBAR_UNIMP_NOP_SETHI.vprj
+</span><span id="__span-16-4"><a id="__codelineno-16-4" name="__codelineno-16-4" href="#__codelineno-16-4"></a>
+</span><span id="__span-16-5"><a id="__codelineno-16-5" name="__codelineno-16-5" href="#__codelineno-16-5"></a>13/13 tests passed
 </span></code></pre></div>
 <p>The following command then runs the whole suite:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-15-1"><a id="__codelineno-15-1" name="__codelineno-15-1" href="#__codelineno-15-1"></a>validation/run_tests.py<span class="w"> </span>validation
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>validation/run_tests.py<span class="w"> </span>validation
 </span></code></pre></div>
 <p>The runner runs every test that the configuration supports. It also
 lists the folders it skips, which hold tests of components that the
 configuration does not have:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-16-1"><a id="__codelineno-16-1" name="__codelineno-16-1" href="#__codelineno-16-1"></a>skipped 4 test(s) under validation/C/caches: core_only has no caches
-</span><span id="__span-16-2"><a id="__codelineno-16-2" name="__codelineno-16-2" href="#__codelineno-16-2"></a>...
-</span><span id="__span-16-3"><a id="__codelineno-16-3" name="__codelineno-16-3" href="#__codelineno-16-3"></a>241/241 tests passed (158 skipped)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>skipped 4 test(s) under validation/C/caches: core_only has no caches
+</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a>...
+</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>241/241 tests passed (158 skipped)
 </span></code></pre></div>
 <p>By default, the runner tests the C++ model of <code>core_only</code>. The
 <code>--config</code> option selects another configuration, and the <code>--sitar</code>
 option selects the Sitar model. The <code>-v</code> option shows every check,
 rather than only the failures:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-17-1"><a id="__codelineno-17-1" name="__codelineno-17-1" href="#__codelineno-17-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>core_mmu<span class="w"> </span>--sitar<span class="w"> </span>-v
 </span></code></pre></div>
 <p>The suite should be run after every change to a model, to check that
 nothing broke. <a href="validation_suite.html">Validation Suite</a> describes the
@@ -2441,23 +2460,23 @@ tests, the runner's options, and how to add a new test.</p>
 <p>A modified or new program must be compiled into a memory image before
 it can run. The following commands create a separate working folder,
 outside the repository, and copy the first program into it:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-18-1"><a id="__codelineno-18-1" name="__codelineno-18-1" href="#__codelineno-18-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/sparc_programs
-</span><span id="__span-18-2"><a id="__codelineno-18-2" name="__codelineno-18-2" href="#__codelineno-18-2"></a><span class="nb">cd</span><span class="w"> </span>~/sparc_programs
-</span><span id="__span-18-3"><a id="__codelineno-18-3" name="__codelineno-18-3" href="#__codelineno-18-3"></a>cp<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.s<span class="w"> </span>my_add.s
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>mkdir<span class="w"> </span>-p<span class="w"> </span>~/sparc_programs
+</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a><span class="nb">cd</span><span class="w"> </span>~/sparc_programs
+</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>cp<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.s<span class="w"> </span>my_add.s
 </span></code></pre></div>
 <p>In <code>my_add.s</code>, change the line <code>mov 7, %l1</code> to <code>mov 30, %l1</code> with any
 text editor. The following commands then assemble the program and run
 it:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-19-1"><a id="__codelineno-19-1" name="__codelineno-19-1" href="#__codelineno-19-1"></a><span class="nv">$SPARC_HOME</span>/compiler/assemble.sh<span class="w"> </span>my_add.s
-</span><span id="__span-19-2"><a id="__codelineno-19-2" name="__codelineno-19-2" href="#__codelineno-19-2"></a><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only<span class="w"> </span>my_add.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a><span class="nv">$SPARC_HOME</span>/compiler/assemble.sh<span class="w"> </span>my_add.s
+</span><span id="__span-21-2"><a id="__codelineno-21-2" name="__codelineno-21-2" href="#__codelineno-21-2"></a><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/cpp_model/executable/sparc_sim_cpp_core_only<span class="w"> </span>my_add.hex
 </span></code></pre></div>
 <p>The script <code>assemble.sh</code> writes the memory image <code>my_add.hex</code> and the
 disassembly <code>my_add.objdump</code>. It may warn that the sections <code>.data</code> and
 <code>.rodata</code> do not exist. This warning is expected, because the program
 has no data. At the end of the run, <code>%o0</code> holds 35:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-20-1"><a id="__codelineno-20-1" name="__codelineno-20-1" href="#__codelineno-20-1"></a>o0 0x23
-</span><span id="__span-20-2"><a id="__codelineno-20-2" name="__codelineno-20-2" href="#__codelineno-20-2"></a>...
-</span><span id="__span-20-3"><a id="__codelineno-20-3" name="__codelineno-20-3" href="#__codelineno-20-3"></a>Simulation halted after 9 cycles.
+<div class="language-text highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a>o0 0x23
+</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>...
+</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>Simulation halted after 9 cycles.
 </span></code></pre></div>
 <p>A C program is compiled in the same way, with the command
 <code>$SPARC_HOME/compiler/compile_c.sh my_program.c</code>. The next pages,
@@ -2473,7 +2492,7 @@ point, and its registers and memory examined there. The models are
 ordinary programs on the host machine, so the host's own <code>gdb</code> debugs
 them directly.</p>
 <p>A model runs under gdb with a command of the following general form:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-21-1"><a id="__codelineno-21-1" name="__codelineno-21-1" href="#__codelineno-21-1"></a>gdb -x $SPARC_HOME/debug/sparc.gdb --args &lt;executable&gt; &lt;hex file&gt;
+<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>gdb -x $SPARC_HOME/debug/sparc.gdb --args &lt;executable&gt; &lt;hex file&gt;
 </span></code></pre></div>
 <p>Here <code>sparc.gdb</code> is a set of shortcuts, provided by this project, for
 viewing the model's state in SPARC terms. With them, registers and
@@ -2482,23 +2501,23 @@ variable names in the model's code. <code>&lt;executable&gt;</code> is a model b
 with <code>./build.sh --debug</code>, and <code>&lt;hex file&gt;</code> is the program to run.</p>
 <p>The following commands build the C++ model of <code>core_only</code> with debug
 symbols, and start it in gdb on the first program:</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-22-1"><a id="__codelineno-22-1" name="__codelineno-22-1" href="#__codelineno-22-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/cpp_model
-</span><span id="__span-22-2"><a id="__codelineno-22-2" name="__codelineno-22-2" href="#__codelineno-22-2"></a>./build.sh<span class="w"> </span>--debug
-</span><span id="__span-22-3"><a id="__codelineno-22-3" name="__codelineno-22-3" href="#__codelineno-22-3"></a>gdb<span class="w"> </span>-x<span class="w"> </span><span class="nv">$SPARC_HOME</span>/debug/sparc.gdb<span class="w"> </span>--args<span class="w"> </span><span class="se">\</span>
-</span><span id="__span-22-4"><a id="__codelineno-22-4" name="__codelineno-22-4" href="#__codelineno-22-4"></a><span class="w">    </span>./executable/sparc_sim_cpp_core_only_debug<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-24-1"><a id="__codelineno-24-1" name="__codelineno-24-1" href="#__codelineno-24-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/core_only/cpp_model
+</span><span id="__span-24-2"><a id="__codelineno-24-2" name="__codelineno-24-2" href="#__codelineno-24-2"></a>./build.sh<span class="w"> </span>--debug
+</span><span id="__span-24-3"><a id="__codelineno-24-3" name="__codelineno-24-3" href="#__codelineno-24-3"></a>gdb<span class="w"> </span>-x<span class="w"> </span><span class="nv">$SPARC_HOME</span>/debug/sparc.gdb<span class="w"> </span>--args<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-24-4"><a id="__codelineno-24-4" name="__codelineno-24-4" href="#__codelineno-24-4"></a><span class="w">    </span>./executable/sparc_sim_cpp_core_only_debug<span class="w"> </span><span class="nv">$SPARC_HOME</span>/validation/test_simple_ADD/test_simple_ADD.hex
 </span></code></pre></div>
 <p>The following gdb session stops the model after the <code>add</code> instruction,
 which is at PC <code>0x18</code> in the disassembly. It then prints three
 registers, and lets the run continue:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-23-1"><a id="__codelineno-23-1" name="__codelineno-23-1" href="#__codelineno-23-1"></a>(gdb) sparc-break pc=0x18
-</span><span id="__span-23-2"><a id="__codelineno-23-2" name="__codelineno-23-2" href="#__codelineno-23-2"></a>(gdb) run
-</span><span id="__span-23-3"><a id="__codelineno-23-3" name="__codelineno-23-3" href="#__codelineno-23-3"></a>(gdb) sparc-print-reg l0
-</span><span id="__span-23-4"><a id="__codelineno-23-4" name="__codelineno-23-4" href="#__codelineno-23-4"></a>l0 = 0x5 (5)
-</span><span id="__span-23-5"><a id="__codelineno-23-5" name="__codelineno-23-5" href="#__codelineno-23-5"></a>(gdb) sparc-print-reg l1
-</span><span id="__span-23-6"><a id="__codelineno-23-6" name="__codelineno-23-6" href="#__codelineno-23-6"></a>l1 = 0x7 (7)
-</span><span id="__span-23-7"><a id="__codelineno-23-7" name="__codelineno-23-7" href="#__codelineno-23-7"></a>(gdb) sparc-print-reg o0
-</span><span id="__span-23-8"><a id="__codelineno-23-8" name="__codelineno-23-8" href="#__codelineno-23-8"></a>o0 = 0xc (12)
-</span><span id="__span-23-9"><a id="__codelineno-23-9" name="__codelineno-23-9" href="#__codelineno-23-9"></a>(gdb) continue
+<div class="language-text highlight"><pre><span></span><code><span id="__span-25-1"><a id="__codelineno-25-1" name="__codelineno-25-1" href="#__codelineno-25-1"></a>(gdb) sparc-break pc=0x18
+</span><span id="__span-25-2"><a id="__codelineno-25-2" name="__codelineno-25-2" href="#__codelineno-25-2"></a>(gdb) run
+</span><span id="__span-25-3"><a id="__codelineno-25-3" name="__codelineno-25-3" href="#__codelineno-25-3"></a>(gdb) sparc-print-reg l0
+</span><span id="__span-25-4"><a id="__codelineno-25-4" name="__codelineno-25-4" href="#__codelineno-25-4"></a>l0 = 0x5 (5)
+</span><span id="__span-25-5"><a id="__codelineno-25-5" name="__codelineno-25-5" href="#__codelineno-25-5"></a>(gdb) sparc-print-reg l1
+</span><span id="__span-25-6"><a id="__codelineno-25-6" name="__codelineno-25-6" href="#__codelineno-25-6"></a>l1 = 0x7 (7)
+</span><span id="__span-25-7"><a id="__codelineno-25-7" name="__codelineno-25-7" href="#__codelineno-25-7"></a>(gdb) sparc-print-reg o0
+</span><span id="__span-25-8"><a id="__codelineno-25-8" name="__codelineno-25-8" href="#__codelineno-25-8"></a>o0 = 0xc (12)
+</span><span id="__span-25-9"><a id="__codelineno-25-9" name="__codelineno-25-9" href="#__codelineno-25-9"></a>(gdb) continue
 </span></code></pre></div>
 <p><a href="examining_core_state_with_gdb.html">Examining Core State at Runtime Using GDB</a>
 describes further examples, and <a href="gdb_command_reference.html">GDB Command Reference</a>

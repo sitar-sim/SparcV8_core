@@ -2044,7 +2044,10 @@ script" below for why):</p>
 </ul>
 <p>In short, <code>.vprj</code> is what you write, once, by hand. <code>.expected</code> is what
 <code>run_tests.py</code> generates from it, fresh, every time the test runs. It's
-never edited directly, and doesn't need to be committed to git.</p>
+never edited directly, and isn't committed to git. The one exception is
+<code>validation/test_simple_ADD/test_simple_ADD.expected</code>, which is committed
+so that <a href="getting_started.html#check-the-result-automatically">Getting Started</a>
+works right after cloning.</p>
 <h3 id="the-vprj-expected-results-format">The <code>.vprj</code> expected-results format<a class="headerlink" href="#the-vprj-expected-results-format" title="Permanent link">&para;</a></h3>
 <div class="language-text highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>SOURCES = ADD.s
 </span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>

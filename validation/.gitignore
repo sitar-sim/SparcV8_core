@@ -1,6 +1,11 @@
 *.o
 *.elf
 *.expected
+# Committed exception: Getting Started and every configuration's
+# run_simple_test.sh use this file directly, so it has to exist in a
+# fresh clone. run_tests.py rewrites it from test_simple_ADD.vprj on every
+# run, with identical content, so it can't drift.
+!/test_simple_ADD/test_simple_ADD.expected
 __pycache__/
 
 # NOTE: *.hex is deliberately NOT ignored here -- these files are committed

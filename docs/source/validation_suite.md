@@ -63,7 +63,10 @@ script" below for why):
 
 In short, `.vprj` is what you write, once, by hand. `.expected` is what
 `run_tests.py` generates from it, fresh, every time the test runs. It's
-never edited directly, and doesn't need to be committed to git.
+never edited directly, and isn't committed to git. The one exception is
+`validation/test_simple_ADD/test_simple_ADD.expected`, which is committed
+so that [Getting Started](getting_started.md#check-the-result-automatically)
+works right after cloning.
 
 ### The `.vprj` expected-results format
 

@@ -880,6 +880,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#displaying-values-at-every-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Displaying values at every stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#managing-breakpointswatchpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -1955,6 +1966,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#displaying-values-at-every-stop" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Displaying values at every stop
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#managing-breakpointswatchpoints" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2422,6 +2444,63 @@ value is expected, not a bug.</p>
 </span><span id="__span-2-9"><a id="__codelineno-2-9" name="__codelineno-2-9" href="#__codelineno-2-9"></a>(gdb) sparc-print-mem addr=0x2000:0x2020
 </span></code></pre></div></p>
 <hr />
+<h2 id="displaying-values-at-every-stop">Displaying values at every stop<a class="headerlink" href="#displaying-values-at-every-stop" title="Permanent link">&para;</a></h2>
+<p><code>sparc-display</code> is the counterpart of gdb's own <code>display</code>. It shows a
+register or a memory range once when it is added, and again each time
+the program stops and the prompt returns. Ordinary commands such as
+<code>print</code> don't trigger it. It only shows values after the program has run
+and stopped.</p>
+<table>
+<thead>
+<tr>
+<th>Command</th>
+<th>Syntax</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>sparc-display</code></td>
+<td><code>&lt;reg&gt; [coreid=&lt;n&gt;]</code></td>
+<td>show one register at every stop, using the same names as <code>sparc-print-reg</code></td>
+</tr>
+<tr>
+<td><code>sparc-display</code></td>
+<td><code>addr=&lt;addr-expr&gt;</code></td>
+<td>show memory at every stop, using the same forms as <code>sparc-print-mem</code></td>
+</tr>
+<tr>
+<td><code>sparc-display</code></td>
+<td><em>(none)</em></td>
+<td>show every active display now, with its id</td>
+</tr>
+<tr>
+<td><code>sparc-undisplay</code></td>
+<td><code>&lt;id&gt;</code> or <code>all</code></td>
+<td>remove one display by its id, or all of them</td>
+</tr>
+</tbody>
+</table>
+<p>Example, with a breakpoint on the loop body of the array-sum program from
+<a href="examining_core_state_with_gdb.html">Examining Core State with GDB</a>:
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(gdb) sparc-display g1
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>(gdb) sparc-display addr=0x2000:0x2008
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>(gdb) sparc-break pc=0x203c
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>(gdb) run docs/source/examples/array_sum/array_sum.hex
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>...
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>[sparc display 1] g1 = 0x0 (0)
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>[sparc display 2] addr=0x2000:0x2008 : 0x9de3bf78 0x82102001
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>(gdb) continue
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>...
+</span><span id="__span-3-10"><a id="__codelineno-3-10" name="__codelineno-3-10" href="#__codelineno-3-10"></a>[sparc display 1] g1 = 0x1 (1)
+</span><span id="__span-3-11"><a id="__codelineno-3-11" name="__codelineno-3-11" href="#__codelineno-3-11"></a>[sparc display 2] addr=0x2000:0x2008 : 0x9de3bf78 0x82102001
+</span><span id="__span-3-12"><a id="__codelineno-3-12" name="__codelineno-3-12" href="#__codelineno-3-12"></a>(gdb) sparc-undisplay 2
+</span><span id="__span-3-13"><a id="__codelineno-3-13" name="__codelineno-3-13" href="#__codelineno-3-13"></a>Deleted sparc display #2 (addr=0x2000:0x2008)
+</span></code></pre></div></p>
+<p>A display added before <code>run</code> is shown from the first stop on. If a value
+can't be read at a stop, its line shows <code>&lt;unavailable: ...&gt;</code> with the
+reason, and the other displays are still shown.</p>
+<hr />
 <h2 id="managing-breakpointswatchpoints">Managing breakpoints/watchpoints<a class="headerlink" href="#managing-breakpointswatchpoints" title="Permanent link">&para;</a></h2>
 <table>
 <thead>
@@ -2448,12 +2527,12 @@ value is expected, not a bug.</p>
 e.g. <code>[sparc #2] break pc=0x203c (gdb breakpoint #1)</code>. gdb's own <code>info
 breakpoints</code> shows the same entries, but only their raw translated
 condition string, which for these is rarely readable at a glance:
-<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>(gdb) sparc-list
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>id   gdb#   kind   hits   description
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>1    1      break  2      break pc=0x203c
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>2    2      watch  0      watch-mem addr=0xfffffe0
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>(gdb) sparc-delete 1
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>Deleted sparc #1 (break pc=0x203c)
+<div class="language-text highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>(gdb) sparc-list
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>id   gdb#   kind   hits   description
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>1    1      break  2      break pc=0x203c
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a>2    2      watch  0      watch-mem addr=0xfffffe0
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>(gdb) sparc-delete 1
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>Deleted sparc #1 (break pc=0x203c)
 </span></code></pre></div></p>
 <hr />
 <h2 id="gdb-itself-briefly">GDB itself, briefly<a class="headerlink" href="#gdb-itself-briefly" title="Permanent link">&para;</a></h2>
