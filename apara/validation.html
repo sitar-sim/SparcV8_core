@@ -1,0 +1,2593 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="system_programming.html">
+      
+      
+        <link rel="next" href="deviations.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Validation Suite - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#apara-validation-suite" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Validation Suite
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peripheral Devices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Peripheral Devices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_interrupt_controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interrupt Controller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_serial_device.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serial Device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Accelerator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The APARA Accelerator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="isa.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instruction Set
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="assembly_and_tools.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Language and Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="timing_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timing Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="validation.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before running the tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-engine-suites-validationapara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine suites (validation/apara)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The engine suites (validation/apara)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-they-contain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What they contain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-system-suites-validationsparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The system suites (validation/sparc_apara)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The system suites (validation/sparc_apara)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-they-contain_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What they contain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-test_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rebuilding-the-memory-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rebuilding the memory images
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-whole-suite-on-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The whole suite on sparc_apara
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="deviations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and Findings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#before-running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Before running the tests
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-engine-suites-validationapara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The engine suites (validation/apara)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The engine suites (validation/apara)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-they-contain" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What they contain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-system-suites-validationsparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The system suites (validation/sparc_apara)
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="The system suites (validation/sparc_apara)">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#what-they-contain_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What they contain
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#a-test_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A test
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#running-the-tests_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Running the tests
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#rebuilding-the-memory-images" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rebuilding the memory images
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#adding-a-test_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Adding a test
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#the-whole-suite-on-sparc_apara" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The whole suite on sparc_apara
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="apara-validation-suite">APARA Validation Suite<a class="headerlink" href="#apara-validation-suite" title="Permanent link">&para;</a></h1>
+<p>The APARA engine has two sets of tests. The <strong>engine suites</strong> test the
+engine on its own, in the <code>apara</code> configuration. The <strong>system suites</strong>
+test a SPARC program using the engine, in the <code>sparc_apara</code>
+configuration. This page describes what each set contains, how to run
+it on both models, and how to add a test. The general format of the
+SPARC tests, and the runner <code>validation/run_tests.py</code>, are described in
+<a href="../validation_suite.html">Validation Suite</a>.</p>
+<table>
+<thead>
+<tr>
+<th>Set</th>
+<th>Folder</th>
+<th>Configuration</th>
+<th>Runner</th>
+<th>Tests</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Engine suites</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/"><code>validation/apara/</code></a></td>
+<td><code>apara</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/apara/run_tests.py"><code>validation/apara/run_tests.py</code></a></td>
+<td>108</td>
+</tr>
+<tr>
+<td>System suites</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/"><code>validation/sparc_apara/</code></a></td>
+<td><code>sparc_apara</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/run_tests.py"><code>validation/run_tests.py</code></a> <code>--config sparc_apara</code></td>
+<td>26</td>
+</tr>
+</tbody>
+</table>
+<p>The commands on this page use <code>$SPARC_HOME</code>, the repository's folder,
+as set in step 2 of <a href="../installation.html">Installation</a>.</p>
+<hr />
+<h2 id="before-running-the-tests">Before running the tests<a class="headerlink" href="#before-running-the-tests" title="Permanent link">&para;</a></h2>
+<p>Each runner runs the plain build of its configuration's models. The
+following commands build the C++ model and the Sitar model of both
+configurations:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/apara/cpp_model
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>./build.sh
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/apara/sitar_model
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a>./build.sh
+</span><span id="__span-0-5"><a id="__codelineno-0-5" name="__codelineno-0-5" href="#__codelineno-0-5"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/sparc_apara/cpp_model
+</span><span id="__span-0-6"><a id="__codelineno-0-6" name="__codelineno-0-6" href="#__codelineno-0-6"></a>./build.sh
+</span><span id="__span-0-7"><a id="__codelineno-0-7" name="__codelineno-0-7" href="#__codelineno-0-7"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/sparc_apara/sitar_model
+</span><span id="__span-0-8"><a id="__codelineno-0-8" name="__codelineno-0-8" href="#__codelineno-0-8"></a>./build.sh
+</span></code></pre></div>
+<p>The Sitar models need Sitar (step 3 of Installation). The executables of
+<code>apara</code> are <code>executable/apara_sim_cpp</code> and <code>executable/apara_sim_sitar</code>,
+and those of <code>sparc_apara</code> are <code>executable/sparc_sim_cpp_sparc_apara</code>
+and <code>executable/sparc_sim_sitar_sparc_apara</code>.</p>
+<p>No cross-toolchain is needed to run the tests. The engine suites are
+assembled by the runner itself, with the engine's assembler, which is a
+Python program. The system suites' memory images are already built and
+committed. The cross-toolchain is needed only to rebuild a system test
+after a change to its sources (see <a href="#rebuilding-the-memory-images">Rebuilding the memory
+images</a>).</p>
+<hr />
+<h2 id="the-engine-suites-validationapara">The engine suites (validation/apara)<a class="headerlink" href="#the-engine-suites-validationapara" title="Permanent link">&para;</a></h2>
+<h3 id="what-they-contain">What they contain<a class="headerlink" href="#what-they-contain" title="Permanent link">&para;</a></h3>
+<p><code>validation/apara/</code> holds the engine's own test suites, one folder each:</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th>Tests</th>
+<th>What they check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/isa/"><code>isa/</code></a></td>
+<td>29</td>
+<td>Every instruction, in one subfolder per class (<code>alu_int</code>, <code>alu_float</code>, <code>vector</code>, <code>cast</code>, <code>bits</code>, <code>cmov</code>, <code>memory</code>, <code>control</code>). The tests cover each operation on each type, edge values (wraparound, sign extension, rounding), immediates and increments at their limits, and every exception.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/sequences/"><code>sequences/</code></a></td>
+<td>7</td>
+<td>Instructions working together. Examples are full 8-slot bundles, loops, a recurrence in one bundle per step, a block copy with auto-increments, threads sharing DMEM, and one thread's fault not stopping the others.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/hazards/"><code>hazards/</code></a></td>
+<td>10</td>
+<td>The pipeline's handling of dependences between bundles (see <a href="running.html#hazards">Hazards</a>).</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/predictor/"><code>predictor/</code></a></td>
+<td>6</td>
+<td>The branch predictor, with loops, nested loops, two branches sharing a predictor entry, and calls and returns. Each test's mispredict count is derived from the <a href="timing_model.html#branch-prediction">predictor's rules</a>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/asm_errors/"><code>asm_errors/</code></a></td>
+<td>21</td>
+<td>Programs the assembler must reject. Examples are a register written twice in a bundle (also through multi-register writes and increments), too many control transfers, divides or memory operations in a bundle, values out of range, and invalid types.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/timing/"><code>timing/</code></a></td>
+<td>10</td>
+<td>Microbenchmarks with exact cycle counts, derived by hand from the <a href="timing_model.html#timing-rules">timing rules</a>. Its <code>README.md</code> also has each test's counts for other settings of the <a href="timing_model.html#knobs">knobs</a>.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/kernels/"><code>kernels/</code></a></td>
+<td>6</td>
+<td>Larger hand-scheduled programs. These are a dot product, a vector addition, SAXPY, a reduction, and matrix products on one and four threads.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/c_programs/"><code>c_programs/</code></a></td>
+<td>11</td>
+<td>Programs compiled from C with the <a href="compiler.html">C compiler</a>. They cover the language's features, sorting, a prime sieve, and linear algebra.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/apara/deviations/"><code>deviations/</code></a></td>
+<td>8</td>
+<td>Behavior where the model departs, on purpose, from the engine's reference model (see <a href="deviations.html">Deviations and Findings</a>).</td>
+</tr>
+</tbody>
+</table>
+<p>Each folder has a <code>README.md</code> describing its tests. A good way to learn
+the instruction set is to read the tests of <code>isa/</code> next to the
+<a href="isa.html">Instruction Set</a>, and then the programs of <code>kernels/</code>.</p>
+<h3 id="a-test">A test<a class="headerlink" href="#a-test" title="Permanent link">&para;</a></h3>
+<p>A test is a source file and a <code>.vprj</code> file of the same name. The
+<code>.vprj</code> says how to run the program and what to expect, in the same
+spirit as the SPARC tests. For example, the timing test
+<code>timing/t3_latency</code> is the following program:</p>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="c1">// Timing: EXEC latency. An f32 add takes 3 cycles in EXEC (cycles 3-5).</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="c1">// The $halt behind it enters EXEC in cycle 4 but results leave in order,</span>
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a><span class="c1">// one per cycle: the add&#39;s in cycle 5, the halt&#39;s in 6; WRITEBACK in 8:</span>
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a><span class="c1">// 9 cycles.</span>
+</span><span id="__span-1-5"><a id="__codelineno-1-5" name="__codelineno-1-5" href="#__codelineno-1-5"></a><span class="c1">//</span>
+</span><span id="__span-1-6"><a id="__codelineno-1-6" name="__codelineno-1-6" href="#__codelineno-1-6"></a>    <span class="kp">||</span> <span class="o">+</span> <span class="nv">$r1</span> <span class="p">(</span><span class="kt">$f32</span><span class="p">)</span> <span class="nv">$r2</span> <span class="nv">$r3</span> <span class="kp">;</span>
+</span><span id="__span-1-7"><a id="__codelineno-1-7" name="__codelineno-1-7" href="#__codelineno-1-7"></a>    <span class="kp">||</span> <span class="k">$halt</span> <span class="kp">;</span>
+</span></code></pre></div>
+<p>Its <code>.vprj</code> gives the exact cycle count that the timing model must
+reach:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>SOURCES = t3_latency.mcode
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>CYCLES = 9
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a>RESULTS =
+</span></code></pre></div>
+<p>The source's header explains where the expected count comes from. A
+functional test sets registers and memory in <code>INIT</code>, and lists the
+expected results in <code>RESULTS</code>. The following lines are from
+<code>isa/control/control.vprj</code>:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>SOURCES = control.mcode
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>INIT =
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a>r1 = 5
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>r3 = 0xbfc00000
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a>RESULTS =
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a>r1 = 0xffffffffffffffff
+</span><span id="__span-3-9"><a id="__codelineno-3-9" name="__codelineno-3-9" href="#__codelineno-3-9"></a>r2 = 0xf
+</span></code></pre></div>
+<p>The lines of <code>INIT</code> and <code>RESULTS</code> have the following forms:</p>
+<table>
+<thead>
+<tr>
+<th>Line</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>r3 = 0x10</code></td>
+<td>Thread 0's <code>$r3</code>.</td>
+</tr>
+<tr>
+<td><code>t1.r3 = 0x10</code></td>
+<td>Thread 1's <code>$r3</code>.</td>
+</tr>
+<tr>
+<td><code>m[0x80] = 0x0102030405060708</code></td>
+<td>The DMEM dword (8 bytes) at byte address 0x80.</td>
+</tr>
+<tr>
+<td><code>m[C+0x8] = 0x2f2</code></td>
+<td>In a C test, a dword of the global <code>C</code>.</td>
+</tr>
+<tr>
+<td><code>t1.pc = 0x9</code></td>
+<td>(<code>RESULTS</code> only) Where thread 1 stopped.</td>
+</tr>
+<tr>
+<td><code>error = 0x2000000</code></td>
+<td>(<code>RESULTS</code> only) Thread 0's ERROR register. The value 0x2000000 is a <code>$halt</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>A value in <code>RESULTS</code> may be followed by a mask, which selects the bits
+that are compared.</p>
+<p>The other keys are the following:</p>
+<table>
+<thead>
+<tr>
+<th>Key</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>SOURCES = prog.mcode</code></td>
+<td>The program. It may be mcode, C (<code>.c</code>, compiled first), or an object file (<code>.obj</code>).</td>
+</tr>
+<tr>
+<td><code>THREADS = 0x0 worker</code></td>
+<td>Start a thread at each of these IMEM addresses or labels. The default is one thread at 0x0.</td>
+</tr>
+<tr>
+<td><code>CYCLES = 12</code></td>
+<td>The exact cycle count on the timing model, with the default timing settings.</td>
+</tr>
+<tr>
+<td><code>MISPREDICTS = 2</code>, <code>BTB_PREDICTIONS = 3</code></td>
+<td>The exact branch predictor counts on the timing model.</td>
+</tr>
+<tr>
+<td><code>HAZARDS_UNLOCKED = 1</code></td>
+<td>The hazards that the timing model must count when built without the interlock (see <a href="running.html#hazards">Hazards</a>).</td>
+</tr>
+<tr>
+<td><code>ASM_ERROR = written twice</code></td>
+<td>The program must not assemble, and the error message must contain this text.</td>
+</tr>
+<tr>
+<td><code>DEVIATION = &lt;why&gt;</code></td>
+<td>The test depends on one of the model's <a href="deviations.html">deviations</a>.</td>
+</tr>
+<tr>
+<td><code>MAX_CYCLES = 100000</code></td>
+<td>A larger limit, for a long test.</td>
+</tr>
+<tr>
+<td><code>APCC_FLAGS = -O0</code></td>
+<td>Options for the C compiler.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="running-the-tests">Running the tests<a class="headerlink" href="#running-the-tests" title="Permanent link">&para;</a></h3>
+<p>The engine suites have their own runner, <code>validation/apara/run_tests.py</code>.
+The following commands run every suite, first on the C++ model and then
+on the Sitar model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>--sitar
+</span></code></pre></div>
+<p>For each test, the runner assembles or compiles the program, writes its
+files into <code>validation/apara/build/&lt;test&gt;/</code>, runs it, and prints <code>PASS</code>
+or <code>FAIL</code>. It then prints a summary for each suite:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>PASS  timing/t1_halt.vprj
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>...
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>  asm_errors     21/21 passed
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>  c_programs     11/11 passed
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>  deviations     8/8 passed
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>  hazards        10/10 passed
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>  isa            29/29 passed
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>  kernels        6/6 passed
+</span><span id="__span-5-9"><a id="__codelineno-5-9" name="__codelineno-5-9" href="#__codelineno-5-9"></a>  predictor      6/6 passed
+</span><span id="__span-5-10"><a id="__codelineno-5-10" name="__codelineno-5-10" href="#__codelineno-5-10"></a>  sequences      7/7 passed
+</span><span id="__span-5-11"><a id="__codelineno-5-11" name="__codelineno-5-11" href="#__codelineno-5-11"></a>  timing         10/10 passed
+</span><span id="__span-5-12"><a id="__codelineno-5-12" name="__codelineno-5-12" href="#__codelineno-5-12"></a>OVERALL: 108 passed, 0 failed
+</span></code></pre></div>
+<p>With <code>--sitar</code>, the runner also checks the timing keys <code>CYCLES</code>,
+<code>MISPREDICTS</code>, <code>BTB_PREDICTIONS</code> and <code>HAZARDS_UNLOCKED</code>. The runner can
+also be given one suite, or one <code>.vprj</code>:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>validation/apara/hazards<span class="w"> </span>--sitar
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a>python3<span class="w"> </span>validation/apara/run_tests.py<span class="w"> </span>validation/apara/timing/t3_latency.vprj<span class="w"> </span>--sitar
+</span></code></pre></div>
+<p>A failing test can be run again by hand, with the files the runner left
+in <code>validation/apara/build/&lt;test&gt;/</code>, and the options of <a href="running.html#running-a-program">Running a
+program</a>, such as <code>--trace</code>.</p>
+<h3 id="adding-a-test">Adding a test<a class="headerlink" href="#adding-a-test" title="Permanent link">&para;</a></h3>
+<p>To add a test, write a source file and its <code>.vprj</code> in a suite's folder,
+and run the suite. Nothing needs to be registered, because the runner
+finds every <code>.vprj</code> file in the folders it is given. To find the
+expected values of a new test, run it once with <code>--dump-results -</code> (see
+<a href="running.html#running-a-program">Running a program</a>). Then check every
+value by hand, or with an independent calculation, before writing it
+down.</p>
+<hr />
+<h2 id="the-system-suites-validationsparc_apara">The system suites (validation/sparc_apara)<a class="headerlink" href="#the-system-suites-validationsparc_apara" title="Permanent link">&para;</a></h2>
+<h3 id="what-they-contain_1">What they contain<a class="headerlink" href="#what-they-contain_1" title="Permanent link">&para;</a></h3>
+<p><code>validation/sparc_apara/</code> holds the tests of the SPARC using the engine.
+Each test is a bare-metal SPARC C program, with one or more engine
+programs. The tests are grouped in five folders:</p>
+<table>
+<thead>
+<tr>
+<th>Folder</th>
+<th>Tests</th>
+<th>What they check</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/basic/"><code>basic/</code></a></td>
+<td>8</td>
+<td>Each part of the engine's interface on its own. The tests cover IMEM and registers, running and polling, the completion interrupt, exceptions, four threads, the engine's own main-memory accesses, DMA and its interrupt, and a whole offload by DMA (<code>dma_dot_product</code>).</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/setup/"><code>setup/</code></a></td>
+<td>5</td>
+<td>Bringing the engine up, with one thread. The tests cover its state at power-up, loading and reading back its memories, complete offloads of a program compiled from C (by polling and by interrupt), and loading a second program over the first.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/threads/"><code>threads/</code></a></td>
+<td>5</td>
+<td>The same program on 1, 2, 3 and 4 threads, each on its own slice of the data, and threads started and restarted at different times.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/interference/"><code>interference/</code></a></td>
+<td>5</td>
+<td>Whether threads, the SPARC and the DMA unit disturb one another (see <a href="system_programming.html#what-may-happen-while-threads-run">What may happen while threads run</a>), and the one real interference, a race on shared data.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/validation/sparc_apara/linalg/"><code>linalg/</code></a></td>
+<td>3</td>
+<td>Linear algebra offloaded to the engine. The tests are an 8x8 matrix product on four threads, SAXPY in floating point, and a four-thread dot product compiled from C.</td>
+</tr>
+</tbody>
+</table>
+<p>Each folder has a <code>README.md</code> describing its tests, and
+<code>validation/sparc_apara/README.md</code> summarizes the protocol of
+<a href="system_programming.html#setting-up-and-running-the-engine">Setting up and running the
+engine</a>. The
+tests also serve as worked examples for new programs, as listed in
+<a href="system_programming.html#going-further">Going further</a>.</p>
+<h3 id="a-test_1">A test<a class="headerlink" href="#a-test_1" title="Permanent link">&para;</a></h3>
+<p>A system test is a folder with a SPARC C program, its engine programs,
+and a <code>.vprj</code> file. The folder <code>basic/dma_dot_product/</code> holds the
+following sources:</p>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>What</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/dma_dot_product.c"><code>dma_dot_product.c</code></a></td>
+<td>The SPARC program.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/kernel.mcode"><code>kernel.mcode</code></a></td>
+<td>The engine program.</td>
+</tr>
+<tr>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/validation/sparc_apara/basic/dma_dot_product/dma_dot_product.vprj"><code>dma_dot_product.vprj</code></a></td>
+<td>How to build the test, and what to expect.</td>
+</tr>
+</tbody>
+</table>
+<p>Its <code>.vprj</code> names the SPARC program, its engine program, and the
+expected registers:</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a>SOURCES = dma_dot_product.c
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a>MCODE = kernel.mcode
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a>RESULTS =
+</span><span id="__span-7-6"><a id="__codelineno-7-6" name="__codelineno-7-6" href="#__codelineno-7-6"></a>o0=0x00000001
+</span><span id="__span-7-7"><a id="__codelineno-7-7" name="__codelineno-7-7" href="#__codelineno-7-7"></a>o1=0x0000000f
+</span></code></pre></div>
+<p>The line <code>MCODE = kernel.mcode</code> names an engine program. The build
+script writes its C header, <code>kernel.mcode.h</code>, before it compiles the
+SPARC program. A test may have several <code>MCODE</code> lines, and an engine
+program may also be written in C (<code>MCODE = kernel.c</code>). The line
+<code>STARTUP = crt0_interrupts.s</code> links the interrupt startup code, for a
+test that takes the engine's interrupt. The other files in the folder,
+such as <code>dma_dot_product.hex</code> and <code>kernel.mcode.h</code>, are written by the
+build, and are committed so that the tests run without a
+cross-toolchain.</p>
+<p>Every test reports in the same way as the device tests. <code>%o0</code> is 1 if
+every check passed, and <code>%o1</code> has one bit per check. The checks are
+listed in the header comment of the test's C file. The SPARC program
+computes the expected results itself.</p>
+<p>The tests share some helpers, in <code>validation/sparc_apara/apara_common.h</code>:</p>
+<table>
+<thead>
+<tr>
+<th>Helper</th>
+<th>Does</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>report_and_halt(ok, n)</code></td>
+<td>Writes 1 to <code>%o0</code> if all <code>n</code> checks passed, and 0 otherwise, writes <code>ok</code> to <code>%o1</code>, and halts.</td>
+</tr>
+<tr>
+<td><code>physical_word(p)</code></td>
+<td>Reads a word of main memory with an MMU-bypass load, past the data cache, for data that the engine has written there.</td>
+</tr>
+<tr>
+<td><code>dword_equals(o, v)</code></td>
+<td>Whether the 64-bit word at DMEM offset <code>o</code> equals the 32-bit value <code>v</code>, sign-extended.</td>
+</tr>
+<tr>
+<td><code>next_random(&amp;state)</code></td>
+<td>The next number of a fixed pseudo-random sequence, for test data.</td>
+</tr>
+<tr>
+<td><code>enable_fpu()</code></td>
+<td>Turns on the SPARC's FPU, which the startup code leaves off.</td>
+</tr>
+<tr>
+<td><code>HALTED</code></td>
+<td>The completion word of a thread that ended with <code>$halt</code>.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="running-the-tests_1">Running the tests<a class="headerlink" href="#running-the-tests_1" title="Permanent link">&para;</a></h3>
+<p>The system suites run with the general runner, on <code>--config sparc_apara</code>.
+The Sitar model needs a larger cycle limit than the default:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-8-1"><a id="__codelineno-8-1" name="__codelineno-8-1" href="#__codelineno-8-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-8-2"><a id="__codelineno-8-2" name="__codelineno-8-2" href="#__codelineno-8-2"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/sparc_apara<span class="w"> </span>--config<span class="w"> </span>sparc_apara
+</span><span id="__span-8-3"><a id="__codelineno-8-3" name="__codelineno-8-3" href="#__codelineno-8-3"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/sparc_apara<span class="w"> </span>--config<span class="w"> </span>sparc_apara<span class="w"> </span>--sitar<span class="w"> </span>--max-cycles<span class="w"> </span><span class="m">50000000</span>
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-9-1"><a id="__codelineno-9-1" name="__codelineno-9-1" href="#__codelineno-9-1"></a>[PASS] validation/sparc_apara/basic/dma_dot_product/dma_dot_product.vprj
+</span><span id="__span-9-2"><a id="__codelineno-9-2" name="__codelineno-9-2" href="#__codelineno-9-2"></a>...
+</span><span id="__span-9-3"><a id="__codelineno-9-3" name="__codelineno-9-3" href="#__codelineno-9-3"></a>[PASS] validation/sparc_apara/threads/threads_4/threads_4.vprj
+</span><span id="__span-9-4"><a id="__codelineno-9-4" name="__codelineno-9-4" href="#__codelineno-9-4"></a>
+</span><span id="__span-9-5"><a id="__codelineno-9-5" name="__codelineno-9-5" href="#__codelineno-9-5"></a>26/26 tests passed
+</span></code></pre></div>
+<p>One folder, or one test's folder, can be given instead:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-10-1"><a id="__codelineno-10-1" name="__codelineno-10-1" href="#__codelineno-10-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-10-2"><a id="__codelineno-10-2" name="__codelineno-10-2" href="#__codelineno-10-2"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/sparc_apara/basic<span class="w"> </span>--config<span class="w"> </span>sparc_apara
+</span><span id="__span-10-3"><a id="__codelineno-10-3" name="__codelineno-10-3" href="#__codelineno-10-3"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/sparc_apara/basic/dma_dot_product<span class="w"> </span>--config<span class="w"> </span>sparc_apara
+</span></code></pre></div>
+<p>A test's memory image can also be run by hand, as in <a href="system_programming.html#an-example-offloading-a-dot-product">An example:
+offloading a dot product</a>.</p>
+<h3 id="rebuilding-the-memory-images">Rebuilding the memory images<a class="headerlink" href="#rebuilding-the-memory-images" title="Permanent link">&para;</a></h3>
+<p><em>This section needs the cross-toolchain (step 4 of Installation).</em></p>
+<p>After a change to a test's C program or engine program, the following
+command rebuilds the memory images of a folder of tests. It writes the
+engine programs' headers, then compiles each SPARC program:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-11-1"><a id="__codelineno-11-1" name="__codelineno-11-1" href="#__codelineno-11-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-11-2"><a id="__codelineno-11-2" name="__codelineno-11-2" href="#__codelineno-11-2"></a>python3<span class="w"> </span>validation/build_hex.py<span class="w"> </span>validation/sparc_apara
+</span></code></pre></div>
+<p>The runner then runs the new images. Rebuilt <code>.hex</code> files should be
+committed together with the changed sources.</p>
+<h3 id="adding-a-test_1">Adding a test<a class="headerlink" href="#adding-a-test_1" title="Permanent link">&para;</a></h3>
+<p>To add a test, make a new folder in one of the five folders, with the
+SPARC program, its engine programs, and a <code>.vprj</code> that names them. Then
+build it and run it:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-12-1"><a id="__codelineno-12-1" name="__codelineno-12-1" href="#__codelineno-12-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-12-2"><a id="__codelineno-12-2" name="__codelineno-12-2" href="#__codelineno-12-2"></a>python3<span class="w"> </span>validation/build_hex.py<span class="w"> </span>validation/sparc_apara/basic/my_test
+</span><span id="__span-12-3"><a id="__codelineno-12-3" name="__codelineno-12-3" href="#__codelineno-12-3"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/sparc_apara/basic/my_test<span class="w"> </span>--config<span class="w"> </span>sparc_apara
+</span></code></pre></div>
+<p><a href="system_programming.html#writing-a-new-program">Writing a new program</a>
+builds such a test step by step. The file <code>validation/sparc_apara/REQUIRES</code>
+names the components that these tests need, which are the SPARC core,
+the devices and the engine. The runner therefore runs a new test in
+<code>validation/sparc_apara/</code> only on the <code>sparc_apara</code> configuration (see
+<a href="../validation_suite.html#which-tests-run-on-which-configuration">Which tests run on which
+configuration</a>).</p>
+<hr />
+<h2 id="the-whole-suite-on-sparc_apara">The whole suite on sparc_apara<a class="headerlink" href="#the-whole-suite-on-sparc_apara" title="Permanent link">&para;</a></h2>
+<p>The <code>sparc_apara</code> configuration also runs the general SPARC tests of
+<code>validation/</code>, because its SPARC core is the one of
+<code>core_l1cache_mmu_devices</code>. The following command runs every test that
+the configuration can run, on the C++ model:</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-13-1"><a id="__codelineno-13-1" name="__codelineno-13-1" href="#__codelineno-13-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>
+</span><span id="__span-13-2"><a id="__codelineno-13-2" name="__codelineno-13-2" href="#__codelineno-13-2"></a>python3<span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation<span class="w"> </span>--config<span class="w"> </span>sparc_apara
+</span></code></pre></div>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-14-1"><a id="__codelineno-14-1" name="__codelineno-14-1" href="#__codelineno-14-1"></a>skipped 108 test(s) under validation/apara: sparc_apara has no apara_standalone
+</span><span id="__span-14-2"><a id="__codelineno-14-2" name="__codelineno-14-2" href="#__codelineno-14-2"></a>291/291 tests passed (108 skipped)
+</span></code></pre></div>
+<p>The 291 tests are the SPARC tests and the 26 system tests. The runner
+skips the 108 engine tests of <code>validation/apara/</code>, which only their own
+runner runs.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

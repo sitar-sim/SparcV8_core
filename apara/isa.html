@@ -1,0 +1,2744 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="A Sitar-based functional and cycle-level timing model of a SPARC V8 processor core">
+      
+      
+        <meta name="author" content="Neha Karanjkar">
+      
+      
+      
+        <link rel="prev" href="index.html">
+      
+      
+        <link rel="next" href="assembly_and_tools.html">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Instruction Set - Sitar model of a SPARC V8 core</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ab4e12ef.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../stylesheets/extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#apara-instruction-set" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-header__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Sitar model of a SPARC V8 core
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Instruction Set
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="colorful" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="blue-grey" data-md-color-accent="indigo"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12s-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+        <div class="md-search__suggest" data-md-component="search-suggest"></div>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Sitar model of a SPARC V8 core" class="md-nav__button md-logo" aria-label="Sitar model of a SPARC V8 core" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Sitar model of a SPARC V8 core
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/sitar-sim/SparcV8_core" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    sitar-sim/SparcV8_core
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../navigation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Navigation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_2" >
+        
+          
+          <label class="md-nav__link" for="__nav_2" id="__nav_2_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Introduction
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_2_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_2">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Introduction
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../getting_started.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+        
+          
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_3">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Writing and Running Programs
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_assembly_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../writing_and_running_c_programs.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    C Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../validation_suite.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../cross_compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Cross Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_4" id="__nav_4_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Monitoring
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Logging and Monitoring
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../logging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examining_core_state_with_gdb.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examining Core State with GDB
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../gdb_command_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    GDB Command Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../debug_support_internals.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Debug Support Internals
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5" >
+        
+          
+          <label class="md-nav__link" for="__nav_5" id="__nav_5_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Model
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_5_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Model
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../sparcv8_architecture.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    SPARC V8 Architecture
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configurations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configurations
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    
+    
+    
+    
+      
+    
+    
+    <li class="md-nav__item md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_5_4" >
+        
+          
+          <label class="md-nav__link" for="__nav_5_4" id="__nav_5_4_label" tabindex="0">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Peripheral Devices
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_5_4_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_5_4">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    Peripheral Devices
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_timer.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timer
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_interrupt_controller.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Interrupt Controller
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../peripheral_devices_serial_device.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Serial Device
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_components_reference.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Components Reference
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../model_configuration_settings.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Configuration Settings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../performance_modeling.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Performance Modeling
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_6" checked>
+        
+          
+          <label class="md-nav__link" for="__nav_6" id="__nav_6_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Accelerator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="true">
+          <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The APARA Accelerator
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instruction Set
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="isa.html" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Instruction Set
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#engine-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Engine state
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Engine state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-a-thread-runs-and-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a thread runs and stops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#floats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Floats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bundles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sizes-and-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sizes and slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arithmetic-and-logic-scalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arithmetic and logic (scalar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vector-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vector arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dot-product-and-reduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dot product and reduction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#square-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Square root
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#casts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Casts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moving-and-arranging-bits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Moving and arranging bits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loads-and-stores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loads and stores
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encodings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encodings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="assembly_and_tools.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Assembly Language and Tools
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="running.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Writing and Running Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="compiler.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The C Compiler
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="timing_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Timing Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The Engine in a System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="system_programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="deviations.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Deviations and Findings
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    More
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    More
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../development_notes.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Development Notes
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../authors.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Authors
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../license.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    License
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#engine-state" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Engine state
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Engine state">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#threads" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Threads
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#memories" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Memories
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-a-thread-runs-and-stops" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How a thread runs and stops
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#data-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Data types
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Data types">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#scalars" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Scalars
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vectors" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vectors
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#floats" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Floats
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#bundles" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Bundles
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Bundles">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#sizes-and-slots" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sizes and slots
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#instructions" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Instructions
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Instructions">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#arithmetic-and-logic-scalar" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Arithmetic and logic (scalar)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#vector-arithmetic" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Vector arithmetic
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#dot-product-and-reduction" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Dot product and reduction
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#square-root" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Square root
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#casts" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Casts
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#moving-and-arranging-bits" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Moving and arranging bits
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#loads-and-stores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Loads and stores
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#control-transfer" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Control transfer
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#encodings" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Encodings
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="apara-instruction-set">APARA Instruction Set<a class="headerlink" href="#apara-instruction-set" title="Permanent link">&para;</a></h1>
+<p>This page is the programmer's reference for the APARA engine, as this
+project models it: what state a program sees, the data types its
+instructions work on, how instructions are grouped into bundles, and
+every instruction, with its assembly syntax and its encoding.</p>
+<p>Where this description departs from the engine's own documents, the
+choice is listed in <a href="deviations.html">Deviations and Findings</a>.</p>
+<hr />
+<h2 id="engine-state">Engine state<a class="headerlink" href="#engine-state" title="Permanent link">&para;</a></h2>
+<h3 id="threads">Threads<a class="headerlink" href="#threads" title="Permanent link">&para;</a></h3>
+<p>An engine runs up to <strong>four hardware threads</strong>. They share the
+engine's memories and its pipeline, but each thread has its own
+architectural state:</p>
+<table>
+<thead>
+<tr>
+<th>State</th>
+<th>Size</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>PC</td>
+<td>32 bits</td>
+<td>The address of the thread's next bundle, as an instruction-word index into IMEM, not a byte address.</td>
+</tr>
+<tr>
+<td><code>$r0</code> .. <code>$r31</code></td>
+<td>64 bits each</td>
+<td>General-purpose registers. <code>$r0</code> always reads as 0, and writes to it are dropped.</td>
+</tr>
+<tr>
+<td>Return-address stack (RAS)</td>
+<td>64 entries</td>
+<td>Return addresses: <code>$call</code> pushes one, <code>$return</code> pops one.</td>
+</tr>
+<tr>
+<td>ERROR</td>
+<td>32 bits</td>
+<td>Why the thread stopped, see below.</td>
+</tr>
+</tbody>
+</table>
+<p>Four threads let the engine stay busy: while one thread waits (for a
+result, a memory access, or a mispredicted branch), the pipeline runs
+the others.</p>
+<h3 id="memories">Memories<a class="headerlink" href="#memories" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Memory</th>
+<th>Size</th>
+<th>Organization</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>IMEM</td>
+<td>16 KB, 4096 instruction words</td>
+<td>The program, shared by all four threads. The pipeline reads it 8 words (one <em>line</em>) at a time.</td>
+</tr>
+<tr>
+<td>DMEM</td>
+<td>64 KB, 8192 64-bit words</td>
+<td>The data, shared by all four threads. Two banks of 32 KB (address bit 15 selects the bank), each accessed through its own port. <strong>Big-endian</strong>.</td>
+</tr>
+</tbody>
+</table>
+<p>DMEM addresses are byte addresses. Each 64-bit word ("dword") is stored
+big-endian: the byte at an address with <code>(address &amp; 7) == 0</code> is the
+dword's most significant byte, bits [63:56].</p>
+<p>What an address outside DMEM means depends on where the engine is:</p>
+<ul>
+<li><strong>On its own</strong> (the <code>apara</code> configuration), every data address
+  aliases into DMEM, modulo 64 KB.</li>
+<li><strong>In a system</strong> (the <code>sparc_apara</code> configuration), DMEM appears at a
+  window in the system's physical address space, and only addresses in
+  that window are local. Every other address goes out to the system's
+  memory, see <a href="system.html#address-map">The Engine in a System</a>.</li>
+</ul>
+<h3 id="how-a-thread-runs-and-stops">How a thread runs and stops<a class="headerlink" href="#how-a-thread-runs-and-stops" title="Permanent link">&para;</a></h3>
+<p>A thread is <strong>inactive</strong> until it is started at some PC. It is then
+<strong>running</strong>, until it either executes <code>$halt</code> or meets an exception.
+Either way it is then <strong>halted</strong>, and its ERROR register says why:</p>
+<table>
+<thead>
+<tr>
+<th>ERROR bits</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>26</td>
+<td>Return-address stack error: a <code>$call</code> with the RAS full, or a <code>$return</code> with it empty.</td>
+</tr>
+<tr>
+<td>25</td>
+<td>The thread executed <code>$halt</code>.</td>
+</tr>
+<tr>
+<td>24</td>
+<td>An exception stopped the thread.</td>
+</tr>
+<tr>
+<td>[23:0]</td>
+<td>One 3-bit exception code per bundle slot: slot <em>s</em>'s code is in bits [3s+2 : 3s].</td>
+</tr>
+</tbody>
+</table>
+<p>The exception codes:</p>
+<table>
+<thead>
+<tr>
+<th>Code</th>
+<th>Exception</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>1</td>
+<td>Integer divide by zero.</td>
+</tr>
+<tr>
+<td>2</td>
+<td>Float divide by zero.</td>
+</tr>
+<tr>
+<td>3</td>
+<td>A float arithmetic result is not a number (NaN).</td>
+</tr>
+<tr>
+<td>4</td>
+<td>Reserved. The hardware's table lists "integer square root of a negative number", but there is no integer square root instruction.</td>
+</tr>
+<tr>
+<td>5</td>
+<td>Float square root of a negative number.</td>
+</tr>
+<tr>
+<td>6</td>
+<td>A memory address that is not a multiple of the transfer size.</td>
+</tr>
+<tr>
+<td>7</td>
+<td>An illegal instruction, an instruction in a slot it may not use (see <a href="#bundles">Bundles</a>), or no valid bundle at the PC (reported in slot 0).</td>
+</tr>
+</tbody>
+</table>
+<p>A bundle that raises an exception <strong>changes nothing</strong>: no register,
+memory, or PC update happens, and the thread halts with its PC at that
+bundle. This makes the stopped state easy to examine: the PC names the
+bundle that failed, and the registers are as they were before it.</p>
+<hr />
+<h2 id="data-types">Data types<a class="headerlink" href="#data-types" title="Permanent link">&para;</a></h2>
+<p>Every instruction that operates on data names a type, written in
+parentheses: <code>($i32)</code>, <code>($vf16)</code>. A type gives an element width, and
+whether the elements are integers or floats, signed or unsigned, and
+one per register (a scalar) or packed several to a register (a vector).</p>
+<table>
+<thead>
+<tr>
+<th>Types</th>
+<th>Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>$i4 $i8 $i16 $i32 $i64</code></td>
+<td>Signed integers.</td>
+</tr>
+<tr>
+<td><code>$u4 $u8 $u16 $u32 $u64</code></td>
+<td>Unsigned integers.</td>
+</tr>
+<tr>
+<td><code>$u128 $u256</code></td>
+<td>2 and 4 registers, for memory transfers only.</td>
+</tr>
+<tr>
+<td><code>$f4 $f8 $f16 $f32 $f64</code></td>
+<td>Floats.</td>
+</tr>
+<tr>
+<td><code>$vi4 .. $vi32</code>, <code>$vu4 .. $vu32</code>, <code>$vf4 .. $vf32</code></td>
+<td>Vectors of signed, unsigned, or float elements.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="scalars">Scalars<a class="headerlink" href="#scalars" title="Permanent link">&para;</a></h3>
+<p>A scalar narrower than 64 bits lives in the low bits of a register. A
+signed operation sign-extends its operands from the type's width, and an
+unsigned integer operation uses the full 64-bit register values. Integer
+ALU results are always 64 bits. Float results are in the type's own
+format, in the register's low bits.</p>
+<h3 id="vectors">Vectors<a class="headerlink" href="#vectors" title="Permanent link">&para;</a></h3>
+<p>A vector packs <code>64 / width</code> elements into one register, with <strong>element
+0 in the most significant bits</strong>. For example, <code>$r1 =
+0x0102030405060708</code>, read as <code>($vi8)</code>, holds the eight elements 1, 2, 3,
+4, 5, 6, 7, 8, in that order. A vector operation works on every element
+at once, which is where the engine's speed on small data types comes
+from: one <code>($vi8)</code> add is eight additions.</p>
+<h3 id="floats">Floats<a class="headerlink" href="#floats" title="Permanent link">&para;</a></h3>
+<p><code>f32</code> and <code>f64</code> are IEEE single and double precision. The narrow formats
+are for low-precision work:</p>
+<ul>
+<li><strong><code>f16</code></strong> is IEEE half precision (5 exponent bits, 10 mantissa bits,
+  bias 15).</li>
+<li><strong><code>f8</code></strong> has 4 exponent bits and 3 mantissa bits (bias 7).</li>
+<li><strong><code>f4</code></strong> holds just the values ±{0, 0.5, 1, 1.5, 2, 3, ∞, NaN}.</li>
+</ul>
+<p>Arithmetic on the narrow formats is done in double precision and rounded
+back to the narrow format with one round bit (round half up on the
+magnitude), saturating to infinity, and flushing to zero below the
+smallest subnormal.</p>
+<hr />
+<h2 id="bundles">Bundles<a class="headerlink" href="#bundles" title="Permanent link">&para;</a></h2>
+<p>The engine is a VLIW (very long instruction word) machine: instead of
+discovering parallelism in hardware, it executes <strong>bundles</strong> of
+instructions that the program has already grouped to run together. A
+bundle holds 1, 2, 4, or 8 instructions of 32 bits each, all executed in
+the same step:</p>
+<ul>
+<li>Every instruction of a bundle reads the registers <strong>as they were
+  before the bundle</strong>. So a bundle that copies <code>$r1</code> into <code>$r2</code> and
+  <code>$r2</code> into <code>$r1</code> swaps them.</li>
+<li>Memory accesses happen in slot order: a load sees a store of an
+  earlier slot of the same bundle.</li>
+<li>No two instructions of a bundle may write the same register (the
+  assembler checks this).</li>
+</ul>
+<h3 id="sizes-and-slots">Sizes and slots<a class="headerlink" href="#sizes-and-slots" title="Permanent link">&para;</a></h3>
+<p>A bundle's size, and which slot each instruction may occupy, follow the
+hardware's execution lanes:</p>
+<ul>
+<li>A bundle that holds a branch, call, return, load, store, divide, or
+  square root must have <strong>8 slots</strong>. Any other bundle has the smallest
+  power of two (1, 2, 4, or 8) that fits its instructions. Unused slots
+  hold <code>$null</code>.</li>
+<li>A bundle's address is a multiple of its size.</li>
+<li>In an 8-slot bundle, a branch, call, or return must be in <strong>slot 0</strong>, a
+  divide or square root in <strong>slot 1</strong> (the engine has one shared divider),
+  and loads and stores in <strong>slots 4 to 7</strong> (the memory lanes).</li>
+</ul>
+<p>You don't have to arrange any of this by hand. The assembler closes,
+pads, places, and arranges every bundle (see <a href="assembly_and_tools.html#what-the-assembler-does">What the assembler
+does</a>), and the engine
+checks the rules when it runs the bundle (exception 7 if one is broken).</p>
+<p>In the encoded program, bit 31 of an instruction word is set on the
+first instruction of each bundle, which is how the engine finds bundle
+boundaries. Bits [30:26] are the opcode.</p>
+<hr />
+<h2 id="instructions">Instructions<a class="headerlink" href="#instructions" title="Permanent link">&para;</a></h2>
+<p>The instructions below are shown in the syntax the assembler accepts.
+<code>$rd</code> is the destination register, <code>$rs1</code> and <code>$rs2</code> the sources, and
+<code>imm</code> a signed 10-bit immediate (-512 to 511).</p>
+<h3 id="arithmetic-and-logic-scalar">Arithmetic and logic (scalar)<a class="headerlink" href="#arithmetic-and-logic-scalar" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="o">+</span>  <span class="k">$rd</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>       <span class="c1">// also: - * / | &amp; ^ ~| ~&amp; ~^ &lt;&lt; &gt;&gt;</span>
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="o">+</span>  <span class="k">$rd</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="nl">imm</span>
+</span></code></pre></div>
+<p><code>$rd = $rs1 op $rs2</code> (or <code>$rs1 op imm</code>). <code>~|</code>, <code>~&amp;</code>, and <code>~^</code> are NOR,
+NAND, and XNOR.</p>
+<ul>
+<li><strong>Integer types</strong> have every operation. A signed <code>&gt;&gt;</code> is an arithmetic
+  shift, shift counts use their low 6 bits, and <code>/</code> truncates toward
+  zero. Dividing by zero raises exception 1.</li>
+<li><strong>Float types</strong> have only <code>+ - * /</code>. Dividing by zero raises exception
+  2, and a NaN result exception 3.</li>
+</ul>
+<h3 id="vector-arithmetic">Vector arithmetic<a class="headerlink" href="#vector-arithmetic" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a><span class="k">$v</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>                <span class="c1">// also: - *</span>
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="k">$v</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span> <span class="kp">$replicate</span>     <span class="c1">// $rs2&#39;s low element, used for every element</span>
+</span></code></pre></div>
+<p>Element by element: element <em>i</em> of <code>$rd</code> is element <em>i</em> of <code>$rs1</code> plus
+element <em>i</em> of <code>$rs2</code>. Integer results wrap around at the element width.
+With <code>$replicate</code>, every element of <code>$rs1</code> is combined with the same
+value, <code>$rs2</code>'s lowest element, for example to scale a vector.</p>
+<h3 id="dot-product-and-reduction">Dot product and reduction<a class="headerlink" href="#dot-product-and-reduction" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">$dot</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>                <span class="c1">// the sum of the element products</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">$dot</span> <span class="kp">$accumulate</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="err">$</span><span class="nl">rs2</span>    <span class="c1">// the same, plus $rd</span>
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">$vreduce</span> <span class="o">+</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">vtype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span>               <span class="c1">// also: * | &amp; ^ ~^</span>
+</span></code></pre></div>
+<p><code>$dot</code> multiplies two vectors element by element and adds up the
+products. <code>$vreduce</code> combines all the elements of one vector with one
+operation. Integer dot products and reductions give a 64-bit result.
+Float ones give an <code>f32</code>, accumulated in single precision, one element
+at a time.</p>
+<h3 id="square-root">Square root<a class="headerlink" href="#square-root" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">$fsqrt</span> <span class="k">$rd</span> <span class="p">(</span><span class="kt">$f32</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span>                    <span class="c1">// or ($f64)</span>
+</span></code></pre></div>
+<p>A negative operand raises exception 5.</p>
+<h3 id="casts">Casts<a class="headerlink" href="#casts" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="k">$cast</span> <span class="p">(</span><span class="nl">dtype</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">(</span><span class="nl">stype</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs2</span>
+</span></code></pre></div>
+<p>Converts <code>$rs2</code>, of type <code>stype</code>, to type <code>dtype</code>. Both types are
+scalars, or both are vectors.</p>
+<ul>
+<li><strong>A scalar cast</strong> converts the low bits of <code>$rs2</code>. Between integers,
+  the value is sign- or zero-extended by the source type, then truncated
+  to the destination width. Between integers and floats, the value is
+  converted. A float-to-integer conversion truncates toward zero and
+  saturates, and a NaN gives 0.</li>
+<li><strong>A vector cast</strong> converts every element, and may change the element
+  width by one step at most (<code>$vi8</code> to <code>$vi16</code>, for example, but not to
+  <code>$vi32</code>). Widening doubles the data, so it writes two registers, <code>$rd</code>
+  and <code>$rd+1</code>. Narrowing reads two, <code>$rs2</code> and <code>$rs2+1</code>.</li>
+</ul>
+<h3 id="moving-and-arranging-bits">Moving and arranging bits<a class="headerlink" href="#moving-and-arranging-bits" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="k">$set</span>   <span class="k">$rd</span> <span class="nl">index</span> <span class="nl">value</span>          <span class="c1">// $rd = value &lt;&lt; (8*index); value 16 bits, index 0 to 7</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="k">$slice</span> <span class="k">$rd</span> <span class="nl">high</span> <span class="nl">low</span> <span class="err">$</span><span class="nl">rs2</span>        <span class="c1">// $rd = bits [high:low] of $rs2</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="k">$pack</span>  <span class="nl">P</span> <span class="k">$rd</span> <span class="nl">W</span> <span class="err">$</span><span class="nl">rs2</span>             <span class="c1">// the low W bits of $rs2, $rs2+1, ... packed into P bits</span>
+</span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a><span class="k">$cmov</span>  <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs1</span> <span class="nl">cond</span> <span class="p">[</span><span class="nl">incr</span><span class="p">]</span> <span class="k">$rd</span> <span class="err">$</span><span class="nl">rs2</span>   <span class="c1">// if $rs2 cond 0, then $rd = $rs1</span>
+</span></code></pre></div>
+<ul>
+<li><strong><code>$set</code></strong> loads a constant. <code>value</code> may be decimal, or hexadecimal
+  written <code>_h1234</code>.</li>
+<li><strong><code>$pack</code></strong> gathers fields from consecutive registers: <code>$pack 64 $r8 16
+  $r2</code> builds <code>$r8</code> from the low 16 bits of <code>$r2</code>, <code>$r3</code>, <code>$r4</code>, and
+  <code>$r5</code>, with <code>$r2</code>'s field in the most significant position. A <code>P</code>
+  larger than 64 writes <code>P/64</code> registers.</li>
+<li><strong><code>$cmov</code></strong> is a conditional move. It tests its <strong>last</strong> register,
+  <code>$rs2</code>, against 0. An optional increment (<code>++1</code>, <code>--1</code>, <code>--2</code>) is
+  added to <code>$rs2</code> after the test, which makes <code>$cmov</code> useful as a loop
+  step too.</li>
+</ul>
+<p>The conditions, for <code>$cmov</code> and for branches, compare a value with 0:
+<code>==  &gt;  &lt;  &gt;=  &lt;=  !=</code>. Signed integers compare as values of the type's
+width, unsigned integers as 64-bit unsigned values, and floats by value
+(a NaN satisfies only <code>!=</code>).</p>
+<h3 id="loads-and-stores">Loads and stores<a class="headerlink" href="#loads-and-stores" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span><span class="p">]</span>        <span class="k">$st</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span><span class="p">]</span> <span class="k">$rd</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="err">$</span><span class="nl">rs2</span> <span class="o">++</span><span class="nl">n</span><span class="p">]</span>    <span class="c1">// then $rs2 += n * the transfer size (n: -16 to 15)</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="k">$ld</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="k">$rd</span> <span class="p">[</span><span class="err">$</span><span class="nl">rs1</span> <span class="o">+</span> <span class="nl">imm</span><span class="p">]</span>
+</span></code></pre></div>
+<p>The address is <code>$rs1 + $rs2</code> (or <code>$rs1 + imm</code>), and must be a multiple of
+the transfer size (exception 6 otherwise). The <code>++n</code> form also steps
+<code>$rs2</code> on, for walking through an array.</p>
+<ul>
+<li>1-, 2-, 4-, and 8-byte transfers move one register. Signed loads
+  sign-extend.</li>
+<li><code>$u128</code> and <code>$u256</code> move 2 and 4 registers, from <code>$rd</code> upward.</li>
+<li>A vector type moves one element.</li>
+</ul>
+<h3 id="control-transfer">Control transfer<a class="headerlink" href="#control-transfer" title="Permanent link">&para;</a></h3>
+<div class="language-mcode highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="o">?</span> <span class="p">(</span><span class="nl">type</span><span class="p">)</span> <span class="err">$</span><span class="nl">rs2</span> <span class="nl">cond</span> <span class="p">[</span><span class="nl">incr</span><span class="p">]</span> <span class="k">$goto</span> <span class="nl">label</span>   <span class="c1">// branch if $rs2 cond 0; then $rs2 += incr</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="k">$call</span> <span class="nl">label</span>                             <span class="c1">// or $call $rs2: the target is this address + $rs2</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="k">$return</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="k">$halt</span>
+</span><span id="__span-7-5"><a id="__codelineno-7-5" name="__codelineno-7-5" href="#__codelineno-7-5"></a><span class="k">$null</span>
+</span></code></pre></div>
+<p>Branch and call targets are relative to the instruction's own address.
+<code>$call</code> pushes the address of the next bundle onto the RAS, and
+<code>$return</code> pops it. A branch's optional increment is -2 to 1, and is not
+allowed with a float test type. Like <code>$cmov</code>'s, it lets one instruction
+both count a loop down and test it.</p>
+<p><code>$halt</code> stops the thread. <code>$null</code> does nothing, and fills the unused
+slots of a bundle.</p>
+<hr />
+<h2 id="encodings">Encodings<a class="headerlink" href="#encodings" title="Permanent link">&para;</a></h2>
+<p>The field layouts, as the assembler writes them. In every
+instruction word, bit 31 is the bundle start bit and bits [30:26] the
+opcode.</p>
+<table>
+<thead>
+<tr>
+<th>Instruction</th>
+<th>Opcode</th>
+<th>Fields</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>ALU</td>
+<td>0x04-0x0F</td>
+<td>type[25:21] rd[20:16] rs1[15:11] imm-flag[10] rs2[4:0] or imm10[9:0]</td>
+</tr>
+<tr>
+<td>VALU</td>
+<td>(ALU)</td>
+<td>as ALU, with a vector type, and replicate[10]</td>
+</tr>
+<tr>
+<td>FSQRT</td>
+<td>0x10</td>
+<td>type rd rs1</td>
+</tr>
+<tr>
+<td>DOT</td>
+<td>0x11</td>
+<td>type rd rs1 accumulate[10] rs2</td>
+</tr>
+<tr>
+<td>CAST</td>
+<td>0x12</td>
+<td>dest type[25:21] rd source type[14:10] rs2</td>
+</tr>
+<tr>
+<td>LOAD, STORE</td>
+<td>0x13, 0x14</td>
+<td>type rd rs1 imm-flag[10] incr[9:5] rs2, or imm10[9:0]</td>
+</tr>
+<tr>
+<td>SET</td>
+<td>0x15</td>
+<td>byte index[23:21] rd value[15:0]</td>
+</tr>
+<tr>
+<td>VREDUCE</td>
+<td>0x16</td>
+<td>type rd rs1 operation[10:6] (an ALU opcode)</td>
+</tr>
+<tr>
+<td>CMOV</td>
+<td>0x17</td>
+<td>type rd rs1 cond[10:8] incr[7:6] rs2</td>
+</tr>
+<tr>
+<td>PACK</td>
+<td>0x18</td>
+<td>rd log2(P)[15:12] log2(W)[11:9] rs2</td>
+</tr>
+<tr>
+<td>SLICE</td>
+<td>0x19</td>
+<td>high[5:1] in [25:21], rd, high[0] in [15], low[14:9], rs2</td>
+</tr>
+<tr>
+<td>BRANCH</td>
+<td>0x02</td>
+<td>type[25:22] cond[21:19] incr[18:17] offset12[16:5] rs2</td>
+</tr>
+<tr>
+<td>CALL</td>
+<td>0x01</td>
+<td>label-flag[25], offset25[24:0] or rs2</td>
+</tr>
+<tr>
+<td>RETURN, NULL, HALT</td>
+<td>0x03, 0x1A, 0x1B</td>
+<td></td>
+</tr>
+</tbody>
+</table>
+<p>ALU opcodes: <code>+</code> 0x04, <code>-</code> 0x05, <code>*</code> 0x06, <code>/</code> 0x07, <code>|</code> 0x08, <code>&amp;</code> 0x09,
+<code>^</code> 0x0A, <code>~|</code> 0x0B, <code>~&amp;</code> 0x0C, <code>~^</code> 0x0D, <code>&lt;&lt;</code> 0x0E, <code>&gt;&gt;</code> 0x0F.</p>
+<p>Type codes: <code>$i4</code>..<code>$i64</code> 0x00-0x04, <code>$u4</code>..<code>$u64</code> 0x05-0x09,
+<code>$f4</code>..<code>$f64</code> 0x0A-0x0E, <code>$u128</code> 0x0F, <code>$u256</code> 0x10, <code>$vu4</code>..<code>$vu32</code>
+0x11-0x14, <code>$vf4</code>..<code>$vf32</code> 0x15-0x18, <code>$vi4</code>..<code>$vi32</code> 0x19-0x1C.</p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+          <button type="button" class="md-top md-icon" data-md-component="top" hidden>
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M13 20h-2V8l-5.5 5.5-1.42-1.42L12 4.16l7.92 7.92-1.42 1.42L13 8z"/></svg>
+  Back to top
+</button>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": ["navigation.sections", "navigation.tracking", "navigation.instant", "navigation.top", "content.code.copy", "search.highlight", "search.suggest"], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
