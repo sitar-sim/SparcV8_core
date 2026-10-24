@@ -173,6 +173,26 @@ def byte_ptr(addr):
 	return word_host_addr + (addr & 0x3)
 
 
+def format_reg(reg, coreid):
+	"""'<reg> = 0x<hex> (<dec>)' -- shared by sparc-print-reg and
+	sparc-display, so the two always print a register identically."""
+	val = int(core_field(coreid, reg_suffix(reg))) & 0xFFFFFFFF
+	return "%s = 0x%x (%d)" % (reg, val, val)
+
+
+def format_mem(spec):
+	"""Space-separated hex words covering addr-expr `spec` -- shared by
+	sparc-print-mem and sparc-display."""
+	lo, size = addr_range(spec)
+	n = max(1, (size + 3) // 4)
+	vals = []
+	for i in range(n):
+		a = (lo & ~0x3) + i * 4
+		wp = int(gdb.parse_and_eval("(unsigned long)((MemCore*)%d)->wordPtr(0x%x)" % (mem_ptr(), a)))
+		vals.append(int(gdb.parse_and_eval("*(unsigned int*)%d" % wp)) & 0xFFFFFFFF)
+	return " ".join("0x%08x" % v for v in vals)
+
+
 #=====================================================================
 #Registry, for sparc-list/sparc-delete: gdb's own `info breakpoints`
 #shows every sparc-* breakpoint too, but only its raw translated
@@ -525,11 +545,9 @@ One register's value -- windowed mnemonic (o1/l2/i4/...), flat r-number
 		if not parts:
 			raise gdb.GdbError("usage: sparc-print-reg <reg> [coreid=<n>]")
 		reg = parts[0]
-		suffix = reg_suffix(reg)
 		opts = parse_kv(" ".join(parts[1:]))
 		coreid = int(opts['coreid'], 0) if 'coreid' in opts else 0
-		val = int(core_field(coreid, suffix)) & 0xFFFFFFFF
-		print("%s = 0x%x (%d)" % (reg, val, val))
+		print(format_reg(reg, coreid))
 
 
 class SparcPrintTraps(gdb.Command):
@@ -611,14 +629,120 @@ MemCore exists regardless of core count)."""
 		opts = parse_kv(arg)
 		if 'addr' not in opts:
 			raise gdb.GdbError("usage: sparc-print-mem addr=<addr-expr>")
-		lo, size = addr_range(opts['addr'])
-		n = max(1, (size + 3) // 4)
-		vals = []
-		for i in range(n):
-			a = (lo & ~0x3) + i * 4
-			wp = int(gdb.parse_and_eval("(unsigned long)((MemCore*)%d)->wordPtr(0x%x)" % (mem_ptr(), a)))
-			vals.append(int(gdb.parse_and_eval("*(unsigned int*)%d" % wp)) & 0xFFFFFFFF)
-		print(" ".join("0x%08x" % v for v in vals))
+		print(format_mem(opts['addr']))
+
+
+#=====================================================================
+#Auto-display: sparc-display/sparc-undisplay, the sparc-* counterpart
+#of gdb's own display/undisplay.
+#=====================================================================
+
+_displays = []
+_next_display_id = [1]
+#Set by the stop event, consumed at the next prompt: displays only print
+#after the inferior actually ran and stopped (as gdb's own display does),
+#not after every command. The values themselves are read at prompt time,
+#not inside the stop handler, since reading them means inferior calls
+#(findCoreByID()/wordPtr()), which are safest made outside gdb's own
+#stop processing.
+_display_pending = [False]
+
+
+def _display_line(d):
+	try:
+		if d['kind'] == 'reg':
+			text = format_reg(d['spec'], d['coreid'])
+		else:
+			text = "addr=%s : %s" % (d['spec'], format_mem(d['spec']))
+	except Exception as e:
+		text = "%s = <unavailable: %s>" % (d['label'], e)
+	return "[sparc display %d] %s" % (d['id'], text)
+
+
+def _show_displays():
+	for d in _displays:
+		print(_display_line(d))
+
+
+def _on_stop(event):
+	_display_pending[0] = True
+
+
+def _on_before_prompt():
+	if _display_pending[0]:
+		_display_pending[0] = False
+		if _displays and gdb.selected_inferior().pid != 0:
+			_show_displays()
+
+
+gdb.events.stop.connect(_on_stop)
+gdb.events.before_prompt.connect(_on_before_prompt)
+
+
+class SparcDisplay(gdb.Command):
+	"""sparc-display [<reg> [coreid=<n>] | addr=<addr-expr>]
+Like gdb's own display: shows the given register (same names as
+sparc-print-reg) or memory (same addr-expr forms as sparc-print-mem) once
+right away, and again every time the program stops and the prompt
+returns. With no argument, shows every active display now, with its id.
+Remove with sparc-undisplay."""
+	def __init__(self):
+		super(SparcDisplay, self).__init__("sparc-display", gdb.COMMAND_DATA)
+
+	def invoke(self, arg, from_tty):
+		parts = arg.split()
+		if not parts:
+			if not _displays:
+				print("No sparc-display entries.")
+			else:
+				_show_displays()
+			return
+		opts = parse_kv(arg)
+		if 'addr' in opts:
+			if len(parts) != 1:
+				raise gdb.GdbError("usage: sparc-display addr=<addr-expr>  (no other options)")
+			addr_range(opts['addr'])  #validate early, before adding the entry
+			d = {'kind': 'mem', 'spec': opts['addr'], 'coreid': None,
+			     'label': "addr=%s" % opts['addr']}
+		else:
+			reg = parts[0]
+			reg_suffix(reg)  #validate early, before adding the entry
+			ropts = parse_kv(" ".join(parts[1:]))
+			coreid = int(ropts['coreid'], 0) if 'coreid' in ropts else 0
+			d = {'kind': 'reg', 'spec': reg, 'coreid': coreid,
+			     'label': reg + ((" coreid=%d" % coreid) if 'coreid' in ropts else "")}
+		d['id'] = _next_display_id[0]
+		_next_display_id[0] += 1
+		_displays.append(d)
+		if gdb.selected_inferior().pid != 0:
+			print(_display_line(d))
+		else:
+			print("[sparc display %d] %s (shown from the first stop on)" % (d['id'], d['label']))
+
+
+class SparcUndisplay(gdb.Command):
+	"""sparc-undisplay <id> | all
+Remove a sparc-display entry by its id (as sparc-display with no argument
+lists them), or every entry with all."""
+	def __init__(self):
+		super(SparcUndisplay, self).__init__("sparc-undisplay", gdb.COMMAND_DATA)
+
+	def invoke(self, arg, from_tty):
+		arg = arg.strip()
+		if not arg:
+			raise gdb.GdbError("usage: sparc-undisplay <id> | all  (see sparc-display)")
+		if arg == 'all':
+			n = len(_displays)
+			del _displays[:]
+			print("Deleted %d sparc-display entr%s." % (n, "y" if n == 1 else "ies"))
+			return
+		wanted = int(arg, 0)
+		for d in list(_displays):
+			if d['id'] == wanted:
+				_displays.remove(d)
+				print("Deleted sparc display #%d (%s)" % (wanted, d['label']))
+				return
+		raise gdb.GdbError("no sparc-display entry with id %d (see sparc-display)" % wanted)
 
 
 #=====================================================================
@@ -641,9 +765,11 @@ SparcPrintTraps()
 SparcPrintAnnulled()
 SparcPrintMemAccess()
 SparcPrintMem()
+SparcDisplay()
+SparcUndisplay()
 
 print("sparc.gdb loaded. sparc-list / sparc-delete <id> to manage breakpoints "
-      "and watchpoints set with the commands below; see debug/README.md for "
-      "the full reference.")
+      "and watchpoints, sparc-display / sparc-undisplay <id> for values shown "
+      "at every stop; see debug/README.md for the full reference.")
 
 end

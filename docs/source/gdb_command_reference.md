@@ -239,6 +239,45 @@ kind=LOAD address=0xfffffe0 word0=0x1 word1=0x0 MAE=0
 
 ---
 
+## Displaying values at every stop
+
+`sparc-display` is the counterpart of gdb's own `display`. It shows a
+register or a memory range once when it is added, and again each time
+the program stops and the prompt returns. Ordinary commands such as
+`print` don't trigger it. It only shows values after the program has run
+and stopped.
+
+| Command | Syntax | Does |
+|---|---|---|
+| `sparc-display` | `<reg> [coreid=<n>]` | show one register at every stop, using the same names as `sparc-print-reg` |
+| `sparc-display` | `addr=<addr-expr>` | show memory at every stop, using the same forms as `sparc-print-mem` |
+| `sparc-display` | *(none)* | show every active display now, with its id |
+| `sparc-undisplay` | `<id>` or `all` | remove one display by its id, or all of them |
+
+Example, with a breakpoint on the loop body of the array-sum program from
+[Examining Core State with GDB](examining_core_state_with_gdb.md):
+```
+(gdb) sparc-display g1
+(gdb) sparc-display addr=0x2000:0x2008
+(gdb) sparc-break pc=0x203c
+(gdb) run docs/source/examples/array_sum/array_sum.hex
+...
+[sparc display 1] g1 = 0x0 (0)
+[sparc display 2] addr=0x2000:0x2008 : 0x9de3bf78 0x82102001
+(gdb) continue
+...
+[sparc display 1] g1 = 0x1 (1)
+[sparc display 2] addr=0x2000:0x2008 : 0x9de3bf78 0x82102001
+(gdb) sparc-undisplay 2
+Deleted sparc display #2 (addr=0x2000:0x2008)
+```
+
+A display added before `run` is shown from the first stop on. If a value
+can't be read at a stop, its line shows `<unavailable: ...>` with the
+reason, and the other displays are still shown.
+
+---
+
 ## Managing breakpoints/watchpoints
 
 | Command | Syntax | Does |

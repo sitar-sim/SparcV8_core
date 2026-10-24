@@ -170,6 +170,17 @@ parameter -- omit it and nothing is filtered, any core matches); for the
 (which live `SparcCore` to read from -- there's no "no selection" concept
 there, so it defaults to `0`).
 
+### Auto-display
+
+- **`sparc-display <reg> [coreid=<n>]`** / **`sparc-display addr=<addr-expr>`**
+  -- the sparc-* counterpart of gdb's own `display`: shows the value once
+  right away, then again every time the program stops and the prompt
+  returns. Same register names as `sparc-print-reg`, same addr-expr forms
+  as `sparc-print-mem` (and, like it, no `coreid=` for memory).
+- **`sparc-display`** (no argument) -- shows every active display now,
+  with its id.
+- **`sparc-undisplay <id> | all`** -- removes one display, or all of them.
+
 ## Design notes (for anyone extending this file)
 
 - `model/cpp_common_code/DebugRegistry.h` is what makes every command here
@@ -194,3 +205,11 @@ there, so it defaults to `0`).
   memory; a later, unrelated inferior call can reuse/clobber that scratch
   space before a lazily-held `gdb.Value` ever gets read -- `core_string()`
   reads it out to a real Python string immediately, before that can happen.
+- `sparc-display` hooks two gdb events rather than one: `stop` only marks
+  a display as due, and `before_prompt` does the actual reading/printing.
+  The marking keeps displays from printing after every command (gdb's own
+  `display` only shows after the inferior ran and stopped); deferring the
+  read keeps its inferior calls (`findCoreByID()`/`wordPtr()`) out of
+  gdb's own stop processing. A conditional breakpoint whose condition (or
+  `stop()` method) says no never emits a stop event, so `sparc-watch-reg`'s
+  per-instruction checks don't trigger displays.
