@@ -23,9 +23,10 @@ of `core_l1cache_mmu_devices/cpp_model/`'s island (`SparcStateMachine`
   `rr:1`). `SPARC_SCHEDULE` in the environment does the same.
 - **`--run-cores <m>`** runs only cores 0 to m-1. The others never
   leave reset and count as halted. `SPARC_RUN_CORES` in the
-  environment does the same, which is how the whole single-core suite
-  is run on this configuration:
-  `SPARC_RUN_CORES=1 validation/run_tests.py validation --config multicore`.
+  environment does the same, which is how the single-core suites are
+  run on this configuration (every suite except `validation/multicore/`,
+  whose tests need all four cores):
+  `for d in asm C test_simple_ADD; do SPARC_RUN_CORES=1 validation/run_tests.py validation/$d --config multicore; done`.
 - **`--stats`** prints each core's counters, then the shared memory's
   and devices' counters.
 

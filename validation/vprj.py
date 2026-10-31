@@ -25,7 +25,9 @@ MAX_CYCLES_LINE_RE = re.compile(r'^MAX_CYCLES\s*=\s*(\d+)')
 # check it.
 SERIAL_OUT_LINE_RE = re.compile(r'^serial_out\s*=\s*"((?:[^"\\]|\\.)*)"\s*$')
 MEM_LINE_RE     = re.compile(r'^m\[\s*([0-9A-Fa-fx]+)\s*\]\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
-REG_LINE_RE     = re.compile(r'^([A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
+# A register line may name a core, `core2.o0 = 3`, on the multicore
+# configuration. Without a core prefix it is core 0's register.
+REG_LINE_RE     = re.compile(r'^((?:core[0-9]+\.)?[A-Za-z_][A-Za-z0-9_]*)\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
 ASI_LINE_RE     = re.compile(r'^asi\s*=', re.IGNORECASE)
 
 

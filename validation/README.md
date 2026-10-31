@@ -14,6 +14,8 @@ only (no SPARC timing/pipeline tests); the APARA engine's own suites,
 - `sparc_apara/` -- C programs for the SPARC that use an APARA engine:
   setup, threads, interference, linear algebra (the `sparc_apara`
   configuration). See `sparc_apara/README.md`.
+- `multicore/` -- programs that run on several cores at once (the
+  `multicore` configuration). See `multicore/README.md`.
 - `apara/` -- the APARA engine's own tests (mcode and C programs,
   functional and timing, hazards, the branch predictor), on the
   standalone `apara` configuration, with their own runner,

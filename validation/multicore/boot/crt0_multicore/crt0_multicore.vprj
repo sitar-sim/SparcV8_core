@@ -1,0 +1,17 @@
+SOURCES = crt0_multicore.c
+STARTUP = crt0_multicore.s
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000000f
+core1.o0=0x00000001
+core1.o1=0x0000000f
+core2.o0=0x00000001
+core2.o1=0x0000000f
+core3.o0=0x00000001
+core3.o1=0x0000000f
+m[0x100000]=0x000000a0
+m[0x100004]=0x000000a1
+m[0x100008]=0x000000a2
+m[0x10000c]=0x000000a3

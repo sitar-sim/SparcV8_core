@@ -1,0 +1,3 @@
+# Several cores sharing memory and the devices: the multicore
+# configuration. The tests assume its default build, NUM_CORES = 4.
+sparc devices multicore

@@ -1,0 +1,45 @@
+
+multicore/boot/release_flag_asm/release_flag_asm.elf:     file format elf32-sparc
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	a1 47 40 00 	rd  %asr29, %l0
+   4:	a1 34 20 08 	srl  %l0, 8, %l0
+   8:	a0 0c 20 ff 	and  %l0, 0xff, %l0
+   c:	23 3f ff cb 	sethi  %hi(0xffff2c00), %l1
+  10:	80 a4 20 00 	cmp  %l0, 0
+  14:	12 80 00 06 	bne  2c <wait_for_release>
+  18:	01 00 00 00 	nop 
+  1c:	a4 10 20 01 	mov  1, %l2	! 1 <main+0x1>
+  20:	e4 a4 44 00 	sta  %l2, [ %l1 ] #ASI_SCRATCHPAD
+  24:	10 80 00 06 	b  3c <work>
+  28:	01 00 00 00 	nop 
+
+0000002c <wait_for_release>:
+  2c:	e4 84 44 00 	lda  [ %l1 ] #ASI_SCRATCHPAD, %l2
+  30:	80 a4 a0 01 	cmp  %l2, 1
+  34:	12 bf ff fe 	bne  2c <wait_for_release>
+  38:	01 00 00 00 	nop 
+
+0000003c <work>:
+  3c:	90 04 20 01 	add  %l0, 1, %o0
+  40:	27 00 00 20 	sethi  %hi(0x8000), %l3
+  44:	a9 2c 20 02 	sll  %l0, 2, %l4
+  48:	d0 24 c0 14 	st  %o0, [ %l3 + %l4 ]
+  4c:	91 d0 20 00 	ta  0
+  50:	01 00 00 00 	nop 
+
+Symbol table:
+
+
+Symbol table '.symtab' contains 7 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 SECTION LOCAL  DEFAULT    1 
+     2: 0000002c     0 NOTYPE  LOCAL  DEFAULT    1 wait_for_release
+     3: 0000003c     0 NOTYPE  LOCAL  DEFAULT    1 work
+     4: 00000054     0 NOTYPE  GLOBAL DEFAULT    1 __bss_end
+     5: 00000054     0 NOTYPE  GLOBAL DEFAULT    1 __bss_start
+     6: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 main

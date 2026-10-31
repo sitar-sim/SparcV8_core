@@ -54,6 +54,14 @@ sends every interrupt trap to `ajit_generic_interrupt_handler()`.
 Select it with `CRT0=crt0_interrupts.s compile_c.sh ...`, or a
 `STARTUP = crt0_interrupts.s` line in a test's `.vprj`.
 
+`crt0_multicore.s` is the startup file for the `multicore`
+configuration, where every core starts at PC 0. It is
+`crt0_interrupts.s` plus three things: each core gets its own 1 MB
+stack (from its core ID in ASR29), core 0 clears `.bss` (between
+`sparc.ld`'s `__bss_start` and `__bss_end`), and core 0 then sets a
+release flag in scratch-pad word 0 that the other cores wait for before
+calling `main()`. Select it with a `STARTUP = crt0_multicore.s` line.
+
 `include/` holds header-only bare-metal routines for the peripheral
 devices (`ajit_access_routines.h`, `ajit_mt_irc.h`, `ajit_ipi.h`,
 `device_addresses.h`), with the same names and signatures as AJIT's own
