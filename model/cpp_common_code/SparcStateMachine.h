@@ -40,6 +40,12 @@ class SparcStateMachine
 		//exceeded. Returns the same value as `halted` below.
 		bool run(unsigned long maxCycles);
 
+		//Run exactly one cycle (then afterEachCycle, if set), unless the
+		//core has already halted. Returns `halted`. run() is a loop over
+		//this. A multi-core driver calls it directly, to interleave
+		//several cores in whatever order its scheduler picks.
+		bool step();
+
 		bool          halted;          //true once the core has entered error_mode
 		unsigned long cyclesExecuted;
 

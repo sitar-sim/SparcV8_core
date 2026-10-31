@@ -36,6 +36,7 @@ SparcCore::SparcCore()
 
 	reg.W_ASR(31,0);
 	reg.W_ASR(30,0);
+	reg.W_ASR(ASR_CORE_THREAD_ID, coreThreadIdWord());
 
 	//memory access related
 	memCore=NULL;

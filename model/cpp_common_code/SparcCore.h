@@ -51,16 +51,20 @@ class SparcCore
 
 		inline void	setProcessorID(unsigned int id) { processorID=id;};
 		uint32_t	getProcessorID(){return processorID;};
-		inline void 	setCoreID(unsigned int id) { coreID=id;};
+		inline void 	setCoreID(unsigned int id) { coreID=id; reg.W_ASR(ASR_CORE_THREAD_ID, coreThreadIdWord());};
 		uint32_t	getCoreID(){return coreID;};
-		inline void	setThreadID(unsigned int id) { threadID=id;};
+		inline void	setThreadID(unsigned int id) { threadID=id; reg.W_ASR(ASR_CORE_THREAD_ID, coreThreadIdWord());};
 		uint32_t	getThreadID(){return threadID;};
 
 		//ASR29 is hardwired, read-only: 0x5052 in the upper 16 bits, then
 		//core ID << 8 | thread ID, the same word AJIT software reads with
 		//`rd %asr29` to find its own core and thread (Ref AJIT's
 		//AjitThread.c and ajit_access_routines.c,
-		//ajit_get_core_and_thread_id()). Writes to ASR29 are ignored.
+		//ajit_get_core_and_thread_id()). Writes to ASR29 are ignored. The
+		//register file's ASR[29] is kept equal to it (set in the
+		//constructor and the two setters above), so anything reading the
+		//register file, such as a test's expected-results check, sees
+		//the same value.
 		static const uint32_t ASR_CORE_THREAD_ID = 29;
 		static const uint32_t ASR29_TAG = 0x50520000u;
 		uint32_t coreThreadIdWord() const { return ASR29_TAG | ((coreID & 0xFFu) << 8) | (threadID & 0xFFu); }

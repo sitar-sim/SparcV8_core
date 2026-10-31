@@ -17,12 +17,18 @@ SparcStateMachine::SparcStateMachine(SparcCore& core_, VirtualMemoryInterface& m
 bool SparcStateMachine::run(unsigned long maxCycles)
 {
 	while (!halted && cyclesExecuted < maxCycles)
-	{
-		runOneCycle();
-		cyclesExecuted++;
-		if (afterEachCycle)
-			afterEachCycle();
-	}
+		step();
+	return halted;
+}
+
+bool SparcStateMachine::step()
+{
+	if (halted)
+		return true;
+	runOneCycle();
+	cyclesExecuted++;
+	if (afterEachCycle)
+		afterEachCycle();
 	return halted;
 }
 
