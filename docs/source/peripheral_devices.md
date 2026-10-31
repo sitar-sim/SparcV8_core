@@ -19,13 +19,20 @@ to port a basic operating system on top of it.
     and lets threads interrupt each other (inter-processor interrupts).
 - **[Serial Device](peripheral_devices_serial_device.md)**  
     A single device for I/O.
+- **[Scratch-pad](peripheral_devices_scratch_pad.md)**  
+    32 words of uncached storage shared by all cores, used for flags
+    between cores during startup.
 
 The register formats, addresses, and behavior documented here are
 credited to the [AJIT processor
 documentation](https://github.com/adhuliya/ajit-toolchain/blob/marshal/docs/processor/ajit_processor_description.pdf),
-Chapter 8, "Basic peripherals available for AJIT systems". The device
-models in this project are designed to be compatible with it, except
-for the deviations listed at the end of this page.
+Chapter 8, "Basic peripherals available for AJIT systems". That
+chapter does not describe the scratch-pad, which appears only in the
+description's memory-map tables. Its behavior here follows AJIT's
+multi-core C model (`devices/src/ScratchPad.c` in the ajit-toolchain
+repository). The device models in this project are designed to be
+compatible with these sources, except for the deviations listed at the
+end of this page.
 
 ---
 
@@ -70,6 +77,7 @@ ordinary translated access if the page is identity mapped.
 | Serial : Rx | `0xFFFF3208` | byte (8-bit) | `lduba [%rd] 0x20, %rs` |
 | Serial : Baud limit / baud control | `0xFFFF320c` | word (32-bit) | `sta %rs, [%rd] 0x20` |
 | Serial : Baud frequency | `0xFFFF3210` | word (32-bit) | `sta %rs, [%rd] 0x20` |
+| Scratch-pad : words 0 to 31 (repeating) | `0xFFFF2C00` to `0xFFFF2FFF` | word (32-bit), or byte to doubleword | `sta %rs, [%rd] 0x20` |
 
 `%rd` holds the register's address, loaded with `set` beforehand. C
 programs can use the routines in `compiler/include/`
@@ -120,6 +128,9 @@ deliberate:
 - **Serial transmit disable.** Writing `Tx_en=0` while a byte is still
   being transmitted finishes sending it first, so no program output is
   lost.
+- **Scratch-pad partial stores.** A byte or halfword store changes
+  only the bytes it selects here. AJIT's C model writes the whole word
+  whatever the store size. Word stores behave the same in both.
 - **Unmapped device addresses** read as 0 and ignore writes, with a
   warning, the same as AJIT's bridge does for any unmapped address.
 - **Device map and C routines.** The address map above is AJIT's

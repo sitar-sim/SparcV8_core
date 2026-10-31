@@ -12,7 +12,8 @@ pages for what each device does.
 | `SerialCore.h` / `.cpp` | The serial device (UART), its Tx and Rx state machines. |
 | `SerialBackend.h` / `.cpp` | Where serial bytes go and come from: console, files, or a pty, chosen at run time. |
 | `InterruptControllerCore.h` / `.cpp` | AJIT's multi-thread interrupt controller: 8 thread slots plus the IPI registers. |
-| `PeripheralDevicesCore.h` / `.cpp` | The system's single shared set of the three devices: bus adaptation (doubleword physical requests to word registers), pin wiring, and per-cycle ticking. Implements `PhysicalMemoryInterface`. |
+| `ScratchPadCore.h` / `.cpp` | AJIT's 32-word scratch-pad, uncached storage shared by all cores (boot flags). |
+| `PeripheralDevicesCore.h` / `.cpp` | The system's single shared set of the four devices: bus adaptation (doubleword physical requests to word registers), pin wiring, and per-cycle ticking. Implements `PhysicalMemoryInterface`. |
 
 ## Register access convention
 
@@ -28,7 +29,8 @@ doubleword-shaped physical bus once, for every device.
 
 `tests/` holds one standalone unit test per device class, each built
 and run on its own (the build line is in each file's header comment):
-`test_timer.cpp`, `test_serial.cpp`, `test_interrupt_controller.cpp`.
+`test_timer.cpp`, `test_serial.cpp`, `test_interrupt_controller.cpp`,
+`test_scratch_pad.cpp`.
 They live one folder down so the model build scripts' one-level
 `*/*.cpp` glob does not pick up their `main()`. Whole-system device
 tests, run as SPARC programs, are in `validation/C/devices/`.

@@ -49,6 +49,11 @@ namespace DeviceAddress
 	const uint32_t SERIAL_BAUD_LIMIT     = 0xFFFF320C;
 	const uint32_t SERIAL_BAUD_FREQUENCY = 0xFFFF3210;
 	const uint32_t SERIAL_MAX            = 0xFFFF3213;
+
+	//Scratch-pad: 32 words, repeating every 128 bytes across this range
+	//(Ref ScratchPadCore.h).
+	const uint32_t SCRATCH_PAD_MIN = 0xFFFF2C00;
+	const uint32_t SCRATCH_PAD_MAX = 0xFFFF2FFF;
 }
 
 namespace TimerControlBits

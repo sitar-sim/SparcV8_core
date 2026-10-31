@@ -5,7 +5,7 @@
 //by the first author in C++ and Sitar (2015-2017).
 //
 //The system's single shared set of peripheral devices: Timer, Serial,
-//and the Interrupt Controller, reached over the physical bus below the
+//the Interrupt Controller and the scratch-pad, reached over the physical bus below the
 //MMU like any other memory-mapped target (Ref
 //https://sitar-sim.github.io/SparcV8_core/peripheral_devices.html).
 //
@@ -43,6 +43,7 @@
 #include "TimerCore.h"
 #include "SerialCore.h"
 #include "InterruptControllerCore.h"
+#include "ScratchPadCore.h"
 
 class PeripheralDevicesCore : public PhysicalMemoryInterface
 {
@@ -52,6 +53,7 @@ class PeripheralDevicesCore : public PhysicalMemoryInterface
 		TimerCore               timer;
 		SerialCore              serial;
 		InterruptControllerCore interruptController;
+		ScratchPadCore          scratchPad;
 
 		//Model cycles per timer tick. Default 1 (Ref TimerCore.h on why
 		//timer counts are in model ticks, not hardware time).
@@ -75,6 +77,7 @@ class PeripheralDevicesCore : public PhysicalMemoryInterface
 			uint64_t timerAccesses               = 0;
 			uint64_t serialAccesses              = 0;
 			uint64_t interruptControllerAccesses = 0;
+			uint64_t scratchPadAccesses          = 0;
 			uint64_t unmappedAccesses            = 0;
 			std::string toString() const;
 		} stats;

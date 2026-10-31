@@ -16,6 +16,7 @@ passed, `%o1` = one bit per check, so a failure shows which one.
 | `serial_rx_interrupt` | Each received byte raises IRL 12 exactly once, and the handler reads them in order. |
 | `irc_priority_and_mask` | A masked level is not delivered, the source bits still show it, and with two levels active the lower IRL goes first. |
 | `ipi_to_self` | An IPI from this thread to itself, with its message, through `ajit_ipi.h`. |
+| `scratch_pad` | The 32-word scratch-pad at `0xFFFF2C00` reads 0 at reset, keeps words independent, repeats every 128 bytes, and takes byte and doubleword stores. |
 
 The interrupt tests link `compiler/crt0_interrupts.s` (their `.vprj`'s
 `STARTUP` line). Run them like any other suite:

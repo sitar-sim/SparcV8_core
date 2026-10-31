@@ -1200,6 +1200,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices_scratch_pad.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scratch-pad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1965,7 +1993,8 @@ nothing drives it, and it stays 0.</p>
 <p>There are 8 slots, enough for 4 cores with 2 hardware threads each. The
 slot for core <code>c</code>, thread <code>t</code> is number <code>2c + t</code>, and its control
 register is at <code>0xFFFF3000 + 4*(2c + t)</code>. A program finds its own core
-and thread with <code>rd %asr29</code>, which reads <code>(core &lt;&lt; 8) | thread</code> (in C,
+and thread with <code>rd %asr29</code>, which reads <code>0x5052</code> in the upper 16 bits,
+the core in bits 15 to 8 and the thread in bits 7 to 0 (in C,
 <code>ajit_get_core_and_thread_id()</code>). The single-core configurations here
 are core 0, thread 0, so they use slot 0 at <code>0xFFFF3000</code>.</p>
 <h3 id="control-register">Control register<a class="headerlink" href="#control-register" title="Permanent link">&para;</a></h3>

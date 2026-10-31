@@ -32,6 +32,7 @@ SparcCore::SparcCore()
 	processorID = 0;
 	coreID = 0;
 	threadID = 0;
+	resetPC = 0;
 
 	reg.W_ASR(31,0);
 	reg.W_ASR(30,0);
@@ -2084,8 +2085,8 @@ void SparcCore::executeTraps()
 			}
 			else // reset_trap = 1
 			{ 
-				reg.W_PC(0);
-				reg.W_nPC(4); 
+				reg.W_PC(resetPC);
+				reg.W_nPC(resetPC + 4);
 				reset_trap = 0;
 			};
 		};

@@ -41,6 +41,11 @@ uint32_t PeripheralDevicesCore::readWord(uint32_t wordAddress, uint8_t laneMask)
 		stats.interruptControllerAccesses++;
 		return interruptController.readRegister(wordAddress, laneMask);
 	}
+	if (inRange(wordAddress, DeviceAddress::SCRATCH_PAD_MIN, DeviceAddress::SCRATCH_PAD_MAX))
+	{
+		stats.scratchPadAccesses++;
+		return scratchPad.readRegister(wordAddress, laneMask);
+	}
 	stats.unmappedAccesses++;
 	std::cerr << "\nWarning: PeripheralDevicesCore: read of unmapped device address 0x"
 	          << std::hex << wordAddress << std::dec << ", returning 0";
@@ -63,6 +68,11 @@ void PeripheralDevicesCore::writeWord(uint32_t wordAddress, uint8_t laneMask, ui
 	{
 		stats.interruptControllerAccesses++;
 		interruptController.writeRegister(wordAddress, laneMask, data);
+	}
+	else if (inRange(wordAddress, DeviceAddress::SCRATCH_PAD_MIN, DeviceAddress::SCRATCH_PAD_MAX))
+	{
+		stats.scratchPadAccesses++;
+		scratchPad.writeRegister(wordAddress, laneMask, data);
 	}
 	else
 	{
@@ -122,6 +132,7 @@ std::string PeripheralDevicesCore::Stats::toString() const
 	   << "\n\t timer                = " << timerAccesses
 	   << "\n\t serial               = " << serialAccesses
 	   << "\n\t interrupt controller = " << interruptControllerAccesses
+	   << "\n\t scratch-pad          = " << scratchPadAccesses
 	   << "\n\t unmapped             = " << unmappedAccesses
 	   << "\n";
 	return ss.str();

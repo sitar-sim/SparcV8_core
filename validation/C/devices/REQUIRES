@@ -1,2 +1,2 @@
-# Need the Timer, Serial and Interrupt Controller.
+# Need the Timer, Serial, Interrupt Controller and scratch-pad.
 devices

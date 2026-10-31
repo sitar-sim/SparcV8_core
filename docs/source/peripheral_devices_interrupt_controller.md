@@ -34,7 +34,8 @@ nothing drives it, and it stays 0.
 There are 8 slots, enough for 4 cores with 2 hardware threads each. The
 slot for core `c`, thread `t` is number `2c + t`, and its control
 register is at `0xFFFF3000 + 4*(2c + t)`. A program finds its own core
-and thread with `rd %asr29`, which reads `(core << 8) | thread` (in C,
+and thread with `rd %asr29`, which reads `0x5052` in the upper 16 bits,
+the core in bits 15 to 8 and the thread in bits 7 to 0 (in C,
 `ajit_get_core_and_thread_id()`). The single-core configurations here
 are core 0, thread 0, so they use slot 0 at `0xFFFF3000`.
 

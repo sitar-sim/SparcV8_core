@@ -1174,6 +1174,34 @@
 
               
             
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="peripheral_devices_scratch_pad.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Scratch-pad
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
           </ul>
         </nav>
       
@@ -1874,13 +1902,20 @@ to port a basic operating system on top of it.</p>
     and lets threads interrupt each other (inter-processor interrupts).</li>
 <li><strong><a href="peripheral_devices_serial_device.html">Serial Device</a></strong><br />
     A single device for I/O.</li>
+<li><strong><a href="peripheral_devices_scratch_pad.html">Scratch-pad</a></strong><br />
+    32 words of uncached storage shared by all cores, used for flags
+    between cores during startup.</li>
 </ul>
 <p>The register formats, addresses, and behavior documented here are
 credited to the <a href="https://github.com/adhuliya/ajit-toolchain/blob/marshal/docs/processor/ajit_processor_description.pdf">AJIT processor
 documentation</a>,
-Chapter 8, "Basic peripherals available for AJIT systems". The device
-models in this project are designed to be compatible with it, except
-for the deviations listed at the end of this page.</p>
+Chapter 8, "Basic peripherals available for AJIT systems". That
+chapter does not describe the scratch-pad, which appears only in the
+description's memory-map tables. Its behavior here follows AJIT's
+multi-core C model (<code>devices/src/ScratchPad.c</code> in the ajit-toolchain
+repository). The device models in this project are designed to be
+compatible with these sources, except for the deviations listed at the
+end of this page.</p>
 <hr />
 <h2 id="connection-diagram">Connection diagram<a class="headerlink" href="#connection-diagram" title="Permanent link">&para;</a></h2>
 <p>A programmer's view of how the devices connect.</p>
@@ -1965,6 +2000,12 @@ ordinary translated access if the page is identity mapped.</p>
 <td>word (32-bit)</td>
 <td><code>sta %rs, [%rd] 0x20</code></td>
 </tr>
+<tr>
+<td>Scratch-pad : words 0 to 31 (repeating)</td>
+<td><code>0xFFFF2C00</code> to <code>0xFFFF2FFF</code></td>
+<td>word (32-bit), or byte to doubleword</td>
+<td><code>sta %rs, [%rd] 0x20</code></td>
+</tr>
 </tbody>
 </table>
 <p><code>%rd</code> holds the register's address, loaded with <code>set</code> beforehand. C
@@ -2033,6 +2074,9 @@ deliberate:</p>
 <li><strong>Serial transmit disable.</strong> Writing <code>Tx_en=0</code> while a byte is still
   being transmitted finishes sending it first, so no program output is
   lost.</li>
+<li><strong>Scratch-pad partial stores.</strong> A byte or halfword store changes
+  only the bytes it selects here. AJIT's C model writes the whole word
+  whatever the store size. Word stores behave the same in both.</li>
 <li><strong>Unmapped device addresses</strong> read as 0 and ignore writes, with a
   warning, the same as AJIT's bridge does for any unmapped address.</li>
 <li><strong>Device map and C routines.</strong> The address map above is AJIT's

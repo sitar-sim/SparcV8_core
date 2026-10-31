@@ -64,6 +64,11 @@ class SparcCore
 		static const uint32_t ASR_CORE_THREAD_ID = 29;
 		static const uint32_t ASR29_TAG = 0x50520000u;
 		uint32_t coreThreadIdWord() const { return ASR29_TAG | ((coreID & 0xFFu) << 8) | (threadID & 0xFFu); }
+
+		//PC the reset trap jumps to (nPC = resetPC + 4). Default 0, the
+		//SPARC V8 reset convention. A configuration's top level may set
+		//it before the run, as AJIT's C model does with -i <init-pc>.
+		uint32_t resetPC;
 		//----------------------------------------------------------
 
 
