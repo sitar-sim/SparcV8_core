@@ -1,7 +1,8 @@
 // core_thread_id.c
 //
-// ASR29 reads as the hardwired core/thread ID word, (core << 8) | thread,
-// and ignores writes. This single-core model is core 0, thread 0.
+// ASR29 reads as the hardwired core/thread ID word,
+// 0x50520000 | (core << 8) | thread, and ignores writes. This
+// single-core model is core 0, thread 0.
 
 #include "../devices_common.h"
 
@@ -14,7 +15,7 @@ int main(void)
 	if (core_id == 0 && thread_id == 0) ok |= 1 << 0;
 
 	__asm__ __volatile__("wr %%g0, 0x123, %%asr29" : : );
-	if (__ajit_read_core_thread_id_word__() == 0) ok |= 1 << 1;
+	if (__ajit_read_core_thread_id_word__() == 0x50520000) ok |= 1 << 1;
 
 	report_and_halt(ok, 2);
 	return 0;

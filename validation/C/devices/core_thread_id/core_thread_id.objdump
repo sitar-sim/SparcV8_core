@@ -19,14 +19,14 @@ Disassembly of section .text:
       2c:	01 00 00 00 	nop 
       30:	01 00 00 00 	nop 
       34:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <memcpy+0xfffde64>
+      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <memcpy+0xfffde60>
       3c:	82 10 2b ad 	mov  0xbad, %g1
       40:	40 00 08 27 	call  20dc <main>
       44:	01 00 00 00 	nop 
 
 00000048 <not_reached>:
       48:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <memcpy+0xbd21>
+      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <memcpy+0xbd1d>
       50:	91 d0 20 00 	ta  0
       54:	01 00 00 00 	nop 
       58:	01 00 00 00 	nop 
@@ -2611,7 +2611,7 @@ Disassembly of section .text:
     2094:	82 00 7f ff 	add  %g1, -1, %g1
     2098:	10 80 00 03 	b  20a4 <report_and_halt+0x38>
     209c:	01 00 00 00 	nop 
-    20a0:	82 10 3f ff 	mov  -1, %g1	! ffffffff <memcpy+0xffffde73>
+    20a0:	82 10 3f ff 	mov  -1, %g1	! ffffffff <memcpy+0xffffde6f>
     20a4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     20a8:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     20ac:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
@@ -2656,56 +2656,57 @@ Disassembly of section .text:
     2140:	bb 80 21 23 	wr  %g0, 0x123, %asr29
     2144:	7f ff ff af 	call  2000 <__ajit_read_core_thread_id_word__>
     2148:	01 00 00 00 	nop 
-    214c:	82 10 00 08 	mov  %o0, %g1
-    2150:	80 a0 60 00 	cmp  %g1, 0
-    2154:	12 80 00 05 	bne  2168 <main+0x8c>
-    2158:	01 00 00 00 	nop 
-    215c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2160:	82 10 60 02 	or  %g1, 2, %g1
-    2164:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    2168:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
-    216c:	92 10 20 02 	mov  2, %o1
-    2170:	7f ff ff bf 	call  206c <report_and_halt>
-    2174:	01 00 00 00 	nop 
-    2178:	82 10 20 00 	clr  %g1	! 0 <_start>
-    217c:	b0 10 00 01 	mov  %g1, %i0
-    2180:	81 e8 00 00 	restore 
-    2184:	81 c3 e0 08 	retl 
-    2188:	01 00 00 00 	nop 
+    214c:	84 10 00 08 	mov  %o0, %g2
+    2150:	03 14 14 80 	sethi  %hi(0x50520000), %g1
+    2154:	80 a0 80 01 	cmp  %g2, %g1
+    2158:	12 80 00 05 	bne  216c <main+0x90>
+    215c:	01 00 00 00 	nop 
+    2160:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2164:	82 10 60 02 	or  %g1, 2, %g1
+    2168:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    216c:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
+    2170:	92 10 20 02 	mov  2, %o1
+    2174:	7f ff ff be 	call  206c <report_and_halt>
+    2178:	01 00 00 00 	nop 
+    217c:	82 10 20 00 	clr  %g1	! 0 <_start>
+    2180:	b0 10 00 01 	mov  %g1, %i0
+    2184:	81 e8 00 00 	restore 
+    2188:	81 c3 e0 08 	retl 
+    218c:	01 00 00 00 	nop 
 
-0000218c <memcpy>:
-    218c:	9d e3 bf 90 	save  %sp, -112, %sp
-    2190:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    2194:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    2198:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    219c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    21a0:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    21a4:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    21a8:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    21ac:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    21b0:	10 80 00 0d 	b  21e4 <memcpy+0x58>
-    21b4:	01 00 00 00 	nop 
-    21b8:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    21bc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    21c0:	82 00 80 01 	add  %g2, %g1, %g1
-    21c4:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
-    21c8:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    21cc:	84 00 c0 02 	add  %g3, %g2, %g2
-    21d0:	c4 08 80 00 	ldub  [ %g2 ], %g2
-    21d4:	c4 28 40 00 	stb  %g2, [ %g1 ]
-    21d8:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    21dc:	82 00 60 01 	inc  %g1
-    21e0:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    21e4:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    21e8:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    21ec:	80 a0 80 01 	cmp  %g2, %g1
-    21f0:	0a bf ff f2 	bcs  21b8 <memcpy+0x2c>
-    21f4:	01 00 00 00 	nop 
-    21f8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    21fc:	b0 10 00 01 	mov  %g1, %i0
-    2200:	81 e8 00 00 	restore 
-    2204:	81 c3 e0 08 	retl 
-    2208:	01 00 00 00 	nop 
+00002190 <memcpy>:
+    2190:	9d e3 bf 90 	save  %sp, -112, %sp
+    2194:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    2198:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    219c:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    21a0:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    21a4:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    21a8:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    21ac:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    21b0:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    21b4:	10 80 00 0d 	b  21e8 <memcpy+0x58>
+    21b8:	01 00 00 00 	nop 
+    21bc:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    21c0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    21c4:	82 00 80 01 	add  %g2, %g1, %g1
+    21c8:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    21cc:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    21d0:	84 00 c0 02 	add  %g3, %g2, %g2
+    21d4:	c4 08 80 00 	ldub  [ %g2 ], %g2
+    21d8:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    21dc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    21e0:	82 00 60 01 	inc  %g1
+    21e4:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    21e8:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    21ec:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    21f0:	80 a0 80 01 	cmp  %g2, %g1
+    21f4:	0a bf ff f2 	bcs  21bc <memcpy+0x2c>
+    21f8:	01 00 00 00 	nop 
+    21fc:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    2200:	b0 10 00 01 	mov  %g1, %i0
+    2204:	81 e8 00 00 	restore 
+    2208:	81 c3 e0 08 	retl 
+    220c:	01 00 00 00 	nop 
 
 Symbol table:
 
@@ -2978,6 +2979,6 @@ Symbol table '.symtab' contains 269 entries:
    263: 00002020    76 FUNC    LOCAL  DEFAULT    1 ajit_get_core_and_thread_
    264: 0000206c   112 FUNC    LOCAL  DEFAULT    1 report_and_halt
    265: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
-   266: 0000218c   128 FUNC    GLOBAL DEFAULT    1 memcpy
+   266: 00002190   128 FUNC    GLOBAL DEFAULT    1 memcpy
    267: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   268: 000020dc   176 FUNC    GLOBAL DEFAULT    1 main
+   268: 000020dc   180 FUNC    GLOBAL DEFAULT    1 main

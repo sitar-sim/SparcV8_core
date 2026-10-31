@@ -108,13 +108,14 @@ main:
 	or	%g1, 1, %g1
 	st	%g1, [%fp-4]
 .LL11:
-! 16 "validation/C/devices/core_thread_id/core_thread_id.c" 1
+! 17 "validation/C/devices/core_thread_id/core_thread_id.c" 1
 	wr %g0, 0x123, %asr29
 ! 0 "" 2
 	call	__ajit_read_core_thread_id_word__, 0
 	 nop
-	mov	%o0, %g1
-	cmp	%g1, 0
+	mov	%o0, %g2
+	sethi	%hi(1347551232), %g1
+	cmp	%g2, %g1
 	bne	.LL12
 	 nop
 	ld	[%fp-4], %g1

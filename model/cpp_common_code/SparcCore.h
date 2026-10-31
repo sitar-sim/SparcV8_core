@@ -56,12 +56,14 @@ class SparcCore
 		inline void	setThreadID(unsigned int id) { threadID=id;};
 		uint32_t	getThreadID(){return threadID;};
 
-		//ASR29 is hardwired, read-only: (core ID << 8) | thread ID, the
-		//same word AJIT software reads with `rd %asr29` to find its own
-		//core and thread (Ref AJIT's ajit_access_routines.c,
+		//ASR29 is hardwired, read-only: 0x5052 in the upper 16 bits, then
+		//core ID << 8 | thread ID, the same word AJIT software reads with
+		//`rd %asr29` to find its own core and thread (Ref AJIT's
+		//AjitThread.c and ajit_access_routines.c,
 		//ajit_get_core_and_thread_id()). Writes to ASR29 are ignored.
 		static const uint32_t ASR_CORE_THREAD_ID = 29;
-		uint32_t coreThreadIdWord() const { return (coreID << 8) | (threadID & 0xFFu); }
+		static const uint32_t ASR29_TAG = 0x50520000u;
+		uint32_t coreThreadIdWord() const { return ASR29_TAG | ((coreID & 0xFFu) << 8) | (threadID & 0xFFu); }
 		//----------------------------------------------------------
 
 

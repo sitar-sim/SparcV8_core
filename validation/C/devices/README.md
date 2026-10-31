@@ -8,7 +8,7 @@ passed, `%o1` = one bit per check, so a failure shows which one.
 
 | Test | Checks |
 |---|---|
-| `core_thread_id` | `rd %asr29` reads core 0, thread 0, and ignores writes. |
+| `core_thread_id` | `rd %asr29` reads `0x50520000` (tag, core 0, thread 0) and ignores writes. |
 | `timer_poll` | The timer fires after its count, seen through the Interrupt Controller's live source bits, and disabling it drops the interrupt. |
 | `timer_interrupt` | A timer interrupt reaches a real trap handler once, through the generic dispatch, and the slot is re-enabled afterward. |
 | `serial_tx` | A string sent with `__ajit_serial_puts_via_bypass__()` arrives byte for byte (`serial_out` check). |

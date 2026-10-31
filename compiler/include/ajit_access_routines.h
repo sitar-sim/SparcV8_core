@@ -59,7 +59,7 @@ static inline uint8_t __ajit_load_ubyte_mmu_bypass__(uint32_t addr)
 // Core and thread ID
 //------------------------------------------------------------------------
 
-// ASR29: (core_id << 8) | thread_id.
+// ASR29: 0x5052 in bits [31:16], core_id in [15:8], thread_id in [7:0].
 static inline uint32_t __ajit_read_core_thread_id_word__(void)
 {
 	uint32_t value;
