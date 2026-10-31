@@ -18,7 +18,8 @@ configuration, whether it uses it or not (see
 | `PullAToken.sitar`, `PushAToken.sitar` | Generic single-token receive and send, for procedures that talk over nets. |
 | `L1Caches.sitar` | The split L1 caches. |
 | `SystemBridge.sitar`, `SystemInterconnect.sitar` | The physical bus: one master, or several taken round robin (`sparc_apara`). |
-| `PeripheralDevices.sitar` | The Timer, Serial, and Interrupt Controller. |
+| `CoherentBridge.sitar` | The physical bus of the `multicore` configuration: one port pair per core, granted round robin, with `SystemBridge`'s timing. |
+| `PeripheralDevices.sitar` | The Timer, Serial, Interrupt Controller and scratch-pad, with one interrupt level output per core. |
 | `AparaEngine.sitar`, `AparaFetch.sitar`, `AparaDecode.sitar`, `AparaRegfile.sitar`, `AparaExec.sitar`, `AparaWriteback.sitar` | The APARA engine's five-stage pipeline. |
 | `AparaHost.sitar` | The APARA engine's control and DMA units, in `sparc_apara`. |
 | `cpp_code/OpcodeLatencies.h` | The SPARC core's per-opcode latencies (sitar-only C++). |

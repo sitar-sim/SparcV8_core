@@ -10,7 +10,9 @@ Interrupt Controller's slot for core `i`, thread 0. Every core starts at
 the reset PC (0) and runs the same program, which uses the core ID to
 decide what each core does.
 
-Two compile-time knobs, in `cpp_model/src/MulticoreConfig.h`:
+Two compile-time knobs, in `cpp_model/src/MulticoreConfig.h` for the
+cpp_model and as `System`'s parameters in `sitar_model/src/System.sitar`
+for the sitar_model:
 
 - **`NUM_CORES`** (1 to 4, default 4).
 - **`COHERENT`**: whether a write by one core invalidates that line in
@@ -19,6 +21,10 @@ Two compile-time knobs, in `cpp_model/src/MulticoreConfig.h`:
 - **`cpp_model/`** -- the 0-delay functional driver: the cores take
   turns on one host thread, in rounds, with a run-time choice of
   interleaving (`--schedule`, see `cpp_model/src/Scheduler.h`).
+- **`sitar_model/`** -- the Sitar-timed driver: `NUM_CORES` `Core`
+  modules running side by side, meeting at a `CoherentBridge`, which
+  serves one physical request at a time, granting the cores
+  round-robin.
 
 The run ends when every core has halted. Expected-results lines may
 name a core (`REG core2.o0 ...`). A line with no core prefix checks

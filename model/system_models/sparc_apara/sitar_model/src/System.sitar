@@ -90,7 +90,7 @@ module System
 	host.slaveResponseOut              => engineResponseNet
 	interconnect.engineResponseIn      <= engineResponseNet
 
-	devices.interruptLevelOut          => interruptLevelNet
+	devices.interruptLevelOut[0]       => interruptLevelNet
 	core.interruptLevelIn              <= interruptLevelNet
 	host.interruptOut                  => engineInterruptNet
 	devices.externalInterruptIn        <= engineInterruptNet

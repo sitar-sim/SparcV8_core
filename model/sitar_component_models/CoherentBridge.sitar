@@ -1,0 +1,164 @@
+//================================================================
+// module CoherentBridge
+// Author: Neha Karanjkar
+//
+// The physical bus below the MMUs of a multi-core system: SystemBridge's
+// job, for NUM_CORES cores instead of one. Each core has its own pair of
+// request/response ports. The bridge takes one request at a time from
+// whichever core it grants, decides from its physical address which
+// target it is for (main memory or the peripheral devices, Ref
+// SystemAddressMap.h), forwards it, and returns the target's response to
+// that same core. Named after AJIT's coherent memory controller (its
+// "bridge"), which plays the same role.
+//
+// Arbitration is plain round-robin over the core ports: starting from
+// the port after the last one granted, the first port with a request
+// waiting is granted. Ports with nothing waiting are skipped. This is an
+// assumption, not taken from AJIT.
+//
+// Timing is SystemBridge's: a request pulled in phase 0 is forwarded in
+// phase 1 of the same cycle, and the bridge adds only its own `delay`
+// knob beyond each net's unavoidable one cycle. With one core it behaves
+// exactly like SystemBridge.
+//
+// An address that maps to nothing reads as 0 and ignores writes, with a
+// warning, exactly like SystemBridge.
+//================================================================
+
+module CoherentBridge
+
+	parameter int NUM_CORES = 1
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	#include "SystemAddressMap.h"
+	$
+
+	//Core side, one port pair per core
+	inport_array  coreRequestIn[NUM_CORES]   : width TOKEN_REQ_WIDTH
+	outport_array coreResponseOut[NUM_CORES] : width TOKEN_RESP_WIDTH
+
+	//Target side
+	outport memoryRequestOut   : width TOKEN_REQ_WIDTH
+	inport  memoryResponseIn   : width TOKEN_RESP_WIDTH
+	outport devicesRequestOut  : width TOKEN_REQ_WIDTH
+	inport  devicesResponseIn  : width TOKEN_RESP_WIDTH
+
+	procedure sendCoreResponse  : PushAToken<TOKEN_RESP_WIDTH>
+	procedure sendTargetRequest : PushAToken<TOKEN_REQ_WIDTH>
+	procedure getTargetResponse : PullAToken<TOKEN_RESP_WIDTH>
+
+	decl
+	$
+	token<TOKEN_REQ_WIDTH>    requestToken;
+	PhysicalMemoryRequest     request; //unpacked only to read the address
+	SystemAddressMap::Target  target;
+
+	int  granted;     //the core whose request is being serviced
+	bool gotRequest;
+
+	//Cycles the bridge adds to every transaction, on the way back to the
+	//core side. Default 0.
+	uint32_t delay;
+
+	uint64_t memoryTransactions;
+	uint64_t deviceTransactions;
+	uint64_t unmappedTransactions;
+	uint64_t transactionsPerCore[NUM_CORES];
+
+	//Round-robin: pull the next waiting request, searching from the port
+	//after the last one granted. Returns false if no port has one.
+	bool pullNextRequest()
+	{
+		for (int k = 1; k <= NUM_CORES; k++)
+		{
+			int port = (granted + k) % NUM_CORES;
+			if (coreRequestIn[port].pull(requestToken))
+			{
+				granted = port;
+				return true;
+			}
+		}
+		return false;
+	}
+	$
+	init
+	$
+	request.valid           = false;
+	request.accessType      = PhysicalAccessType::READ;
+	request.lock            = false;
+	request.physicalAddress = 0;
+	request.data            = 0;
+	request.byteMask        = 0;
+	target     = SystemAddressMap::Target::UNMAPPED;
+	granted    = NUM_CORES - 1; //so that port 0 is searched first
+	gotRequest = false;
+	delay      = 0;
+	memoryTransactions   = 0;
+	deviceTransactions   = 0;
+	unmappedTransactions = 0;
+	for (int c = 0; c < NUM_CORES; c++)
+		transactionsPerCore[c] = 0;
+	$
+
+	behavior
+
+	do
+		//Wait for a request from any core, PullAToken's way: try once per
+		//cycle, in phase 0.
+		$ gotRequest = false; $;
+		do
+			wait until (this_phase==0);
+			$ gotRequest = pullNextRequest(); $;
+			if (not gotRequest) then wait end if;
+		while (not gotRequest) end do;
+
+		$
+		transactionsPerCore[granted]++;
+		sendCoreResponse.ptr = &coreResponseOut[granted];
+		sitar::unpack(requestToken, request.accessType, request.lock,
+		              request.physicalAddress, request.data, request.byteMask);
+		target = SystemAddressMap::decode(request.physicalAddress);
+
+		if (target == SystemAddressMap::Target::MAIN_MEMORY)
+		{
+			sendTargetRequest.ptr = &memoryRequestOut;
+			getTargetResponse.ptr = &memoryResponseIn;
+			memoryTransactions++;
+		}
+		else if (target == SystemAddressMap::Target::PERIPHERAL_DEVICES)
+		{
+			sendTargetRequest.ptr = &devicesRequestOut;
+			getTargetResponse.ptr = &devicesResponseIn;
+			deviceTransactions++;
+		}
+		sendTargetRequest.tok = requestToken;
+		$;
+
+		if ($target == SystemAddressMap::Target::UNMAPPED$) then
+			$
+			unmappedTransactions++;
+			std::cerr << "\nWarning: CoherentBridge: access to unmapped physical address 0x"
+			          << std::hex << request.physicalAddress << std::dec
+			          << (request.accessType == PhysicalAccessType::READ ? ", read as 0" : ", write ignored");
+			uint64_t noData = 0;
+			bool     noMae  = false;
+			sitar::pack(sendCoreResponse.tok, noData, noMae);
+			$;
+		else
+			run sendTargetRequest;
+			run getTargetResponse;
+			$ sendCoreResponse.tok = getTargetResponse.tok; $;
+		end if;
+
+		if ($delay > 0$) then
+			wait(delay, 0);
+		end if;
+
+		run sendCoreResponse;
+
+	while(1) end do;
+
+	end behavior
+end module

@@ -18,9 +18,9 @@
 //
 // Two things happen concurrently, so the behavior is a parallel block:
 //   - the clock: devices.tick() once per cycle in phase 0, then, in
-//     phase 1, the interrupt level for the wired thread slot is pushed
-//     onto interruptLevelOut whenever it changes (a level, not an event:
-//     the receiver keeps the last value it pulled);
+//     phase 1, each core's interrupt level (its thread 0 slot) is pushed
+//     onto interruptLevelOut[core] whenever it changes (a level, not an
+//     event: the receiver keeps the last value it pulled);
 //   - register accesses: one request at a time from requestIn, serviced
 //     through devices.access(), answered on responseOut after
 //     registerAccessDelay extra cycles (default 0).
@@ -42,8 +42,13 @@ module PeripheralDevices
 	inport  requestIn         : width TOKEN_REQ_WIDTH
 	outport responseOut       : width TOKEN_RESP_WIDTH
 
-	//The interrupt level (IRL, 0..15, one byte) for interruptSlot.
-	outport interruptLevelOut : width 1
+	//The interrupt level (IRL, 0..15, one byte) for each core's thread 0
+	//slot (slot = 2*core_id, Ref InterruptControllerCore.h), one output
+	//per core the Interrupt Controller has slots for. A configuration
+	//connects only its own cores' outputs (a single-core one, just
+	//interruptLevelOut[0]). The others are left unconnected and never
+	//pushed.
+	outport_array interruptLevelOut[4] : width 1
 	//The Interrupt Controller's external input (IRL 14), from an APARA
 	//engine in sparc_apara; optional: unconnected in the other
 	//configurations. A token carries the new level (0 or 1).
@@ -65,15 +70,12 @@ module PeripheralDevices
 	PhysicalMemoryRequest  request;
 	PhysicalMemoryResponse response;
 
-	//Which Interrupt Controller slot drives interruptLevelOut
-	//(slot = 2*core_id + thread_id). Default: core 0, thread 0.
-	int interruptSlot;
-
 	//Cycles added to every register access, between servicing it and
 	//sending the response. Default 0.
 	uint32_t registerAccessDelay;
 
-	uint8_t   lastSentLevel;
+	static const int MAX_CORES = 4; //interruptLevelOut's size
+	uint8_t   lastSentLevel[MAX_CORES];
 	token<1>  levelToken;
 	token<1>  externalToken;
 	$
@@ -90,9 +92,9 @@ module PeripheralDevices
 	response.readData = 0;
 	response.mae      = false;
 
-	interruptSlot       = InterruptControllerCore::slotIndex(0, 0);
 	registerAccessDelay = 0;
-	lastSentLevel       = 0;
+	for (int c = 0; c < MAX_CORES; c++)
+		lastSentLevel[c] = 0;
 	$
 
 	behavior
@@ -112,14 +114,19 @@ module PeripheralDevices
 
 			wait until (this_phase==1);
 			$
-			uint8_t level = (uint8_t) devices.interruptLevel(interruptSlot);
-			if (level != lastSentLevel)
+			for (int c = 0; c < MAX_CORES; c++)
 			{
-				sitar::pack(levelToken, level);
-				//If the net is still full, the push fails and is simply
-				//retried on the next cycle.
-				if (interruptLevelOut.push(levelToken))
-					lastSentLevel = level;
+				if (!interruptLevelOut[c].getNet())
+					continue;
+				uint8_t level = (uint8_t) devices.interruptLevel(InterruptControllerCore::slotIndex(c, 0));
+				if (level != lastSentLevel[c])
+				{
+					sitar::pack(levelToken, level);
+					//If the net is still full, the push fails and is simply
+					//retried on the next cycle.
+					if (interruptLevelOut[c].push(levelToken))
+						lastSentLevel[c] = level;
+				}
 			}
 			$;
 		while(1) end do;

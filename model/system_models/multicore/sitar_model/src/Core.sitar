@@ -1,0 +1,129 @@
+//================================================================
+// module Core
+// Author: Neha Karanjkar
+//
+// One core of the multicore system: the SPARC V8 core with split L1
+// caches and an MMU. The same as core_l1cache_mmu_devices' own
+// Core.sitar, except that a halted core does not stop the simulation.
+// System.sitar does that, once every running core has halted.
+//
+// As there, a third procedure, `caches` (L1Caches), sits between
+// sparcThread and mmu: sparcThread's 5 memory-interface procedures point
+// at the caches, and the caches point at the MMU. All three are
+// procedures of this one module, so a cache hit completes within the
+// same phase, with no net crossing, and only misses and forwarded
+// accesses go on to the MMU and over the nets below it.
+//
+// Also exposes requestOut/responseIn, so Mmu can reach the physical bus
+// (CoherentBridge, a sibling module under System.sitar), and
+// interruptLevelIn, polled once per cycle by one more parallel branch,
+// which drives the latest interrupt level onto the core's IRL pins.
+//================================================================
+
+module Core
+
+	include
+	$
+	#include "SparcCore.h"
+	#include "MemoryInterfaces.h"
+	$
+
+	//Sparc Thread (contains the state machine and memory interface procedures)
+	procedure sparcThread : SparcThread
+
+	//The split L1 caches all 5 of sparcThread's memory-interface
+	//procedures share, and the MMU below them.
+	procedure caches : L1Caches
+	procedure mmu    : Mmu
+
+	//This module's own physical-side ports -- what Mmu's two
+	//PhysicalMainMemoryInterface instances (phyMemReadProcedure/
+	//phyMemWriteProcedure) actually push requests onto and pull
+	//responses from, once wired below. Connected to CoherentBridge
+	//over nets declared one level up, in System.sitar (Ref that file's
+	//own header comment).
+	outport requestOut  : width TOKEN_REQ_WIDTH
+	inport  responseIn  : width TOKEN_RESP_WIDTH
+
+	//Interrupt level (IRL, one byte) for this core's thread, from the
+	//Interrupt Controller inside PeripheralDevices. A level, not an
+	//event: a token arrives only when the level changes, and the core
+	//keeps the last value received.
+	inport  interruptLevelIn : width 1
+
+	decl
+	$
+	token<1> interruptLevelToken;
+	$
+
+	init
+	$
+	sparcThread.ifetchProcedure.downstreamRequest           = &caches.request;
+	sparcThread.ifetchProcedure.downstreamResponse          = &caches.response;
+	sparcThread.memReadProcedure.downstreamRequest          = &caches.request;
+	sparcThread.memReadProcedure.downstreamResponse         = &caches.response;
+	sparcThread.memWriteProcedure.downstreamRequest         = &caches.request;
+	sparcThread.memWriteProcedure.downstreamResponse        = &caches.response;
+	sparcThread.atomicLoadStoreProcedure.downstreamRequest  = &caches.request;
+	sparcThread.atomicLoadStoreProcedure.downstreamResponse = &caches.response;
+	sparcThread.flushProcedure.downstreamRequest            = &caches.request;
+	sparcThread.flushProcedure.downstreamResponse           = &caches.response;
+
+	caches.downstreamRequest  = &mmu.request;
+	caches.downstreamResponse = &mmu.response;
+	//Cache lines are tagged with the MMU's current context.
+	MmuCore* mmuCore = &mmu.mmu;
+	caches.caches.currentContext = [mmuCore]() { return mmuCore->currentContext(); };
+
+	mmu.phyMemReadProcedure.reqPortPtr   = &requestOut;
+	mmu.phyMemReadProcedure.respPortPtr  = &responseIn;
+	mmu.phyMemWriteProcedure.reqPortPtr  = &requestOut;
+	mmu.phyMemWriteProcedure.respPortPtr = &responseIn;
+	$
+
+
+	behavior
+		[
+			// sparcThread's own procedure never returns -- it loops
+			// forever across RESET/EXECUTE/ERROR, by design (see the
+			// "Conventions" note in SparcThread.sitar) -- so this branch
+			// never completes either. That's fine: nothing here waits
+			// on it to.
+			run sparcThread;
+		||
+			// mmu is persistent -- this branch runs for the whole
+			// simulation, servicing requests until the monitor branch
+			// below calls `stop simulation`.
+			run mmu;
+		||
+			// caches is persistent too, like mmu.
+			run caches;
+		||
+			// Polls interruptLevelIn once per cycle, in phase 0, and drives
+			// any new level onto the core's IRL input pins (bp_IRL), where
+			// checkExternalTraps() samples it before the next instruction.
+			do
+				wait until (this_phase==0);
+				$
+				if (interruptLevelIn.pull(interruptLevelToken))
+				{
+					uint8_t level = 0;
+					sitar::unpack(interruptLevelToken, level);
+					sparcThread.core.reg.W_bp_IRL(level); //the core's IRL input pins
+				}
+				$;
+				wait(1,0);
+			while(1) end do;
+		||
+			// Logs the core halting. Unlike the single-core Core.sitar,
+			// it does not stop the simulation: the other cores may still
+			// be running. System.sitar stops it once every running core
+			// has halted.
+			wait until (sparcThread.HALT.VALUE and this_phase==1);
+			$
+			log<<endl<<"Core "<<sparcThread.core.getCoreID()<<" halted.";
+			log<<endl<<sparcThread.printInfo();
+			$;
+		]
+	end behavior
+end module

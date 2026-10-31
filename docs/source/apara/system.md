@@ -296,7 +296,7 @@ an output port to an input port.
 | `devicesResponseNet` | `devices.responseOut` | `interconnect.devicesResponseIn` |
 | `engineRequestNet` | `interconnect.engineRequestOut` | `host.slaveRequestIn` |
 | `engineResponseNet` | `host.slaveResponseOut` | `interconnect.engineResponseIn` |
-| `interruptLevelNet` | `devices.interruptLevelOut` | `core.interruptLevelIn` |
+| `interruptLevelNet` | `devices.interruptLevelOut[0]` | `core.interruptLevelIn` |
 | `engineInterruptNet` | `host.interruptOut` | `devices.externalInterruptIn` |
 | `serviceRequestNet` | `host.serviceOut` | `engine.exec.serviceIn` |
 | `serviceResponseNet` | `engine.exec.serviceOut` | `host.serviceIn` |

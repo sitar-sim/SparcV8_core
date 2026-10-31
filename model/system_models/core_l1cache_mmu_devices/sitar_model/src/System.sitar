@@ -11,7 +11,7 @@
 //
 //   core.requestOut    -> bridge -> mainMemory or devices (by address)
 //   core.responseIn    <- bridge <- mainMemory or devices
-//   devices.interruptLevelOut -> core.interruptLevelIn
+//   devices.interruptLevelOut[0] -> core.interruptLevelIn
 //
 // The devices are a single shared set on the memory side, reached by
 // physical address like any other target, not part of Core. That is
@@ -63,7 +63,7 @@ module System
 	devices.responseOut      => devicesResponseNet
 	bridge.devicesResponseIn <= devicesResponseNet
 
-	devices.interruptLevelOut => interruptLevelNet
+	devices.interruptLevelOut[0] => interruptLevelNet
 	core.interruptLevelIn     <= interruptLevelNet
 
 	init

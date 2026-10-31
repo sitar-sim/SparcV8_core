@@ -222,7 +222,7 @@ port to an input port.
 | `memoryResponseNet` | `mainMemory.responseOut` | `bridge.memoryResponseIn` |
 | `devicesRequestNet` | `bridge.devicesRequestOut` | `devices.requestIn` |
 | `devicesResponseNet` | `devices.responseOut` | `bridge.devicesResponseIn` |
-| `interruptLevelNet` | `devices.interruptLevelOut` | `core.interruptLevelIn` |
+| `interruptLevelNet` | `devices.interruptLevelOut[0]` | `core.interruptLevelIn` |
 
 ---
 

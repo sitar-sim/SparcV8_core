@@ -1,0 +1,12 @@
+//================================================================
+// module Top
+// Author: Neha Karanjkar
+//
+// The top-level module Sitar requires for `sitar compile`. It looks for
+// a module literally named Top. Just instantiates System, with System's
+// own default knob values (NUM_CORES, COHERENT, Ref System.sitar).
+//================================================================
+
+module Top
+	submodule system : System<>
+end module

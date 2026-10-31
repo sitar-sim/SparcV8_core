@@ -6,6 +6,7 @@ of `core_l1cache_mmu_devices/cpp_model/`'s island (`SparcStateMachine`
 
 ```sh
 ./build.sh
+./run_simple_test.sh
 ./executable/sparc_sim_cpp_multicore <program.hex> [expected] [max_cycles] [--stats] \
     [--schedule <spec>] [--run-cores <m>] \
     [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable] \

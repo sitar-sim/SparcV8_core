@@ -1,0 +1,166 @@
+//================================================================
+// module System
+// Author: Neha Karanjkar
+//
+// The multicore system: NUM_CORES cores, each with its own L1 caches and
+// MMU, sharing one main memory and one set of peripheral devices
+// through a CoherentBridge:
+//
+//   cores[i]    : Core               core i, with its L1 caches and MMU
+//   bridge      : CoherentBridge     the physical bus below the MMUs
+//   mainMemory  : PhysicalMainMemory main memory
+//   devices     : PeripheralDevices  Timer, Serial, Interrupt Controller, scratch-pad
+//
+//   cores[i].requestOut  -> bridge.coreRequestIn[i]  -> mainMemory or devices
+//   cores[i].responseIn  <- bridge.coreResponseOut[i]
+//   devices.interruptLevelOut[i] -> cores[i].interruptLevelIn
+//
+// Core i has core ID i (set in init below), so `rd %asr29` tells the
+// cores apart. Each core is its own module, so the cores run side by
+// side, one instruction per cycle each, and meet only at the bridge,
+// which serves one request at a time, round-robin.
+//
+// The run ends when every running core has halted (the behavior below).
+// Cores at or beyond runCores (set by sparc_sim's --run-cores) are held
+// in reset for the whole run and do not count.
+//
+// Owns the configuration's two compile-time knobs (the parameters
+// below) and the consolidated list of every latency knob.
+//================================================================
+
+module System
+
+	//Number of cores, 1 to 4 (the Interrupt Controller has thread slots
+	//for 4 cores). The cpp_model's knob is in MulticoreConfig.h.
+	parameter int  NUM_CORES = 4
+
+	//Whether a write by one core invalidates that line in every other
+	//core's L1 caches. Only false is implemented so far (init below
+	//refuses to build with true).
+	parameter bool COHERENT = false
+
+	include
+	$
+	#include "MemoryInterfaces.h"
+	$
+
+	submodule_array cores[NUM_CORES] : Core
+	submodule bridge     : CoherentBridge<NUM_CORES>
+	submodule mainMemory : PhysicalMainMemory
+	submodule devices    : PeripheralDevices
+
+	net_array coreRequestNet[NUM_CORES]    : capacity 1 width TOKEN_REQ_WIDTH
+	net_array coreResponseNet[NUM_CORES]   : capacity 1 width TOKEN_RESP_WIDTH
+	net_array interruptLevelNet[NUM_CORES] : capacity 1 width 1
+	net memoryRequestNet   : capacity 1 width TOKEN_REQ_WIDTH
+	net memoryResponseNet  : capacity 1 width TOKEN_RESP_WIDTH
+	net devicesRequestNet  : capacity 1 width TOKEN_REQ_WIDTH
+	net devicesResponseNet : capacity 1 width TOKEN_RESP_WIDTH
+
+	for i in 0 to (NUM_CORES - 1)
+		cores[i].requestOut          => coreRequestNet[i]
+		bridge.coreRequestIn[i]      <= coreRequestNet[i]
+		bridge.coreResponseOut[i]    => coreResponseNet[i]
+		cores[i].responseIn          <= coreResponseNet[i]
+
+		devices.interruptLevelOut[i] => interruptLevelNet[i]
+		cores[i].interruptLevelIn    <= interruptLevelNet[i]
+	end for
+
+	bridge.memoryRequestOut  => memoryRequestNet
+	mainMemory.requestIn     <= memoryRequestNet
+	mainMemory.responseOut   => memoryResponseNet
+	bridge.memoryResponseIn  <= memoryResponseNet
+
+	bridge.devicesRequestOut => devicesRequestNet
+	devices.requestIn        <= devicesRequestNet
+	devices.responseOut      => devicesResponseNet
+	bridge.devicesResponseIn <= devicesResponseNet
+
+	decl
+	$
+	//Cores 0 to runCores-1 run. The others are held in reset (Ref
+	//sparc_sim.cpp's --run-cores). Default NUM_CORES.
+	unsigned int runCores;
+
+	bool allRunningCoresHalted()
+	{
+		for (unsigned int i = 0; i < runCores; i++)
+			if (!cores[i].sparcThread.HALT.VALUE)
+				return false;
+		return true;
+	}
+	$
+
+	init
+	$
+	static_assert(NUM_CORES >= 1 && NUM_CORES <= 4,
+	              "NUM_CORES must be 1 to 4 (the Interrupt Controller has slots for 4 cores)");
+	static_assert(!COHERENT, "COHERENT=true is not implemented yet");
+
+	runCores = NUM_CORES;
+	for (int i = 0; i < NUM_CORES; i++)
+		cores[i].sparcThread.core.setCoreID(i);
+
+	//---------------------------------------------------------
+	// Model latency parameter settings -- a single, consolidated place to
+	// view/tune every latency knob in this configuration. Each knob is
+	// also declared and defaulted in its own owning procedure/module; the
+	// value set here runs afterward (Sitar's child-then-parent init
+	// order) and is the authoritative one for the simulation. The
+	// per-core knobs are set the same for every core.
+	//---------------------------------------------------------
+	//Opcode-wise latency: compile-time, see OpcodeLatencies.h
+	//(DEFAULT_PER_OPCODE_DELAY / OPCODE_LATENCY_OVERRIDES) -- not
+	//settable here.
+	for (int i = 0; i < NUM_CORES; i++)
+	{
+		//Core-side interconnect latency (memory-interface delay: cycles
+		//beyond 0-delay procedure-call semantics, per access type):
+		cores[i].sparcThread.ifetchProcedure.delay          = 0; //ifetch
+		cores[i].sparcThread.memReadProcedure.delay         = 0; //load
+		cores[i].sparcThread.memWriteProcedure.delay        = 0; //store
+		cores[i].sparcThread.atomicLoadStoreProcedure.delay = 0; //atomic load-store
+		cores[i].sparcThread.flushProcedure.delay           = 0; //flush
+		//
+		//L1 caches (Ref L1Caches.sitar). Their sizes are run-time options
+		//of sparc_sim, not timing knobs:
+		cores[i].caches.icacheHitDelay = 0; //charged on an instruction cache hit
+		cores[i].caches.dcacheHitDelay = 0; //charged on a data cache hit
+		cores[i].caches.fillDelay      = 0; //charged when a line is installed
+		//
+		//MMU-related (Ref Mmu.sitar's own comment on each field):
+		cores[i].mmu.tlbLookupDelay         = 0; //TLB tag-compare cost, charged whether hit or miss
+		cores[i].mmu.pageTableWalkStepDelay = 0; //walker control overhead, once per page-table level visited
+		cores[i].mmu.tlbFillDelay           = 0; //cost of inserting a resolved entry into the TLB, on a fresh miss only
+		cores[i].mmu.registerAccessDelay    = 0; //MMU control/context/FSR/FAR register read or write (ASI 4)
+		cores[i].mmu.flushDelay             = 0; //TLB invalidate (ASI 3 write)
+		//
+		//MMU-to-bridge interconnect latency (additive with every net's own
+		//unavoidable >=1 cycle):
+		cores[i].mmu.phyMemReadProcedure.delay  = 0;
+		cores[i].mmu.phyMemWriteProcedure.delay = 0;
+	}
+	//
+	//Bridge latency, added to every physical transaction:
+	bridge.delay = 0;
+	//
+	//Physical memory service latency:
+	mainMemory.delay = 0;
+	//
+	//Peripheral devices:
+	devices.registerAccessDelay      = 0; //added to every device register access
+	devices.devices.timerTickDivider = 1; //cycles per timer tick (not a latency: the timer's clock)
+	devices.devices.serial.txTicksPerByte = 1; //cycles a transmitted byte keeps Tx_full set
+	//---------------------------------------------------------
+	$
+
+	behavior
+		// Checked in phase 1 only, after every core's phase-0 work for
+		// the cycle is done, so the cycle the run ends on does not depend
+		// on the order the cores happen to run in.
+		wait until (this_phase==1 and allRunningCoresHalted());
+		$ log<<endl<<"All running cores halted."; $;
+		stop simulation;
+	end behavior
+end module
