@@ -89,6 +89,9 @@ o2=0xFFFFFFFB
   (`m[0x148] = 0x00000021 0x00000021` checks only the bits set in the
   mask. See `validation/asm/floating_point/fp_exceptions/accrued_inexact.s`
   for a real example distinguishing individual FSR bits.)
+- On the `multicore` configuration a register check may name a core,
+  as in `core2.o0=0x00000001`. A register check without a core prefix
+  checks core 0.
 - `asi = ...` lines are recognized and ignored.
   `MemCore` is a single flat address space with no ASI distinction.
 
@@ -96,10 +99,11 @@ Before running a test, `run_tests.py` parses this and normalizes it into
 the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
 [mask]` format, writing it to a `.expected` file alongside the test.
 
-Four optional lines, used by the device and APARA tests:
+Four optional lines, used by the device, APARA and multicore tests:
 
 - `STARTUP = crt0_interrupts.s`, before `RESULTS`, links that startup
-  file instead of `compiler/crt0.s` (C tests only).
+  file instead of `compiler/crt0.s` (C tests only). Multicore tests use
+  `STARTUP = crt0_multicore.s`.
 - `MCODE = kernel.mcode`, before `RESULTS`, names an APARA engine
   program the test carries, in mcode or in C (`MCODE = kernel.c`).
   Before compiling, `build_hex.py` assembles or compiles it, and writes
@@ -362,6 +366,12 @@ components, each living in its own folder:
     through the caches on that configuration, and with every ordinary
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the
     environment.
+- **`validation/multicore/`**  
+    Programs that run on several cores at once: startup of every core,
+    the run ending only once every core has halted, interrupts to
+    chosen cores, and two worked examples. Needs `multicore`, built with its
+    default four cores. See the multicore [Validation
+    Suite](multicore/validation.md) page.
 - **`validation/sparc_apara/`**  
     An APARA engine driven from a SPARC program, in five suites:
     `basic/` (each part of the engine's interface), `setup/` (bringing

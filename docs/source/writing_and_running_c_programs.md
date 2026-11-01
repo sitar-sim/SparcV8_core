@@ -209,6 +209,14 @@ maskable interrupt masked, so they do not nest.
 
 ---
 
+## Programs for several cores
+
+On the `multicore` configuration every core runs the same program, from
+its own stack, after the startup file `crt0_multicore.s` has prepared
+it. See [Programming the Multicore System](multicore/programming.md).
+
+---
+
 ## Adding it to the validation suite
 
 Same two-phase pipeline as `validation/asm/`, see

@@ -97,6 +97,23 @@ configuration's own `System.sitar` (the links below are to
 | **`txTicksPerByte`** | sitar_model: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) (`devices.devices.serial.txTicksPerByte`) | Timing | Runtime | Cycles a transmitted byte keeps the Serial device's `Tx_full` set. 0 sends a byte within the store itself.<br>**Range:** non-negative int, default 1. |
 | **Serial I/O**<br>(`--serial-in`, `--serial-out`, `--serial-pty`) | command line, both models | Structural | Runtime | Where received bytes come from and transmitted bytes go. See the [Serial Device](peripheral_devices_serial_device.md#where-the-bytes-go-in-the-simulator) page. |
 
+## Multicore (`multicore`)
+
+The `multicore` configuration has every setting above, for each of its
+cores. In its `System.sitar` the per-core timing knobs are set in a
+loop, the same for every core (`cores[i].mmu.tlbLookupDelay`, and so
+on). It adds the following. See [The Multicore System](multicore/index.md).
+
+| Parameter | Where to modify | Type | Compile time or runtime | Description |
+|---|---|---|---|---|
+| **`NUM_CORES`** | cpp_model: [`MulticoreConfig.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h)<br>sitar_model: `System`'s parameter in [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | Structural | Compile time | Number of cores, each with its own L1 caches and MMU.<br>**Range:** 1 to 4, default 4. |
+| **`COHERENT`** | the same two files | Structural | Compile time | Whether a write by one core invalidates that line in every other core's caches.<br>**Range:** `false` only, so far. |
+| **`bridge.delay`** | sitar_model: [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | Timing | Runtime | Cycles the shared bus adds to every transaction, as `SystemBridge`'s knob of the same name does.<br>**Range:** non-negative int, default 0. |
+| **Scheduling strategy**<br>(`--schedule <spec>`) | cpp_model: command line, or `SPARC_SCHEDULE` | Structural | Runtime | How the cores' instructions are interleaved: `rr:K`, `rr-fixed:K` or `random:SEED[:MAXTURN]`. See [Execution Model](multicore/execution_model.md).<br>**Default:** `rr:1`. |
+| **Running cores**<br>(`--run-cores <m>`) | both models: command line, or `SPARC_RUN_CORES` | Structural | Runtime | Runs cores 0 to `m-1` only. The others stay in reset.<br>**Range:** 1 to `NUM_CORES`, default `NUM_CORES`. |
+| **Simulation threads**<br>(`--threads <n>`) | sitar_model built with `--openmp`: command line, or `OMP_NUM_THREADS` | Simulation only | Runtime | Number of host threads that run the simulation. The results do not depend on it. See [Parallel Simulation](multicore/parallel_simulation.md).<br>**Range:** 1 to `NUM_CORES`, default 1. |
+| **Thread map**<br>(`--thread-map <t0,t1,...>`) | sitar_model built with `--openmp`: command line | Simulation only | Runtime | The host thread of each core and of the four shared modules, instead of the default division.<br>**Default:** blocks of consecutive cores, the shared modules with the last thread with the fewest cores. |
+
 ## APARA engine (`apara` and `sparc_apara`)
 
 The engine's own settings. Each runtime knob is set in one place per

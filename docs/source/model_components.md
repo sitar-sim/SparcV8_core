@@ -93,7 +93,9 @@ depending on configuration:
 
 - **`MemCore`**  
     Flat, byte-addressed, virtual-address-shaped. Used directly by
-    `core_only`.
+    `core_only`. It holds 256 MB, but the host supplies its pages only
+    as a program first touches them, so a simulation uses only as much
+    host memory as the program does.
 - **`MainMemory`**  
     Physical-address-shaped (64-bit/doubleword), used only where an
     MMU is present. Wraps a `MemCore` internally and does the
@@ -142,7 +144,7 @@ properties:
     context register) both.
 - **Not coherent**  
     The caches do not see memory changed behind their back, for example
-    by a bypass store, so a program that does that must flush first (see
+    by a bypass store or, in `multicore`, by another core, so a program that does that must flush first (see
     `validation/C/caches/stale_until_flush`). In particular,
     self-modifying code must execute `FLUSH` before running the new
     instructions, as the SPARC manual requires.
@@ -161,9 +163,9 @@ both caches and the whole policy, the same class in both models:
 
 ## Peripheral Devices
 
-A Timer, a multi-thread Interrupt Controller, and a Serial device, one
-shared set on the memory side of the MMU. The C++ class `PeripheralDevicesCore`
-(`model/cpp_common_code/devices/`) holds all three, the same class in
+A Timer, a multi-thread Interrupt Controller, a Serial device and a
+scratch-pad, one shared set on the memory side of the MMU. The C++ class
+`PeripheralDevicesCore` (`model/cpp_common_code/devices/`) holds all four, the same class in
 both models. In the sitar_model the `PeripheralDevices` module wraps it,
 reached through the `SystemBridge` over nets. See [Peripheral
 Devices](peripheral_devices.md) for the register-level detail.
@@ -185,7 +187,9 @@ shared by both models, so the two can never disagree.
     `SystemBridge`, a module with one master (the core), carries one
     transaction at a time. `sparc_apara` uses `SystemInterconnect`
     instead, the same bus with several masters (the core and the APARA
-    engine's host side), served round robin.
+    engine's host side), served round robin. `multicore` uses
+    `CoherentBridge`, with one master per core, also served round
+    robin (see [The Shared Bus](multicore/structure.md#the-shared-bus)).
 
 ---
 

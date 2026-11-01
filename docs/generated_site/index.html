@@ -1338,7 +1338,7 @@
   <span class="md-ellipsis">
     
   
-    The APARA Accelerator
+    The Multicore System
   
 
     
@@ -1351,6 +1351,289 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Multicore System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/examples.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/debugging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/parallel_simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Accelerator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1667,10 +1950,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -1688,8 +1971,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2037,10 +2320,15 @@ of each one.</p>
     MMU</a> described in
     Appendix H of the manual.</li>
 <li><strong><code>core_mmu_devices</code></strong><br />
-    Adds a timer, an interrupt controller, and a serial device.</li>
+    Adds a timer, an interrupt controller, a serial device and a
+    scratch-pad.</li>
 <li><strong><code>core_l1cache_mmu_devices</code></strong><br />
     Adds split instruction and data L1 caches.</li>
 </ul>
+<p>A further configuration, <strong><code>multicore</code></strong>, has several
+<code>core_l1cache_mmu_devices</code> cores (4 by default) that share one main
+memory and one set of devices over a shared bus. See <a href="multicore/index.html">The Multicore
+System</a> section.</p>
 <p>Two further configurations model the <strong>APARA engine</strong>, a vector
 compute engine designed to work alongside a SPARC processor as an
 accelerator. See <a href="apara/index.html">The APARA Accelerator</a> section for
@@ -2066,14 +2354,20 @@ top-level folders are organized as follows.</p>
     <a href="model_components.html">Model Components</a>.</li>
 <li><strong><code>validation/</code></strong><br />
     The functional validation suite, assembly and C tests, the
-    component suites, the tests of the SPARC using the APARA engine
-    (<code>validation/sparc_apara/</code>), and the APARA engine's own suites
+    component suites, the programs for several cores
+    (<code>validation/multicore/</code>), the tests of the SPARC using the APARA
+    engine (<code>validation/sparc_apara/</code>), and the APARA engine's own suites
     (<code>validation/apara/</code>). Each suite runs on the configurations that
     have its components. See <a href="validation_suite.html">Validation Suite</a>.</li>
 <li><strong><code>compiler/</code></strong><br />
     The bundled <code>sparc-elf</code> cross-toolchain and the scripts that drive it,
     and the APARA engine's assembler, disassembler and C compiler (<code>compiler/apara/</code>).
     See <a href="cross_compiler.html">Cross Compiler</a>.</li>
+<li><strong><code>performance_evaluation/</code></strong><br />
+    Models and programs for measuring the simulator itself, built from
+    the configurations but not configurations themselves. Today it holds
+    a demonstration of parallel simulation's speedup. See <a href="multicore/parallel_simulation.html#a-larger-model">Parallel
+    Simulation</a>.</li>
 <li><strong><code>log_viewer/</code></strong><br />
     The trace visualizer tool. See <a href="logging.html#the-log-viewer">The log viewer</a>.</li>
 <li><strong><code>debug/</code></strong><br />

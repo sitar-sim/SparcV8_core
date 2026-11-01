@@ -67,13 +67,15 @@ line with SPARC assembly syntax itself:
 | `psr` | *(none)* |
 | `wim` | *(none)* |
 | `tbr` | *(none)* |
+| `asr0`-`asr31` | *(none)*, the ancillary state registers. `asr29` holds the core and thread ID. |
 
 ## Common options
 
 ### `coreid=`
 
-Selects a specific core, for a model built with more than one. Defaults
-to core `0` when not given.
+Selects a specific core, for a model built with more than one, such as
+the [`multicore`](multicore/index.md) configuration. Defaults to core
+`0` when not given.
 
 Only relevant to commands that relate to a specific core's own state:
 setting a breakpoint, or reading or watching its registers. Commands

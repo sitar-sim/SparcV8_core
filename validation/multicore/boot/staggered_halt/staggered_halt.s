@@ -375,7 +375,7 @@ report_and_halt:
 	st	%g1, [%fp-4]
 	ld	[%fp-4], %g1
 	ld	[%fp+68], %g2
-! 44 "multicore/boot/staggered_halt/../../multicore_common.h" 1
+! 69 "validation/multicore/boot/staggered_halt/../../multicore_common.h" 1
 	mov %g1, %o0
 	mov %g2, %o1
 	ta 0

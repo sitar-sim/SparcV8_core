@@ -16,12 +16,18 @@ This project provides several system configurations.
     memory. Every processor-generated virtual address is translated to
     a physical address before it reaches main memory.
 - **`core_mmu_devices`**  
-    Adds a timer, an interrupt controller, and a serial device, as one
-    shared set on the memory side of the MMU, reached by physical
+    Adds a timer, an interrupt controller, a serial device and a
+    scratch-pad, as one shared set on the memory side of the MMU, reached by physical
     address like main memory.
 - **`core_l1cache_mmu_devices`**  
     Adds split instruction and data L1 caches between the core and the
     MMU. VIVT and write-through.
+- **`multicore`**  
+    Several cores (4 by default), each the `core_l1cache_mmu_devices`
+    core with its own caches and MMU, sharing one main memory and one
+    set of devices over a shared bus. Its sitar_model can also run on
+    several host threads at once. It is described in its own section,
+    [The Multicore System](multicore/index.md).
 
 Two more configurations model the **APARA accelerator**, a vector
 compute engine designed to work alongside a SPARC processor: `apara`,
@@ -53,6 +59,8 @@ summarized here:
 | core_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/) | Adds the peripheral devices below the MMU. |
 | core_l1cache_mmu_devices | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/) | Adds split L1 caches between the core and the MMU. |
 | core_l1cache_mmu_devices | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/) | Adds split L1 caches between the core and the MMU. |
+| multicore | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/cpp_model/) | Several core_l1cache_mmu_devices cores sharing memory and devices. The cores take turns. See [Execution Model](multicore/execution_model.md). |
+| multicore | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/) | Several core_l1cache_mmu_devices cores sharing memory and devices over a round-robin bus. |
 | apara | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/cpp_model/) | One APARA engine on its own, no SPARC core. See [The APARA Engine](apara/index.md). |
 | apara | [sitar (timing model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/apara/sitar_model/) | One APARA engine on its own, with its pipeline's timing. |
 | sparc_apara | [cpp (functional model)](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/sparc_apara/cpp_model/) | core_l1cache_mmu_devices plus one APARA engine. See [The Engine in a System](apara/system.md). |
@@ -183,9 +191,15 @@ core polls that net once per cycle. An interrupt therefore reaches the
 core one cycle after the Interrupt Controller raises it.
 
 The devices' behavior is the same C++ class in both models
-(`PeripheralDevicesCore`). The cpp_model ticks it once after every core
-cycle. The sitar_model's `PeripheralDevices` module ticks it once per
-simulated cycle. See [Peripheral Devices](peripheral_devices.md) for
+(`PeripheralDevicesCore`). The sitar_model's `PeripheralDevices` module
+ticks it once per simulated cycle. The cpp_model has no cycles, yet the
+Timer has to count something, so the cpp_model ticks the devices once
+after every instruction. One instruction is one model cycle there, and
+a timer set to fire after `n` cycles fires after `n` instructions. In
+the sitar_model an instruction usually takes several cycles, so the
+same program sees the timer fire after fewer instructions. Timer
+counts are model time in both models, not hardware time (see
+[Timer](peripheral_devices_timer.md)). See [Peripheral Devices](peripheral_devices.md) for
 what the devices do.
 
 #### Model description
@@ -271,6 +285,14 @@ instantiates which, and how many instances.
 </pre>
 
 The nets are the same seven as in `core_mmu_devices`.
+
+---
+
+### The multicore configuration
+
+The Sitar structure of `multicore`, its array of cores and the shared
+bus between them, is described in its own section, in [Model Structure and
+Assumptions](multicore/structure.md#the-sitar_model).
 
 ---
 

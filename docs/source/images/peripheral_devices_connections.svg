@@ -31,11 +31,16 @@
   <rect class="box cpu" x="820" y="30" width="180" height="80"/>
   <text class="title" x="910" y="76">Main Memory</text>
 
+  <!-- Scratch-pad: registers only, no pins -->
+  <rect class="box dev" x="60" y="30" width="200" height="80"/>
+  <text class="title" x="160" y="76">Scratch-pad</text>
+
   <!-- ===== Shared address / data bus ===== -->
   <line class="bus" x1="40" y1="190" x2="1080" y2="190"/>
-  <text x="60" y="170" font-size="16" fill="#333333">Shared address / data bus</text>
-  <text x="60" y="170" dx="196" font-size="14" fill="#666666">(register read / write)</text>
+  <text x="180" y="152" font-size="16" fill="#333333">Shared address / data bus</text>
+  <text x="180" y="172" font-size="14" fill="#666666">(register read / write)</text>
 
+  <line class="tap" x1="160" y1="110" x2="160" y2="190"/>
   <line class="tap" x1="470" y1="110" x2="470" y2="190"/>
   <line class="tap" x1="910" y1="110" x2="910" y2="190"/>
   <line class="tap" x1="135" y1="190" x2="135" y2="270"/>

@@ -1,0 +1,7 @@
+# Build outputs (Ref model/.gitignore and validation/.gitignore)
+build/
+executable/
+*.o
+*.elf
+sitar_scons_config.txt
+.sconsign.dblite

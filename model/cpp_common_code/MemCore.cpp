@@ -16,12 +16,22 @@
 
 MemCore::MemCore()
 {
-	core.resize(nwords, 0);
+	core = (uint32_t*) std::calloc(nwords, sizeof(uint32_t));
+	if (!core)
+	{
+		std::cerr<<"\nERROR: MemCore.cpp: could not allocate main memory";
+		exit(EXIT_FAILURE);
+	}
 	std::cout<<"\nTotal Main Memory size :0x"<<std::hex<<memSize<<std::dec;
 
 	DebugRegistry::registerMemCore(this); //see DebugRegistry.h -- no-op
 	                                       //unless built with --debug
 };
+
+MemCore::~MemCore()
+{
+	std::free(core);
+}
 
 //Initialize memory image by reading a text file
 //the text file has format (\naddr, word, word, [word], ...)

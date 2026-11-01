@@ -25,7 +25,9 @@ to it by one core is therefore seen by every other core on its next
 load, even before any core has set up its MMU or caches. This makes it
 a natural place for flags that cores exchange during startup, such as
 "page tables are ready" or "initialization is done". AJIT's CORTOS
-runtime uses its first two words for exactly these two flags.
+runtime uses its first two words for exactly these two flags. In this
+project, the [multicore](multicore/programming.md#the-startup-file)
+startup file uses word 0 as the flag that releases cores 1 and up.
 
 ## Example
 
@@ -35,3 +37,8 @@ set 1, %g2
 sta %g2, [%g1] 0x20     ! word 0 = 1, through the MMU bypass ASI
 lda [%g1] 0x20, %g3     ! %g3 = 1
 ```
+
+In a disassembly, `objdump` prints ASI `0x20` as `#ASI_SCRATCHPAD`.
+That is binutils' name for ASI `0x20` on other SPARC processors, and it
+has nothing to do with this device. Here ASI `0x20` is the MMU-bypass
+ASI, which reaches any physical address, the scratch-pad included.

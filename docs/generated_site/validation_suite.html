@@ -1394,7 +1394,7 @@
   <span class="md-ellipsis">
     
   
-    The APARA Accelerator
+    The Multicore System
   
 
     
@@ -1407,6 +1407,289 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Multicore System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/examples.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/debugging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/parallel_simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Accelerator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1723,10 +2006,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -1744,8 +2027,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2095,16 +2378,20 @@ works right after cloning.</p>
   (<code>m[0x148] = 0x00000021 0x00000021</code> checks only the bits set in the
   mask. See <code>validation/asm/floating_point/fp_exceptions/accrued_inexact.s</code>
   for a real example distinguishing individual FSR bits.)</li>
+<li>On the <code>multicore</code> configuration a register check may name a core,
+  as in <code>core2.o0=0x00000001</code>. A register check without a core prefix
+  checks core 0.</li>
 <li><code>asi = ...</code> lines are recognized and ignored.
   <code>MemCore</code> is a single flat address space with no ASI distinction.</li>
 </ul>
 <p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
 the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
 [mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
-<p>Four optional lines, used by the device and APARA tests:</p>
+<p>Four optional lines, used by the device, APARA and multicore tests:</p>
 <ul>
 <li><code>STARTUP = crt0_interrupts.s</code>, before <code>RESULTS</code>, links that startup
-  file instead of <code>compiler/crt0.s</code> (C tests only).</li>
+  file instead of <code>compiler/crt0.s</code> (C tests only). Multicore tests use
+  <code>STARTUP = crt0_multicore.s</code>.</li>
 <li><code>MCODE = kernel.mcode</code>, before <code>RESULTS</code>, names an APARA engine
   program the test carries, in mcode or in C (<code>MCODE = kernel.c</code>).
   Before compiling, <code>build_hex.py</code> assembles or compiles it, and writes
@@ -2448,6 +2735,12 @@ components, each living in its own folder:</p>
     through the caches on that configuration, and with every ordinary
     access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the
     environment.</li>
+<li><strong><code>validation/multicore/</code></strong><br />
+    Programs that run on several cores at once: startup of every core,
+    the run ending only once every core has halted, interrupts to
+    chosen cores, and two worked examples. Needs <code>multicore</code>, built with its
+    default four cores. See the multicore <a href="multicore/validation.html">Validation
+    Suite</a> page.</li>
 <li><strong><code>validation/sparc_apara/</code></strong><br />
     An APARA engine driven from a SPARC program, in five suites:
     <code>basic/</code> (each part of the engine's interface), <code>setup/</code> (bringing

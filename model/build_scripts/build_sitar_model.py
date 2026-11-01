@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-build_sitar_model.py <config_folder> [--logging] [--debug] [--debug-o0]
+build_sitar_model.py <config_folder> [--logging] [--debug] [--debug-o0] [--openmp]
+                     [--extra-sitar <file> ...]
 
 Shared build logic for every sitar_model configuration under
 model/system_models/*/sitar_model/. Takes the path to that configuration's
@@ -28,14 +29,20 @@ that to matter.
 
 The executable name is derived from <config_folder>'s own parent
 directory name (the configuration's name), e.g. sparc_sim_sitar_core_only,
-with variant suffixes appended for --logging/--debug so multiple builds
-can coexist in the same executable/ folder.
+with variant suffixes appended for --logging/--debug/--openmp so
+multiple builds can coexist in the same executable/ folder.
+
+--extra-sitar adds a .sitar file from outside <config_folder>/src/,
+so a model built from another configuration's modules need not copy
+them (e.g. performance_evaluation/parallel_speedup, which uses the
+multicore configuration's System.sitar and Core.sitar under its own
+Top.sitar).
 
 Requires the `sitar` CLI on PATH (see the separate sitar repo), with its
 own -b/--build-dir option (see that repo's docs/docs_source/cli_reference.md).
 Every object file this script's `sitar compile` step produces is built
 into <config_folder>/build/<variant>/, one subdirectory per distinct
---logging/--debug/--debug-o0 combination (e.g. build/obj,
+--logging/--debug/--debug-o0/--openmp combination (e.g. build/obj,
 build/obj_logging, build/obj_debug, ...), so a build using one set of
 flags never links in an object file actually compiled under a
 different set.
@@ -81,6 +88,14 @@ def main():
                      help="like --debug, but the whole binary at -O0 -- for debugging something "
                           "that isn't one of the hook points or pinned functions above (arbitrary "
                           "breakpoints/single-stepping/local-variable inspection elsewhere).")
+    ap.add_argument('--openmp', action='store_true',
+                     help="build for parallel simulation, with `sitar compile --openmp` (-fopenmp, "
+                          "linked against libgomp). Only a configuration whose own main file runs "
+                          "its modules on several threads gains anything from it (today, "
+                          "multicore). Any other configuration's main still runs serially.")
+    ap.add_argument('--extra-sitar', action='append', default=[], metavar='FILE',
+                     help="also translate this .sitar file (repeatable), for a model that uses "
+                          "another configuration's modules")
     args = ap.parse_args()
     if args.debug_o0:
         args.debug = True
@@ -109,6 +124,8 @@ def main():
         variant_suffix += '_debug'
     if args.debug_o0:
         variant_suffix += 'o0'
+    if args.openmp:
+        variant_suffix += '_openmp'
 
     executable_name = '%s%s' % (os.environ.get('EXECUTABLE_BASENAME', 'sparc_sim_sitar_' + config_name),
                                  variant_suffix)
@@ -140,7 +157,8 @@ def main():
         os.remove(stale_o)
 
     sitar_files = sorted(glob.glob(os.path.join(SITAR_COMPONENT_DIR, '*.sitar'))) + \
-                  sorted(glob.glob(os.path.join(src_dir, '*.sitar')))
+                  sorted(glob.glob(os.path.join(src_dir, '*.sitar'))) + \
+                  [os.path.abspath(f) for f in args.extra_sitar]
 
     print("Translating .sitar files...")
     for f in sitar_files:
@@ -169,6 +187,8 @@ def main():
     cmd += ['-m', main_file,
            '-l', 'quadmath',
            '--logging' if args.logging else '--no-logging']
+    if args.openmp:
+        cmd += ['--openmp']
     cflags = []
     if args.logging:
         # CoreLogger.h/.cpp (cpp_common_code/, compiled in via -d above)

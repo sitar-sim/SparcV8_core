@@ -99,6 +99,16 @@ nav:
       - Model Configuration Settings: model_configuration_settings.md
       - Performance Modeling: performance_modeling.md
 
+  - The Multicore System:
+      - Overview: multicore/index.md
+      - Model Structure and Assumptions: multicore/structure.md
+      - Execution Model: multicore/execution_model.md
+      - Programming the System: multicore/programming.md
+      - Example Programs: multicore/examples.md
+      - Logging and Debugging: multicore/debugging.md
+      - Validation Suite: multicore/validation.md
+      - Parallel Simulation: multicore/parallel_simulation.md
+
   - The APARA Accelerator:
       - Overview: apara/index.md
       - Instruction Set: apara/isa.md

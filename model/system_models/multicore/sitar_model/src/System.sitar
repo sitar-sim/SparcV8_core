@@ -20,12 +20,13 @@
 // side, one instruction per cycle each, and meet only at the bridge,
 // which serves one request at a time, round-robin.
 //
-// The run ends when every running core has halted (the behavior below).
-// Cores at or beyond runCores (set by sparc_sim's --run-cores) are held
-// in reset for the whole run and do not count.
+// The run ends when every running core has halted (the behavior below),
+// unless STOP_WHEN_HALTED is false. Cores at or beyond runCores (set by
+// sparc_sim's --run-cores) are held in reset for the whole run and do
+// not count.
 //
-// Owns the configuration's two compile-time knobs (the parameters
-// below) and the consolidated list of every latency knob.
+// Owns the configuration's two compile-time knobs (NUM_CORES and
+// COHERENT, below) and the consolidated list of every latency knob.
 //================================================================
 
 module System
@@ -38,6 +39,12 @@ module System
 	//core's L1 caches. Only false is implemented so far (init below
 	//refuses to build with true).
 	parameter bool COHERENT = false
+
+	//Whether System stops the simulation once all its running cores have
+	//halted. A model holding several Systems sets it false and stops the
+	//run itself, in phase 1 too (e.g.
+	//performance_evaluation/parallel_speedup's Top.sitar).
+	parameter bool STOP_WHEN_HALTED = true
 
 	include
 	$
@@ -158,9 +165,13 @@ module System
 	behavior
 		// Checked in phase 1 only, after every core's phase-0 work for
 		// the cycle is done, so the cycle the run ends on does not depend
-		// on the order the cores happen to run in.
+		// on the order the cores happen to run in. sparc_sim.cpp's parallel
+		// loop relies on the stop coming in phase 1 (it reads the stop flag
+		// after phase 1 only).
 		wait until (this_phase==1 and allRunningCoresHalted());
 		$ log<<endl<<"All running cores halted."; $;
-		stop simulation;
+		if (STOP_WHEN_HALTED) then
+			stop simulation;
+		end if;
 	end behavior
 end module

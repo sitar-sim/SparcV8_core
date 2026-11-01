@@ -68,7 +68,7 @@ more join them.
 | **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/System.sitar) | core_mmu_devices | None | `Top` | Assembles `Core`, `SystemBridge`, `PhysicalMainMemory`, and `PeripheralDevices`, connected by seven nets. Owns the consolidated latency-knob block for this configuration. |
 | **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu_devices/sitar_model/src/Core.sitar) | core_mmu_devices | None | `System` (1 instance: `core`) | `core_mmu`'s `Core`, plus an inport for the interrupt level and a branch that polls it every cycle and drives the core's IRL pins. |
 | **SystemBridge** (module) | [`SystemBridge.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/SystemBridge.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `bridge`) | The physical bus below the MMU. Routes each request to main memory or to the devices by address, one transaction at a time. |
-| **PeripheralDevices** (module) | [`PeripheralDevices.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar) | common | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | `System` (1 instance: `devices`) | The shared Timer, Serial, and Interrupt Controller. Ticks them once per cycle, services register accesses, sends the interrupt level to the core. |
+| **PeripheralDevices** (module) | [`PeripheralDevices.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar) | common | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | `System` (1 instance: `devices`) | The shared Timer, Serial, Interrupt Controller and scratch-pad. Ticks them once per cycle, services register accesses, sends each core its interrupt level. |
 
 ## core_l1cache_mmu_devices
 
@@ -81,6 +81,19 @@ joins them.
 | **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/System.sitar) | core_l1cache_mmu_devices | None | `Top` | The same four modules and seven nets as `core_mmu_devices`, plus the cache knobs in the consolidated knob block. |
 | **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_l1cache_mmu_devices/sitar_model/src/Core.sitar) | core_l1cache_mmu_devices | None | `System` (1 instance: `core`) | `core_mmu_devices`' `Core`, with `caches` between `sparcThread` and `mmu`. |
 | **L1Caches** (procedure) | [`L1Caches.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/L1Caches.sitar) | common | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | `Core` (1 instance: `caches`) | The split L1 caches. Serves `sparcThread`'s accesses, reaches `mmu` only on a miss or a forwarded access. |
+
+## multicore
+
+Every `core_l1cache_mmu_devices` design unit appears here too, except
+that this configuration's own `System` and `Core` replace those, and
+`CoherentBridge` replaces `SystemBridge`. See [Model Structure and
+Assumptions](multicore/structure.md#the-sitar_model).
+
+| Design unit | File | Scope | Embedded C++ class | Parent | Description |
+|---|---|---|---|---|---|
+| **System** (module) | [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | multicore | None | `Top` | Assembles `NUM_CORES` `Core`s, `CoherentBridge`, `PhysicalMainMemory`, and `PeripheralDevices`. Stops the simulation once every running core has halted. Owns the `NUM_CORES` and `COHERENT` knobs and the consolidated latency-knob block. |
+| **Core** (module) | [`Core.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/Core.sitar) | multicore | None | `System` (`NUM_CORES` instances: `cores[i]`) | `core_l1cache_mmu_devices`' `Core`, except that a halted core does not stop the simulation. |
+| **CoherentBridge** (module) | [`CoherentBridge.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/CoherentBridge.sitar) | common | None (uses [`SystemAddressMap.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h)) | `System` (1 instance: `bridge`) | The physical bus below the cores' MMUs. Grants the cores round robin and routes each request to main memory or to the devices, one transaction at a time. |
 
 ## apara
 
@@ -115,7 +128,7 @@ are those of `apara` above (except its `Top`), plus `AparaHost`.
 
 - **Module vs. procedure**  
     `Top`, `System`, `Core`, `PhysicalMainMemory`, `SystemBridge`,
-    `SystemInterconnect`, `PeripheralDevices`, and every `Apara*` design
+    `SystemInterconnect`, `CoherentBridge`, `PeripheralDevices`, and every `Apara*` design
     unit are `module`s. Every other row above is a `procedure`. See the sibling `sitar`
     repo's own documentation for the general module/procedure
     distinction, and `System.sitar`'s own header comment for how it

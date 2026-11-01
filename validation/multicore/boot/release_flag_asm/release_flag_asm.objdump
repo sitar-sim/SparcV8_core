@@ -1,5 +1,5 @@
 
-multicore/boot/release_flag_asm/release_flag_asm.elf:     file format elf32-sparc
+validation/multicore/boot/release_flag_asm/release_flag_asm.elf:     file format elf32-sparc
 
 
 Disassembly of section .text:

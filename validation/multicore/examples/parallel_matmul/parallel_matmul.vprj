@@ -1,0 +1,15 @@
+SOURCES = parallel_matmul.c
+STARTUP = crt0_multicore.s
+MAX_CYCLES = 5000000
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000001
+core1.o0=0x00000001
+core1.o1=0x00000001
+core2.o0=0x00000001
+core2.o1=0x00000001
+core3.o0=0x00000001
+core3.o1=0x00000001
+m[0x100000]=0xce7dca00

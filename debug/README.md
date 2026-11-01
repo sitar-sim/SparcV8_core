@@ -68,6 +68,8 @@ Every command that takes a register name accepts:
 - flat SPARC r-numbering: `r0`-`r31` (`r1`==`g1`, `r9`==`o1`, ... -- the
   same numbering `Registers::R_r()` itself uses)
 - specials: `pc`, `npc`, `y`, `psr`, `wim`, `tbr`
+- ancillary state registers: `asr0`-`asr31` (`asr29` is the core/thread
+  ID word, handy for telling cores apart on the `multicore` config)
 
 ## Command reference
 

@@ -142,9 +142,15 @@ of each one.
     MMU](sparcv8_Architecture_reference_Manual.pdf#page=236) described in
     Appendix H of the manual.
 - **`core_mmu_devices`**  
-    Adds a timer, an interrupt controller, and a serial device.
+    Adds a timer, an interrupt controller, a serial device and a
+    scratch-pad.
 - **`core_l1cache_mmu_devices`**  
     Adds split instruction and data L1 caches.
+
+A further configuration, **`multicore`**, has several
+`core_l1cache_mmu_devices` cores (4 by default) that share one main
+memory and one set of devices over a shared bus. See [The Multicore
+System](multicore/index.md) section.
 
 Two further configurations model the **APARA engine**, a vector
 compute engine designed to work alongside a SPARC processor as an
@@ -173,14 +179,20 @@ top-level folders are organized as follows.
     [Model Components](model_components.md).
 - **`validation/`**  
     The functional validation suite, assembly and C tests, the
-    component suites, the tests of the SPARC using the APARA engine
-    (`validation/sparc_apara/`), and the APARA engine's own suites
+    component suites, the programs for several cores
+    (`validation/multicore/`), the tests of the SPARC using the APARA
+    engine (`validation/sparc_apara/`), and the APARA engine's own suites
     (`validation/apara/`). Each suite runs on the configurations that
     have its components. See [Validation Suite](validation_suite.md).
 - **`compiler/`**  
     The bundled `sparc-elf` cross-toolchain and the scripts that drive it,
     and the APARA engine's assembler, disassembler and C compiler (`compiler/apara/`).
     See [Cross Compiler](cross_compiler.md).
+- **`performance_evaluation/`**  
+    Models and programs for measuring the simulator itself, built from
+    the configurations but not configurations themselves. Today it holds
+    a demonstration of parallel simulation's speedup. See [Parallel
+    Simulation](multicore/parallel_simulation.md#a-larger-model).
 - **`log_viewer/`**  
     The trace visualizer tool. See [The log viewer](logging.md#the-log-viewer).
 - **`debug/`**  

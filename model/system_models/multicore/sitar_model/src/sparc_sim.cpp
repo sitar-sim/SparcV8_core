@@ -24,6 +24,7 @@
 //                       [--timer-tick-divider <n>]
 //                       [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>]
 //                       [--always-cacheable]
+//                       [--threads <n>] [--thread-map <t0,t1,...>]
 //
 //--run-cores m runs only cores 0 to m-1. The others are held in reset
 //(their RESET pin stays high) and count as halted. SPARC_RUN_CORES in
@@ -34,6 +35,26 @@
 //
 //--stats prints each core's counters, then the bridge's per-core
 //transaction counts and the shared memory's and devices' counters.
+//
+//Parallel simulation (an executable built with build.sh --openmp only):
+//the top-level modules (each core, the bridge, main memory, the devices,
+//System itself) are split among host threads, which run one phase at a
+//time and meet at a barrier after it. Sitar's two-phase rule makes the
+//result identical to the serial run's, cycle for cycle.
+//--threads n (or OMP_NUM_THREADS) sets the number of threads, default 1,
+//at most NUM_CORES. The mapping is static: thread t always runs the
+//same modules, so each core's state stays in one host CPU's caches. By
+//default each thread gets a contiguous block of cores (16 cores on 4
+//threads: cores 0-3 on thread 0, and so on), and the four light modules
+//go with the last thread with the fewest cores, never on a thread of
+//their own. --thread-map gives the thread of every module instead, in
+//the order --stats prints them: cores[0] .. cores[NUM_CORES-1], bridge,
+//mainMemory, devices, system, e.g. --thread-map 0,0,1,1,1,1,1,1 (the
+//number of threads is then the largest one named, plus 1). Logging
+//builds give each thread its own Sitar log, sitar.thread<t>.log, when
+//n > 1, since a shared stream written from several threads would
+//interleave. (No module draws random numbers, so there is no generator
+//to give each thread.)
 
 #include "Top.h"
 #include "Registers.h"
@@ -49,6 +70,11 @@
 #include <cctype>
 #include <cstdlib>
 #include <memory>
+#include <algorithm>
+
+#ifdef _OPENMP
+#include <omp.h>
+#endif
 
 #ifdef SITAR_ENABLE_LOGGING
 //Recursively points every submodule/procedure's log stream at `stream`.
@@ -155,6 +181,47 @@ static bool splitCorePrefix(const std::string& name, unsigned int& coreId, std::
 	return true;
 }
 
+//The modules a parallel run maps onto threads, in --thread-map order.
+//Every other module (Top) has no behavior of its own and goes with
+//`system`.
+static std::vector<sitar::module*> mappedModules(sitar::Top* TOP, unsigned int numCores,
+                                                 std::vector<std::string>& names)
+{
+	std::vector<sitar::module*> list;
+	for (unsigned int i = 0; i < numCores; i++)
+	{
+		list.push_back(&TOP->system.cores[i]);
+		names.push_back("cores[" + std::to_string(i) + "]");
+	}
+	list.push_back(&TOP->system.bridge);     names.push_back("bridge");
+	list.push_back(&TOP->system.mainMemory); names.push_back("mainMemory");
+	list.push_back(&TOP->system.devices);    names.push_back("devices");
+	list.push_back(&TOP->system);            names.push_back("system");
+	return list;
+}
+
+//The default thread of every mapped module, for numThreads threads
+//(1 to numCores): contiguous blocks of cores, the earlier threads taking
+//one more core when they don't divide evenly, and the light modules on
+//the last thread with the fewest cores.
+static std::vector<unsigned int> defaultThreadMap(unsigned int numCores, unsigned int numThreads)
+{
+	std::vector<unsigned int> map;
+	std::vector<unsigned int> coresOnThread(numThreads, 0);
+	for (unsigned int t = 0; t < numThreads; t++)
+		coresOnThread[t] = numCores / numThreads + (t < numCores % numThreads ? 1 : 0);
+	for (unsigned int t = 0; t < numThreads; t++)
+		for (unsigned int k = 0; k < coresOnThread[t]; k++)
+			map.push_back(t);
+	unsigned int light = 0;
+	for (unsigned int t = 0; t < numThreads; t++)
+		if (coresOnThread[t] <= coresOnThread[light])
+			light = t;
+	for (int k = 0; k < 4; k++)
+		map.push_back(light);
+	return map;
+}
+
 int main(int argc, char** argv)
 {
 	//Pull --stats out of the argument list wherever it appears, leaving
@@ -167,6 +234,8 @@ int main(int argc, char** argv)
 	unsigned int dcacheLines = DEFAULT_DCACHE_LINES, dcacheWays = DEFAULT_DCACHE_WAYS;
 	bool alwaysCacheable = false;
 	unsigned long runCores = 0; //0: all cores
+	unsigned int numThreads = 0; //0: OMP_NUM_THREADS, else 1
+	std::string threadMapSpec;
 	if (const char* env = std::getenv("SPARC_RUN_CORES"))
 		runCores = std::strtoul(env, NULL, 10);
 	std::vector<std::string> args;
@@ -202,6 +271,10 @@ int main(int argc, char** argv)
 			dcacheWays = (unsigned int) std::strtoul(argv[++i], NULL, 10);
 		else if (arg == "--always-cacheable")
 			alwaysCacheable = true;
+		else if (arg == "--threads" && hasValue)
+			numThreads = (unsigned int) std::strtoul(argv[++i], NULL, 10);
+		else if (arg == "--thread-map" && hasValue)
+			threadMapSpec = argv[++i];
 		else
 			args.push_back(arg);
 	}
@@ -210,7 +283,8 @@ int main(int argc, char** argv)
 	{
 		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles] [--stats] [--run-cores <m>]"
 		          << " [--serial-in <file>] [--serial-out <file>] [--serial-pty] [--timer-tick-divider <n>]"
-		          << " [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable]\n";
+		          << " [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable]"
+		          << " [--threads <n>] [--thread-map <t0,t1,...>]\n";
 		return 1;
 	}
 
@@ -233,6 +307,54 @@ int main(int argc, char** argv)
 		return 1;
 	}
 
+	//Which thread runs which module (one thread: a plain serial run).
+	std::vector<std::string> moduleNames;
+	std::vector<sitar::module*> modules = mappedModules(TOP, numCores, moduleNames);
+	std::vector<unsigned int> threadMap;
+	if (!threadMapSpec.empty())
+	{
+		std::stringstream spec(threadMapSpec);
+		std::string item;
+		while (std::getline(spec, item, ','))
+			threadMap.push_back((unsigned int) std::strtoul(item.c_str(), NULL, 10));
+		if (threadMap.size() != modules.size())
+		{
+			std::cerr << "ERROR: --thread-map needs " << modules.size() << " thread numbers, one each for";
+			for (const std::string& n : moduleNames)
+				std::cerr << " " << n;
+			std::cerr << "\n";
+			return 1;
+		}
+		numThreads = *std::max_element(threadMap.begin(), threadMap.end()) + 1;
+	}
+	else
+	{
+		if (numThreads == 0)
+		{
+	#ifdef _OPENMP
+			//omp_get_max_threads() is OMP_NUM_THREADS when that is set,
+			//else the host's CPU count. Only an explicit request runs in
+			//parallel, since a small system runs slower in parallel.
+			numThreads = std::getenv("OMP_NUM_THREADS") ? (unsigned int) omp_get_max_threads() : 1;
+	#else
+			numThreads = 1;
+	#endif
+		}
+		//A thread with no core of its own would only add a barrier.
+		numThreads = std::max(1u, std::min(numThreads, numCores));
+		threadMap = defaultThreadMap(numCores, numThreads);
+	}
+	#ifndef _OPENMP
+	if (numThreads > 1)
+	{
+		std::cerr << "ERROR: --threads/--thread-map need an executable built with build.sh --openmp\n";
+		return 1;
+	}
+	#endif
+	std::vector<std::vector<sitar::module*>> threadModules(numThreads);
+	for (size_t k = 0; k < modules.size(); k++)
+		threadModules[threadMap[k]].push_back(modules[k]);
+
 #ifdef SITAR_ENABLE_LOGGING
 	std::ofstream sitarLogFile("sitar.log");
 	if (sitarLogFile.is_open())
@@ -245,6 +367,27 @@ int main(int argc, char** argv)
 		logger::default_logstream = &std::cerr;
 	}
 	setHierarchicalOstream(TOP, logger::default_logstream);
+
+	//Several threads: one Sitar log per thread, shared by every module
+	//that thread runs (and their procedures). `system` and Top are set
+	//alone, not hierarchically, since their children may run elsewhere.
+	std::vector<std::unique_ptr<std::ofstream>> threadLogFiles;
+	if (numThreads > 1)
+	{
+		for (unsigned int t = 0; t < numThreads; t++)
+			threadLogFiles.emplace_back(new std::ofstream(("sitar.thread" + std::to_string(t) + ".log").c_str()));
+		for (size_t k = 0; k < modules.size(); k++)
+		{
+			std::ofstream* stream = threadLogFiles[threadMap[k]].get();
+			if (modules[k] == &TOP->system)
+			{
+				TOP->system.log.setOstream(stream);
+				TOP->log.setOstream(stream);
+			}
+			else
+				setHierarchicalOstream(modules[k], stream);
+		}
+	}
 
 	std::vector<std::unique_ptr<std::ofstream>> sparcTraceFiles;
 	for (unsigned int i = 0; i < runCores; i++)
@@ -302,12 +445,52 @@ int main(int argc, char** argv)
 	//run for up to maxCycles cycles (Sitar counts phases, 2 per cycle),
 	//or until the model itself calls `stop simulation` (System.sitar does
 	//this once every running core has halted).
-	uint64_t simulation_time;
-	for (simulation_time = 0; simulation_time < (uint64_t)maxCycles * 2; simulation_time++)
+	uint64_t simulation_time = 0;
+	const uint64_t phaseLimit = (uint64_t)maxCycles * 2;
+	#ifdef _OPENMP
+	if (numThreads > 1)
 	{
-		TOP->runHierarchical(simulation_time);
-		if (sitar::simulation_stopped())
-			break;
+		//Sitar's own parallel loop (as in its sitar_default_main.cpp),
+		//with each thread running its own, fixed list of modules: one
+		//phase, a barrier, then the stop check. Two barriers per cycle.
+		//
+		//The stop flag is checked after phase 1's barrier only. System.sitar
+		//is the only caller of `stop simulation`, and only in phase 1. Right
+		//after phase 0's barrier, a thread that has already moved on into
+		//phase 1 could set the flag while a slower thread is still reading
+		//it. The slower thread would then leave the loop a phase early, and
+		//the two would wait at different barriers for ever. After phase 1's
+		//barrier, no thread can set the flag again until every thread has
+		//passed phase 0's next barrier, so every thread reads the same
+		//value. The run ends on the same cycle as a serial run.
+		uint64_t finalTime = 0;
+		omp_set_dynamic(0);
+		#pragma omp parallel num_threads(numThreads)
+		{
+			const std::vector<sitar::module*>& mine = threadModules[omp_get_thread_num()];
+			uint64_t t;
+			for (t = 0; t < phaseLimit; t++)
+			{
+				for (sitar::module* m : mine)
+					m->run(t);
+				#pragma omp barrier
+				if (t % 2 == 1 && sitar::simulation_stopped())
+					break;
+			}
+			#pragma omp single
+			{ finalTime = t; }
+		}
+		simulation_time = finalTime;
+	}
+	else
+	#endif
+	{
+		for (simulation_time = 0; simulation_time < phaseLimit; simulation_time++)
+		{
+			TOP->runHierarchical(simulation_time);
+			if (sitar::simulation_stopped())
+				break;
+		}
 	}
 
 	bool allHalted = true;
@@ -317,6 +500,15 @@ int main(int argc, char** argv)
 
 	if (printStats)
 	{
+		std::cout << "\n=== threads ===\n " << numThreads << " thread(s):";
+		for (unsigned int t = 0; t < numThreads; t++)
+		{
+			std::cout << "\n\t thread " << t << " =";
+			for (size_t k = 0; k < modules.size(); k++)
+				if (threadMap[k] == t)
+					std::cout << " " << moduleNames[k];
+		}
+		std::cout << "\n";
 		for (unsigned int i = 0; i < runCores; i++)
 			std::cout << "\n=== core " << i << " ===\n"
 			          << TOP->system.cores[i].sparcThread.core.stats.toString()

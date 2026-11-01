@@ -101,6 +101,12 @@ def reg_suffix(name):
 	n = name.strip().lower()
 	if n in REG_SPECIALS:
 		return "reg.%s()" % REG_SPECIALS[n]
+	if len(n) >= 4 and n.startswith('asr') and n[3:].isdigit():
+		idx = int(n[3:])
+		if not (0 <= idx <= 31):
+			raise gdb.GdbError("asr-number must be 0-31: %s" % name)
+		#A plain field read, no inline accessor for gdb to call.
+		return "reg.ASR[%d]" % idx
 	if len(n) >= 2 and n[0] in 'golir' and n[1:].isdigit():
 		idx = int(n[1:])
 		if n[0] == 'r':
@@ -112,7 +118,7 @@ def reg_suffix(name):
 		base = {'g': 0, 'o': 8, 'l': 16, 'i': 24}[n[0]]
 		return "reg.R_r(%d)" % (base + idx)
 	raise gdb.GdbError("unrecognized register name: %s (try g0-g7/o0-o7/l0-l7/i0-i7, "
-	                    "r0-r31, or pc/npc/y/psr/wim/tbr)" % name)
+	                    "r0-r31, asr0-asr31, or pc/npc/y/psr/wim/tbr)" % name)
 
 
 #DebugRegistry::findCoreByID()/firstMemCore() (cpp_common_code/DebugRegistry.h)
@@ -164,10 +170,21 @@ def mem_ptr():
 	return v
 
 
+def check_in_main_memory(addr):
+	"""Raises a gdb error for an address MemCore doesn't hold (a device
+	register, or past the end of memory), before wordPtr()'s own range
+	assert can abort the simulator from inside a gdb call."""
+	nwords = int(gdb.parse_and_eval("(unsigned long)MemCore::nwords"))
+	if (addr & 0xFFFFFFFF) >> 2 >= nwords:
+		raise gdb.GdbError("0x%x is not in main memory (0x0 to 0x%x): device "
+		                    "registers can't be read or watched from gdb" % (addr, nwords * 4 - 1))
+
+
 def byte_ptr(addr):
 	"""Raw host address of simulated byte address `addr`, via
 	MemCore::wordPtr() (word-granularity storage, so this reads the
 	containing word's pointer and adds the in-word byte offset)."""
+	check_in_main_memory(addr)
 	word_host_addr = int(gdb.parse_and_eval(
 		"(unsigned long)((MemCore*)%d)->wordPtr(0x%x)" % (mem_ptr(), addr & ~0x3)))
 	return word_host_addr + (addr & 0x3)
@@ -188,6 +205,7 @@ def format_mem(spec):
 	vals = []
 	for i in range(n):
 		a = (lo & ~0x3) + i * 4
+		check_in_main_memory(a)
 		wp = int(gdb.parse_and_eval("(unsigned long)((MemCore*)%d)->wordPtr(0x%x)" % (mem_ptr(), a)))
 		vals.append(int(gdb.parse_and_eval("*(unsigned int*)%d" % wp)) & 0xFFFFFFFF)
 	return " ".join("0x%08x" % v for v in vals)

@@ -25,8 +25,16 @@ class MemCore : public VirtualMemoryInterface
 	public:
 		static const unsigned int memSize = 0x10000000;  //Memory size in bytes = 256MB
 		static const unsigned int nwords = memSize>>2; //Number of 32bit words in memory
-		std::vector<uint32_t> core;  //size =nwords
+		//nwords words, zeroed. Allocated with calloc, so the host gives it
+		//zero pages only as they are first touched: a program using a few
+		//MB of it costs a few MB of RAM, not 256MB (several systems in one
+		//process, e.g. performance_evaluation/parallel_speedup, depend on
+		//this).
+		uint32_t* core;
 		MemCore(); //constructor
+		~MemCore();
+		MemCore(const MemCore&) = delete;
+		MemCore& operator=(const MemCore&) = delete;
 
 
 

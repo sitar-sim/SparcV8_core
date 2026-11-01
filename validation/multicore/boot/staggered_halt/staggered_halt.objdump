@@ -1,5 +1,5 @@
 
-multicore/boot/staggered_halt/staggered_halt.elf:     file format elf32-sparc
+validation/multicore/boot/staggered_halt/staggered_halt.elf:     file format elf32-sparc
 
 
 Disassembly of section .text:

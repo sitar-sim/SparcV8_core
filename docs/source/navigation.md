@@ -42,9 +42,26 @@ hide:
 | [Timer](peripheral_devices_timer.md) | Register format, one-shot behavior, and state machine. |
 | [Interrupt Controller](peripheral_devices_interrupt_controller.md) | The shared, multi-thread IRC: one slot per hardware thread, interrupt sources, priority, and inter-processor interrupts. |
 | [Serial Device](peripheral_devices_serial_device.md) | UART register format, baud-rate calculation, and the Tx/Rx state machines. |
+| [Scratch-pad](peripheral_devices_scratch_pad.md) | 32 words of uncached storage shared by every core, for flags between cores. |
 | [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
 | [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
 | [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |
+
+## The Multicore System
+
+Several SPARC cores, each with its own caches and MMU, sharing one main
+memory and one set of devices (the `multicore` configuration).
+
+| Page | Description |
+|---|---|
+| [Overview](multicore/index.md) | The system at a glance, the stages it is built in, building and running, and its compile-time knobs. |
+| [Model Structure and Assumptions](multicore/structure.md) | How the cpp_model and the sitar_model are built, the shared bus, interrupts, and where the model makes its own assumptions. |
+| [Execution Model](multicore/execution_model.md) | How each model runs several cores, what a cycle means in each, and why results can differ between them. |
+| [Programming the System](multicore/programming.md) | The startup file, the core ID, sharing data without coherent caches, interrupts on several cores, and the routines provided. |
+| [Example Programs](multicore/examples.md) | A parallel array sum and a parallel matrix multiply, explained. |
+| [Logging and Debugging](multicore/debugging.md) | Per-core traces, gdb with several cores, statistics, and finding data races. |
+| [Validation Suite](multicore/validation.md) | The multicore tests, how each core's results are checked, and how to run them. |
+| [Parallel Simulation](multicore/parallel_simulation.md) | Running the sitar_model on several host threads, dividing the modules among them, and when it is faster. |
 
 ## The APARA Accelerator
 

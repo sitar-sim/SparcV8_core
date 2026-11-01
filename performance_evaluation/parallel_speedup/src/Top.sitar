@@ -1,0 +1,42 @@
+//================================================================
+// module Top
+// Author: Neha Karanjkar
+//
+// A model large enough to show parallel simulation's speedup: 16
+// independent copies of the multicore configuration's System (4 cores
+// each, with their own bus, memory and devices), built from that
+// configuration's own System.sitar and Core.sitar (Ref build.sh). The
+// systems share nothing, so every cycle has 16 times the work
+// of one system, between the same two barriers.
+//
+// Each System is told not to stop the run itself, since the first to
+// finish would end it for all. Top stops the run once every system's
+// running cores have halted. It checks in phase 1 only, for the same
+// reason as System (Ref the parallel loop in speedup_sim.cpp).
+//================================================================
+
+module Top
+
+	// The number of systems. (Top cannot take parameters, since Sitar
+	// creates it as plain `Top`.) speedup_sim.cpp reads it from the
+	// array's size.
+	// NUM_CORES=4, COHERENT=false, STOP_WHEN_HALTED=false
+	submodule_array systems[16] : System<4, false, false>
+
+	decl
+	$
+	bool allSystemsHalted()
+	{
+		for (auto& system : systems)
+			if (!system.allRunningCoresHalted())
+				return false;
+		return true;
+	}
+	$
+
+	behavior
+		wait until (this_phase==1 and allSystemsHalted());
+		$ log<<endl<<"All systems halted."; $;
+		stop simulation;
+	end behavior
+end module

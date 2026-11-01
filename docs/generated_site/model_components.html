@@ -1349,7 +1349,7 @@
   <span class="md-ellipsis">
     
   
-    The APARA Accelerator
+    The Multicore System
   
 
     
@@ -1362,6 +1362,289 @@
         
         <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_6_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_6">
+            <span class="md-nav__icon md-icon"></span>
+            
+  
+    The Multicore System
+  
+
+          </label>
+          <ul class="md-nav__list" data-md-scrollfix>
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/index.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Overview
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/examples.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/debugging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/validation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Validation Suite
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/parallel_simulation.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Parallel Simulation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+          </ul>
+        </nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    
+    
+    
+    
+      
+        
+        
+      
+    
+    
+    <li class="md-nav__item md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        
+          
+          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+            
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    The APARA Accelerator
+  
+
+    
+  </span>
+  
+  
+
+            <span class="md-nav__icon md-icon"></span>
+          </label>
+        
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_7">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -1678,10 +1961,10 @@
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_7" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_8" >
         
           
-          <label class="md-nav__link" for="__nav_7" id="__nav_7_label" tabindex="">
+          <label class="md-nav__link" for="__nav_8" id="__nav_8_label" tabindex="">
             
   
   
@@ -1699,8 +1982,8 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_7_label" aria-expanded="false">
-          <label class="md-nav__title" for="__nav_7">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_8_label" aria-expanded="false">
+          <label class="md-nav__title" for="__nav_8">
             <span class="md-nav__icon md-icon"></span>
             
   
@@ -2007,7 +2290,9 @@ depending on configuration:</p>
 <ul>
 <li><strong><code>MemCore</code></strong><br />
     Flat, byte-addressed, virtual-address-shaped. Used directly by
-    <code>core_only</code>.</li>
+    <code>core_only</code>. It holds 256 MB, but the host supplies its pages only
+    as a program first touches them, so a simulation uses only as much
+    host memory as the program does.</li>
 <li>
 <p><strong><code>MainMemory</code></strong><br />
     Physical-address-shaped (64-bit/doubleword), used only where an
@@ -2057,7 +2342,7 @@ properties:</p>
     context register) both.</li>
 <li><strong>Not coherent</strong><br />
     The caches do not see memory changed behind their back, for example
-    by a bypass store, so a program that does that must flush first (see
+    by a bypass store or, in <code>multicore</code>, by another core, so a program that does that must flush first (see
     <code>validation/C/caches/stale_until_flush</code>). In particular,
     self-modifying code must execute <code>FLUSH</code> before running the new
     instructions, as the SPARC manual requires.</li>
@@ -2074,9 +2359,9 @@ both caches and the whole policy, the same class in both models:</p>
 </ul>
 <hr />
 <h2 id="peripheral-devices">Peripheral Devices<a class="headerlink" href="#peripheral-devices" title="Permanent link">&para;</a></h2>
-<p>A Timer, a multi-thread Interrupt Controller, and a Serial device, one
-shared set on the memory side of the MMU. The C++ class <code>PeripheralDevicesCore</code>
-(<code>model/cpp_common_code/devices/</code>) holds all three, the same class in
+<p>A Timer, a multi-thread Interrupt Controller, a Serial device and a
+scratch-pad, one shared set on the memory side of the MMU. The C++ class
+<code>PeripheralDevicesCore</code> (<code>model/cpp_common_code/devices/</code>) holds all four, the same class in
 both models. In the sitar_model the <code>PeripheralDevices</code> module wraps it,
 reached through the <code>SystemBridge</code> over nets. See <a href="peripheral_devices.html">Peripheral
 Devices</a> for the register-level detail.</p>
@@ -2095,7 +2380,9 @@ shared by both models, so the two can never disagree.</p>
 <code>SystemBridge</code>, a module with one master (the core), carries one
     transaction at a time. <code>sparc_apara</code> uses <code>SystemInterconnect</code>
     instead, the same bus with several masters (the core and the APARA
-    engine's host side), served round robin.</li>
+    engine's host side), served round robin. <code>multicore</code> uses
+    <code>CoherentBridge</code>, with one master per core, also served round
+    robin (see <a href="multicore/structure.html#the-shared-bus">The Shared Bus</a>).</li>
 </ul>
 <hr />
 <h2 id="apara-engine">APARA Engine<a class="headerlink" href="#apara-engine" title="Permanent link">&para;</a></h2>

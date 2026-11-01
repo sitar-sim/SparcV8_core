@@ -1,5 +1,5 @@
 
-multicore/boot/crt0_multicore/crt0_multicore.elf:     file format elf32-sparc
+validation/multicore/boot/crt0_multicore/crt0_multicore.elf:     file format elf32-sparc
 
 
 Disassembly of section .text:
