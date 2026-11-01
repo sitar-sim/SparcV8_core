@@ -8,5 +8,5 @@ the validation suites do not run them.
 - **`parallel_speedup/`** runs 16 independent copies of the `multicore`
   system in one simulation, enough work per simulated cycle for a
   parallel Sitar run to be faster than a serial one. See its README and
-  the [Parallel Simulation](https://sitar-sim.github.io/SparcV8_core/multicore/parallel_simulation.html)
+  the [Parallel Simulation](https://sitar-sim.github.io/SparcV8_core/parallel_simulation.html)
   page.

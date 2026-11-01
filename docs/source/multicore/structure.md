@@ -136,7 +136,7 @@ stop coming in the second phase.
 A model that holds several `System`s sets it to `false`, since the first
 system to finish would otherwise end the run for all of them, and stops
 the run itself once every system has halted (see [A larger
-model](parallel_simulation.md#a-larger-model)).
+model](../parallel_simulation.md#a-larger-model)).
 
 Cores beyond `--run-cores` are held in reset for the whole run, through
 `SparcThread`'s reset pin, and the run does not wait for them.

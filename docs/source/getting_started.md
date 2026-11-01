@@ -521,5 +521,5 @@ other components are written in plain C++ in `cpp_common_code/`. The
 Sitar modules are in `sitar_component_models/`, and each configuration
 is in `system_models/`. After a change, the model is rebuilt with
 `./build.sh` in its folder, and the validation suite checks that
-nothing broke. The Model section of this documentation describes how
+nothing broke. The Models section of this documentation describes how
 the models are built.

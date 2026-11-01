@@ -13,25 +13,10 @@ hide:
 | [Installation](installation.md) | What to install for what you want to do: the basic tools and the code, then, optionally, Sitar, the cross-toolchain, gdb, and MkDocs. |
 | [Getting Started](getting_started.md) | A hands-on walkthrough: build the models, run a first program, view its trace, run the validation suite, compile a program yourself, and debug with gdb. |
 
-## Writing and Running Programs
+## The Models
 
-| Page | Description |
-|---|---|
-| [Assembly Programs](writing_and_running_assembly_programs.md) | How to write, assemble, and run your own assembly test programs. |
-| [C Programs](writing_and_running_c_programs.md) | How to write, compile, and run freestanding C test programs. |
-| [Validation Suite](validation_suite.md) | What's in a test, which suites run on which configuration, how to run them, and how to add a new test. |
-| [Cross Compiler](cross_compiler.md) | The bundled `sparc-elf` toolchain used to assemble and compile test programs. |
-
-## Logging and Monitoring
-
-| Page | Description |
-|---|---|
-| [Logging](logging.md) | How instruction-trace logging works, compile-time and runtime, and the log viewer. |
-| [Examining Core State with GDB](examining_core_state_with_gdb.md) | A beginner-facing walkthrough of debugging a running model with gdb. |
-| [GDB Command Reference](gdb_command_reference.md) | The exhaustive reference for every `sparc-*` gdb command. |
-| [Debug Support Internals](debug_support_internals.md) | How gdb support is actually built, for anyone extending `debug/sparc.gdb` itself. |
-
-## The Model
+What the models contain: the architecture, the configurations, and
+their components.
 
 | Page | Description |
 |---|---|
@@ -44,8 +29,46 @@ hide:
 | [Serial Device](peripheral_devices_serial_device.md) | UART register format, baud-rate calculation, and the Tx/Rx state machines. |
 | [Scratch-pad](peripheral_devices_scratch_pad.md) | 32 words of uncached storage shared by every core, for flags between cores. |
 | [Model Components Reference](model_components_reference.md) | A complete, per-file table of every Sitar module/procedure. |
+
+## Using the Models
+
+How to write programs for any configuration, set and measure a model,
+and log and debug a run. These pages apply to every configuration,
+including the multicore system and the APARA configurations.
+
+### Writing Programs
+
+| Page | Description |
+|---|---|
+| [Assembly Programs](writing_and_running_assembly_programs.md) | How to write, assemble, and run your own assembly test programs. |
+| [C Programs](writing_and_running_c_programs.md) | How to write, compile, and run freestanding C test programs. |
+| [Cross Compiler](cross_compiler.md) | The bundled `sparc-elf` toolchain used to assemble and compile test programs. |
+
+### Settings and Performance
+
+| Page | Description |
+|---|---|
 | [Model Configuration Settings](model_configuration_settings.md) | Every structural and timing setting in the model, where to set it, compile time or runtime. |
 | [Performance Modeling](performance_modeling.md) | How to print the model's performance measures with `--stats`, and the table of what's reported. |
+| [Parallel Simulation](parallel_simulation.md) | Running a Sitar model on several host threads: why the result does not change, what a barrier costs, when a parallel run is faster, and a 64-core speedup demonstration. |
+
+### Logging and Debugging
+
+| Page | Description |
+|---|---|
+| [Logging](logging.md) | How instruction-trace logging works, compile-time and runtime, and the log viewer. |
+| [Examining Core State with GDB](examining_core_state_with_gdb.md) | A beginner-facing walkthrough of debugging a running model with gdb. |
+| [GDB Command Reference](gdb_command_reference.md) | The exhaustive reference for every `sparc-*` gdb command. |
+| [Debug Support Internals](debug_support_internals.md) | How gdb support is actually built, for anyone extending `debug/sparc.gdb` itself. |
+
+## Validation Suite
+
+| Page | Description |
+|---|---|
+| [Validation Suite](validation_suite.md) | What's in a test, which suites run on which configuration, how to run them, and how to add a new test. |
+
+The multicore system and the APARA engine each have a validation page
+of their own, in their sections below.
 
 ## The Multicore System
 
@@ -61,7 +84,7 @@ memory and one set of devices (the `multicore` configuration).
 | [Example Programs](multicore/examples.md) | A parallel array sum and a parallel matrix multiply, explained. |
 | [Logging and Debugging](multicore/debugging.md) | Per-core traces, gdb with several cores, statistics, and finding data races. |
 | [Validation Suite](multicore/validation.md) | The multicore tests, how each core's results are checked, and how to run them. |
-| [Parallel Simulation](multicore/parallel_simulation.md) | Running the sitar_model on several host threads, dividing the modules among them, and when it is faster. |
+| [Parallel Simulation](multicore/parallel_simulation.md) | Building and running the sitar_model on several host threads, and dividing its modules among them. |
 
 ## The APARA Accelerator
 

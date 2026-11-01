@@ -8,7 +8,7 @@ own private matrices. The systems never communicate, so each simulated
 cycle has a lot of work for very little communication between threads,
 the setting where a parallel run pays off. The `multicore`
 configuration itself, with only 4 cores, runs slower in parallel. The
-[Parallel Simulation](https://sitar-sim.github.io/SparcV8_core/multicore/parallel_simulation.html)
+[Parallel Simulation](https://sitar-sim.github.io/SparcV8_core/parallel_simulation.html)
 page explains why, and reports this demo's speedups.
 
 ## Files

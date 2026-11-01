@@ -192,7 +192,7 @@ top-level folders are organized as follows.
     Models and programs for measuring the simulator itself, built from
     the configurations but not configurations themselves. Today it holds
     a demonstration of parallel simulation's speedup. See [Parallel
-    Simulation](multicore/parallel_simulation.md#a-larger-model).
+    Simulation](parallel_simulation.md#a-larger-model).
 - **`log_viewer/`**  
     The trace visualizer tool. See [The log viewer](logging.md#the-log-viewer).
 - **`debug/`**  

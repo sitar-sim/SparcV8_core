@@ -32,7 +32,9 @@ configuration prints only what it actually has: `core_only` prints its
 core statistics alone. `core_mmu` prints core statistics, then MMU
 statistics, then physical memory statistics. The later configurations
 add their caches' and devices' statistics, and, in `sparc_apara`, the
-APARA engine's.
+APARA engine's. `multicore` prints the core, cache and MMU statistics
+once for each core, then the shared memory's and devices' once (see
+[Multicore](#multicore) below).
 
 ---
 
@@ -69,7 +71,7 @@ APARA engine's.
 
 | Performance measure | Component | Models/configs available in | Description |
 |---|---|---|---|
-| **Cache hits and misses**<br>(`read hits`, `read misses`, `write hits`, `write misses`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | [core_l1cache_mmu_devices/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/), [core_l1cache_mmu_devices/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/), and sparc_apara | Per cache, the lookups of cacheable-ASI accesses that hit or missed. |
+| **Cache hits and misses**<br>(`read hits`, `read misses`, `write hits`, `write misses`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | [core_l1cache_mmu_devices/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/cpp_model/), [core_l1cache_mmu_devices/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_l1cache_mmu_devices/sitar_model/), sparc_apara and multicore | Per cache, the lookups of cacheable-ASI accesses that hit or missed. |
 | **Line fills and uncached misses**<br>(`lines filled`, `uncached misses`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | same | Lines installed, and read misses the MMU reported as not cacheable (which read just one doubleword). |
 | **Forwarded accesses and flushes**<br>(`forwarded`, `flushes`) | [`L1CachesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h) | same | Accesses with a non-cacheable ASI, passed straight to the MMU, and whole-cache flushes. |
 
@@ -78,6 +80,14 @@ APARA engine's.
 | Performance measure | Component | Models/configs available in | Description |
 |---|---|---|---|
 | **Device accesses**<br>(`timer`, `serial`, `interrupt controller`, `unmapped`) | [`PeripheralDevicesCore`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/devices/PeripheralDevicesCore.h) | [core_mmu_devices/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/cpp_model/), [core_mmu_devices/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/core_mmu_devices/sitar_model/), and every configuration with devices | Register accesses to each device (one per 32-bit register word touched), and accesses in the device window no device decodes. |
+
+### Multicore
+
+| Performance measure | Component | Models/configs available in | Description |
+|---|---|---|---|
+| **Per-core counters** | as in the tables above | [multicore/cpp](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/cpp_model/), [multicore/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/) | The Core, Caches and MMU counters above, printed once for each core under `=== core <i> ===`. The shared main memory's and devices' counters follow once, under `=== shared ===`. |
+| **Bus transactions per core** | [`CoherentBridge`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/CoherentBridge.sitar) | [multicore/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/) | The physical transactions each core sent over the shared bus. A core that works from its own caches makes few. See [Example Programs](multicore/examples.md). |
+| **Threads** | the sitar_model's main | [multicore/sitar](https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/) | The number of host threads (1 in a serial run), and which modules each one ran. See [Parallel Simulation](multicore/parallel_simulation.md). |
 
 ### APARA engine
 

@@ -73,19 +73,7 @@ nav:
       - Installation: installation.md
       - Getting Started: getting_started.md
 
-  - Writing and Running Programs:
-      - Assembly Programs: writing_and_running_assembly_programs.md
-      - C Programs: writing_and_running_c_programs.md
-      - Validation Suite: validation_suite.md
-      - Cross Compiler: cross_compiler.md
-
-  - Logging and Monitoring:
-      - Logging: logging.md
-      - Examining Core State with GDB: examining_core_state_with_gdb.md
-      - GDB Command Reference: gdb_command_reference.md
-      - Debug Support Internals: debug_support_internals.md
-
-  - The Model:
+  - The Models:
       - SPARC V8 Architecture: sparcv8_architecture.md
       - Model Configurations: model_configurations.md
       - Model Components: model_components.md
@@ -96,8 +84,23 @@ nav:
           - Serial Device: peripheral_devices_serial_device.md
           - Scratch-pad: peripheral_devices_scratch_pad.md
       - Model Components Reference: model_components_reference.md
-      - Model Configuration Settings: model_configuration_settings.md
-      - Performance Modeling: performance_modeling.md
+
+  - Using the Models:
+      - Writing Programs:
+          - Assembly Programs: writing_and_running_assembly_programs.md
+          - C Programs: writing_and_running_c_programs.md
+          - Cross Compiler: cross_compiler.md
+      - Settings and Performance:
+          - Model Configuration Settings: model_configuration_settings.md
+          - Performance Modeling: performance_modeling.md
+          - Parallel Simulation: parallel_simulation.md
+      - Logging and Debugging:
+          - Logging: logging.md
+          - Examining Core State with GDB: examining_core_state_with_gdb.md
+          - GDB Command Reference: gdb_command_reference.md
+          - Debug Support Internals: debug_support_internals.md
+
+  - Validation Suite: validation_suite.md
 
   - The Multicore System:
       - Overview: multicore/index.md
