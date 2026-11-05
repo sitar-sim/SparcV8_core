@@ -12,7 +12,8 @@
 // Each System is told not to stop the run itself, since the first to
 // finish would end it for all. Top stops the run once every system's
 // running cores have halted. It checks in phase 1 only, for the same
-// reason as System (Ref the parallel loop in speedup_sim.cpp).
+// reason as System (Ref its behavior): every core has then finished its
+// work for the cycle.
 //================================================================
 
 module Top

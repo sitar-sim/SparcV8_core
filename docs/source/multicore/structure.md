@@ -128,9 +128,7 @@ because the other cores may still be running. `System` watches every
 running core and stops the simulation once all of them have halted. It
 checks in the second phase of each cycle, after every core has
 finished its work for that cycle, so the cycle on which a run ends does
-not depend on the order in which the cores happen to run. The
-[parallel simulation](parallel_simulation.md) loop relies on this
-stop coming in the second phase.
+not depend on the order in which the cores happen to run.
 
 `System`'s third parameter, `STOP_WHEN_HALTED`, is `true` by default.
 A model that holds several `System`s sets it to `false`, since the first

@@ -92,6 +92,12 @@ folder:
 sitar -h
 ```
 
+The models need a copy of Sitar from November 2026 or later, which
+records the phase in which a run is stopped (see [When the run
+stops](parallel_simulation.md#when-the-run-stops)). An older copy is
+brought up to date with `git pull` in its folder, followed by
+`./install.py` to rebuild its translator.
+
 ---
 
 ## 4. (Optional) Install the SPARC cross-toolchain

@@ -42,8 +42,7 @@ module System
 
 	//Whether System stops the simulation once all its running cores have
 	//halted. A model holding several Systems sets it false and stops the
-	//run itself, in phase 1 too (e.g.
-	//performance_evaluation/parallel_speedup's Top.sitar).
+	//run itself (e.g. performance_evaluation/parallel_speedup's Top.sitar).
 	parameter bool STOP_WHEN_HALTED = true
 
 	include
@@ -165,9 +164,7 @@ module System
 	behavior
 		// Checked in phase 1 only, after every core's phase-0 work for
 		// the cycle is done, so the cycle the run ends on does not depend
-		// on the order the cores happen to run in. sparc_sim.cpp's parallel
-		// loop relies on the stop coming in phase 1 (it reads the stop flag
-		// after phase 1 only).
+		// on the order the cores happen to run in.
 		wait until (this_phase==1 and allRunningCoresHalted());
 		$ log<<endl<<"All running cores halted."; $;
 		if (STOP_WHEN_HALTED) then

@@ -454,15 +454,14 @@ int main(int argc, char** argv)
 		//with each thread running its own, fixed list of modules: one
 		//phase, a barrier, then the stop check. Two barriers per cycle.
 		//
-		//The stop flag is checked after phase 1's barrier only. System.sitar
-		//is the only caller of `stop simulation`, and only in phase 1. Right
-		//after phase 0's barrier, a thread that has already moved on into
-		//phase 1 could set the flag while a slower thread is still reading
-		//it. The slower thread would then leave the loop a phase early, and
-		//the two would wait at different barriers for ever. After phase 1's
-		//barrier, no thread can set the flag again until every thread has
-		//passed phase 0's next barrier, so every thread reads the same
-		//value. The run ends on the same cycle as a serial run.
+		//The stop check asks whether `stop simulation` was called in phase t
+		//or earlier, not merely whether it has been called. A thread that has
+		//already moved on into phase t+1 may stop the run there while a
+		//slower thread is still checking phase t. With a plain flag, the
+		//slower thread would leave the loop a phase early, and the two would
+		//wait at different barriers for ever. Sitar records the phase of the
+		//stop, so every thread leaves after the same phase, and the run ends
+		//on the same cycle as a serial run.
 		uint64_t finalTime = 0;
 		omp_set_dynamic(0);
 		#pragma omp parallel num_threads(numThreads)
@@ -474,7 +473,7 @@ int main(int argc, char** argv)
 				for (sitar::module* m : mine)
 					m->run(t);
 				#pragma omp barrier
-				if (t % 2 == 1 && sitar::simulation_stopped())
+				if (sitar::simulation_stopped_by(t))
 					break;
 			}
 			#pragma omp single

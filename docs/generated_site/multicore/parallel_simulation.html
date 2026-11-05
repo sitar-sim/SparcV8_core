@@ -2476,13 +2476,10 @@ for the whole run.</p>
 <h2 id="when-the-run-stops">When the run stops<a class="headerlink" href="#when-the-run-stops" title="Permanent link">&para;</a></h2>
 <p>A run stops when <code>System</code> calls <code>stop simulation</code>, once every running
 core has halted (see <a href="structure.html#the-end-of-a-run">The end of a
-run</a>). <code>System</code> does this in the second
-phase of a cycle, and the parallel loop reads the stop flag only after
-the barrier that ends the second phase, so every thread leaves the loop
-on the same cycle (see <a href="../parallel_simulation.html#when-the-run-stops">When the run
-stops</a>). Any module added
-to this model that stops the simulation must therefore do so in the
-second phase as well.</p>
+run</a>). Every thread leaves the parallel
+loop after the phase in which that call was made, so a parallel run
+ends on the same cycle as a serial run (see <a href="../parallel_simulation.html#when-the-run-stops">When the run
+stops</a>).</p>
 <hr />
 <h2 id="logging-in-a-parallel-run">Logging in a parallel run<a class="headerlink" href="#logging-in-a-parallel-run" title="Permanent link">&para;</a></h2>
 <p>A <code>--logging</code> build writes each core's instruction trace to its own

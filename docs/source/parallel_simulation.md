@@ -58,18 +58,20 @@ and `OMP_PLACES=threads` lets two of them share a core.
 
 ## When the run stops
 
-A model stops a run with `stop simulation`, which sets a single flag.
-In a parallel run every thread must see the same value of it, or the
-threads leave the loop at different phases and wait for each other at
-different barriers for ever. A thread that has moved on into the next
-phase could set the flag while a slower thread is still reading it
-after the barrier.
+A model stops a run with `stop simulation`. In a parallel run every
+thread must leave the loop after the same phase, or the threads wait
+for each other at different barriers for ever. Threads leave a barrier
+at slightly different times, so a fast thread may already be running
+the next phase, and may stop the run there, while a slower thread is
+still checking the current one.
 
-The models here therefore stop the simulation in the second phase of a
-cycle only, and their main loops read the flag only after the barrier
-that ends the second phase. No thread can set the flag again before
-every thread has passed the next barrier, so every thread reads the
-same value, and the run ends on the same cycle as a serial run.
+Sitar therefore records the phase in which `stop simulation` was
+called. After each barrier, the main loop asks Sitar whether a stop was
+requested in that phase or earlier (`sitar::simulation_stopped_by`). A
+stop requested in the next phase does not count yet, so every thread
+leaves after the phase in which the run was stopped, and the run ends
+on the same cycle as a serial run. A model may stop the run in either
+phase.
 
 ---
 
@@ -151,20 +153,19 @@ same results, as the serial run.
 
 | Model | Threads | Time | Speedup |
 |---|---|---|---|
-| `multicore` configuration, 4 cores, 10.5 million cycles | serial | 25.2 s | 1 |
-| | 2 | 27.8 s | 0.91 |
-| | 4 | 34.5 s | 0.73 |
-| `parallel_speedup` demo, 16 systems of 4 cores, 10.5 million cycles | serial | 493 s | 1 |
-| | 2 | 245 s | 2.02 |
-| | 2, each bound to its own core | 237 s | 2.08 |
-| | 4 | 252 s | 1.96 |
+| `multicore` configuration, 4 cores, 10.5 million cycles | serial | 24.5 s | 1 |
+| | 2 | 28.0 s | 0.87 |
+| | 4 | 33.1 s | 0.74 |
+| `parallel_speedup` demo, 16 systems of 4 cores, 10.5 million cycles | serial | 492 s | 1 |
+| | 2 | 243 s | 2.02 |
+| | 2, each bound to its own core | 249 s | 1.98 |
+| | 4 | 243 s | 2.02 |
 
 These numbers are particular to one small host, but they show the
 pattern. With 4 cores, a phase holds too little work, and every thread
 count is slower than serial. With 64 cores, 2 threads reach twice the
-serial speed, and slightly more when each thread is bound to a core of
-its own. A speedup a little above 2 is possible because each thread's
-half of the model fits better in its own host core's caches than the
-whole model fits in one. 4 threads gain less on this host than 2,
-because they share its 2 physical cores. On a host with many cores, a
-model with many cores per thread can use many more threads.
+serial speed. 4 threads gain nothing more on this host, because they
+share its 2 physical cores. Binding each thread to a core of its own
+made no reliable difference here, since repeated runs of the same
+setting varied by a few percent. On a host with many cores, a model
+with many cores per thread can use many more threads.

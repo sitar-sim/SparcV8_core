@@ -125,8 +125,7 @@ int main(int argc, char** argv)
 	          << numThreads << " thread(s)" << std::endl;
 
 	//The same loop as the multicore configuration's sparc_sim.cpp (Ref its
-	//comment): one phase, a barrier, and the stop flag read after phase 1
-	//only. Top is the only caller of `stop simulation`, in phase 1.
+	//comment): one phase, a barrier, then the stop check for that phase.
 	uint64_t simulation_time = 0;
 	const uint64_t phaseLimit = (uint64_t)maxCycles * 2;
 	auto start = std::chrono::steady_clock::now();
@@ -144,7 +143,7 @@ int main(int argc, char** argv)
 				for (sitar::module* m : mine)
 					m->run(t);
 				#pragma omp barrier
-				if (t % 2 == 1 && sitar::simulation_stopped())
+				if (sitar::simulation_stopped_by(t))
 					break;
 			}
 			#pragma omp single

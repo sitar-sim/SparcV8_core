@@ -105,13 +105,10 @@ OMP_PROC_BIND=true OMP_PLACES=cores ./executable/sparc_sim_sitar_multicore_openm
 
 A run stops when `System` calls `stop simulation`, once every running
 core has halted (see [The end of a
-run](structure.md#the-end-of-a-run)). `System` does this in the second
-phase of a cycle, and the parallel loop reads the stop flag only after
-the barrier that ends the second phase, so every thread leaves the loop
-on the same cycle (see [When the run
-stops](../parallel_simulation.md#when-the-run-stops)). Any module added
-to this model that stops the simulation must therefore do so in the
-second phase as well.
+run](structure.md#the-end-of-a-run)). Every thread leaves the parallel
+loop after the phase in which that call was made, so a parallel run
+ends on the same cycle as a serial run (see [When the run
+stops](../parallel_simulation.md#when-the-run-stops)).
 
 ---
 

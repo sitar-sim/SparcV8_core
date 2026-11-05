@@ -2545,9 +2545,7 @@ because the other cores may still be running. <code>System</code> watches every
 running core and stops the simulation once all of them have halted. It
 checks in the second phase of each cycle, after every core has
 finished its work for that cycle, so the cycle on which a run ends does
-not depend on the order in which the cores happen to run. The
-<a href="parallel_simulation.html">parallel simulation</a> loop relies on this
-stop coming in the second phase.</p>
+not depend on the order in which the cores happen to run.</p>
 <p><code>System</code>'s third parameter, <code>STOP_WHEN_HALTED</code>, is <code>true</code> by default.
 A model that holds several <code>System</code>s sets it to <code>false</code>, since the first
 system to finish would otherwise end the run for all of them, and stops
