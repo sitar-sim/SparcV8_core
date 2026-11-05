@@ -10,13 +10,17 @@ Interrupt Controller's slot for core `i`, thread 0. Every core starts at
 the reset PC (0) and runs the same program, which uses the core ID to
 decide what each core does.
 
-Two compile-time knobs, in `cpp_model/src/MulticoreConfig.h` for the
-cpp_model and as `System`'s parameters in `sitar_model/src/System.sitar`
+One compile-time knob, in `cpp_model/src/MulticoreConfig.h` for the
+cpp_model and as `System`'s parameter in `sitar_model/src/System.sitar`
 for the sitar_model:
 
 - **`NUM_CORES`** (1 to 4, default 4).
-- **`COHERENT`**: whether a write by one core invalidates that line in
-  the other cores' caches. Only `false` is implemented so far.
+
+One run-time option, in both models:
+
+- **`--coherent`** (or `SPARC_COHERENT=1`, off by default): a write by one
+  core removes that line from the other cores' caches. `--snoop-filter`
+  leaves out repeated invalidates.
 
 - **`cpp_model/`** -- the 0-delay functional driver: the cores take
   turns on one host thread, in rounds, with a run-time choice of

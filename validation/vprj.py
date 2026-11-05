@@ -19,6 +19,10 @@ STARTUP_LINE_RE = re.compile(r'^STARTUP\s*=\s*(\S+)')
 # e.g. `MAX_CYCLES = 1000000` (the runner uses the larger of this and its
 # --max-cycles).
 MAX_CYCLES_LINE_RE = re.compile(r'^MAX_CYCLES\s*=\s*(\d+)')
+
+# e.g. `RUN_OPTIONS = --coherent`: extra options for the simulator, for a test
+# that only makes sense in one mode of a configuration.
+RUN_OPTIONS_LINE_RE = re.compile(r'^RUN_OPTIONS\s*=\s*(.*)$')
 # Optional RESULTS line: the exact bytes the program must have sent out
 # through the Serial device, as a double-quoted string with C-style
 # escapes (\n, \t, \\, \", \xHH). Only configurations with devices
@@ -75,6 +79,16 @@ def parse_max_cycles(path):
             if m:
                 return int(m.group(1))
     return None
+
+
+def parse_run_options(path):
+    """Returns the list of extra simulator options a .vprj gives."""
+    with open(path) as f:
+        for line in f:
+            m = RUN_OPTIONS_LINE_RE.match(line)
+            if m:
+                return m.group(1).split()
+    return []
 
 
 def decode_serial_string(s):

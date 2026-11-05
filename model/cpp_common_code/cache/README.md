@@ -15,5 +15,10 @@ The line fill itself is the MMU's job (`MemAccessType::READ_LINE`, Ref
 `../mmu/MmuCore.h`'s `handleReadLine()`), as in AJIT: the MMU
 translates, decides cacheability, and reads the line.
 
+Each line also keeps its physical address, which is what keeps a cache to one
+copy of a physical line (synonyms), and what lets `invalidatePhysicalLine()` find
+a line another core has written, in `multicore` with `--coherent`. In the
+single-core configurations nothing ever calls that.
+
 `tests/test_l1_caches.cpp` is a standalone unit test against a fake MMU
 (the build line is in its header comment).

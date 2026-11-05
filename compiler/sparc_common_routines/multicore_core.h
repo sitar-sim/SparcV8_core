@@ -4,8 +4,8 @@
 // on, and how to read what another core has written. Every routine here
 // is a small inline function, so there is nothing to link.
 //
-// The caches are not coherent, so a plain load can return this core's own
-// old cached copy of a location another core has since written. The
+// The caches are not coherent by default, so a plain load can return this
+// core's own old cached copy of a location another core has since written. The
 // "shared" reads below never use the cache. They use the MMU-bypass ASI,
 // which takes a physical address. The MMU is off when a program starts, so
 // by default a variable's address is its physical address. This matters only

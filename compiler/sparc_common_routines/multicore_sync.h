@@ -10,7 +10,7 @@
 //
 // - They wait by spinning, without a limit. A core waiting for a lock
 //   that is never released stays here until the run's cycle limit.
-// - The caches are not coherent, so they read shared state with uncached
+// - The caches may not be coherent, so they read shared state with uncached
 //   loads, which take a physical address (Ref multicore_core.h). That works
 //   as it is by default, and matters only if a program turns the MMU on and
 //   maps shared data elsewhere. AJIT's own mutex routines spin with a
@@ -19,9 +19,9 @@
 // - They are not safe to use from an interrupt handler. A handler that
 //   waits for a lock its own core already holds waits for ever.
 //
-// A lock protects the data, but it does not refresh the cache. Data shared
-// under a lock must also be read with read_shared(), or after a
-// flush_caches() inside the critical section.
+// A lock protects the data, but it does not refresh the cache. Without the
+// simulator's --coherent option, data shared under a lock must also be read
+// with read_shared(), or after a flush_caches() inside the critical section.
 
 #ifndef MULTICORE_SYNC_H
 #define MULTICORE_SYNC_H

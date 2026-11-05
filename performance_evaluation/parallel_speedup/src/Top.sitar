@@ -21,8 +21,8 @@ module Top
 	// The number of systems. (Top cannot take parameters, since Sitar
 	// creates it as plain `Top`.) speedup_sim.cpp reads it from the
 	// array's size.
-	// NUM_CORES=4, COHERENT=false, STOP_WHEN_HALTED=false
-	submodule_array systems[16] : System<4, false, false>
+	// NUM_CORES=4, STOP_WHEN_HALTED=false
+	submodule_array systems[16] : System<4, false>
 
 	decl
 	$

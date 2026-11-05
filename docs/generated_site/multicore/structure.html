@@ -1548,6 +1548,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#coherence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synonyms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synonyms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-end-of-a-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2356,6 +2378,28 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#coherence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#synonyms" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Synonyms
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-end-of-a-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2557,8 +2601,7 @@ reproduces <code>core_l1cache_mmu_devices</code> cycle for cycle.</p>
 granted, it checks each port in turn, skips a port with no request
 waiting, and grants the first one that has a request.</p>
 <p>The bridge is named after AJIT's coherent memory controller, which
-plays the same role. In a later stage it will also send the
-invalidations that keep the caches coherent.</p>
+plays the same role.</p>
 <h3 id="the-bus-lock">The bus lock<a class="headerlink" href="#the-bus-lock" title="Permanent link">&para;</a></h3>
 <p>The bridge makes <code>LDSTUB</code> and <code>SWAP</code> atomic across cores. Each of these
 instructions reads a location and then writes it, and in the
@@ -2578,6 +2621,55 @@ no timing when only one core is using the bus. An access to an address
 that maps to nothing still takes and releases the lock, so it cannot
 leave the bus locked. <code>--stats</code> prints the number of locked read-write
 pairs the bridge has served.</p>
+<h3 id="coherence">Coherence<a class="headerlink" href="#coherence" title="Permanent link">&para;</a></h3>
+<p>With <code>--coherent</code>, a write to main memory removes that line from every
+other core's caches. Only the transport differs between the two models.
+The caches themselves are the same <code>L1CachesCore</code> class that every
+configuration uses, and in a single-core system nothing ever sends them
+an invalidate.</p>
+<ul>
+<li><strong>Finding a line.</strong> The caches are virtually indexed and tagged, but an
+  invalidate carries a physical address. Each line therefore also keeps
+  its physical address. A virtual and a physical address agree within a
+  page, so only the sets the rest of the index could select need
+  searching. In a 32 KB cache with 4 KB pages, that is 8 sets.</li>
+<li><strong>The sitar_model.</strong> When the bridge forwards a write to main memory,
+  it pushes the line's address to every other core, on a net of its own,
+  in that same phase. Each core polls this net every cycle, whatever it
+  is doing, and again before every cache access, so a hit in that phase
+  cannot see a line that has just been invalidated. The invalidate
+  reaches the other cores in the same cycle that memory takes the write,
+  before the writer gets its response.</li>
+<li><strong>The cpp_model.</strong> A small <code>CoherentBus</code> gives each core a port of its
+  own onto the bus, and a write calls the other cores' caches directly.
+  Nothing else is running at that moment, because the cores take turns.</li>
+</ul>
+<p><strong>A fill in progress.</strong> A line fill in the sitar_model is 8 separate bus
+reads, and another core can write the line between them. The invalidate
+then finds nothing to remove, since the line is not installed yet, and
+installing it would leave a stale line that nothing would ever remove.
+A cache therefore remembers the invalidates that arrive during a fill. If
+one of them is for this line, the fill still serves the read that started
+it, but the line is not installed. <code>--stats</code> counts these as <code>fills
+abandoned</code>.</p>
+<p><strong>The writer's own caches</strong> get no invalidate, as in AJIT. A store updates
+the writer's own data cache, but not its instruction cache, so code that
+modifies itself must still execute <code>FLUSH</code>.</p>
+<p><strong>Snoop filter.</strong> Every write sends an invalidate to every other core,
+since the bus cannot see which lines each cache holds. <code>--snoop-filter</code>
+leaves one out if that core's last invalidate was for the same line and
+it has read nothing from the bus since, because it cannot then hold the
+line. The results of a correct program do not change. Timing can change
+slightly, because the filter changes which fills in progress hear about a
+write, and so which of them are abandoned. <code>--stats</code> shows how many
+invalidates were left out. AJIT's bridge has a larger filter with the same
+purpose.</p>
+<h3 id="synonyms">Synonyms<a class="headerlink" href="#synonyms" title="Permanent link">&para;</a></h3>
+<p>Two virtual addresses, or one address in two MMU contexts, can map to one
+physical line. A cache holds at most one copy of it, in every
+configuration. Installing a line first removes any older copy with the
+same physical address, so a store through one address is never missed by
+a load through the other. <code>--stats</code> counts these as <code>synonyms removed</code>.</p>
 <h3 id="the-end-of-a-run">The end of a run<a class="headerlink" href="#the-end-of-a-run" title="Permanent link">&para;</a></h3>
 <p>In the single-core configurations, <code>Core</code> stops the simulation as soon
 as its core halts. Here a halted core only logs that it has halted,
@@ -2586,7 +2678,7 @@ running core and stops the simulation once all of them have halted. It
 checks in the second phase of each cycle, after every core has
 finished its work for that cycle, so the cycle on which a run ends does
 not depend on the order in which the cores happen to run.</p>
-<p><code>System</code>'s third parameter, <code>STOP_WHEN_HALTED</code>, is <code>true</code> by default.
+<p><code>System</code>'s second parameter, <code>STOP_WHEN_HALTED</code>, is <code>true</code> by default.
 A model that holds several <code>System</code>s sets it to <code>false</code>, since the first
 system to finish would otherwise end the run for all of them, and stops
 the run itself once every system has halted (see <a href="../parallel_simulation.html#a-larger-model">A larger
@@ -2658,8 +2750,18 @@ not yet modeled.</p>
 </tr>
 <tr>
 <td>Coherence</td>
-<td>None</td>
-<td>A core's caches can hold an old copy of a line another core has written. Write-invalidate coherence, as in AJIT, is planned (<code>COHERENT</code>).</td>
+<td>Off by default, write-invalidate with <code>--coherent</code></td>
+<td>See <a href="#coherence">Coherence</a>. Each line keeps its physical address, where AJIT keeps a separate reverse table (its RLUT). Data is the same either way, and only hit and miss counts differ.</td>
+</tr>
+<tr>
+<td>Synonyms</td>
+<td>At most one copy of a physical line per cache</td>
+<td>AJIT removes an older copy too, unless both have the same virtual address, in different contexts. Here that older copy is removed as well, since a store in one context would otherwise leave it stale.</td>
+</tr>
+<tr>
+<td>Memory ordering</td>
+<td>Sequentially consistent</td>
+<td>No store buffer. SPARC's TSO allows more than this, so correct programs still work. <code>STBAR</code> has no effect.</td>
 </tr>
 <tr>
 <td>Atomic <code>LDSTUB</code> and <code>SWAP</code> across cores</td>

@@ -18,6 +18,10 @@
 //    address in two MMU contexts is two different lines;
 //  - each line also keeps the page's ACC bits (Ref Appendix H), so a hit
 //    can be refused if the access type is not allowed;
+//  - each line also keeps its physical address, so that it can be found
+//    from one. AJIT keeps a separate reverse table (its RLUT) instead. Only
+//    the bits of the set index above the 4 KB page offset are unknown, so
+//    only a few sets need searching: cache size / 4 KB of them;
 //  - replacement: an invalid way if there is one, else round-robin within
 //    the set.
 
@@ -36,6 +40,7 @@ class CacheArray
 			bool     valid;
 			uint32_t tag;
 			uint8_t  acc;
+			uint64_t physicalLine; //physical address / 64
 			uint64_t data[CACHE_LINE_DOUBLEWORDS];
 		};
 
@@ -54,7 +59,11 @@ class CacheArray
 
 		//Picks the line to hold (va, context), which must not already be
 		//cached, and installs `data` there.
-		int fill(uint32_t va, uint32_t context, uint8_t acc, const uint64_t* data);
+		int fill(uint32_t va, uint32_t context, uint8_t acc, const uint64_t* data, uint64_t physicalAddress);
+
+		//Removes any line holding physicalAddress's line, and returns how
+		//many it removed.
+		unsigned int invalidatePhysicalLine(uint64_t physicalAddress);
 
 		uint64_t readDoubleword(int index, uint32_t va) const;
 

@@ -4,7 +4,7 @@
 //
 // The top-level module Sitar requires for `sitar compile`. It looks for
 // a module literally named Top. Just instantiates System, with System's
-// own default knob values (NUM_CORES, COHERENT, Ref System.sitar).
+// own default knob value (NUM_CORES, Ref System.sitar).
 //================================================================
 
 module Top

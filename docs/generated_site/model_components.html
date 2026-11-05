@@ -2479,12 +2479,18 @@ properties:</p>
     both caches, <code>0x18</code> to <code>0x1C</code> the instruction cache, the <code>FLUSH</code>
     instruction both, and a write to the MMU's registers (except the
     context register) both.</li>
-<li><strong>Not coherent</strong><br />
+<li><strong>Synonyms</strong><br />
+    Two virtual addresses, or one address in two contexts, can map to one
+    physical line. A cache holds at most one copy, because installing a
+    line removes any older copy with the same physical address.</li>
+<li><strong>Not coherent by default</strong><br />
     The caches do not see memory changed behind their back, for example
     by a bypass store or, in <code>multicore</code>, by another core, so a program that does that must flush first (see
     <code>validation/C/caches/stale_until_flush</code>). In particular,
     self-modifying code must execute <code>FLUSH</code> before running the new
-    instructions, as the SPARC manual requires.</li>
+    instructions, as the SPARC manual requires. In <code>multicore</code>, the
+    <code>--coherent</code> option removes a line from other cores' caches when a
+    core writes it (see <a href="multicore/structure.html#coherence">Coherence</a>).</li>
 </ul>
 <p>The C++ class <code>L1CachesCore</code> (<code>model/cpp_common_code/cache/</code>) holds
 both caches and the whole policy, the same class in both models:</p>

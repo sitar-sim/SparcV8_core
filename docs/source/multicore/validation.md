@@ -82,6 +82,41 @@ The tests in `sync_library/` check the routines of
 | `sync_library/semaphore_limit` | A semaphore with a count of 2 never lets more than 2 cores in. |
 | `sync_library/flush_inside_lock` | A counter under a mutex, read with a plain load after a flush inside the lock. This matters when run with the caches on. |
 
+### Coherence
+
+The tests in `coherence/` run with coherence on, through a `RUN_OPTIONS`
+line in each `.vprj`, and each core turns caching on for itself. They read
+shared data with plain cached loads. Each reader first brings the data into its
+cache, because a line that was never cached proves nothing, since a miss reads
+memory anyway.
+
+| Test | Checks |
+|---|---|
+| `coherence/write_seen_by_plain_load` | After a core writes a word the others hold in their caches, a plain load sees the new value. |
+| `coherence/stale_without_coherence` | The same program with coherence off. The others go on reading the old value until they flush, which shows the first test really tests something. |
+| `coherence/lock_and_counter_with_plain_loads` | A spinlock and a counter using only plain loads, with an exact total. |
+| `coherence/every_kind_of_write` | A byte store, a doubleword store, `LDSTUB`, `SWAP` and a bypass store all remove other cores' copies. |
+| `coherence/instruction_cache` | Other cores run code a core has changed, with no flush, and the writer runs it after `FLUSH`. |
+| `coherence/false_sharing` | Cores writing different words of one line never see a wrong value. |
+| `coherence/fill_race` | A write during another core's line fill must not leave a stale line. See [Coherence](structure.md#coherence). |
+| `coherence/snoop_filter` | With the snoop filter on, invalidates are still delivered to a core that has fetched the line again. |
+
+The litmus tests have the cores do a few reads and writes at the same moment, 100
+times over with varying delays, and check that an outcome memory ordering forbids
+never happens.
+
+| Test | The cores do | Forbidden |
+|---|---|---|
+| `coherence/litmus_mp` | Core 0 writes data and then a flag, and others read the flag and then the data. | Seeing the flag but not the data. |
+| `coherence/litmus_sb` | Two cores each write one word and read the other. | Both reading 0. TSO allows this, but this model has no store buffer. |
+| `coherence/litmus_lb` | Two cores each read one word and write the other. | Both reading 1. |
+| `coherence/litmus_iriw` | Two cores write different words, and two others read them in opposite orders. | The readers disagreeing about the order of the writes. |
+| `coherence/litmus_corr` | Core 0 writes a word twice, and others read it twice. | Seeing the writes go backwards. |
+| `coherence/litmus_2plus2w` | Two cores each write both words, in opposite orders. | A final state that needs a cycle in the order of writes. |
+
+`validation/C/caches/synonym_one_copy`, on one core, checks synonyms. It runs on
+every configuration with caches, with the MMU on.
+
 ### Checking that the tests can fail
 
 A test that cannot fail proves nothing, so these were also run on a
@@ -95,6 +130,21 @@ fails when its flush is removed and the caches are on, and
 `unmapped_address` fails if an access to an unmapped address leaves the
 bus locked for good.
 
+The `coherence/` tests were checked the same way, with deliberate mistakes in the
+model.
+
+| Mistake | Tests that then fail |
+|---|---|
+| No invalidates sent | All but `stale_without_coherence`, in both models. |
+| A fill in progress installs its line regardless | `fill_race` and `litmus_corr`, on the sitar_model only, since the cpp_model has no such race. |
+| The snoop filter never forgets | `snoop_filter`, in both models. |
+| The instruction cache is not invalidated | `instruction_cache`, in both models. |
+| An older copy of a line is not removed on a fill | `C/caches/synonym_one_copy`, in both models. |
+
+The first of these shows why each litmus test also checks that a plain load sees
+the writes at the end of each round. A stale cache only ever shows old values, which
+is not an outcome any litmus test forbids.
+
 Every wait for another core is bounded, so a broken model makes a test
 fail rather than run until its cycle limit.
 
@@ -107,12 +157,15 @@ validation/run_tests.py validation/multicore --config multicore
 validation/run_tests.py validation/multicore --config multicore --sitar
 ```
 
-The tests are written to pass whatever the interleaving of the cores
-and whether or not the caches are in use. Running them under several
-cpp scheduling strategies, and with the caches on, checks both.
+The tests are written to pass whatever the interleaving of the cores,
+whether or not the caches are in use, and whether or not they are coherent.
+Running them under several cpp scheduling strategies, with the caches on,
+and with coherence on, checks all of this. Tests that need one mode ask for
+it themselves in their `.vprj`.
 
 ```sh
 SPARC_ALWAYS_CACHEABLE=1 validation/run_tests.py validation/multicore --config multicore --sitar
+SPARC_ALWAYS_CACHEABLE=1 SPARC_COHERENT=1 validation/run_tests.py validation/multicore --config multicore --sitar
 for s in rr:1 rr:4 rr-fixed:1 random:7:32 random:99:3; do
     SPARC_SCHEDULE=$s validation/run_tests.py validation/multicore --config multicore
 done

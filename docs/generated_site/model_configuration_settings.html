@@ -2674,11 +2674,25 @@ on). It adds the following. See <a href="multicore/index.html">The Multicore Sys
 <td>Number of cores, each with its own L1 caches and MMU.<br><strong>Range:</strong> 1 to 4, default 4.</td>
 </tr>
 <tr>
-<td><strong><code>COHERENT</code></strong></td>
-<td>the same two files</td>
+<td><strong>Coherence</strong><br>(<code>--coherent</code>, <code>--no-coherent</code>)</td>
+<td>both models: command line, or <code>SPARC_COHERENT</code></td>
 <td>Structural</td>
+<td>Runtime</td>
+<td>Whether a write by one core removes that line from every other core's caches. See <a href="multicore/structure.html#coherence">Coherence</a>.<br><strong>Default:</strong> off.</td>
+</tr>
+<tr>
+<td><strong>Snoop filter</strong><br>(<code>--snoop-filter</code>)</td>
+<td>both models: command line, or <code>SPARC_SNOOP_FILTER</code></td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Leaves out repeated invalidates. The results of a correct program do not change, though timing can change slightly.<br><strong>Default:</strong> off.</td>
+</tr>
+<tr>
+<td><strong><code>caches.invalidateLookupDelay</code></strong></td>
+<td>sitar_model: <code>System.sitar</code></td>
+<td>Timing</td>
 <td>Compile time</td>
-<td>Whether a write by one core invalidates that line in every other core's caches.<br><strong>Range:</strong> <code>false</code> only, so far.</td>
+<td>Cycles charged to a core's next cache access for each invalidate it has received.<br><strong>Default:</strong> 0.</td>
 </tr>
 <tr>
 <td><strong><code>bridge.delay</code></strong></td>

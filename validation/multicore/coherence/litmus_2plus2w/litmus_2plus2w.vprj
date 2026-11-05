@@ -1,0 +1,15 @@
+SOURCES = litmus_2plus2w.c
+STARTUP = crt0_multicore.s
+MAX_CYCLES = 20000000
+RUN_OPTIONS = --coherent
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000003
+core1.o0=0x00000001
+core1.o1=0x00000003
+core2.o0=0x00000001
+core2.o1=0x00000003
+core3.o0=0x00000001
+core3.o1=0x00000003

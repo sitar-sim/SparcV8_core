@@ -2571,6 +2571,12 @@ once for each core, then the shared memory's and devices' once (see
 <td>Lines installed, and read misses the MMU reported as not cacheable (which read just one doubleword).</td>
 </tr>
 <tr>
+<td><strong>Synonyms, invalidates and abandoned fills</strong><br>(<code>synonyms removed</code>, <code>invalidates</code>, <code>invalidates hit</code>, <code>fills abandoned</code>)</td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
+<td>every configuration with caches</td>
+<td>Older copies of a physical line removed by a fill, invalidates received from other cores and the lines they removed, and fills not installed because their line was invalidated in progress. Only <code>multicore</code> with <code>--coherent</code> receives invalidates.</td>
+</tr>
+<tr>
 <td><strong>Forwarded accesses and flushes</strong><br>(<code>forwarded</code>, <code>flushes</code>)</td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/cache/L1CachesCore.h"><code>L1CachesCore</code></a></td>
 <td>same</td>
@@ -2619,6 +2625,12 @@ once for each core, then the shared memory's and devices' once (see
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/CoherentBridge.sitar"><code>CoherentBridge</code></a></td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/">multicore/sitar</a></td>
 <td>The physical transactions each core sent over the shared bus. A core that works from its own caches makes few. See <a href="multicore/examples.html">Example Programs</a>.</td>
+</tr>
+<tr>
+<td><strong>Invalidates sent and left out</strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/CoherentBridge.sitar"><code>CoherentBridge</code></a>, <code>CoherentBus.h</code></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/cpp_model/">multicore/cpp</a>, <a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/">multicore/sitar</a></td>
+<td>With <code>--coherent</code>, how many invalidates the bus sent to other cores, and how many the snoop filter left out.</td>
 </tr>
 <tr>
 <td><strong>Bus lock</strong></td>

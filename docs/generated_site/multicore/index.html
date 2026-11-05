@@ -2320,9 +2320,12 @@ that design is known.</p>
 <li><strong>Caches and MMU.</strong> Each core has its own L1 caches and MMU. The
   caches are write-through, so main memory always holds every value a
   core has written.</li>
-<li><strong>Coherence.</strong> None yet. A core's caches can keep an old copy of a
-  line after another core writes to it. Programs read shared data with
-  uncached loads, or flush their caches first.</li>
+<li><strong>Coherence.</strong> A run-time option, <code>--coherent</code>, off by default. When
+  it is off, a core's caches can keep an old copy of a line after another
+  core writes to it, and programs read shared data with uncached loads,
+  or flush their caches first. When it is on, a write removes that line
+  from every other core's caches (see <a href="programming.html#coherent-caches">Coherent
+  caches</a>).</li>
 <li><strong>Atomic instructions.</strong> <code>LDSTUB</code> and <code>SWAP</code> are atomic across cores
   in both models, and a library of <a href="programming.html#locks-and-synchronization">locks, barriers and
   semaphores</a> is built on them.</li>
@@ -2358,8 +2361,8 @@ that design is known.</p>
 </tr>
 <tr>
 <td>3</td>
-<td>Write-invalidate cache coherence, the <code>COHERENT</code> knob</td>
-<td>Planned</td>
+<td>Write-invalidate cache coherence, the <code>--coherent</code> option</td>
+<td>Done</td>
 </tr>
 <tr>
 <td>4</td>
@@ -2406,6 +2409,11 @@ serial and timer options), and they apply to every core.</p>
 <li><strong><code>--threads &lt;n&gt;</code></strong> and <strong><code>--thread-map &lt;list&gt;</code></strong> (sitar_model, built
   with <code>--openmp</code>) run the simulation on several host threads. See
   <a href="parallel_simulation.html">Parallel Simulation</a>.</li>
+<li><strong><code>--coherent</code></strong> keeps the caches coherent. <code>SPARC_COHERENT=1</code> does
+  the same, and <code>--no-coherent</code> overrides it. See <a href="programming.html#coherent-caches">Coherent
+  caches</a>.</li>
+<li><strong><code>--snoop-filter</code></strong> leaves out repeated invalidates.
+  <code>SPARC_SNOOP_FILTER=1</code> does the same.</li>
 <li><strong><code>--stats</code></strong> prints each core's counters, then the shared memory's and
   devices' counters. The sitar_model also prints the number of bus
   transactions each core made.</li>
@@ -2428,12 +2436,6 @@ serial and timer options), and they apply to every core.</p>
 <td>cpp_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h"><code>MulticoreConfig.h</code></a><br>sitar_model: <code>System</code>'s parameter in <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores.</td>
 </tr>
-<tr>
-<td><code>COHERENT</code></td>
-<td><code>false</code></td>
-<td>the same two files</td>
-<td>Whether a write by one core invalidates that line in the other cores' caches. Only <code>false</code> is implemented so far, and the build stops with an error if it is set to <code>true</code>.</td>
-</tr>
 </tbody>
 </table>
 <p>Every Sitar latency knob of the single-core configuration is also in
@@ -2450,9 +2452,9 @@ Settings</a>.</p>
   and the sitar_model run several cores, and why their results can
   differ for some programs.</li>
 <li><strong><a href="programming.html">Programming the Multicore System</a></strong> covers the
-  startup file, the core ID, sharing data without coherent caches, locks
-  and other synchronization, interrupts on several cores, and the
-  routines provided.</li>
+  startup file, the core ID, sharing data with and without coherent
+  caches, locks and other synchronization, interrupts on several cores,
+  and the routines provided.</li>
 <li><strong><a href="examples.html">Example Programs</a></strong> walks through a parallel array
   sum and a parallel matrix multiply.</li>
 <li><strong><a href="debugging.html">Logging and Debugging</a></strong> covers per-core traces,

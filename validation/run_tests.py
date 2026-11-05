@@ -77,7 +77,8 @@ def run_one_test(vprj_path, max_cycles, env, check_test):
         f.write('\n'.join(expected_lines) + '\n')
 
     max_cycles = max(max_cycles, vprj.parse_max_cycles(vprj_path) or 0)
-    check = subprocess.run([check_test, hex_path, expected_path, str(max_cycles)],
+    check = subprocess.run([check_test, hex_path, expected_path, str(max_cycles)]
+                            + vprj.parse_run_options(vprj_path),
                             capture_output=True, text=True, env=env)
     return check.returncode == 0, check.stdout + check.stderr
 

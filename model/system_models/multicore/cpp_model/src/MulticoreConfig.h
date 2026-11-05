@@ -18,13 +18,6 @@ namespace MulticoreConfig
 	//number of cores the Interrupt Controller has thread slots for
 	//(2 slots per core, Ref InterruptControllerCore.h).
 	const unsigned int NUM_CORES = 4;
-
-	//Whether a write by one core invalidates that line in every other
-	//core's L1 caches. With false, each core's caches can hold stale
-	//copies of data another core has written, as on a single AJIT core,
-	//and software keeps them consistent with flushes. Only false is
-	//implemented so far (sparc_sim.cpp refuses to build with true).
-	const bool COHERENT = false;
 }
 
 #endif

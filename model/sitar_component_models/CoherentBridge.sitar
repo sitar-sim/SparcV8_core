@@ -26,6 +26,21 @@
 // for the whole bridge, not one per address or per target, and it belongs
 // to a core.
 //
+// With `coherent` set, the bridge keeps the cores' caches coherent. When it
+// forwards a write to main memory, it sends the line's physical address to
+// every other core, in the same phase, and each removes that line from its
+// caches (Ref L1Caches.sitar). The invalidate arrives in the cycle memory takes
+// the write, before the writer gets its response. Every core polls its net each
+// cycle, and the bridge sends at most one invalidate per core per transaction,
+// so the net always has room. As in AJIT's bridge, the writer's own caches get
+// no invalidate, and every write sends one, since the bridge cannot see which
+// lines a cache holds.
+//
+// `snoopFilter`, off by default, leaves out repeats, a one-entry version of
+// AJIT's snoop filter. If a core's last invalidate was for this line and it
+// has not read anything from the bus since, it cannot have fetched the line
+// again.
+//
 // Timing is SystemBridge's: a request pulled in phase 0 is forwarded in
 // phase 1 of the same cycle, and the bridge adds only its own `delay`
 // knob beyond each net's unavoidable one cycle. With one core it behaves
@@ -43,11 +58,13 @@ module CoherentBridge
 	$
 	#include "MemoryInterfaces.h"
 	#include "SystemAddressMap.h"
+	#include <cstdlib>
 	$
 
 	//Core side, one port pair per core
 	inport_array  coreRequestIn[NUM_CORES]   : width TOKEN_REQ_WIDTH
 	outport_array coreResponseOut[NUM_CORES] : width TOKEN_RESP_WIDTH
+	outport_array coreInvalidateOut[NUM_CORES] : width TOKEN_INVALIDATE_WIDTH
 
 	//Target side
 	outport memoryRequestOut   : width TOKEN_REQ_WIDTH
@@ -81,6 +98,40 @@ module CoherentBridge
 	uint64_t unmappedTransactions;
 	uint64_t lockedPairs;
 	uint64_t transactionsPerCore[NUM_CORES];
+
+	//Set by the simulator's main, off by default.
+	bool coherent;
+	bool snoopFilter;
+	uint64_t invalidatesSent;
+	uint64_t invalidatesFiltered;
+	bool     lastInvalidateValid[NUM_CORES];
+	uint64_t lastInvalidatedLine[NUM_CORES];
+
+	//Only ever called in phase 1, since that is when a net may be pushed.
+	void sendInvalidates()
+	{
+		uint64_t line = request.physicalAddress & ~((uint64_t) CACHE_LINE_BYTES - 1);
+		token<TOKEN_INVALIDATE_WIDTH> t;
+		sitar::pack(t, line);
+		for (int c = 0; c < NUM_CORES; c++)
+		{
+			if (c == granted)
+				continue;
+			if (snoopFilter && lastInvalidateValid[c] && lastInvalidatedLine[c] == line)
+			{
+				invalidatesFiltered++;
+				continue;
+			}
+			lastInvalidateValid[c] = true;
+			lastInvalidatedLine[c] = line;
+			invalidatesSent++;
+			if (!coreInvalidateOut[c].push(t))
+			{
+				std::cerr << "\nError: CoherentBridge: invalidate net to core " << c << " is full";
+				std::exit(1);
+			}
+		}
+	}
 
 	//Round-robin: pull the next waiting request, searching from the port
 	//after the last one granted. Returns false if no port has one. While
@@ -118,8 +169,16 @@ module CoherentBridge
 	deviceTransactions   = 0;
 	unmappedTransactions = 0;
 	lockedPairs          = 0;
+	coherent             = false;
+	snoopFilter          = false;
+	invalidatesSent      = 0;
+	invalidatesFiltered  = 0;
 	for (int c = 0; c < NUM_CORES; c++)
+	{
 		transactionsPerCore[c] = 0;
+		lastInvalidateValid[c] = false;
+		lastInvalidatedLine[c] = 0;
+	}
 	$
 
 	behavior
@@ -145,6 +204,8 @@ module CoherentBridge
 		if (request.lock)
 			lockedPairs++;
 		target = SystemAddressMap::decode(request.physicalAddress);
+		if (request.accessType == PhysicalAccessType::READ)
+			lastInvalidateValid[granted] = false;
 
 		if (target == SystemAddressMap::Target::MAIN_MEMORY)
 		{
@@ -160,6 +221,11 @@ module CoherentBridge
 		}
 		sendTargetRequest.tok = requestToken;
 		$;
+
+		if ($coherent and request.accessType == PhysicalAccessType::WRITE and target == SystemAddressMap::Target::MAIN_MEMORY$) then
+			wait until (this_phase==1);
+			$ sendInvalidates(); $;
+		end if;
 
 		if ($target == SystemAddressMap::Target::UNMAPPED$) then
 			$

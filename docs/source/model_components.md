@@ -142,12 +142,18 @@ properties:
     both caches, `0x18` to `0x1C` the instruction cache, the `FLUSH`
     instruction both, and a write to the MMU's registers (except the
     context register) both.
-- **Not coherent**  
+- **Synonyms**  
+    Two virtual addresses, or one address in two contexts, can map to one
+    physical line. A cache holds at most one copy, because installing a
+    line removes any older copy with the same physical address.
+- **Not coherent by default**  
     The caches do not see memory changed behind their back, for example
     by a bypass store or, in `multicore`, by another core, so a program that does that must flush first (see
     `validation/C/caches/stale_until_flush`). In particular,
     self-modifying code must execute `FLUSH` before running the new
-    instructions, as the SPARC manual requires.
+    instructions, as the SPARC manual requires. In `multicore`, the
+    `--coherent` option removes a line from other cores' caches when a
+    core writes it (see [Coherence](multicore/structure.md#coherence)).
 
 The C++ class `L1CachesCore` (`model/cpp_common_code/cache/`) holds
 both caches and the whole policy, the same class in both models:

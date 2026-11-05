@@ -19,9 +19,12 @@ that design is known.
 - **Caches and MMU.** Each core has its own L1 caches and MMU. The
   caches are write-through, so main memory always holds every value a
   core has written.
-- **Coherence.** None yet. A core's caches can keep an old copy of a
-  line after another core writes to it. Programs read shared data with
-  uncached loads, or flush their caches first.
+- **Coherence.** A run-time option, `--coherent`, off by default. When
+  it is off, a core's caches can keep an old copy of a line after another
+  core writes to it, and programs read shared data with uncached loads,
+  or flush their caches first. When it is on, a write removes that line
+  from every other core's caches (see [Coherent
+  caches](programming.md#coherent-caches)).
 - **Atomic instructions.** `LDSTUB` and `SWAP` are atomic across cores
   in both models, and a library of [locks, barriers and
   semaphores](programming.md#locks-and-synchronization) is built on them.
@@ -43,7 +46,7 @@ The configuration is being built in stages.
 |---|---|---|
 | 1 | The cores, the shared bus, startup of every core, checking each core's results, per-core interrupts | Done |
 | 2 | Atomic `LDSTUB` and `SWAP` across cores, and a library of synchronization routines (locks, barriers) | Done |
-| 3 | Write-invalidate cache coherence, the `COHERENT` knob | Planned |
+| 3 | Write-invalidate cache coherence, the `--coherent` option | Done |
 | 4 | Shared devices from several cores (a console under a lock, TLB shootdown through IPIs) | Planned |
 | 5 | OpenMP programs, with a bare-metal OpenMP runtime | Planned |
 | 6 | Context switching and a scheduler on each core | Planned |
@@ -81,6 +84,11 @@ serial and timer options), and they apply to every core.
 - **`--threads <n>`** and **`--thread-map <list>`** (sitar_model, built
   with `--openmp`) run the simulation on several host threads. See
   [Parallel Simulation](parallel_simulation.md).
+- **`--coherent`** keeps the caches coherent. `SPARC_COHERENT=1` does
+  the same, and `--no-coherent` overrides it. See [Coherent
+  caches](programming.md#coherent-caches).
+- **`--snoop-filter`** leaves out repeated invalidates.
+  `SPARC_SNOOP_FILTER=1` does the same.
 - **`--stats`** prints each core's counters, then the shared memory's and
   devices' counters. The sitar_model also prints the number of bus
   transactions each core made.
@@ -92,7 +100,6 @@ serial and timer options), and they apply to every core.
 | Knob | Default | Where | Description |
 |---|---|---|---|
 | `NUM_CORES` | 4 | cpp_model: [`MulticoreConfig.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h)<br>sitar_model: `System`'s parameter in [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores. |
-| `COHERENT` | `false` | the same two files | Whether a write by one core invalidates that line in the other cores' caches. Only `false` is implemented so far, and the build stops with an error if it is set to `true`. |
 
 Every Sitar latency knob of the single-core configuration is also in
 `System.sitar`, set the same for every core, along with the bus's own
@@ -110,9 +117,9 @@ Settings](../model_configuration_settings.md#multicore-multicore).
   and the sitar_model run several cores, and why their results can
   differ for some programs.
 - **[Programming the Multicore System](programming.md)** covers the
-  startup file, the core ID, sharing data without coherent caches, locks
-  and other synchronization, interrupts on several cores, and the
-  routines provided.
+  startup file, the core ID, sharing data with and without coherent
+  caches, locks and other synchronization, interrupts on several cores,
+  and the routines provided.
 - **[Example Programs](examples.md)** walks through a parallel array
   sum and a parallel matrix multiply.
 - **[Logging and Debugging](debugging.md)** covers per-core traces,

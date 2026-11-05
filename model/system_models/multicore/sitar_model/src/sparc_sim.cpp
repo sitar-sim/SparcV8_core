@@ -5,8 +5,8 @@
 //is core i (SPARC core, L1 caches, MMU), TOP->system.bridge the
 //CoherentBridge below the MMUs, TOP->system.mainMemory the physical
 //memory, TOP->system.devices the shared Timer, Serial, Interrupt
-//Controller and scratch-pad, all siblings. The two compile-time knobs,
-//NUM_CORES and COHERENT, are System.sitar's parameters.
+//Controller and scratch-pad, all siblings. The compile-time knob,
+//NUM_CORES, is System.sitar's parameter.
 //
 //Every core runs in parallel with the others, one instruction per cycle
 //at most, and they meet only at the bridge. The run ends when every
@@ -23,7 +23,7 @@
 //                       [--serial-in <file>] [--serial-out <file>] [--serial-pty]
 //                       [--timer-tick-divider <n>]
 //                       [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>]
-//                       [--always-cacheable]
+//                       [--always-cacheable] [--coherent] [--no-coherent] [--snoop-filter]
 //                       [--threads <n>] [--thread-map <t0,t1,...>]
 //
 //--run-cores m runs only cores 0 to m-1. The others are held in reset
@@ -32,6 +32,11 @@
 //mean exactly what they mean for this configuration's cpp_model (Ref
 //../../cpp_model/src/sparc_sim.cpp), and apply to every core's caches.
 //--timer-tick-divider, when given, overrides System.sitar's value.
+//
+//--coherent keeps the caches coherent (Ref CoherentBridge.sitar). It is off by
+//default. SPARC_COHERENT=1 in the environment turns it on, and --no-coherent
+//turns it off for a test that needs it off whatever the environment says.
+//--snoop-filter, or SPARC_SNOOP_FILTER=1, leaves out repeated invalidates.
 //
 //--stats prints each core's counters, then the bridge's per-core
 //transaction counts and the shared memory's and devices' counters.
@@ -233,6 +238,12 @@ int main(int argc, char** argv)
 	unsigned int icacheLines = DEFAULT_ICACHE_LINES, icacheWays = DEFAULT_ICACHE_WAYS;
 	unsigned int dcacheLines = DEFAULT_DCACHE_LINES, dcacheWays = DEFAULT_DCACHE_WAYS;
 	bool alwaysCacheable = false;
+	bool coherent        = false;
+	bool snoopFilter     = false;
+	if (const char* env = std::getenv("SPARC_COHERENT"))
+		coherent = (std::string(env) == "1");
+	if (const char* env = std::getenv("SPARC_SNOOP_FILTER"))
+		snoopFilter = (std::string(env) == "1");
 	unsigned long runCores = 0; //0: all cores
 	unsigned int numThreads = 0; //0: OMP_NUM_THREADS, else 1
 	std::string threadMapSpec;
@@ -271,6 +282,12 @@ int main(int argc, char** argv)
 			dcacheWays = (unsigned int) std::strtoul(argv[++i], NULL, 10);
 		else if (arg == "--always-cacheable")
 			alwaysCacheable = true;
+		else if (arg == "--coherent")
+			coherent = true;
+		else if (arg == "--no-coherent")
+			coherent = false;
+		else if (arg == "--snoop-filter")
+			snoopFilter = true;
 		else if (arg == "--threads" && hasValue)
 			numThreads = (unsigned int) std::strtoul(argv[++i], NULL, 10);
 		else if (arg == "--thread-map" && hasValue)
@@ -284,6 +301,7 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles] [--stats] [--run-cores <m>]"
 		          << " [--serial-in <file>] [--serial-out <file>] [--serial-pty] [--timer-tick-divider <n>]"
 		          << " [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable]"
+		          << " [--coherent] [--no-coherent] [--snoop-filter]"
 		          << " [--threads <n>] [--thread-map <t0,t1,...>]\n";
 		return 1;
 	}
@@ -442,6 +460,9 @@ int main(int argc, char** argv)
 			TOP->system.cores[i].mmu.mmu.access(set, ignored);
 	}
 
+	TOP->system.bridge.coherent    = coherent;
+	TOP->system.bridge.snoopFilter = snoopFilter;
+
 	//run for up to maxCycles cycles (Sitar counts phases, 2 per cycle),
 	//or until the model itself calls `stop simulation` (System.sitar does
 	//this once every running core has halted).
@@ -517,6 +538,8 @@ int main(int argc, char** argv)
 		for (unsigned int i = 0; i < numCores; i++)
 			std::cout << "\n\t core " << i << " = " << TOP->system.bridge.transactionsPerCore[i];
 		std::cout << "\n Bridge locked read-write pairs (LDSTUB, SWAP) = " << TOP->system.bridge.lockedPairs;
+		std::cout << "\n Bridge invalidates sent = " << TOP->system.bridge.invalidatesSent
+		          << ", left out by the snoop filter = " << TOP->system.bridge.invalidatesFiltered;
 		std::cout << "\n" << TOP->system.mainMemory.mem.stats.toString()
 		          << TOP->system.devices.devices.stats.toString();
 	}

@@ -16,8 +16,9 @@
 //
 // Also exposes requestOut/responseIn, so Mmu can reach the physical bus
 // (CoherentBridge, a sibling module under System.sitar), and
-// interruptLevelIn, polled once per cycle by one more parallel branch,
-// which drives the latest interrupt level onto the core's IRL pins.
+// interruptLevelIn and invalidateIn, polled once per cycle by one more
+// parallel branch, which drives the latest interrupt level onto the core's
+// IRL pins and removes invalidated lines from the caches.
 //================================================================
 
 module Core
@@ -51,6 +52,9 @@ module Core
 	//keeps the last value received.
 	inport  interruptLevelIn : width 1
 
+	//Lines other cores have written, from CoherentBridge (when --coherent).
+	inport  invalidateIn : width TOKEN_INVALIDATE_WIDTH
+
 	decl
 	$
 	token<1> interruptLevelToken;
@@ -74,6 +78,7 @@ module Core
 	//Cache lines are tagged with the MMU's current context.
 	MmuCore* mmuCore = &mmu.mmu;
 	caches.caches.currentContext = [mmuCore]() { return mmuCore->currentContext(); };
+	caches.invalidateIn = &invalidateIn;
 
 	mmu.phyMemReadProcedure.reqPortPtr   = &requestOut;
 	mmu.phyMemReadProcedure.respPortPtr  = &responseIn;
@@ -102,6 +107,7 @@ module Core
 			// Polls interruptLevelIn once per cycle, in phase 0, and drives
 			// any new level onto the core's IRL input pins (bp_IRL), where
 			// checkExternalTraps() samples it before the next instruction.
+			// Also applies any invalidates, whether or not the core is running.
 			do
 				wait until (this_phase==0);
 				$
@@ -111,6 +117,7 @@ module Core
 					sitar::unpack(interruptLevelToken, level);
 					sparcThread.core.reg.W_bp_IRL(level); //the core's IRL input pins
 				}
+				caches.drainInvalidates();
 				$;
 				wait(1,0);
 			while(1) end do;

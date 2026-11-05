@@ -80,7 +80,7 @@ memory and one set of devices (the `multicore` configuration).
 | [Overview](multicore/index.md) | The system at a glance, the stages it is built in, building and running, and its compile-time knobs. |
 | [Model Structure and Assumptions](multicore/structure.md) | How the cpp_model and the sitar_model are built, the shared bus, interrupts, and where the model makes its own assumptions. |
 | [Execution Model](multicore/execution_model.md) | How each model runs several cores, what a cycle means in each, and why results can differ between them. |
-| [Programming the System](multicore/programming.md) | The startup file, the core ID, sharing data without coherent caches, interrupts on several cores, and the routines provided. |
+| [Programming the System](multicore/programming.md) | The startup file, the core ID, sharing data with and without coherent caches, locks and other synchronization, interrupts on several cores, and the routines provided. |
 | [Example Programs](multicore/examples.md) | A parallel array sum and a parallel matrix multiply, explained. |
 | [Logging and Debugging](multicore/debugging.md) | Per-core traces, gdb with several cores, statistics, and finding data races. |
 | [Validation Suite](multicore/validation.md) | The multicore tests, how each core's results are checked, and how to run them. |

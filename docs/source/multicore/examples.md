@@ -146,8 +146,8 @@ core has produced.
   hold an old copy. A core that had read A before core 0 filled it in
   would need the flush.
 
-Once the caches are coherent (a later stage), the flushes will no longer
-be needed, and the program will still be correct.
+With `--coherent`, the flushes are no longer needed, and the program is
+still correct as it stands.
 
 ---
 

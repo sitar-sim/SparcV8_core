@@ -25,7 +25,7 @@
 //                     [--serial-in <file>] [--serial-out <file>] [--serial-pty]
 //                     [--timer-tick-divider <n>]
 //                     [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>]
-//                     [--always-cacheable]
+//                     [--always-cacheable] [--coherent] [--no-coherent] [--snoop-filter]
 //
 //--schedule picks the interleaving strategy (default rr:1, Ref
 //Scheduler.h). SPARC_SCHEDULE in the environment does the same.
@@ -34,6 +34,11 @@
 //and count as halted. This lets a single-core program (one that does
 //not look at its core ID) run unchanged on a multi-core build.
 //SPARC_RUN_CORES in the environment does the same. Default NUM_CORES.
+//
+//--coherent keeps the caches coherent (Ref CoherentBus.h). It is off by
+//default. SPARC_COHERENT=1 in the environment turns it on, and --no-coherent
+//turns it off for a test that needs it off whatever the environment says.
+//--snoop-filter, or SPARC_SNOOP_FILTER=1, leaves out repeated invalidates.
 //
 //The other options are core_l1cache_mmu_devices' own, applied to every
 //core's caches.
@@ -45,6 +50,7 @@
 #include "SparcStateMachine.h"
 #include "MmuCore.h"
 #include "SystemBus.h"
+#include "CoherentBus.h"
 #include "PeripheralDevicesCore.h"
 #include "SerialBackend.h"
 #include "L1CachesCore.h"
@@ -61,7 +67,6 @@
 
 static_assert(MulticoreConfig::NUM_CORES >= 1 && MulticoreConfig::NUM_CORES <= 4,
               "NUM_CORES must be 1 to 4 (the Interrupt Controller has slots for 4 cores)");
-static_assert(!MulticoreConfig::COHERENT, "COHERENT=true is not implemented yet");
 
 //One core with its own caches and MMU, the unit the system has N of.
 struct Island
@@ -183,6 +188,12 @@ int main(int argc, char** argv)
 	unsigned int icacheLines = DEFAULT_ICACHE_LINES, icacheWays = DEFAULT_ICACHE_WAYS;
 	unsigned int dcacheLines = DEFAULT_DCACHE_LINES, dcacheWays = DEFAULT_DCACHE_WAYS;
 	bool alwaysCacheable = false;
+	bool coherent        = false;
+	bool snoopFilter     = false;
+	if (const char* env = std::getenv("SPARC_COHERENT"))
+		coherent = (std::string(env) == "1");
+	if (const char* env = std::getenv("SPARC_SNOOP_FILTER"))
+		snoopFilter = (std::string(env) == "1");
 	std::string scheduleSpec = "rr:1";
 	unsigned long runCores = numCores;
 	if (const char* env = std::getenv("SPARC_SCHEDULE"))
@@ -225,6 +236,12 @@ int main(int argc, char** argv)
 			dcacheWays = (unsigned int) std::strtoul(argv[++i], NULL, 10);
 		else if (arg == "--always-cacheable")
 			alwaysCacheable = true;
+		else if (arg == "--coherent")
+			coherent = true;
+		else if (arg == "--no-coherent")
+			coherent = false;
+		else if (arg == "--snoop-filter")
+			snoopFilter = true;
 		else
 			args.push_back(arg);
 	}
@@ -234,7 +251,8 @@ int main(int argc, char** argv)
 		std::cerr << "Usage: " << argv[0] << " <hex_file> [expected_file] [max_cycles] [--stats]"
 		          << " [--schedule <spec>] [--run-cores <m>]"
 		          << " [--serial-in <file>] [--serial-out <file>] [--serial-pty] [--timer-tick-divider <n>]"
-		          << " [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable]\n";
+		          << " [--icache-lines <n>] [--icache-ways <n>] [--dcache-lines <n>] [--dcache-ways <n>] [--always-cacheable]"
+		          << " [--coherent] [--no-coherent] [--snoop-filter]\n";
 		return 1;
 	}
 
@@ -267,7 +285,10 @@ int main(int argc, char** argv)
 	devices.serial.setBackend(std::unique_ptr<SerialBackend>(serialRecorder));
 	devices.timerTickDivider = (timerTickDivider == 0) ? 1 : timerTickDivider;
 
-	SystemBus bus(mem, devices);
+	SystemBus systemBus(mem, devices);
+	CoherentBus bus(systemBus, numCores);
+	bus.coherent    = coherent;
+	bus.snoopFilter = snoopFilter;
 
 	//The same switch as an environment variable, for running whole test
 	//suites with caching on (run_tests.py passes no extra options).
@@ -277,8 +298,9 @@ int main(int argc, char** argv)
 	std::vector<std::unique_ptr<Island>> islands;
 	for (unsigned int i = 0; i < numCores; i++)
 	{
-		islands.emplace_back(new Island(bus, i));
+		islands.emplace_back(new Island(bus.port(i), i));
 		Island& island = *islands.back();
+		bus.attachCaches(i, &island.caches);
 
 		//Manual/debug knob, as in the single-core configurations.
 		if (const char* tlbEnabledEnv = std::getenv("MMU_TLB_ENABLED"))
@@ -365,7 +387,9 @@ int main(int argc, char** argv)
 			std::cout << "\n=== core " << i << " ===\n"
 			          << island.core.stats.toString() << island.caches.statsToString() << island.mmu.stats.toString();
 		}
-		std::cout << "\n=== shared ===\n" << mem.stats.toString() << devices.stats.toString();
+		std::cout << "\n=== shared ===\n Bus invalidates sent = " << bus.invalidatesSent
+		          << ", left out by the snoop filter = " << bus.invalidatesFiltered
+		          << "\n" << mem.stats.toString() << devices.stats.toString();
 	}
 
 	if (expectedFile.empty())

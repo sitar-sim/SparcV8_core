@@ -38,6 +38,16 @@
 //  - Whether anything is cacheable at all is the MMU's decision (its
 //    READ_LINE reply): with the MMU disabled, only if the MMU Control
 //    Register's "always cacheable" bit is set, as in AJIT.
+//  - Synonyms: two virtual addresses or contexts can map to one physical
+//    line, and each cache holds at most one copy of it. Installing a line
+//    removes any older copy, as AJIT's caches do (Dcache.c, through its
+//    RLUT). A store through either address therefore keeps them consistent.
+//
+//Coherence: invalidatePhysicalLine() removes another core's written line from
+//both caches. Only a multicore system ever calls it. In a timing model it
+//can arrive while a line fill is in progress, after the fill has already read
+//part of that line from memory. Such a fill still serves the read that
+//started it, but does not install the line, which may hold old data.
 //
 //One request is serviced at a time. The work is split into small steps
 //so that a timing model can perform each downstream access with real
@@ -58,6 +68,7 @@
 #include <stdint.h>
 #include <functional>
 #include <string>
+#include <vector>
 #include "MemoryInterfaces.h"
 #include "CacheArray.h"
 #include "CacheConfig.h"
@@ -96,6 +107,9 @@ class L1CachesCore : public VirtualMemoryInterface
 		const VirtualMemoryRequest& downstreamRequest() const { return downstreamRequest_; }
 		void downstreamDone(const VirtualMemoryResponse& downstreamResponse);
 
+		//Another core has written this physical line (Ref the header comment).
+		void invalidatePhysicalLine(uint64_t physicalAddress);
+
 		//What the last completed access was, for a timing model's knobs.
 		bool lastAccessWasInstructionHit() const { return lastHit_ && lastWasInstruction_; }
 		bool lastAccessWasDataHit()        const { return lastHit_ && !lastWasInstruction_; }
@@ -112,6 +126,10 @@ class L1CachesCore : public VirtualMemoryInterface
 			uint64_t uncachedMisses = 0; //misses the MMU said were not cacheable
 			uint64_t forwarded  = 0; //non-cacheable-ASI accesses passed to the MMU
 			uint64_t flushes    = 0;
+			uint64_t synonymsRemoved  = 0; //older copies removed by a fill
+			uint64_t invalidates      = 0; //invalidates received from other cores
+			uint64_t invalidatesHit   = 0; //lines those removed
+			uint64_t fillsAbandoned   = 0; //fills not installed, invalidated in progress
 		};
 		CacheStats instructionStats;
 		CacheStats dataStats;
@@ -124,6 +142,8 @@ class L1CachesCore : public VirtualMemoryInterface
 		void flushInstructionCache();
 		void flushDataCache();
 		void serveReadFromLine(int index);
+		bool invalidatedDuringFill(uint64_t physicalAddress) const;
+		int  installLine(CacheArray& cache, CacheStats& stats, const VirtualMemoryResponse& r);
 
 		VirtualMemoryInterface& downstream_;
 
@@ -133,6 +153,9 @@ class L1CachesCore : public VirtualMemoryInterface
 		VirtualMemoryRequest   downstreamRequest_;
 		bool                   isInstruction_;
 		uint32_t               context_;
+
+		//Physical lines invalidated since the current fill began.
+		std::vector<uint64_t>  invalidatedDuringFill_;
 
 		bool lastHit_;
 		bool lastWasInstruction_;

@@ -15,7 +15,8 @@ of `core_l1cache_mmu_devices/cpp_model/`'s island (`SparcStateMachine`
 
 | File | What |
 |---|---|
-| `src/MulticoreConfig.h` | The compile-time knobs, `NUM_CORES` and `COHERENT`. |
+| `src/MulticoreConfig.h` | The compile-time knob, `NUM_CORES`. |
+| `src/CoherentBus.h` | Each core's port onto the bus. With `--coherent`, a write removes that line from the other cores' caches. |
 | `src/Scheduler.h` / `.cpp` | How the cores are interleaved: rounds of turns, and the `rr:K`, `rr-fixed:K` and `random:SEED[:MAXTURN]` strategies. Also defines what a model cycle is here. |
 | `src/sparc_sim.cpp` | Builds the system, runs the rounds, ticks the devices, and checks expected results per core. |
 

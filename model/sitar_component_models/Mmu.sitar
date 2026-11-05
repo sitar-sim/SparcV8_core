@@ -322,6 +322,7 @@ procedure Mmu
 					translatedCacheable = translatedCacheable and MmuCore::isCacheableTarget(translatedPhysAddr);
 					response.cacheable = translatedCacheable;
 					response.acc       = translatedAcc;
+					response.physicalAddress = translatedPhysAddr;
 					for (unsigned int i = 0; i < CACHE_LINE_DOUBLEWORDS; i++) response.line[i] = 0;
 					lineDword = 0;
 					$;

@@ -19,6 +19,7 @@ namespace
 	}
 
 	const unsigned int LOG_LINE_BYTES = 6; //CACHE_LINE_BYTES = 64
+	const unsigned int LOG_PAGE_BYTES = 12; //the smallest page, 4 KB
 }
 
 CacheArray::CacheArray(unsigned int numberOfLines, unsigned int ways)
@@ -58,7 +59,7 @@ int CacheArray::find(uint32_t va, uint32_t context) const
 	return -1;
 }
 
-int CacheArray::fill(uint32_t va, uint32_t context, uint8_t acc, const uint64_t* data)
+int CacheArray::fill(uint32_t va, uint32_t context, uint8_t acc, const uint64_t* data, uint64_t physicalAddress)
 {
 	assert(find(va, context) < 0);
 	unsigned int set   = setIndex(va);
@@ -76,9 +77,37 @@ int CacheArray::fill(uint32_t va, uint32_t context, uint8_t acc, const uint64_t*
 	l.valid = true;
 	l.tag   = tagOf(va, context);
 	l.acc   = acc;
+	l.physicalLine = physicalAddress >> LOG_LINE_BYTES;
 	for (unsigned int i = 0; i < CACHE_LINE_DOUBLEWORDS; i++)
 		l.data[i] = data[i];
 	return (int) (first + way);
+}
+
+unsigned int CacheArray::invalidatePhysicalLine(uint64_t physicalAddress)
+{
+	uint64_t physicalLine = physicalAddress >> LOG_LINE_BYTES;
+
+	//A virtual and a physical address agree within a page, so the set index
+	//bits below the page boundary are known, and the rest must be tried.
+	unsigned int knownBits = LOG_PAGE_BYTES - LOG_LINE_BYTES;
+	unsigned int knownSets = (logSets_ < knownBits) ? sets_ : (1u << knownBits);
+	unsigned int knownPart = (unsigned int) physicalLine & (knownSets - 1);
+
+	unsigned int removed = 0;
+	for (unsigned int set = knownPart; set < sets_; set += knownSets)
+	{
+		unsigned int first = set * ways_;
+		for (unsigned int w = 0; w < ways_; w++)
+		{
+			Line& l = lines_[first + w];
+			if (l.valid && l.physicalLine == physicalLine)
+			{
+				l.valid = false;
+				removed++;
+			}
+		}
+	}
+	return removed;
 }
 
 uint64_t CacheArray::readDoubleword(int index, uint32_t va) const

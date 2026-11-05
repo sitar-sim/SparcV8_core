@@ -1,0 +1,11 @@
+SOURCES = snoop_filter.s
+MAX_CYCLES = 20000000
+RUN_OPTIONS = --coherent --snoop-filter
+
+
+RESULTS =
+o0=0x00000001
+core1.o0=0x00000001
+core2.o0=0x00000001
+core3.o0=0x00000001
+m[0x100000]=0x00000032

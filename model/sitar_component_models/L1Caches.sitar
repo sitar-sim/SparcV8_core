@@ -28,7 +28,16 @@
 // below it). Nothing is computed after the fact.
 //
 // Latency knobs (all default 0): icacheHitDelay and dcacheHitDelay,
-// charged on a hit; fillDelay, charged when a line is installed.
+// charged on a hit; fillDelay, charged when a line is installed;
+// invalidateLookupDelay, charged to the next access for each invalidate.
+//
+// In a multicore system, Core.sitar points invalidateIn at the port that
+// brings invalidates from CoherentBridge. drainInvalidates() applies any
+// that have arrived. Core.sitar calls it every cycle, whatever the core is
+// doing, so the bridge never finds the net full, and this procedure calls it
+// again before every access, so a hit in that same phase never sees a line
+// that has been invalidated. With invalidateIn left NULL, as in the single-
+// core configurations, it does nothing.
 //================================================================
 
 procedure L1Caches
@@ -61,6 +70,26 @@ procedure L1Caches
 	uint32_t icacheHitDelay;
 	uint32_t dcacheHitDelay;
 	uint32_t fillDelay;
+	uint32_t invalidateLookupDelay;
+
+	inport<TOKEN_INVALIDATE_WIDTH>* invalidateIn;
+	uint32_t pendingLookupCycles; //owed to invalidates since the last access
+	uint32_t lookupCycles;
+
+	//Only ever called in phase 0, since that is when a net may be pulled.
+	void drainInvalidates()
+	{
+		if (!invalidateIn)
+			return;
+		token<TOKEN_INVALIDATE_WIDTH> t;
+		while (invalidateIn->pull(t))
+		{
+			uint64_t physicalAddress = 0;
+			sitar::unpack(t, physicalAddress);
+			caches.invalidatePhysicalLine(physicalAddress);
+			pendingLookupCycles += invalidateLookupDelay;
+		}
+	}
 	$
 	init
 	$
@@ -80,6 +109,10 @@ procedure L1Caches
 	icacheHitDelay = 0;
 	dcacheHitDelay = 0;
 	fillDelay      = 0;
+	invalidateLookupDelay = 0;
+	invalidateIn = NULL;
+	pendingLookupCycles = 0;
+	lookupCycles = 0;
 	$
 
 	behavior
@@ -91,6 +124,15 @@ procedure L1Caches
 
 	do
 		wait until (this_phase==0 and $request.valid$);
+
+		$ drainInvalidates(); $;
+		do
+			if ($pendingLookupCycles > 0$) then
+				$ lookupCycles = pendingLookupCycles; pendingLookupCycles = 0; $;
+				wait(lookupCycles, 0);
+				$ drainInvalidates(); $;
+			end if;
+		while ($pendingLookupCycles > 0$) end do;
 
 		$ caches.begin(request, response); $;
 

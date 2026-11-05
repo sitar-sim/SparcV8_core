@@ -2355,6 +2355,9 @@ Interrupt Controller changes it.</p>
 a write. The bridge keeps every other core off the bus between them, so
 the instruction is atomic in this model too (see <a href="structure.html#the-bus-lock">The bus
 lock</a>).</p>
+<p>With <code>--coherent</code>, a write also sends an invalidate to every other core,
+which arrives in the cycle memory takes the write (see
+<a href="structure.html#coherence">Coherence</a>).</p>
 <p>The effect of the shared bus can be seen directly. In the validation
 test <code>multicore/boot/staggered_halt</code>, core <code>i</code> counts to
 <code>(i + 1) * 3000</code>. With the MMU off nothing is cached, so every

@@ -25,8 +25,9 @@
 // sparc_sim's --run-cores) are held in reset for the whole run and do
 // not count.
 //
-// Owns the configuration's two compile-time knobs (NUM_CORES and
-// COHERENT, below) and the consolidated list of every latency knob.
+// Owns the configuration's compile-time knob (NUM_CORES, below) and the
+// consolidated list of every latency knob. Coherence is a run-time option
+// (--coherent), which the simulator's main passes to the bridge.
 //================================================================
 
 module System
@@ -34,11 +35,6 @@ module System
 	//Number of cores, 1 to 4 (the Interrupt Controller has thread slots
 	//for 4 cores). The cpp_model's knob is in MulticoreConfig.h.
 	parameter int  NUM_CORES = 4
-
-	//Whether a write by one core invalidates that line in every other
-	//core's L1 caches. Only false is implemented so far (init below
-	//refuses to build with true).
-	parameter bool COHERENT = false
 
 	//Whether System stops the simulation once all its running cores have
 	//halted. A model holding several Systems sets it false and stops the
@@ -58,6 +54,7 @@ module System
 	net_array coreRequestNet[NUM_CORES]    : capacity 1 width TOKEN_REQ_WIDTH
 	net_array coreResponseNet[NUM_CORES]   : capacity 1 width TOKEN_RESP_WIDTH
 	net_array interruptLevelNet[NUM_CORES] : capacity 1 width 1
+	net_array coreInvalidateNet[NUM_CORES] : capacity 1 width TOKEN_INVALIDATE_WIDTH
 	net memoryRequestNet   : capacity 1 width TOKEN_REQ_WIDTH
 	net memoryResponseNet  : capacity 1 width TOKEN_RESP_WIDTH
 	net devicesRequestNet  : capacity 1 width TOKEN_REQ_WIDTH
@@ -71,6 +68,9 @@ module System
 
 		devices.interruptLevelOut[i] => interruptLevelNet[i]
 		cores[i].interruptLevelIn    <= interruptLevelNet[i]
+
+		bridge.coreInvalidateOut[i]  => coreInvalidateNet[i]
+		cores[i].invalidateIn        <= coreInvalidateNet[i]
 	end for
 
 	bridge.memoryRequestOut  => memoryRequestNet
@@ -102,7 +102,6 @@ module System
 	$
 	static_assert(NUM_CORES >= 1 && NUM_CORES <= 4,
 	              "NUM_CORES must be 1 to 4 (the Interrupt Controller has slots for 4 cores)");
-	static_assert(!COHERENT, "COHERENT=true is not implemented yet");
 
 	runCores = NUM_CORES;
 	for (int i = 0; i < NUM_CORES; i++)
@@ -134,6 +133,7 @@ module System
 		cores[i].caches.icacheHitDelay = 0; //charged on an instruction cache hit
 		cores[i].caches.dcacheHitDelay = 0; //charged on a data cache hit
 		cores[i].caches.fillDelay      = 0; //charged when a line is installed
+		cores[i].caches.invalidateLookupDelay = 0; //charged to the next access, per invalidate received
 		//
 		//MMU-related (Ref Mmu.sitar's own comment on each field):
 		cores[i].mmu.tlbLookupDelay         = 0; //TLB tag-compare cost, charged whether hit or miss

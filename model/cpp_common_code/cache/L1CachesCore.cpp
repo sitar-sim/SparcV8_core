@@ -79,6 +79,33 @@ void L1CachesCore::flushDataCache()
 	dataStats.flushes++;
 }
 
+void L1CachesCore::invalidatePhysicalLine(uint64_t physicalAddress)
+{
+	instructionStats.invalidates++;
+	dataStats.invalidates++;
+	instructionStats.invalidatesHit += instructionCache.invalidatePhysicalLine(physicalAddress);
+	dataStats.invalidatesHit        += dataCache.invalidatePhysicalLine(physicalAddress);
+	if (step_ == Step::FILL_FOR_READ || step_ == Step::FILL_FOR_WRITE)
+		invalidatedDuringFill_.push_back(physicalAddress / CACHE_LINE_BYTES);
+}
+
+bool L1CachesCore::invalidatedDuringFill(uint64_t physicalAddress) const
+{
+	uint64_t physicalLine = physicalAddress / CACHE_LINE_BYTES;
+	for (uint64_t invalidated : invalidatedDuringFill_)
+		if (invalidated == physicalLine)
+			return true;
+	return false;
+}
+
+int L1CachesCore::installLine(CacheArray& cache, CacheStats& stats, const VirtualMemoryResponse& r)
+{
+	stats.synonymsRemoved += cache.invalidatePhysicalLine(r.physicalAddress);
+	stats.lineFills++;
+	lastInstalled_ = true;
+	return cache.fill(request_.address, context_, r.acc, r.line, r.physicalAddress);
+}
+
 void L1CachesCore::serveReadFromLine(int index)
 {
 	CacheArray& cache = isInstruction_ ? instructionCache : dataCache;
@@ -137,6 +164,7 @@ void L1CachesCore::begin(const VirtualMemoryRequest& request, VirtualMemoryRespo
 			downstreamRequest_.accessType = MemAccessType::READ_LINE;
 			if (isInstruction_)
 				downstreamRequest_.byteMask = (request.address & 0x4u) ? 0xF0 : 0x0F;
+			invalidatedDuringFill_.clear();
 			step_ = Step::FILL_FOR_READ;
 			break;
 		}
@@ -211,6 +239,7 @@ void L1CachesCore::downstreamDone(const VirtualMemoryResponse& r)
 						downstreamRequest_ = request_;
 						downstreamRequest_.accessType = MemAccessType::READ_LINE;
 						downstreamRequest_.byteMask   = 0;
+						invalidatedDuringFill_.clear();
 						step_ = Step::FILL_FOR_WRITE;
 					}
 				}
@@ -243,16 +272,15 @@ void L1CachesCore::downstreamDone(const VirtualMemoryResponse& r)
 				response_->mae = true;
 				break;
 			}
-			if (r.cacheable)
-			{
-				int index = cache.fill(request_.address, context_, r.acc, r.line);
-				stats.lineFills++;
-				lastInstalled_ = true;
-				serveReadFromLine(index);
-			}
+			bool abandoned = r.cacheable && invalidatedDuringFill(r.physicalAddress);
+			if (r.cacheable && !abandoned)
+				serveReadFromLine(installLine(cache, stats, r));
 			else
 			{
-				stats.uncachedMisses++;
+				if (abandoned)
+					stats.fillsAbandoned++;
+				else
+					stats.uncachedMisses++;
 				uint64_t dw = r.line[(request_.address >> 3) & (CACHE_LINE_DOUBLEWORDS - 1)];
 				if (isInstruction_)
 					response_->readWord0 = (request_.address & 0x4u) ? (uint32_t) (dw >> 32) : (uint32_t) dw;
@@ -272,9 +300,10 @@ void L1CachesCore::downstreamDone(const VirtualMemoryResponse& r)
 			//is installed.
 			if (!r.mae && r.cacheable && dataCache.find(request_.address, context_) < 0)
 			{
-				dataCache.fill(request_.address, context_, r.acc, r.line);
-				dataStats.lineFills++;
-				lastInstalled_ = true;
+				if (invalidatedDuringFill(r.physicalAddress))
+					dataStats.fillsAbandoned++;
+				else
+					installLine(dataCache, dataStats, r);
 			}
 			break;
 
@@ -304,6 +333,10 @@ std::string L1CachesCore::statsToString() const
 		   << "\n\t uncached misses = " << s.uncachedMisses
 		   << "\n\t forwarded       = " << s.forwarded
 		   << "\n\t flushes         = " << s.flushes
+		   << "\n\t synonyms removed = " << s.synonymsRemoved
+		   << "\n\t invalidates     = " << s.invalidates
+		   << "\n\t invalidates hit = " << s.invalidatesHit
+		   << "\n\t fills abandoned = " << s.fillsAbandoned
 		   << "\n";
 	}
 	return ss.str();

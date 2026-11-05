@@ -2,8 +2,8 @@
 //
 // Shared by every test in validation/C/caches/. These tests only make
 // sense on a configuration with L1 caches (core_l1cache_mmu_devices and
-// up), and some of them (stale_until_flush) deliberately show behavior
-// that only a non-coherent cache has.
+// up), and some of them (stale_until_flush) deliberately show what a bypass
+// store does to this core's own cached copy.
 //
 // Reporting is the same as validation/C/devices/: %o0 = 1 if every check
 // passed, %o1 = one bit per check.

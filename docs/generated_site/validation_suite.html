@@ -2538,6 +2538,9 @@ the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt
 <li><code>MAX_CYCLES = 1000000</code>, before <code>RESULTS</code>, raises the cycle limit for
   a test that legitimately runs long (the runner uses the larger of this
   and its <code>--max-cycles</code>).</li>
+<li><code>RUN_OPTIONS = --coherent</code>, before <code>RESULTS</code>, adds options to the
+  simulator's command line, for a test that only makes sense in one mode
+  of a configuration.</li>
 <li><code>serial_out = "text"</code>, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   <code>\n</code> and <code>\x41</code> work). Only configurations with devices check it.</li>
@@ -2866,8 +2869,8 @@ components, each living in its own folder:</p>
     On the sitar_model these tests need more cycles than the default
     limit, so run them with <code>--max-cycles 5000000</code>.</li>
 <li><strong><code>validation/C/caches/</code></strong><br />
-    The L1 caches: write-through, staleness until a flush (they are not
-    coherent), device registers never cached, atomics on a cached line.
+    The L1 caches: write-through, staleness until a flush, device
+    registers never cached, atomics on a cached line, synonyms.
     Needs <code>core_l1cache_mmu_devices</code>. The whole suite above also runs
     through the caches on that configuration, and with every ordinary
     access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the

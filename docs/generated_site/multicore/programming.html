@@ -1587,6 +1587,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#coherent-caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherent caches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#locks-and-synchronization" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2356,6 +2367,17 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#coherent-caches" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherent caches
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#locks-and-synchronization" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2463,8 +2485,8 @@
 program is therefore one program that every core runs, which reads the
 core ID to decide what each core does. This page covers the startup
 file that prepares every core, how a program finds its core ID, how
-cores share data and wait for each other while the caches are not
-coherent, how each core takes its own interrupts, and the routines this
+cores share data and wait for each other, with and without coherent
+caches, how each core takes its own interrupts, and the routines this
 project provides for all of this. <a href="examples.html">Example Programs</a> puts
 these pieces together in two complete programs.</p>
 <hr />
@@ -2529,9 +2551,11 @@ it.</p>
   once, as well as to the core's own cache. A core's stores also reach
   memory in the order the program makes them, since a core has at most
   one access on the bus at a time.</li>
-<li><strong>The caches are not coherent.</strong> A store by one core does not remove
-  an old copy of that line from another core's cache. A core that has
-  the line cached keeps reading its old copy.</li>
+<li><strong>By default, the caches are not coherent.</strong> A store by one core does
+  not remove an old copy of that line from another core's cache. A core
+  that has the line cached keeps reading its old copy. The <code>--coherent</code>
+  option changes this (see <a href="#coherent-caches">Coherent caches</a>), and this
+  section describes a program written for the default.</li>
 </ul>
 <p>Whether anything is cached at all is decided by the MMU. With the MMU
 off, as in the examples and tests here, nothing is cached unless the
@@ -2573,6 +2597,29 @@ another core waits by reading that flag until it changes.</p>
 partner never answers fails its check instead of running until the
 cycle limit.</p>
 <hr />
+<h2 id="coherent-caches">Coherent caches<a class="headerlink" href="#coherent-caches" title="Permanent link">&para;</a></h2>
+<p>With the <code>--coherent</code> option, a store by one core removes that line from
+every other core's caches. A plain load then always returns the latest
+value, and none of the care above is needed. A program can be written as
+if the caches were not there. The test
+<code>coherence/lock_and_counter_with_plain_loads</code> does this, with a spinlock
+and a counter that use only plain loads.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a>./executable/sparc_sim_sitar_multicore<span class="w"> </span>my_test.hex<span class="w"> </span>--coherent
+</span></code></pre></div>
+<p>A program written for the default, with uncached loads or flushes, also
+runs correctly with <code>--coherent</code>. The reverse is not true. A program that
+relies on coherence fails without it, usually by waiting for ever on an old
+cached copy.</p>
+<p>Coherence has a cost. A line that several cores write is removed from the
+others on each write, even when the cores use different words of it, which is
+called <strong>false sharing</strong>. Each core then misses more, though no value ever
+changes. The test <code>coherence/false_sharing</code> shows this. Data that different
+cores write often is better kept in separate lines, 64 bytes apart.</p>
+<p>Two limits remain. A store does not update the writer's own instruction
+cache, so a core running code it has just changed must still execute <code>FLUSH</code>.
+Other cores need no flush for that code. A bypass store does not update the
+writer's own cached copy either, though it does remove other cores' copies.</p>
+<hr />
 <h2 id="locks-and-synchronization">Locks and synchronization<a class="headerlink" href="#locks-and-synchronization" title="Permanent link">&para;</a></h2>
 <p>A word written by more than one core needs a lock. Two cores
 incrementing the same counter can each read the old value and each
@@ -2596,14 +2643,14 @@ and <code>multicore_sync.h</code> holds everything built on the atomic instructi
 <h3 id="a-mutex">A mutex<a class="headerlink" href="#a-mutex" title="Permanent link">&para;</a></h3>
 <p>A mutex is one byte or word in shared memory, and 0 means free. Global
 variables start at 0, so a mutex needs no setup.</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;multicore_sync.h&quot;</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">counter_lock</span><span class="p">;</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">counter</span><span class="p">;</span>
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">acquire_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
-</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">release_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;multicore_sync.h&quot;</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">counter_lock</span><span class="p">;</span>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">counter</span><span class="p">;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">acquire_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">release_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The routines have the names and arguments of AJIT's own. While the lock
 is held, a waiting core spins on an uncached load, and tries the atomic
@@ -2613,10 +2660,10 @@ other core.</p>
 <p>Spinning on an uncached load is a deliberate difference from AJIT's
 routines, which spin with a plain load. Without coherent caches, a plain
 load could keep reading an old cached copy of the lock and never see it
-released.</p>
+released. The routines work the same way with <code>--coherent</code> on or off.</p>
 <h3 id="what-a-lock-does-not-do">What a lock does not do<a class="headerlink" href="#what-a-lock-does-not-do" title="Permanent link">&para;</a></h3>
-<p>A lock makes sure only one core is inside, but it does not refresh the
-cache. Inside the lock, a plain load can still return this core's old
+<p>This section applies when the caches are not coherent. A lock makes sure
+only one core is inside, but it does not refresh the cache. Inside the lock, a plain load can still return this core's old
 copy of the data. Data shared under a lock must be read with
 <code>read_shared()</code>, as above, or with a plain load after <code>flush_caches()</code>
 inside the lock, as the test <code>sync_library/flush_inside_lock</code> does.</p>
@@ -2689,9 +2736,9 @@ its interrupts from slot <code>2i</code> (see <a href="structure.html#interrupts
 Each core enables its own slot, and the levels it wants, by writing its
 own slot's control register. Bit 0 enables the slot, and bit <code>n</code> lets
 level <code>n</code> through.</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this_core_id</span><span class="p">();</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">TIMER_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">timer_handler</span><span class="p">);</span>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">TIMER_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this_core_id</span><span class="p">();</span>
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">TIMER_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">timer_handler</span><span class="p">);</span>
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">TIMER_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The table of handlers that <code>ajit_set_interrupt_handler()</code> fills in,
 <code>ajit_global_interrupt_handlers</code>, is one global array, shared by every

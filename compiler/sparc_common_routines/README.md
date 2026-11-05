@@ -16,9 +16,10 @@ they are not safe to use from an interrupt handler. Their uncached reads take a
 physical address, which matters only if a program turns the MMU on and maps
 shared data at a different physical address.
 
-The caches are not coherent yet, so a lock does not refresh this core's
+The caches are not coherent by default, so a lock does not refresh this core's
 cache. Data shared under a lock must be read with `read_shared()`, or after
-`flush_caches()` inside the lock.
+`flush_caches()` inside the lock. With the simulator's `--coherent` option a plain
+load also works, and the routines themselves work the same either way.
 
 The startup file, `crt0_multicore.s`, stays in `compiler/`, where a test's
 `STARTUP` line looks for it. The tests of these routines are in

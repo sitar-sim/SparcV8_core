@@ -22,9 +22,11 @@ one core running the timing is exactly `core_l1cache_mmu_devices`'. The
 bridge also locks the bus from an `LDSTUB` or `SWAP`'s read to its write,
 which makes those instructions atomic across cores.
 
-The compile-time knobs `NUM_CORES` (default 4) and `COHERENT` (only
-`false` so far) are `System`'s parameters, in `src/System.sitar`, next to
-every latency knob. Unlike the single-core `Core.sitar`, a halted core
+The compile-time knob `NUM_CORES` (default 4) is `System`'s parameter, in
+`src/System.sitar`, next to every latency knob. `--coherent` (or
+`SPARC_COHERENT=1`, off by default) makes the bridge send each write's line
+address to the other cores, which remove it from their caches, and
+`--snoop-filter` leaves out repeats. Unlike the single-core `Core.sitar`, a halted core
 does not stop the simulation. `System` stops it once every running core
 has halted.
 

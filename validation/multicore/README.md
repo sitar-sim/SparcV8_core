@@ -23,9 +23,9 @@ lines.
 
 The other folders have the rest of the tests. `interrupts/` covers per-core
 interrupts and IPIs, `examples/` holds the worked examples of the docs,
-`atomics/` tests `LDSTUB` and `SWAP` across cores, and `sync_library/` tests
-the routines of `compiler/sparc_common_routines/multicore_sync.h`. The last
-two have READMEs of their own.
+`atomics/` tests `LDSTUB` and `SWAP` across cores, `sync_library/` tests
+the routines of `compiler/sparc_common_routines/multicore_sync.h`, and
+`coherence/` tests coherent caches. The last three have READMEs of their own.
 
 ```sh
 validation/run_tests.py validation/multicore --config multicore

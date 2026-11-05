@@ -1,0 +1,89 @@
+
+validation/multicore/coherence/snoop_filter/snoop_filter.elf:     file format elf32-sparc
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	a1 47 40 00 	rd  %asr29, %l0
+   4:	a1 34 20 08 	srl  %l0, 8, %l0
+   8:	a0 0c 20 ff 	and  %l0, 0xff, %l0
+   c:	ab 2c 20 02 	sll  %l0, 2, %l5
+  10:	25 00 04 00 	sethi  %hi(0x100000), %l2
+  14:	27 3f ff cb 	sethi  %hi(0xffff2c00), %l3
+  18:	a6 14 e0 20 	or  %l3, 0x20, %l3	! ffff2c20 <REACHED>
+  1c:	ae 10 21 00 	mov  0x100, %l7
+  20:	ee a0 00 80 	sta  %l7, [ %g0 ] #ASI_N
+  24:	a2 10 20 01 	mov  1, %l1
+  28:	80 a4 20 00 	cmp  %l0, 0
+  2c:	02 80 00 12 	be  74 <writer>
+  30:	01 00 00 00 	nop 
+
+00000034 <reader>:
+  34:	e8 04 80 00 	ld  [ %l2 ], %l4
+  38:	e2 24 c0 15 	st  %l1, [ %l3 + %l5 ]
+
+0000003c <wait_for_writer>:
+  3c:	e8 04 c0 00 	ld  [ %l3 ], %l4
+  40:	80 a5 00 11 	cmp  %l4, %l1
+  44:	12 bf ff fe 	bne  3c <wait_for_writer>
+  48:	01 00 00 00 	nop 
+  4c:	e8 04 80 00 	ld  [ %l2 ], %l4
+  50:	80 a5 00 11 	cmp  %l4, %l1
+  54:	12 80 00 1a 	bne  bc <fail>
+  58:	01 00 00 00 	nop 
+  5c:	a2 04 60 01 	inc  %l1
+  60:	80 a4 60 32 	cmp  %l1, 0x32
+  64:	04 bf ff f4 	ble  34 <reader>
+  68:	01 00 00 00 	nop 
+  6c:	10 80 00 11 	b  b0 <pass>
+  70:	01 00 00 00 	nop 
+
+00000074 <writer>:
+  74:	ac 10 20 04 	mov  4, %l6	! 4 <main+0x4>
+
+00000078 <wait_for_reader>:
+  78:	e8 04 c0 16 	ld  [ %l3 + %l6 ], %l4
+  7c:	80 a5 00 11 	cmp  %l4, %l1
+  80:	12 bf ff fe 	bne  78 <wait_for_reader>
+  84:	01 00 00 00 	nop 
+  88:	ac 05 a0 04 	add  %l6, 4, %l6
+  8c:	80 a5 a0 10 	cmp  %l6, 0x10
+  90:	12 bf ff fa 	bne  78 <wait_for_reader>
+  94:	01 00 00 00 	nop 
+  98:	e2 24 80 00 	st  %l1, [ %l2 ]
+  9c:	e2 24 c0 00 	st  %l1, [ %l3 ]
+  a0:	a2 04 60 01 	inc  %l1
+  a4:	80 a4 60 32 	cmp  %l1, 0x32
+  a8:	04 bf ff f3 	ble  74 <writer>
+  ac:	01 00 00 00 	nop 
+
+000000b0 <pass>:
+  b0:	90 10 20 01 	mov  1, %o0	! 1 <main+0x1>
+  b4:	91 d0 20 00 	ta  0
+  b8:	01 00 00 00 	nop 
+
+000000bc <fail>:
+  bc:	90 10 20 00 	clr  %o0	! 0 <main>
+  c0:	91 d0 20 00 	ta  0
+  c4:	01 00 00 00 	nop 
+
+Symbol table:
+
+
+Symbol table '.symtab' contains 14 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 SECTION LOCAL  DEFAULT    1 
+     2: 00000032     0 NOTYPE  LOCAL  DEFAULT  ABS ROUNDS
+     3: 00100000     0 NOTYPE  LOCAL  DEFAULT  ABS VALUE
+     4: ffff2c20     0 NOTYPE  LOCAL  DEFAULT  ABS REACHED
+     5: 00000074     0 NOTYPE  LOCAL  DEFAULT    1 writer
+     6: 00000034     0 NOTYPE  LOCAL  DEFAULT    1 reader
+     7: 0000003c     0 NOTYPE  LOCAL  DEFAULT    1 wait_for_writer
+     8: 000000bc     0 NOTYPE  LOCAL  DEFAULT    1 fail
+     9: 000000b0     0 NOTYPE  LOCAL  DEFAULT    1 pass
+    10: 00000078     0 NOTYPE  LOCAL  DEFAULT    1 wait_for_reader
+    11: 000000c8     0 NOTYPE  GLOBAL DEFAULT    1 __bss_end
+    12: 000000c8     0 NOTYPE  GLOBAL DEFAULT    1 __bss_start
+    13: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 main

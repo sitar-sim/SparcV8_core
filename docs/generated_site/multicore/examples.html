@@ -2390,8 +2390,8 @@ core has produced.</p>
   hold an old copy. A core that had read A before core 0 filled it in
   would need the flush.</li>
 </ul>
-<p>Once the caches are coherent (a later stage), the flushes will no longer
-be needed, and the program will still be correct.</p>
+<p>With <code>--coherent</code>, the flushes are no longer needed, and the program is
+still correct as it stands.</p>
 <hr />
 <h2 id="building-and-running-the-examples">Building and running the examples<a class="headerlink" href="#building-and-running-the-examples" title="Permanent link">&para;</a></h2>
 <p>Both examples build and run like any other test in the suite.</p>

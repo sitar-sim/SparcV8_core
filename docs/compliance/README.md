@@ -12,12 +12,13 @@ from AJIT's own hardware/reference model, we're keeping them here (rather
 than deleting or silently "fixing" them) specifically so this can be shared
 with and reviewed by the AJIT project's authors.
 
-Four independent issues are documented here so far:
+Five independent issues are documented here so far:
 
 1. [FSR accrued-inexact (`aexc.nxa`) tracking](#issue-1-fsr-accrued-inexact-aexcnxa-tracking) -- 10 floating-point tests.
 2. [PSR `impl`/`ver` fields writable by `WRPSR`](#issue-2-psr-implver-fields-writable-by-wrpsr) -- 2 `RDPSR`/`WRPSR` tests.
 3. [Quad-precision (`FADDQ` etc.) is implemented here, unimplemented in AJIT](#issue-3-quad-precision-faddq-etc-is-implemented-here-unimplemented-in-ajit) -- 14 tests.
 4. [Atomic load-store (LDSTUB/SWAP) permission-fault checking](#issue-4-atomic-load-store-ldstubswap-permission-fault-checking) -- design-level deviation in the MMU, not yet backed by a side-by-side test pair (see the issue for why).
+5. [Cache invalidation without a reverse lookup table](#issue-5-cache-invalidation-without-a-reverse-lookup-table) -- a documented design difference in the multicore caches, with no failing test.
 
 The APARA engine's findings are in their own file,
 [`apara_specification_findings.md`](apara_specification_findings.md):
@@ -545,3 +546,57 @@ either memory access" primitive available to the two call sites. Either
 way, we believe our own dual-permission-check behavior is the one
 required by the manual for this case, and are implementing it that way
 rather than mimicking AJIT's split-transaction behavior functionally.
+
+## Issue 5: Cache invalidation without a reverse lookup table
+
+Like Issue 4, this one has no failing test pair. It is a deliberate design
+difference in the `multicore` configuration's coherent caches, found by reading
+AJIT's C model (`rlut/src/rlut.c`, `cache/src/CacheInterface.c`,
+`cache/src/Dcache.c` and `bridge/src/bridge.c`, branch `marshal`). We have not
+run AJIT's model on these cases, so what follows about its behavior comes from
+the source, and we would welcome a correction.
+
+### What AJIT's model does
+
+A write at the bridge looks up, for each other core, a reverse table (the RLUT)
+from physical line to the virtual line a cache may hold. It sends an invalidate
+if it finds an entry. From the source:
+
+- RLUT entries appear to be cleared only on a whole-cache flush, not when a line
+  is evicted, so an entry can outlive its line.
+- `invalidateCacheLine()` clears every valid line in the set the virtual address
+  selects, with no tag check. A stale entry therefore clears unrelated lines, and
+  in a set-associative cache even a correct entry clears the whole set.
+
+Data stays correct, because the caches are write-through and a wrongly cleared line
+only misses and reads memory again. The cost is extra misses and bus traffic. This
+may well be a deliberate trade-off in hardware, where a set-wide clear is cheap.
+
+### What this model does
+
+Each cache line keeps its physical address, and an invalidate searches the few sets
+that address could be in, and clears only an exact match. No entry can go stale, and
+no unrelated line is cleared.
+
+The results of a data-race-free program are the same in both. Only hit and miss counts,
+and so timing, can differ, and they are identical for a direct-mapped cache when
+no stale entry is involved.
+
+### Two smaller differences
+
+**Synonyms.** `lookupAndUpdateRlut()` reports an older copy only if its reduced
+virtual address differs from the new one. Two copies at the same virtual address in
+two contexts are therefore both kept, and a store in one context would leave the other
+stale. This model keeps one copy, so a page mapped at the same address in several
+contexts refills after a context switch, which costs some misses.
+
+**The snoop filter.** AJIT's bridge erases a line from a core's filter on a request of
+type `REQUEST_TYPE_READ`, but not on `REQUEST_TYPE_IFETCH`. If an instruction fill
+of a line does not erase it, a later write to that line might be filtered out, leaving
+the core's instruction cache stale. This model's filter forgets on any read.
+
+### What we'd like from AJIT's authors
+
+Whether the set-wide clear and the lifetime of RLUT entries are deliberate hardware
+trade-offs, whether the same-address case for synonyms is intended, and whether an
+instruction fetch should erase the snoop filter's entry.

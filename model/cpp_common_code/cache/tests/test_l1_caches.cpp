@@ -45,7 +45,15 @@ class FakeMmu : public VirtualMemoryInterface
 		int     lineReads = 0, loads = 0, stores = 0, atomics = 0, ifetches = 0, other = 0;
 		int     dwordsRead = 0; //doublewords actually read for line reads
 
-		uint32_t word(uint32_t a) { return words.count(a) ? words[a] : 0; }
+		//A virtual page mapped to a different physical page, for synonyms.
+		//Pages with no entry are identity mapped.
+		std::map<uint32_t, uint32_t> pageMap;
+		uint32_t physical(uint32_t va)
+		{
+			return pageMap.count(va & ~0xFFFu) ? pageMap[va & ~0xFFFu] | (va & 0xFFFu) : va;
+		}
+
+		uint32_t word(uint32_t a) { a = physical(a); return words.count(a) ? words[a] : 0; }
 		uint64_t dword(uint32_t a) { a &= ~7u; return ((uint64_t) word(a + 4) << 32) | word(a); }
 
 		void access(const VirtualMemoryRequest& q, VirtualMemoryResponse& r) override
@@ -59,6 +67,7 @@ class FakeMmu : public VirtualMemoryInterface
 					lineReads++;
 					r.cacheable = cacheable;
 					r.acc       = acc;
+					r.physicalAddress = physical(q.address);
 					unsigned int off = (q.address >> 3) & 7;
 					if (cacheable)
 					{
@@ -97,8 +106,8 @@ class FakeMmu : public VirtualMemoryInterface
 						for (int b = 0; b < 4; b++)
 							if (q.byteMask & (1u << (4 * h + b)))
 								w[h] = (w[h] & ~(0xFFu << (8 * b))) | (in[h] & (0xFFu << (8 * b)));
-					words[a] = w[0];
-					words[a + 4] = w[1];
+					words[physical(a)] = w[0];
+					words[physical(a + 4)] = w[1];
 					break;
 				}
 				default:
@@ -247,11 +256,26 @@ static void testAccAndContext()
 	d.currentContext = [&]() { return ctx; };
 	run(d, req(MemAccessType::LOAD, 0xB000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F));
 	ctx = 5;
+	m2.pageMap[0xB000] = 0xC000; //context 5 maps this page elsewhere
 	run(d, req(MemAccessType::LOAD, 0xB000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F));
 	check(m2.lineReads == 2, "the same address in another context is a different line");
 	ctx = 0;
+	m2.pageMap.erase(0xB000);
 	run(d, req(MemAccessType::LOAD, 0xB000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F));
 	check(m2.lineReads == 2, "back in context 0, the original line still hits");
+
+	//A page both contexts map to the same physical page is a synonym, and only
+	//one copy is kept, so a store in one context is seen in the other.
+	ctx = 5;
+	m2.words[0xD000] = 0x11;
+	run(d, req(MemAccessType::LOAD, 0xD000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F));
+	ctx = 0;
+	run(d, req(MemAccessType::LOAD, 0xD000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F));
+	check(d.dataStats.synonymsRemoved == 1, "a page shared between contexts keeps one copy");
+	run(d, req(MemAccessType::STORE, 0xD000, ASI_SUPERVISOR_DATA, 0x22, 0, 0x0F));
+	ctx = 5;
+	check(run(d, req(MemAccessType::LOAD, 0xD000, ASI_SUPERVISOR_DATA, 0, 0, 0x0F)).readWord0 == 0x22,
+	      "a store in one context is seen in the other");
 }
 
 static void testReplacement()
@@ -277,6 +301,144 @@ static void testReplacement()
 	check(m2.lineReads == 3, "direct mapped: two lines mapping to the same set evict each other");
 }
 
+//An invalidate removes exactly the named line, from both caches, and a later
+//access misses and reads memory again.
+static void testInvalidate()
+{
+	FakeMmu mmu;
+	L1CachesCore c(mmu);
+	mmu.words[0x7000] = 0x11;
+	mmu.words[0x8000] = 0x22;
+	run(c, req(MemAccessType::LOAD, 0x7000, ASI_SUPERVISOR_DATA));
+	run(c, req(MemAccessType::LOAD, 0x8000, ASI_SUPERVISOR_DATA));
+	run(c, req(MemAccessType::IFETCH, 0x7000, ASI_SUPERVISOR_INSTRUCTION));
+
+	c.invalidatePhysicalLine(0x7010); //any address within the line
+	check(c.dataStats.invalidatesHit == 1 && c.instructionStats.invalidatesHit == 1,
+	      "an invalidate removes the line from both caches");
+
+	int before = mmu.lineReads;
+	mmu.words[0x7000] = 0x33;
+	check(run(c, req(MemAccessType::LOAD, 0x8000, ASI_SUPERVISOR_DATA)).readWord0 == 0x22 && mmu.lineReads == before,
+	      "another line stays cached");
+	check(run(c, req(MemAccessType::LOAD, 0x7000, ASI_SUPERVISOR_DATA)).readWord0 == 0x33 && mmu.lineReads == before + 1,
+	      "the invalidated data line misses and reads the new value");
+	check(run(c, req(MemAccessType::IFETCH, 0x7000, ASI_SUPERVISOR_INSTRUCTION)).readWord0 == 0x33 && mmu.lineReads == before + 2,
+	      "the invalidated instruction line misses and reads the new value");
+
+	c.invalidatePhysicalLine(0x9000);
+	check(c.dataStats.invalidates == 2 && c.dataStats.invalidatesHit == 1, "an invalidate of an uncached line finds nothing");
+}
+
+//The line is found from its physical address alone, whatever the virtual
+//address was, in every set it could be in. 32 KB = 8 candidate sets per
+//physical address, and this virtual address is in a different one from
+//its physical address.
+static void testInvalidateFindsLineByPhysicalAddress()
+{
+	FakeMmu mmu;
+	L1CachesCore c(mmu);
+	for (uint32_t color = 0; color < 8; color++)
+	{
+		uint32_t va = 0x10000 + color * 0x1000 + 0x40;
+		mmu.pageMap[va & ~0xFFFu] = 0x90000;
+		mmu.words[0x90040] = 0xAB;
+		check(run(c, req(MemAccessType::LOAD, va, ASI_SUPERVISOR_DATA)).readWord0 == 0xAB, "read through a mapped page");
+		uint64_t hits = c.dataStats.invalidatesHit;
+		c.invalidatePhysicalLine(0x90040);
+		check(c.dataStats.invalidatesHit == hits + 1, "the line is found by its physical address");
+		mmu.pageMap.erase(va & ~0xFFFu);
+	}
+}
+
+static void testInvalidateSetAssociative()
+{
+	FakeMmu mmu;
+	L1CachesCore c(mmu);
+	c.dataCache.configure(32, 4); //8 sets, smaller than a page: one candidate set
+	mmu.words[0x7000] = 0x11;
+	mmu.words[0x7200] = 0x22; //the same set, a different way
+	run(c, req(MemAccessType::LOAD, 0x7000, ASI_SUPERVISOR_DATA));
+	run(c, req(MemAccessType::LOAD, 0x7200, ASI_SUPERVISOR_DATA));
+	int before = mmu.lineReads;
+	c.invalidatePhysicalLine(0x7200);
+	run(c, req(MemAccessType::LOAD, 0x7000, ASI_SUPERVISOR_DATA));
+	check(mmu.lineReads == before, "the other way of the set stays cached");
+	run(c, req(MemAccessType::LOAD, 0x7200, ASI_SUPERVISOR_DATA));
+	check(mmu.lineReads == before + 1, "only the matching way is removed");
+}
+
+//Two virtual addresses for one physical line, in different sets. A cache
+//holds at most one copy, so a store through one is never missed by the other.
+static void testSynonyms()
+{
+	FakeMmu mmu;
+	L1CachesCore c(mmu);
+	mmu.pageMap[0x10000] = 0x90000;
+	mmu.pageMap[0x11000] = 0x90000;
+	mmu.words[0x90000] = 0x11;
+
+	run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA));
+	check(c.dataStats.synonymsRemoved == 0, "the first copy removes nothing");
+	check(run(c, req(MemAccessType::LOAD, 0x11000, ASI_SUPERVISOR_DATA)).readWord0 == 0x11 && c.dataStats.synonymsRemoved == 1,
+	      "a second copy removes the first");
+
+	VirtualMemoryRequest store = req(MemAccessType::STORE, 0x11000, ASI_SUPERVISOR_DATA);
+	store.word0 = 0x22;
+	store.byteMask = 0x0F;
+	run(c, store);
+	check(run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA)).readWord0 == 0x22,
+	      "a store through one address is seen through the other");
+	check(c.dataStats.synonymsRemoved == 2, "and that read removed the other copy again");
+}
+
+//The race in a timing model: the invalidate arrives while a fill is on its way.
+//The fill read the line before the write, so it may hold old data. It serves its
+//read, and is not installed.
+static void testInvalidateDuringFill()
+{
+	FakeMmu mmu;
+	L1CachesCore c(mmu);
+	mmu.words[0x7000] = 0x11;
+
+	VirtualMemoryRequest load = req(MemAccessType::LOAD, 0x7000, ASI_SUPERVISOR_DATA);
+	VirtualMemoryResponse response{};
+	c.begin(load, response);
+	check(c.needsDownstream(), "a miss needs a fill");
+	VirtualMemoryResponse reply{};
+	mmu.access(c.downstreamRequest(), reply); //the fill reads the old value
+	mmu.words[0x7000] = 0x22;                 //another core writes it
+	c.invalidatePhysicalLine(0x7000);         //and its invalidate arrives first
+	c.downstreamDone(reply);
+	check(response.readWord0 == 0x11, "the read that started the fill is served");
+	check(c.dataStats.fillsAbandoned == 1 && c.dataStats.lineFills == 0, "the line is not installed");
+	check(run(c, load).readWord0 == 0x22, "the next read misses and sees the new value");
+
+	//An invalidate of some other line changes nothing.
+	mmu.words[0x8000] = 0x33;
+	VirtualMemoryRequest other = req(MemAccessType::LOAD, 0x8000, ASI_SUPERVISOR_DATA);
+	c.begin(other, response);
+	mmu.access(c.downstreamRequest(), reply);
+	c.invalidatePhysicalLine(0x9000);
+	c.downstreamDone(reply);
+	int before = mmu.lineReads;
+	check(run(c, other).readWord0 == 0x33 && mmu.lineReads == before, "a fill of another line is installed");
+
+	//A write-allocate fill behaves the same way.
+	VirtualMemoryRequest store = req(MemAccessType::STORE, 0xA000, ASI_SUPERVISOR_DATA);
+	store.word0 = 0x44;
+	store.byteMask = 0x0F;
+	c.begin(store, response);
+	mmu.access(c.downstreamRequest(), reply);
+	c.downstreamDone(reply); //the store is done, and the fill starts
+	check(c.needsDownstream(), "a store miss fetches the line");
+	mmu.access(c.downstreamRequest(), reply);
+	c.invalidatePhysicalLine(0xA000);
+	uint64_t abandoned = c.dataStats.fillsAbandoned;
+	c.downstreamDone(reply);
+	check(c.dataStats.fillsAbandoned == abandoned + 1, "a write-allocate fill is abandoned too");
+}
+
 int main()
 {
 	testInstructionHitMiss();
@@ -287,6 +449,11 @@ int main()
 	testFlushes();
 	testAccAndContext();
 	testReplacement();
+	testInvalidate();
+	testInvalidateFindsLineByPhysicalAddress();
+	testInvalidateSetAssociative();
+	testSynonyms();
+	testInvalidateDuringFill();
 
 	std::cout << "\n" << (numFailed == 0 ? "OVERALL: PASS" : "OVERALL: FAIL")
 	          << " (" << numChecks << " checks, " << numFailed << " failed)\n";

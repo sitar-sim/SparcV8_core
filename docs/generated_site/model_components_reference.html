@@ -2669,7 +2669,7 @@ Assumptions</a>.</p>
 <td>multicore</td>
 <td>None</td>
 <td><code>Top</code></td>
-<td>Assembles <code>NUM_CORES</code> <code>Core</code>s, <code>CoherentBridge</code>, <code>PhysicalMainMemory</code>, and <code>PeripheralDevices</code>. Stops the simulation once every running core has halted. Owns the <code>NUM_CORES</code> and <code>COHERENT</code> knobs and the consolidated latency-knob block.</td>
+<td>Assembles <code>NUM_CORES</code> <code>Core</code>s, <code>CoherentBridge</code>, <code>PhysicalMainMemory</code>, and <code>PeripheralDevices</code>. Stops the simulation once every running core has halted. Owns the <code>NUM_CORES</code> knob and the consolidated latency-knob block.</td>
 </tr>
 <tr>
 <td><strong>Core</strong> (module)</td>
@@ -2685,7 +2685,7 @@ Assumptions</a>.</p>
 <td>common</td>
 <td>None (uses <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h"><code>SystemAddressMap.h</code></a>)</td>
 <td><code>System</code> (1 instance: <code>bridge</code>)</td>
-<td>The physical bus below the cores' MMUs. Grants the cores round robin and routes each request to main memory or to the devices, one transaction at a time. Holds the bus lock that makes <code>LDSTUB</code> and <code>SWAP</code> atomic across cores.</td>
+<td>The physical bus below the cores' MMUs. Grants the cores round robin and routes each request to main memory or to the devices, one transaction at a time. Holds the bus lock that makes <code>LDSTUB</code> and <code>SWAP</code> atomic across cores, and with <code>--coherent</code> sends invalidates to the other cores.</td>
 </tr>
 </tbody>
 </table>

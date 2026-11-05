@@ -86,7 +86,9 @@ struct VirtualMemoryRequest
 //line's doublewords if `cacheable`, else only line[(address >> 3) & 7],
 //the one doubleword actually read (also in readWord0/readWord1). acc is
 //the page's ACC field (Ref Appendix H), for the cache's own permission
-//check on later hits. Every other access type leaves these untouched.
+//check on later hits. physicalAddress is where the access went, for the
+//cache to find this line by physical address later (Ref CacheArray.h).
+//Every other access type leaves these untouched.
 struct VirtualMemoryResponse
 {
 	bool     valid;
@@ -96,6 +98,7 @@ struct VirtualMemoryResponse
 	uint64_t line[CACHE_LINE_DOUBLEWORDS];
 	bool     cacheable;
 	uint8_t  acc;
+	uint64_t physicalAddress;
 };
 
 enum class PhysicalAccessType : uint32_t
@@ -131,6 +134,8 @@ struct PhysicalMemoryResponse
 #define TOKEN_REQ_WIDTH  22
 //readData(8)+mae(1).
 #define TOKEN_RESP_WIDTH 9
+//A cache invalidate from the multicore bus: a physical address (8).
+#define TOKEN_INVALIDATE_WIDTH 8
 
 //Abstract interfaces the cpp_model side uses to stay config-invariant --
 //one virtual method each, taking/filling the structs above, instead of

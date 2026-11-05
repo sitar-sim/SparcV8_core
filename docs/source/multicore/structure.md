@@ -116,8 +116,7 @@ granted, it checks each port in turn, skips a port with no request
 waiting, and grants the first one that has a request.
 
 The bridge is named after AJIT's coherent memory controller, which
-plays the same role. In a later stage it will also send the
-invalidations that keep the caches coherent.
+plays the same role.
 
 ### The bus lock
 
@@ -142,6 +141,61 @@ that maps to nothing still takes and releases the lock, so it cannot
 leave the bus locked. `--stats` prints the number of locked read-write
 pairs the bridge has served.
 
+### Coherence
+
+With `--coherent`, a write to main memory removes that line from every
+other core's caches. Only the transport differs between the two models.
+The caches themselves are the same `L1CachesCore` class that every
+configuration uses, and in a single-core system nothing ever sends them
+an invalidate.
+
+- **Finding a line.** The caches are virtually indexed and tagged, but an
+  invalidate carries a physical address. Each line therefore also keeps
+  its physical address. A virtual and a physical address agree within a
+  page, so only the sets the rest of the index could select need
+  searching. In a 32 KB cache with 4 KB pages, that is 8 sets.
+- **The sitar_model.** When the bridge forwards a write to main memory,
+  it pushes the line's address to every other core, on a net of its own,
+  in that same phase. Each core polls this net every cycle, whatever it
+  is doing, and again before every cache access, so a hit in that phase
+  cannot see a line that has just been invalidated. The invalidate
+  reaches the other cores in the same cycle that memory takes the write,
+  before the writer gets its response.
+- **The cpp_model.** A small `CoherentBus` gives each core a port of its
+  own onto the bus, and a write calls the other cores' caches directly.
+  Nothing else is running at that moment, because the cores take turns.
+
+**A fill in progress.** A line fill in the sitar_model is 8 separate bus
+reads, and another core can write the line between them. The invalidate
+then finds nothing to remove, since the line is not installed yet, and
+installing it would leave a stale line that nothing would ever remove.
+A cache therefore remembers the invalidates that arrive during a fill. If
+one of them is for this line, the fill still serves the read that started
+it, but the line is not installed. `--stats` counts these as `fills
+abandoned`.
+
+**The writer's own caches** get no invalidate, as in AJIT. A store updates
+the writer's own data cache, but not its instruction cache, so code that
+modifies itself must still execute `FLUSH`.
+
+**Snoop filter.** Every write sends an invalidate to every other core,
+since the bus cannot see which lines each cache holds. `--snoop-filter`
+leaves one out if that core's last invalidate was for the same line and
+it has read nothing from the bus since, because it cannot then hold the
+line. The results of a correct program do not change. Timing can change
+slightly, because the filter changes which fills in progress hear about a
+write, and so which of them are abandoned. `--stats` shows how many
+invalidates were left out. AJIT's bridge has a larger filter with the same
+purpose.
+
+### Synonyms
+
+Two virtual addresses, or one address in two MMU contexts, can map to one
+physical line. A cache holds at most one copy of it, in every
+configuration. Installing a line first removes any older copy with the
+same physical address, so a store through one address is never missed by
+a load through the other. `--stats` counts these as `synonyms removed`.
+
 ### The end of a run
 
 In the single-core configurations, `Core` stops the simulation as soon
@@ -152,7 +206,7 @@ checks in the second phase of each cycle, after every core has
 finished its work for that cycle, so the cycle on which a run ends does
 not depend on the order in which the cores happen to run.
 
-`System`'s third parameter, `STOP_WHEN_HALTED`, is `true` by default.
+`System`'s second parameter, `STOP_WHEN_HALTED`, is `true` by default.
 A model that holds several `System`s sets it to `false`, since the first
 system to finish would otherwise end the run for all of them, and stops
 the run itself once every system has halted (see [A larger
@@ -205,7 +259,9 @@ not yet modeled.
 | Threads per core | 1 | AJIT cores can have 2. |
 | Number of cores | 1 to 4, set at compile time | Limited by the Interrupt Controller's 8 slots. |
 | L1 caches | Each core's own, VIVT, write-through, as in `core_l1cache_mmu_devices` | |
-| Coherence | None | A core's caches can hold an old copy of a line another core has written. Write-invalidate coherence, as in AJIT, is planned (`COHERENT`). |
+| Coherence | Off by default, write-invalidate with `--coherent` | See [Coherence](#coherence). Each line keeps its physical address, where AJIT keeps a separate reverse table (its RLUT). Data is the same either way, and only hit and miss counts differ. |
+| Synonyms | At most one copy of a physical line per cache | AJIT removes an older copy too, unless both have the same virtual address, in different contexts. Here that older copy is removed as well, since a store in one context would otherwise leave it stale. |
+| Memory ordering | Sequentially consistent | No store buffer. SPARC's TSO allows more than this, so correct programs still work. `STBAR` has no effect. |
 | Atomic `LDSTUB` and `SWAP` across cores | Both models. | The cpp_model runs each instruction to completion. In the sitar_model, the bridge locks the bus from the read to the write (see [The bus lock](#the-bus-lock)), by core and for the whole bus, as in AJIT. |
 | Bus arbitration (sitar_model) | Round-robin over the cores, one transaction at a time | An assumption, not taken from AJIT. |
 | Bus timing (sitar_model) | `SystemBridge`'s, plus the `bridge.delay` knob | |

@@ -238,6 +238,7 @@ void MmuCore::handleReadLine(const VirtualMemoryRequest& request, VirtualMemoryR
 	cacheable = cacheable && isCacheableTarget(physAddr);
 	response.cacheable = cacheable;
 	response.acc       = acc;
+	response.physicalAddress = physAddr;
 
 	unsigned int offset = (physAddr >> 3) & (CACHE_LINE_DOUBLEWORDS - 1);
 	if (cacheable)

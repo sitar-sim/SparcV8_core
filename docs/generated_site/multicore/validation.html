@@ -1666,6 +1666,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#coherence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2301,6 +2312,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#coherence" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Coherence
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2517,6 +2539,100 @@ result, however the cores interleave.</p>
 </tr>
 </tbody>
 </table>
+<h3 id="coherence">Coherence<a class="headerlink" href="#coherence" title="Permanent link">&para;</a></h3>
+<p>The tests in <code>coherence/</code> run with coherence on, through a <code>RUN_OPTIONS</code>
+line in each <code>.vprj</code>, and each core turns caching on for itself. They read
+shared data with plain cached loads. Each reader first brings the data into its
+cache, because a line that was never cached proves nothing, since a miss reads
+memory anyway.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coherence/write_seen_by_plain_load</code></td>
+<td>After a core writes a word the others hold in their caches, a plain load sees the new value.</td>
+</tr>
+<tr>
+<td><code>coherence/stale_without_coherence</code></td>
+<td>The same program with coherence off. The others go on reading the old value until they flush, which shows the first test really tests something.</td>
+</tr>
+<tr>
+<td><code>coherence/lock_and_counter_with_plain_loads</code></td>
+<td>A spinlock and a counter using only plain loads, with an exact total.</td>
+</tr>
+<tr>
+<td><code>coherence/every_kind_of_write</code></td>
+<td>A byte store, a doubleword store, <code>LDSTUB</code>, <code>SWAP</code> and a bypass store all remove other cores' copies.</td>
+</tr>
+<tr>
+<td><code>coherence/instruction_cache</code></td>
+<td>Other cores run code a core has changed, with no flush, and the writer runs it after <code>FLUSH</code>.</td>
+</tr>
+<tr>
+<td><code>coherence/false_sharing</code></td>
+<td>Cores writing different words of one line never see a wrong value.</td>
+</tr>
+<tr>
+<td><code>coherence/fill_race</code></td>
+<td>A write during another core's line fill must not leave a stale line. See <a href="structure.html#coherence">Coherence</a>.</td>
+</tr>
+<tr>
+<td><code>coherence/snoop_filter</code></td>
+<td>With the snoop filter on, invalidates are still delivered to a core that has fetched the line again.</td>
+</tr>
+</tbody>
+</table>
+<p>The litmus tests have the cores do a few reads and writes at the same moment, 100
+times over with varying delays, and check that an outcome memory ordering forbids
+never happens.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>The cores do</th>
+<th>Forbidden</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>coherence/litmus_mp</code></td>
+<td>Core 0 writes data and then a flag, and others read the flag and then the data.</td>
+<td>Seeing the flag but not the data.</td>
+</tr>
+<tr>
+<td><code>coherence/litmus_sb</code></td>
+<td>Two cores each write one word and read the other.</td>
+<td>Both reading 0. TSO allows this, but this model has no store buffer.</td>
+</tr>
+<tr>
+<td><code>coherence/litmus_lb</code></td>
+<td>Two cores each read one word and write the other.</td>
+<td>Both reading 1.</td>
+</tr>
+<tr>
+<td><code>coherence/litmus_iriw</code></td>
+<td>Two cores write different words, and two others read them in opposite orders.</td>
+<td>The readers disagreeing about the order of the writes.</td>
+</tr>
+<tr>
+<td><code>coherence/litmus_corr</code></td>
+<td>Core 0 writes a word twice, and others read it twice.</td>
+<td>Seeing the writes go backwards.</td>
+</tr>
+<tr>
+<td><code>coherence/litmus_2plus2w</code></td>
+<td>Two cores each write both words, in opposite orders.</td>
+<td>A final state that needs a cycle in the order of writes.</td>
+</tr>
+</tbody>
+</table>
+<p><code>validation/C/caches/synonym_one_copy</code>, on one core, checks synonyms. It runs on
+every configuration with caches, with the MMU on.</p>
 <h3 id="checking-that-the-tests-can-fail">Checking that the tests can fail<a class="headerlink" href="#checking-that-the-tests-can-fail" title="Permanent link">&para;</a></h3>
 <p>A test that cannot fail proves nothing, so these were also run on a
 sitar_model with the bus lock turned off. Eight of the ten <code>atomics/</code>
@@ -2528,6 +2644,41 @@ but it does fail when the semaphore itself is removed. <code>flush_inside_lock</
 fails when its flush is removed and the caches are on, and
 <code>unmapped_address</code> fails if an access to an unmapped address leaves the
 bus locked for good.</p>
+<p>The <code>coherence/</code> tests were checked the same way, with deliberate mistakes in the
+model.</p>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Tests that then fail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>No invalidates sent</td>
+<td>All but <code>stale_without_coherence</code>, in both models.</td>
+</tr>
+<tr>
+<td>A fill in progress installs its line regardless</td>
+<td><code>fill_race</code> and <code>litmus_corr</code>, on the sitar_model only, since the cpp_model has no such race.</td>
+</tr>
+<tr>
+<td>The snoop filter never forgets</td>
+<td><code>snoop_filter</code>, in both models.</td>
+</tr>
+<tr>
+<td>The instruction cache is not invalidated</td>
+<td><code>instruction_cache</code>, in both models.</td>
+</tr>
+<tr>
+<td>An older copy of a line is not removed on a fill</td>
+<td><code>C/caches/synonym_one_copy</code>, in both models.</td>
+</tr>
+</tbody>
+</table>
+<p>The first of these shows why each litmus test also checks that a plain load sees
+the writes at the end of each round. A stale cache only ever shows old values, which
+is not an outcome any litmus test forbids.</p>
 <p>Every wait for another core is bounded, so a broken model makes a test
 fail rather than run until its cycle limit.</p>
 <hr />
@@ -2535,13 +2686,16 @@ fail rather than run until its cycle limit.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore
 </span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore<span class="w"> </span>--sitar
 </span></code></pre></div>
-<p>The tests are written to pass whatever the interleaving of the cores
-and whether or not the caches are in use. Running them under several
-cpp scheduling strategies, and with the caches on, checks both.</p>
+<p>The tests are written to pass whatever the interleaving of the cores,
+whether or not the caches are in use, and whether or not they are coherent.
+Running them under several cpp scheduling strategies, with the caches on,
+and with coherence on, checks all of this. Tests that need one mode ask for
+it themselves in their <code>.vprj</code>.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="nv">SPARC_ALWAYS_CACHEABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore<span class="w"> </span>--sitar
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="k">for</span><span class="w"> </span>s<span class="w"> </span><span class="k">in</span><span class="w"> </span>rr:1<span class="w"> </span>rr:4<span class="w"> </span>rr-fixed:1<span class="w"> </span>random:7:32<span class="w"> </span>random:99:3<span class="p">;</span><span class="w"> </span><span class="k">do</span>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="w">    </span><span class="nv">SPARC_SCHEDULE</span><span class="o">=</span><span class="nv">$s</span><span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">done</span>
+</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="nv">SPARC_ALWAYS_CACHEABLE</span><span class="o">=</span><span class="m">1</span><span class="w"> </span><span class="nv">SPARC_COHERENT</span><span class="o">=</span><span class="m">1</span><span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore<span class="w"> </span>--sitar
+</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="k">for</span><span class="w"> </span>s<span class="w"> </span><span class="k">in</span><span class="w"> </span>rr:1<span class="w"> </span>rr:4<span class="w"> </span>rr-fixed:1<span class="w"> </span>random:7:32<span class="w"> </span>random:99:3<span class="p">;</span><span class="w"> </span><span class="k">do</span>
+</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="w">    </span><span class="nv">SPARC_SCHEDULE</span><span class="o">=</span><span class="nv">$s</span><span class="w"> </span>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore
+</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a><span class="k">done</span>
 </span></code></pre></div>
 <p>The single-core suites run on this configuration too, on core 0 alone.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">for</span><span class="w"> </span>d<span class="w"> </span><span class="k">in</span><span class="w"> </span>asm<span class="w"> </span>C<span class="w"> </span>test_simple_ADD<span class="p">;</span><span class="w"> </span><span class="k">do</span>

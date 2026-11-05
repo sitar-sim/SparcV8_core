@@ -113,6 +113,9 @@ Four optional lines, used by the device, APARA and multicore tests:
 - `MAX_CYCLES = 1000000`, before `RESULTS`, raises the cycle limit for
   a test that legitimately runs long (the runner uses the larger of this
   and its `--max-cycles`).
+- `RUN_OPTIONS = --coherent`, before `RESULTS`, adds options to the
+  simulator's command line, for a test that only makes sense in one mode
+  of a configuration.
 - `serial_out = "text"`, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   `\n` and `\x41` work). Only configurations with devices check it.
@@ -360,8 +363,8 @@ components, each living in its own folder:
     On the sitar_model these tests need more cycles than the default
     limit, so run them with `--max-cycles 5000000`.
 - **`validation/C/caches/`**  
-    The L1 caches: write-through, staleness until a flush (they are not
-    coherent), device registers never cached, atomics on a cached line.
+    The L1 caches: write-through, staleness until a flush, device
+    registers never cached, atomics on a cached line, synonyms.
     Needs `core_l1cache_mmu_devices`. The whole suite above also runs
     through the caches on that configuration, and with every ordinary
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the

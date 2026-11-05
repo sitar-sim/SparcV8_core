@@ -4,8 +4,8 @@ Every core starts at PC 0 and runs the same program. A multicore
 program is therefore one program that every core runs, which reads the
 core ID to decide what each core does. This page covers the startup
 file that prepares every core, how a program finds its core ID, how
-cores share data and wait for each other while the caches are not
-coherent, how each core takes its own interrupts, and the routines this
+cores share data and wait for each other, with and without coherent
+caches, how each core takes its own interrupts, and the routines this
 project provides for all of this. [Example Programs](examples.md) puts
 these pieces together in two complete programs.
 
@@ -86,9 +86,11 @@ it.
   once, as well as to the core's own cache. A core's stores also reach
   memory in the order the program makes them, since a core has at most
   one access on the bus at a time.
-- **The caches are not coherent.** A store by one core does not remove
-  an old copy of that line from another core's cache. A core that has
-  the line cached keeps reading its old copy.
+- **By default, the caches are not coherent.** A store by one core does
+  not remove an old copy of that line from another core's cache. A core
+  that has the line cached keeps reading its old copy. The `--coherent`
+  option changes this (see [Coherent caches](#coherent-caches)), and this
+  section describes a program written for the default.
 
 Whether anything is cached at all is decided by the MMU. With the MMU
 off, as in the examples and tests here, nothing is cached unless the
@@ -135,6 +137,37 @@ total += read_shared(&partial_sum[k]);
 The tests bound every wait with `WAIT_LIMIT` polls, so a program whose
 partner never answers fails its check instead of running until the
 cycle limit.
+
+---
+
+## Coherent caches
+
+With the `--coherent` option, a store by one core removes that line from
+every other core's caches. A plain load then always returns the latest
+value, and none of the care above is needed. A program can be written as
+if the caches were not there. The test
+`coherence/lock_and_counter_with_plain_loads` does this, with a spinlock
+and a counter that use only plain loads.
+
+```sh
+./executable/sparc_sim_sitar_multicore my_test.hex --coherent
+```
+
+A program written for the default, with uncached loads or flushes, also
+runs correctly with `--coherent`. The reverse is not true. A program that
+relies on coherence fails without it, usually by waiting for ever on an old
+cached copy.
+
+Coherence has a cost. A line that several cores write is removed from the
+others on each write, even when the cores use different words of it, which is
+called **false sharing**. Each core then misses more, though no value ever
+changes. The test `coherence/false_sharing` shows this. Data that different
+cores write often is better kept in separate lines, 64 bytes apart.
+
+Two limits remain. A store does not update the writer's own instruction
+cache, so a core running code it has just changed must still execute `FLUSH`.
+Other cores need no flush for that code. A bypass store does not update the
+writer's own cached copy either, though it does remove other cores' copies.
 
 ---
 
@@ -186,12 +219,12 @@ other core.
 Spinning on an uncached load is a deliberate difference from AJIT's
 routines, which spin with a plain load. Without coherent caches, a plain
 load could keep reading an old cached copy of the lock and never see it
-released.
+released. The routines work the same way with `--coherent` on or off.
 
 ### What a lock does not do
 
-A lock makes sure only one core is inside, but it does not refresh the
-cache. Inside the lock, a plain load can still return this core's old
+This section applies when the caches are not coherent. A lock makes sure
+only one core is inside, but it does not refresh the cache. Inside the lock, a plain load can still return this core's old
 copy of the data. Data shared under a lock must be read with
 `read_shared()`, as above, or with a plain load after `flush_caches()`
 inside the lock, as the test `sync_library/flush_inside_lock` does.
