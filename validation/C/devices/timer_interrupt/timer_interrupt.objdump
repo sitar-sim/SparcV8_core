@@ -23,14 +23,14 @@ Disassembly of section .text:
       3c:	01 00 00 00 	nop 
       40:	01 00 00 00 	nop 
       44:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      48:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <ajit_global_interrupt_handlers+0xfffc8e4>
+      48:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <__bss_end+0xfffc854>
       4c:	82 10 2b ad 	mov  0xbad, %g1
       50:	40 00 0d 1e 	call  34c8 <main>
       54:	01 00 00 00 	nop 
 
 00000058 <not_reached>:
       58:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <ajit_global_interrupt_handlers+0xa7a1>
+      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <__bss_end+0xa761>
       60:	91 d0 20 00 	ta  0
       64:	01 00 00 00 	nop 
       68:	01 00 00 00 	nop 
@@ -3659,7 +3659,7 @@ Disassembly of section .text:
     30bc:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     30c0:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
     30c4:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    30c8:	92 10 61 00 	or  %g1, 0x100, %o1	! ffff3100 <ajit_global_interrupt_handlers+0xfffef9f4>
+    30c8:	92 10 61 00 	or  %g1, 0x100, %o1	! ffff3100 <__bss_end+0xfffef9b4>
     30cc:	7f ff ff cd 	call  3000 <__ajit_store_word_mmu_bypass__>
     30d0:	01 00 00 00 	nop 
     30d4:	81 e8 00 00 	restore 
@@ -3680,7 +3680,7 @@ Disassembly of section .text:
     3108:	82 00 7f ff 	add  %g1, -1, %g1
     310c:	10 80 00 03 	b  3118 <report_and_halt+0x38>
     3110:	01 00 00 00 	nop 
-    3114:	82 10 3f ff 	mov  -1, %g1	! ffffffff <ajit_global_interrupt_handlers+0xffffc8f3>
+    3114:	82 10 3f ff 	mov  -1, %g1	! ffffffff <__bss_end+0xffffc8b3>
     3118:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     311c:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     3120:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
@@ -3755,7 +3755,7 @@ Disassembly of section .text:
     3214:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     3218:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     321c:	03 00 00 3f 	sethi  %hi(0xfc00), %g1
-    3220:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <ajit_global_interrupt_handlers+0xc8f3>
+    3220:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <__bss_end+0xc8b3>
     3224:	82 08 80 01 	and  %g2, %g1, %g1
     3228:	b0 10 00 01 	mov  %g1, %i0
     322c:	81 e8 00 00 	restore 
@@ -3925,11 +3925,11 @@ Disassembly of section .text:
     348c:	82 10 63 04 	or  %g1, 0x304, %g1	! 3704 <slot_control_in_handler>
     3490:	c4 20 40 00 	st  %g2, [ %g1 ]
     3494:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    3498:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <timer_interrupts>
+    3498:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <__bss_start>
     349c:	c2 00 40 00 	ld  [ %g1 ], %g1
     34a0:	84 00 60 01 	add  %g1, 1, %g2
     34a4:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    34a8:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <timer_interrupts>
+    34a8:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <__bss_start>
     34ac:	c4 20 40 00 	st  %g2, [ %g1 ]
     34b0:	90 10 20 00 	clr  %o0
     34b4:	7f ff ff 01 	call  30b8 <__ajit_write_timer_control_register_via_bypass__>
@@ -3964,7 +3964,7 @@ Disassembly of section .text:
     3520:	04 bf ff fb 	ble  350c <main+0x44>
     3524:	01 00 00 00 	nop 
     3528:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    352c:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <timer_interrupts>
+    352c:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <__bss_start>
     3530:	c2 00 40 00 	ld  [ %g1 ], %g1
     3534:	80 a0 60 00 	cmp  %g1, 0
     3538:	12 80 00 05 	bne  354c <main+0x84>
@@ -3982,14 +3982,14 @@ Disassembly of section .text:
     3568:	82 00 60 01 	inc  %g1
     356c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     3570:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    3574:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <timer_interrupts>
+    3574:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <__bss_start>
     3578:	c2 00 40 00 	ld  [ %g1 ], %g1
     357c:	80 a0 60 00 	cmp  %g1, 0
     3580:	12 80 00 08 	bne  35a0 <main+0xd8>
     3584:	01 00 00 00 	nop 
     3588:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
     358c:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    3590:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <ajit_global_interrupt_handlers+0x14f93>
+    3590:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14f53>
     3594:	80 a0 80 01 	cmp  %g2, %g1
     3598:	04 bf ff f3 	ble  3564 <main+0x9c>
     359c:	01 00 00 00 	nop 
@@ -4004,7 +4004,7 @@ Disassembly of section .text:
     35c0:	04 bf ff fb 	ble  35ac <main+0xe4>
     35c4:	01 00 00 00 	nop 
     35c8:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    35cc:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <timer_interrupts>
+    35cc:	82 10 63 08 	or  %g1, 0x308, %g1	! 3708 <__bss_start>
     35d0:	c2 00 40 00 	ld  [ %g1 ], %g1
     35d4:	80 a0 60 01 	cmp  %g1, 1
     35d8:	12 80 00 05 	bne  35ec <main+0x124>
@@ -4088,7 +4088,7 @@ Disassembly of section .text:
 Symbol table:
 
 
-Symbol table '.symtab' contains 292 entries:
+Symbol table '.symtab' contains 294 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
@@ -4378,7 +4378,9 @@ Symbol table '.symtab' contains 292 entries:
    285: 00003684   128 FUNC    GLOBAL DEFAULT    1 memcpy
    286: 00003708     4 OBJECT  GLOBAL DEFAULT    3 timer_interrupts
    287: 0000370c    64 OBJECT  GLOBAL DEFAULT    3 ajit_global_interrupt_han
-   288: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   289: 000034c8   444 FUNC    GLOBAL DEFAULT    1 main
-   290: 000032f0    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
-   291: 0000333c    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
+   288: 0000374c     0 NOTYPE  GLOBAL DEFAULT    3 __bss_end
+   289: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   290: 00003708     0 NOTYPE  GLOBAL DEFAULT    3 __bss_start
+   291: 000034c8   444 FUNC    GLOBAL DEFAULT    1 main
+   292: 000032f0    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
+   293: 0000333c    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle

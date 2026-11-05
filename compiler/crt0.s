@@ -49,7 +49,9 @@ _start:
 
 	! Initialize the stack. STACK_TOP is comfortably inside the model's
 	! 256MB memory (see MemCore.h), with plenty of headroom below it for
-	! the stack to grow down into.
+	! the stack to grow down into. No room is needed above it, since this
+	! file has no window trap handlers and so never spills a window, unlike
+	! crt0_interrupts.s, which keeps 96 bytes free there.
 	set 0x0ffffff0, %sp
 
 	! Initialize g1. Upon a trap, g1 should be

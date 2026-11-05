@@ -204,12 +204,12 @@ configuration has, and lists the folders it skipped, with the reason:
 ```text
 skipped 13 test(s) under validation/C/caches: core_only has no caches
 skipped 9 test(s) under validation/C/devices: core_only has no devices
-skipped 15 test(s) under validation/C/mmu: core_only has no mmu
+skipped 16 test(s) under validation/C/mmu: core_only has no mmu
 skipped 108 test(s) under validation/apara: core_only has no apara_standalone
 skipped 62 test(s) under validation/multicore: core_only has no devices, multicore
 skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
 
-241/241 tests passed (233 skipped)
+241/241 tests passed (234 skipped)
 ```
 
 The components, and which configuration has which:

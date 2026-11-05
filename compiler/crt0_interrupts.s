@@ -61,10 +61,14 @@ _start:
 	nop	! writes to tbr may be delayed
 	nop
 
-	! Initialize the stack. STACK_TOP is comfortably inside the model's
-	! 256MB memory (see MemCore.h), with plenty of headroom below it for
-	! the stack to grow down into.
-	set 0x0ffffff0, %sp
+	! Initialize the stack, inside the model's 256MB memory (see MemCore.h),
+	! with plenty of headroom below it for the stack to grow down into. It
+	! leaves 96 bytes above the first frame. The first window spilled by a
+	! window overflow is this one, and a spill writes 64 bytes at %sp and
+	! upward, so a stack pointer at the very top of memory would write past
+	! the end of it. With the MMU on, that address is unmapped, and the core
+	! would stop with a trap inside a trap.
+	set 0x0fffffa0, %sp
 
 	! Initialize g1. Upon a trap, g1 should be
 	! overwritten by the trap number

@@ -23,7 +23,7 @@ Disassembly of section .text:
       3c:	01 00 00 00 	nop 
       40:	01 00 00 00 	nop 
       44:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      48:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <__bss_end+0xfffc4b0>
+      48:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <__bss_end+0xfffc460>
       4c:	82 10 2b ad 	mov  0xbad, %g1
       50:	40 00 0e 03 	call  385c <main>
       54:	01 00 00 00 	nop 

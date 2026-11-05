@@ -1,0 +1,6 @@
+SOURCES = window_spill_at_stack_top.c
+STARTUP = crt0_interrupts.s
+
+
+RESULTS =
+o0=0x00000001

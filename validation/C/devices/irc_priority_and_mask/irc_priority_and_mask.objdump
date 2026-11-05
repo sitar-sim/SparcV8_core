@@ -23,14 +23,14 @@ Disassembly of section .text:
       3c:	01 00 00 00 	nop 
       40:	01 00 00 00 	nop 
       44:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      48:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <order+0xfffc514>
+      48:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <__bss_end+0xfffc4b4>
       4c:	82 10 2b ad 	mov  0xbad, %g1
       50:	40 00 0d a1 	call  36d4 <main>
       54:	01 00 00 00 	nop 
 
 00000058 <not_reached>:
       58:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <order+0xa3d1>
+      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <__bss_end+0xa3c1>
       60:	91 d0 20 00 	ta  0
       64:	01 00 00 00 	nop 
       68:	01 00 00 00 	nop 
@@ -3671,7 +3671,7 @@ Disassembly of section .text:
     30e4:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     30e8:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
     30ec:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    30f0:	92 10 61 00 	or  %g1, 0x100, %o1	! ffff3100 <order+0xfffef624>
+    30f0:	92 10 61 00 	or  %g1, 0x100, %o1	! ffff3100 <__bss_end+0xfffef614>
     30f4:	7f ff ff c3 	call  3000 <__ajit_store_word_mmu_bypass__>
     30f8:	01 00 00 00 	nop 
     30fc:	81 e8 00 00 	restore 
@@ -3683,7 +3683,7 @@ Disassembly of section .text:
     310c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     3110:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
     3114:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3118:	92 10 62 00 	or  %g1, 0x200, %o1	! ffff3200 <order+0xfffef724>
+    3118:	92 10 62 00 	or  %g1, 0x200, %o1	! ffff3200 <__bss_end+0xfffef714>
     311c:	7f ff ff b9 	call  3000 <__ajit_store_word_mmu_bypass__>
     3120:	01 00 00 00 	nop 
     3124:	81 e8 00 00 	restore 
@@ -3693,7 +3693,7 @@ Disassembly of section .text:
 00003130 <__ajit_read_serial_control_register_via_bypass__>:
     3130:	9d e3 bf a0 	save  %sp, -96, %sp
     3134:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3138:	90 10 62 00 	or  %g1, 0x200, %o0	! ffff3200 <order+0xfffef724>
+    3138:	90 10 62 00 	or  %g1, 0x200, %o0	! ffff3200 <__bss_end+0xfffef714>
     313c:	7f ff ff ba 	call  3024 <__ajit_load_word_mmu_bypass__>
     3140:	01 00 00 00 	nop 
     3144:	82 10 00 08 	mov  %o0, %g1
@@ -3705,7 +3705,7 @@ Disassembly of section .text:
 00003158 <__ajit_read_serial_rx_register_via_bypass__>:
     3158:	9d e3 bf a0 	save  %sp, -96, %sp
     315c:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3160:	90 10 62 08 	or  %g1, 0x208, %o0	! ffff3208 <order+0xfffef72c>
+    3160:	90 10 62 08 	or  %g1, 0x208, %o0	! ffff3208 <__bss_end+0xfffef71c>
     3164:	7f ff ff ba 	call  304c <__ajit_load_ubyte_mmu_bypass__>
     3168:	01 00 00 00 	nop 
     316c:	82 10 00 08 	mov  %o0, %g1
@@ -3783,7 +3783,7 @@ Disassembly of section .text:
     327c:	82 00 7f ff 	add  %g1, -1, %g1
     3280:	10 80 00 03 	b  328c <report_and_halt+0x38>
     3284:	01 00 00 00 	nop 
-    3288:	82 10 3f ff 	mov  -1, %g1	! ffffffff <order+0xffffc523>
+    3288:	82 10 3f ff 	mov  -1, %g1	! ffffffff <__bss_end+0xffffc513>
     328c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     3290:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     3294:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
@@ -3858,7 +3858,7 @@ Disassembly of section .text:
     3388:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     338c:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     3390:	03 00 00 3f 	sethi  %hi(0xfc00), %g1
-    3394:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <order+0xc523>
+    3394:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <__bss_end+0xc513>
     3398:	82 08 80 01 	and  %g2, %g1, %g1
     339c:	b0 10 00 01 	mov  %g1, %i0
     33a0:	81 e8 00 00 	restore 
@@ -4020,13 +4020,13 @@ Disassembly of section .text:
 000035e4 <timer_handler>:
     35e4:	9d e3 bf a0 	save  %sp, -96, %sp
     35e8:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    35ec:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    35ec:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     35f0:	c2 00 40 00 	ld  [ %g1 ], %g1
     35f4:	80 a0 60 03 	cmp  %g1, 3
     35f8:	18 80 00 0a 	bgu  3620 <timer_handler+0x3c>
     35fc:	01 00 00 00 	nop 
     3600:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3604:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3604:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3608:	c2 00 40 00 	ld  [ %g1 ], %g1
     360c:	05 00 00 0e 	sethi  %hi(0x3800), %g2
     3610:	84 10 a2 dc 	or  %g2, 0x2dc, %g2	! 3adc <order>
@@ -4034,11 +4034,11 @@ Disassembly of section .text:
     3618:	86 10 20 0a 	mov  0xa, %g3
     361c:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
     3620:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3624:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3624:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3628:	c2 00 40 00 	ld  [ %g1 ], %g1
     362c:	84 00 60 01 	add  %g1, 1, %g2
     3630:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3634:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3634:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3638:	c4 20 40 00 	st  %g2, [ %g1 ]
     363c:	90 10 20 00 	clr  %o0
     3640:	7f ff fe a8 	call  30e0 <__ajit_write_timer_control_register_via_bypass__>
@@ -4050,13 +4050,13 @@ Disassembly of section .text:
 00003654 <serial_handler>:
     3654:	9d e3 bf a0 	save  %sp, -96, %sp
     3658:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    365c:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    365c:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3660:	c2 00 40 00 	ld  [ %g1 ], %g1
     3664:	80 a0 60 03 	cmp  %g1, 3
     3668:	18 80 00 0a 	bgu  3690 <serial_handler+0x3c>
     366c:	01 00 00 00 	nop 
     3670:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3674:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3674:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3678:	c2 00 40 00 	ld  [ %g1 ], %g1
     367c:	05 00 00 0e 	sethi  %hi(0x3800), %g2
     3680:	84 10 a2 dc 	or  %g2, 0x2dc, %g2	! 3adc <order>
@@ -4064,11 +4064,11 @@ Disassembly of section .text:
     3688:	86 10 20 0c 	mov  0xc, %g3
     368c:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
     3690:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3694:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3694:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3698:	c2 00 40 00 	ld  [ %g1 ], %g1
     369c:	84 00 60 01 	add  %g1, 1, %g2
     36a0:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    36a4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    36a4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     36a8:	c4 20 40 00 	st  %g2, [ %g1 ]
     36ac:	90 10 20 00 	clr  %o0
     36b0:	92 10 20 00 	clr  %o1
@@ -4119,7 +4119,7 @@ Disassembly of section .text:
     375c:	01 00 00 00 	nop 
     3760:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
     3764:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    3768:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <order+0x14bc3>
+    3768:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14bb3>
     376c:	80 a0 80 01 	cmp  %g2, %g1
     3770:	04 bf ff f2 	ble  3738 <main+0x64>
     3774:	01 00 00 00 	nop 
@@ -4157,14 +4157,14 @@ Disassembly of section .text:
     37f4:	82 00 60 01 	inc  %g1
     37f8:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     37fc:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3800:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3800:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3804:	c2 00 40 00 	ld  [ %g1 ], %g1
     3808:	80 a0 60 00 	cmp  %g1, 0
     380c:	12 80 00 08 	bne  382c <main+0x158>
     3810:	01 00 00 00 	nop 
     3814:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
     3818:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    381c:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <order+0x14bc3>
+    381c:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14bb3>
     3820:	80 a0 80 01 	cmp  %g2, %g1
     3824:	04 bf ff f3 	ble  37f0 <main+0x11c>
     3828:	01 00 00 00 	nop 
@@ -4179,7 +4179,7 @@ Disassembly of section .text:
     384c:	04 bf ff fb 	ble  3838 <main+0x164>
     3850:	01 00 00 00 	nop 
     3854:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3858:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3858:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     385c:	c2 00 40 00 	ld  [ %g1 ], %g1
     3860:	80 a0 60 01 	cmp  %g1, 1
     3864:	12 80 00 0b 	bne  3890 <main+0x1bc>
@@ -4198,7 +4198,7 @@ Disassembly of section .text:
     3898:	7f ff fe dc 	call  3408 <disableInterruptController>
     389c:	01 00 00 00 	nop 
     38a0:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    38a4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    38a4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     38a8:	c0 20 40 00 	clr  [ %g1 ]
     38ac:	90 10 20 00 	clr  %o0
     38b0:	92 10 20 01 	mov  1, %o1
@@ -4220,7 +4220,7 @@ Disassembly of section .text:
     38f0:	01 00 00 00 	nop 
     38f4:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
     38f8:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    38fc:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <order+0x14bc3>
+    38fc:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14bb3>
     3900:	80 a0 80 01 	cmp  %g2, %g1
     3904:	04 bf ff f2 	ble  38cc <main+0x1f8>
     3908:	01 00 00 00 	nop 
@@ -4237,14 +4237,14 @@ Disassembly of section .text:
     3934:	82 00 60 01 	inc  %g1
     3938:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     393c:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3940:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    3940:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     3944:	c2 00 40 00 	ld  [ %g1 ], %g1
     3948:	80 a0 60 01 	cmp  %g1, 1
     394c:	18 80 00 08 	bgu  396c <main+0x298>
     3950:	01 00 00 00 	nop 
     3954:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
     3958:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    395c:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <order+0x14bc3>
+    395c:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14bb3>
     3960:	80 a0 80 01 	cmp  %g2, %g1
     3964:	04 bf ff f3 	ble  3930 <main+0x25c>
     3968:	01 00 00 00 	nop 
@@ -4274,7 +4274,7 @@ Disassembly of section .text:
     39c8:	82 10 60 04 	or  %g1, 4, %g1
     39cc:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
     39d0:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    39d4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <count>
+    39d4:	82 10 62 98 	or  %g1, 0x298, %g1	! 3a98 <__bss_start>
     39d8:	c2 00 40 00 	ld  [ %g1 ], %g1
     39dc:	80 a0 60 02 	cmp  %g1, 2
     39e0:	12 80 00 05 	bne  39f4 <main+0x320>
@@ -4329,7 +4329,7 @@ Disassembly of section .text:
 Symbol table:
 
 
-Symbol table '.symtab' contains 297 entries:
+Symbol table '.symtab' contains 299 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
@@ -4621,10 +4621,12 @@ Symbol table '.symtab' contains 297 entries:
    287: 000035e4   112 FUNC    GLOBAL DEFAULT    1 timer_handler
    288: 00003a18   128 FUNC    GLOBAL DEFAULT    1 memcpy
    289: 00003a9c    64 OBJECT  GLOBAL DEFAULT    2 ajit_global_interrupt_han
-   290: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   291: 00003654   128 FUNC    GLOBAL DEFAULT    1 serial_handler
-   292: 000036d4   836 FUNC    GLOBAL DEFAULT    1 main
-   293: 00003adc    16 OBJECT  GLOBAL DEFAULT    2 order
-   294: 00003a98     4 OBJECT  GLOBAL DEFAULT    2 count
-   295: 00003464    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
-   296: 000034b0    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
+   290: 00003aec     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
+   291: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   292: 00003654   128 FUNC    GLOBAL DEFAULT    1 serial_handler
+   293: 00003a98     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
+   294: 000036d4   836 FUNC    GLOBAL DEFAULT    1 main
+   295: 00003adc    16 OBJECT  GLOBAL DEFAULT    2 order
+   296: 00003a98     4 OBJECT  GLOBAL DEFAULT    2 count
+   297: 00003464    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
+   298: 000034b0    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle

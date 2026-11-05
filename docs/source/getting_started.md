@@ -398,9 +398,9 @@ lists the folders it skips, which hold tests of components that the
 configuration does not have:
 
 ```
-skipped 4 test(s) under validation/C/caches: core_only has no caches
+skipped 13 test(s) under validation/C/caches: core_only has no caches
 ...
-241/241 tests passed (158 skipped)
+241/241 tests passed (234 skipped)
 ```
 
 By default, the runner tests the C++ model of `core_only`. The
