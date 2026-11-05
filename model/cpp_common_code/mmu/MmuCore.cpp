@@ -417,6 +417,8 @@ bool MmuCore::translate(uint32_t va, uint32_t asi, bool isInstructionFetch, bool
 	//first time a page is read or (separately) written.
 	if (computeAndStageRMUpdate(isWrite))
 	{
+		if (atomicRMUpdates)
+			stageRMUpdateOnCurrentPte(readPageTableEntryFromMemory(walkResultPhyAddrOfPte()));
 		writePageTableEntryToMemory(walkResultPhyAddrOfPte(), stagedUpdatedPte());
 		commitRMTlbUpdate(va, context);
 	}
@@ -529,10 +531,18 @@ bool MmuCore::computeAndStageRMUpdate(bool isWrite)
 	if (setR) writeBits(updatedPte, PteBits::R_BIT, PteBits::R_BIT, 1);
 	if (setM) writeBits(updatedPte, PteBits::M_BIT, PteBits::M_BIT, 1);
 	stagedUpdatedPte_ = updatedPte;
+	stagedTlbPte_     = updatedPte;
 
 	if (setR) stats.referencedBitWriteBacks++;
 	if (setM) stats.modifiedBitWriteBacks++;
 	return true;
+}
+
+void MmuCore::stageRMUpdateOnCurrentPte(uint32_t currentPte)
+{
+	uint32_t bitsToSet = stagedTlbPte_ ^ walkResultPte_;
+	bool isPte = readBits(currentPte, PteBits::ET_HIGH_BIT, PteBits::ET_LOW_BIT) == PteBits::ET_PTE;
+	stagedUpdatedPte_ = isPte ? (currentPte | bitsToSet) : currentPte;
 }
 
 void MmuCore::commitRMTlbUpdate(uint32_t va, uint32_t context)
@@ -541,7 +551,7 @@ void MmuCore::commitRMTlbUpdate(uint32_t va, uint32_t context)
 	//successful R/M update is always written back to memory synchronously,
 	//right here), so a flush never needs to write anything back -- it
 	//just drops the cached copy.
-	if (tlbActive()) tlb_.updatePte(va, context, walkResultLevel_, stagedUpdatedPte_);
+	if (tlbActive()) tlb_.updatePte(va, context, walkResultLevel_, stagedTlbPte_);
 }
 
 bool MmuCore::probe(uint32_t va, uint32_t& resultPte)

@@ -2488,6 +2488,13 @@ configuration's own <code>System.sitar</code> (the links below are to
 <td>Whether the (compiled-in) TLB is actually used for a specific run. With it false, every access re-walks the page tables regardless of what's compiled in.<br><strong>Range:</strong> true/false (false if <code>MMU_TLB_PRESENT</code> is false).</td>
 </tr>
 <tr>
+<td><strong><code>MmuCore::atomicRMUpdates</code></strong></td>
+<td>The multicore configuration's <code>sparc_sim.cpp</code>, for both models</td>
+<td>Structural</td>
+<td>Runtime</td>
+<td>Whether an R or M update re-reads the page table entry and sets its bits there, so that it cannot undo another core's change. Set by the multicore models when more than one core runs. It costs one more memory read per update in the sitar_model.<br><strong>Range:</strong> true/false (default false).</td>
+</tr>
+<tr>
 <td><strong><code>core.mmu.tlbLookupDelay</code></strong></td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/core_mmu/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
 <td>Timing</td>

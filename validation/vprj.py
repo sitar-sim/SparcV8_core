@@ -28,6 +28,9 @@ RUN_OPTIONS_LINE_RE = re.compile(r'^RUN_OPTIONS\s*=\s*(.*)$')
 # escapes (\n, \t, \\, \", \xHH). Only configurations with devices
 # check it.
 SERIAL_OUT_LINE_RE = re.compile(r'^serial_out\s*=\s*"((?:[^"\\]|\\.)*)"\s*$')
+# The same, for a program whose cores print lines in an order that is not fixed: the lines
+# must be the same as these, in any order. Only the multicore configuration checks it.
+SERIAL_LINES_LINE_RE = re.compile(r'^serial_lines\s*=\s*"((?:[^"\\]|\\.)*)"\s*$')
 MEM_LINE_RE     = re.compile(r'^m\[\s*([0-9A-Fa-fx]+)\s*\]\s*=\s*([0-9A-Fa-fx]+)(?:\s+([0-9A-Fa-fx]+))?\s*$')
 # A register line may name a core, `core2.o0 = 3`, on the multicore
 # configuration. Without a core prefix it is core 0's register.
@@ -142,6 +145,11 @@ def parse_vprj(path):
         if m:
             data = decode_serial_string(m.group(1))
             normalized.append('SERIAL_OUT %s' % (data.hex() if data else '-'))
+            continue
+        m = SERIAL_LINES_LINE_RE.match(line)
+        if m:
+            data = decode_serial_string(m.group(1))
+            normalized.append('SERIAL_LINES %s' % (data.hex() if data else '-'))
             continue
         m = MEM_LINE_RE.match(line)
         if m:

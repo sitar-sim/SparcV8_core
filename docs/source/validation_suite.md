@@ -116,6 +116,8 @@ Four optional lines, used by the device, APARA and multicore tests:
 - `RUN_OPTIONS = --coherent`, before `RESULTS`, adds options to the
   simulator's command line, for a test that only makes sense in one mode
   of a configuration.
+- `serial_lines = "text"`, on the multicore configuration, checks that the lines sent
+  are these, in any order, for cores whose order of printing is not fixed.
 - `serial_out = "text"`, among the results, checks the exact bytes the
   program sent out through the Serial device (C-style escapes such as
   `\n` and `\x41` work). Only configurations with devices check it.
@@ -204,10 +206,10 @@ skipped 13 test(s) under validation/C/caches: core_only has no caches
 skipped 9 test(s) under validation/C/devices: core_only has no devices
 skipped 15 test(s) under validation/C/mmu: core_only has no mmu
 skipped 108 test(s) under validation/apara: core_only has no apara_standalone
-skipped 48 test(s) under validation/multicore: core_only has no devices, multicore
+skipped 62 test(s) under validation/multicore: core_only has no devices, multicore
 skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
 
-241/241 tests passed (219 skipped)
+241/241 tests passed (233 skipped)
 ```
 
 The components, and which configuration has which:

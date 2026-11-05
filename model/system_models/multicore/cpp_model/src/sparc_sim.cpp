@@ -302,6 +302,8 @@ int main(int argc, char** argv)
 		Island& island = *islands.back();
 		bus.attachCaches(i, &island.caches);
 
+		island.mmu.atomicRMUpdates = runCores > 1;
+
 		//Manual/debug knob, as in the single-core configurations.
 		if (const char* tlbEnabledEnv = std::getenv("MMU_TLB_ENABLED"))
 			island.mmu.tlbEnabled = (std::string(tlbEnabledEnv) != "0");
@@ -467,6 +469,25 @@ int main(int argc, char** argv)
 			{
 				std::cout << "FAIL: " << name << " expected 0x" << std::hex << expected
 				           << " (mask 0x" << mask << ") got 0x" << actual << std::dec << "\n";
+				allPass = false;
+			}
+		}
+		else if (kind == "SERIAL_LINES")
+		{
+			//The lines transmitted, as hex, in any order.
+			std::string expectedHex, expected;
+			ss >> expectedHex;
+			if (expectedHex == "-")
+				expectedHex.clear();
+			for (size_t h = 0; h + 1 < expectedHex.size(); h += 2)
+				expected.push_back((char) std::strtoul(expectedHex.substr(h, 2).c_str(), NULL, 16));
+			numChecks++;
+			if (sameLinesInAnyOrder(serialRecorder->transmitted(), expected))
+				std::cout << "PASS: serial lines (" << serialRecorder->transmitted().size() << " bytes)\n";
+			else
+			{
+				std::cout << "FAIL: serial lines expected, in any order, '" << expected
+				          << "' got '" << serialRecorder->transmitted() << "'\n";
 				allPass = false;
 			}
 		}

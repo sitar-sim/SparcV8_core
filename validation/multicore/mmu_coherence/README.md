@@ -18,5 +18,8 @@ physical address alone. Each test's `.vprj` has `RUN_OPTIONS = --coherent`.
 | `lock_through_aliases` | Different per core | Different per core | A spinlock and counter, with plain loads. |
 | `fill_race` | Different per core | Shared | A write during a fill. |
 | `litmus_mp` | Different per core | Shared | Message passing. |
+| `pte_write_race` | Same | Shared | Core 0 rewrites a page table entry while other cores walk to it. The R update must not undo the write. |
+| `pte_update_through_stale_tlb` | Same | Shared | A store through a TLB entry that is out of date must set the M bit in the entry in memory, not write the old copy back. |
+| `pte_keeps_both_bits` | Same | Shared | One core stores and another loads, each walking at once. The entry ends with both R and M set. |
 
 The one-core versions of the same combinations are in `../../C/caches/synonyms/`.

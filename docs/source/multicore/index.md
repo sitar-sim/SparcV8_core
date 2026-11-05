@@ -47,7 +47,7 @@ The configuration is being built in stages.
 | 1 | The cores, the shared bus, startup of every core, checking each core's results, per-core interrupts | Done |
 | 2 | Atomic `LDSTUB` and `SWAP` across cores, and a library of synchronization routines (locks, barriers) | Done |
 | 3 | Write-invalidate cache coherence, the `--coherent` option | Done |
-| 4 | Shared devices from several cores (a console under a lock, TLB shootdown through IPIs) | Planned |
+| 4 | Shared devices from several cores (a console under a lock, TLB shootdown through IPIs) | Done |
 | 5 | OpenMP programs, with a bare-metal OpenMP runtime | Planned |
 | 6 | Context switching and a scheduler on each core | Planned |
 | 7 | Parallel simulation of the sitar_model on several host threads | Done, with speedup measurements on a larger host to follow |

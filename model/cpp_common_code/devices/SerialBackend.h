@@ -28,6 +28,8 @@
 #ifndef SERIAL_BACKEND_H
 #define SERIAL_BACKEND_H
 
+#include <algorithm>
+#include <vector>
 #include <stdint.h>
 #include <fstream>
 #include <memory>
@@ -102,6 +104,27 @@ class RecordingSerialBackend : public SerialBackend
 		std::unique_ptr<SerialBackend> inner_;
 		std::string                    transmitted_;
 };
+
+//True if the two texts have the same lines, in any order (Ref a .vprj's
+//serial_lines line, for cores whose order of printing is not fixed).
+inline bool sameLinesInAnyOrder(const std::string& a, const std::string& b)
+{
+	auto sortedLines = [](const std::string& text) {
+		std::vector<std::string> lines;
+		size_t start = 0;
+		while (start < text.size())
+		{
+			size_t end = text.find('\n', start);
+			if (end == std::string::npos)
+				end = text.size();
+			lines.push_back(text.substr(start, end - start));
+			start = end + 1;
+		}
+		std::sort(lines.begin(), lines.end());
+		return lines;
+	};
+	return sortedLines(a) == sortedLines(b);
+}
 
 //A pseudo-terminal pair (posix_openpt). slavePath() names the device a
 //terminal emulator attaches to, and is printed once at construction.

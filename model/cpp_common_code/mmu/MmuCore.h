@@ -111,6 +111,14 @@ class MmuCore : public VirtualMemoryInterface
 		//can be changed after construction.
 		bool tlbEnabled;
 
+		//Set when other cores can write this core's page tables. Then an
+		//R/M update re-reads the entry from memory and sets its bits there,
+		//holding the bus in the sitar_model, since what the walk or the TLB
+		//holds may be out of date, and writing it back would undo another
+		//core's change. It costs one more read, so with one core it stays
+		//off, and nothing else can write the entry. Off by default.
+		bool atomicRMUpdates = false;
+
 		MmuStats stats;
 
 		//Optional: if set, key MMU events are logged via
@@ -229,6 +237,11 @@ class MmuCore : public VirtualMemoryInterface
 		//write-back needed) if both bits were already set.
 		bool computeAndStageRMUpdate(bool isWrite);
 
+		//With atomicRMUpdates: restages the update on the entry just
+		//re-read from memory, so that only the R and M bits change. An
+		//entry that is no longer a PTE is written back as it is.
+		void stageRMUpdateOnCurrentPte(uint32_t currentPte);
+
 		//Updates the TLB's cached copy of the just-written-back PTE, if
 		//still present. Ref translate()'s own comment for why this MMU
 		//is write-through (a flush never needs a write-back).
@@ -308,6 +321,7 @@ class MmuCore : public VirtualMemoryInterface
 		bool     translateWasTlbHit_;    //gates whether commitTranslation() needs to insert
 
 		uint32_t stagedUpdatedPte_;      //pending R/M-updated PTE value, set by computeAndStageRMUpdate()
+		uint32_t stagedTlbPte_ = 0;      //what the TLB's copy becomes, which keeps its own translation until flushed
 
 		CoreLogger* logger_;
 		const unsigned long* simulatedTime_;

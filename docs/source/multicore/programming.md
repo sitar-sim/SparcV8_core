@@ -306,9 +306,85 @@ that must act differently on each core reads the core ID itself.
 
 The IPI routines change the shared mask and value words by
 read-modify-write. If two cores send IPIs at the same time, one core's
-change can be lost. A program should therefore hold a mutex while
+change can be lost. The routines in the next section take care of this.
+A program that uses `ajit_ipi.h` directly should hold a mutex while
 sending an IPI, or send them from one core at a time, as the test
 `interrupts/ipi_from_core0` does.
+
+---
+
+## Devices and the MMU across cores
+
+The header
+[`compiler/sparc_common_routines/multicore_platform.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/compiler/sparc_common_routines/multicore_platform.h)
+holds what several cores need in order to share the devices and the page tables. A
+program includes it in place of `ajit_mt_irc.h`.
+
+### A shared console
+
+One core calls `console_start()` once. After that, any core can call `console_puts()`,
+which prints a whole string under a lock, so that lines from different cores never mix.
+A run ends when every core has halted, so a program calls `console_wait_until_sent()`
+before halting, or its last character can be lost.
+
+### Sending IPIs
+
+Each core calls `ipi_start_on_this_core()` with its handler, before any core sends it
+an IPI. A core then sends with `ipi_send()`, and a handler reads the message and clears
+the IPI with `ipi_receive()`.
+
+```c
+static void handler(void)
+{
+	uint32_t source;
+	void* pointer = ipi_receive(&source);
+	// ...
+}
+
+int main(void)
+{
+	ipi_start_on_this_core(handler);
+	// ...
+	ipi_send(destination_core, some_pointer);
+```
+
+Both routines change the controller's registers under one lock. A handler needs that
+lock too, so a core holds it only with its interrupts off, using `interrupts_off()` and
+`interrupts_restore()`. Otherwise a handler could interrupt the core that holds the
+lock, and wait for it for ever. A sender whose destination has not yet taken its last
+IPI waits without the lock, since the destination's handler needs the lock in order to
+clear that IPI.
+
+### TLB shootdown
+
+Each core's TLB is its own, and a core goes on using its TLB's copy of a page table
+entry after another core has changed the entry in memory. Emptying the caches does not
+help. The test `tlb_shootdown/stale_without_shootdown` shows this. A core that changes
+an entry must therefore get every core to drop its copy.
+
+```c
+tlb_shootdown_start_on_this_core();      // on each core, once
+// ...
+// On the core that changes the entry, after writing it to memory:
+tlb_shootdown_page(va, context, NUM_CORES);
+```
+
+`tlb_shootdown_page()` drops this core's copy, sends an IPI to each of the others, and
+waits for each to answer. When it returns, no core can use the old translation. It
+returns the number of cores that did not answer, which is 0 unless a core has halted
+or has stopped taking interrupts. Only one shootdown runs at a time. A core waiting for
+its turn keeps its interrupts on, so it can take the one under way.
+
+A handler drops a translation with a store using ASI 3, which also empties that core's
+L1 caches. A cached line of the old page therefore goes as well, even with coherence
+off.
+
+### Limits of these routines
+
+The locks and the shootdown's shared words are reached at their physical addresses, so
+with the MMU on a program's data must be identity-mapped. The shootdown installs its
+own IPI handler, so a program cannot use it alongside IPIs of its own. A handler must
+not send IPIs or start a shootdown.
 
 ---
 
@@ -325,6 +401,11 @@ sending an IPI, or send them from one core at a time, as the test
 | `read_shared()`, `read_shared_byte()` | `compiler/sparc_common_routines/multicore_core.h` | Read a word or byte another core writes, with an uncached load. |
 | `flush_caches()` | `compiler/sparc_common_routines/multicore_core.h` | Empties this core's own L1 caches. |
 | Mutexes, atomic counter, ticket lock, barrier, semaphore | `compiler/sparc_common_routines/multicore_sync.h` | See [Locks and synchronization](#locks-and-synchronization). |
+| `console_start()`, `console_puts()`, `console_wait_until_sent()` | `compiler/sparc_common_routines/multicore_platform.h` | See [A shared console](#a-shared-console). |
+| `ipi_start_on_this_core()`, `ipi_send()`, `ipi_try_send()`, `ipi_pending()`, `ipi_receive()` | `compiler/sparc_common_routines/multicore_platform.h` | See [Sending IPIs](#sending-ipis). |
+| `interrupts_off()`, `interrupts_restore()` | `compiler/sparc_common_routines/multicore_platform.h` | Hold this core's maskable interrupts off, and let them back on. |
+| `mmu_context()`, `mmu_set_context()`, `tlb_flush_page()`, `tlb_flush_entire()` | `compiler/sparc_common_routines/multicore_platform.h` | Read or change this core's MMU context, and drop its own translations. |
+| `tlb_shootdown_start_on_this_core()`, `tlb_shootdown_page()` | `compiler/sparc_common_routines/multicore_platform.h` | See [TLB shootdown](#tlb-shootdown). |
 | `report_and_halt()` | `validation/multicore/multicore_common.h` | Reports this core's checks in `%o0` and `%o1`, and halts. |
 | `finish_and_wait_for_all()` | `validation/multicore/multicore_common.h` | Marks this core finished in a word of its own and waits for the others, so that every core can check a final result. |
 | `NUM_CORES`, `SHARED_BASE`, `WAIT_LIMIT` | `validation/multicore/multicore_common.h` | The number of cores the tests assume, a shared area for results at `0x00100000`, and the bound on every wait loop. |
@@ -334,6 +415,7 @@ AJIT's own access routines, so code written for AJIT compiles here
 unchanged. The interrupt levels' names, `TIMER_IRL`, `IPI_IRL` and
 `SERIAL_IRL`, are in `compiler/include/device_addresses.h`. `multicore_common.h` belongs to
 the validation suite. A program outside `validation/multicore/` can
-include it by its path, or copy what it needs.
+include it by its path, or copy what it needs. The IPI routines of `ajit_ipi.h` write a
+message only once the destination is free, so an IPI not yet taken keeps its message.
 
 Support for OpenMP programs is planned, on top of these routines.

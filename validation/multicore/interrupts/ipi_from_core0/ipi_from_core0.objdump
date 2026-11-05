@@ -4016,53 +4016,53 @@ Disassembly of section .text:
     35c0:	01 00 00 00 	nop 
     35c4:	82 10 00 08 	mov  %o0, %g1
     35c8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    35cc:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
-    35d0:	84 08 60 ff 	and  %g1, 0xff, %g2
-    35d4:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
-    35d8:	82 08 60 ff 	and  %g1, 0xff, %g1
-    35dc:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    35e0:	92 10 00 02 	mov  %g2, %o1
-    35e4:	94 10 00 01 	mov  %g1, %o2
-    35e8:	7f ff ff c2 	call  34f0 <ajitIpiMessageAddress>
-    35ec:	01 00 00 00 	nop 
-    35f0:	82 10 00 08 	mov  %o0, %g1
-    35f4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    35f8:	c2 0f a0 48 	ldub  [ %fp + 0x48 ], %g1
-    35fc:	82 08 60 ff 	and  %g1, 0xff, %g1
-    3600:	85 28 60 18 	sll  %g1, 0x18, %g2
-    3604:	c2 0f a0 4c 	ldub  [ %fp + 0x4c ], %g1
-    3608:	82 08 60 ff 	and  %g1, 0xff, %g1
-    360c:	83 28 60 10 	sll  %g1, 0x10, %g1
-    3610:	84 10 80 01 	or  %g2, %g1, %g2
-    3614:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
-    3618:	82 08 60 ff 	and  %g1, 0xff, %g1
-    361c:	83 28 60 08 	sll  %g1, 8, %g1
-    3620:	84 10 80 01 	or  %g2, %g1, %g2
-    3624:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    35cc:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    35d0:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    35d4:	84 08 80 01 	and  %g2, %g1, %g2
+    35d8:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    35dc:	82 08 80 01 	and  %g2, %g1, %g1
+    35e0:	80 a0 60 00 	cmp  %g1, 0
+    35e4:	02 80 00 05 	be  35f8 <__ajit_set_ipi_interrupt__+0xb0>
+    35e8:	01 00 00 00 	nop 
+    35ec:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    35f0:	10 80 00 31 	b  36b4 <__ajit_set_ipi_interrupt__+0x16c>
+    35f4:	01 00 00 00 	nop 
+    35f8:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
+    35fc:	84 08 60 ff 	and  %g1, 0xff, %g2
+    3600:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    3604:	82 08 60 ff 	and  %g1, 0xff, %g1
+    3608:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    360c:	92 10 00 02 	mov  %g2, %o1
+    3610:	94 10 00 01 	mov  %g1, %o2
+    3614:	7f ff ff b7 	call  34f0 <ajitIpiMessageAddress>
+    3618:	01 00 00 00 	nop 
+    361c:	82 10 00 08 	mov  %o0, %g1
+    3620:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    3624:	c2 0f a0 48 	ldub  [ %fp + 0x48 ], %g1
     3628:	82 08 60 ff 	and  %g1, 0xff, %g1
-    362c:	82 10 80 01 	or  %g2, %g1, %g1
-    3630:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    3634:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
-    3638:	d2 07 bf f8 	ld  [ %fp + -8 ], %o1
-    363c:	7f ff fe 71 	call  3000 <__ajit_store_word_mmu_bypass__>
-    3640:	01 00 00 00 	nop 
-    3644:	c4 07 a0 58 	ld  [ %fp + 0x58 ], %g2
-    3648:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    364c:	82 00 60 04 	add  %g1, 4, %g1
-    3650:	90 10 00 02 	mov  %g2, %o0
-    3654:	92 10 00 01 	mov  %g1, %o1
-    3658:	7f ff fe 6a 	call  3000 <__ajit_store_word_mmu_bypass__>
-    365c:	01 00 00 00 	nop 
-    3660:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    3664:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
-    3668:	84 08 80 01 	and  %g2, %g1, %g2
-    366c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    3670:	82 08 80 01 	and  %g2, %g1, %g1
-    3674:	80 a0 60 00 	cmp  %g1, 0
-    3678:	02 80 00 05 	be  368c <__ajit_set_ipi_interrupt__+0x144>
-    367c:	01 00 00 00 	nop 
-    3680:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    3684:	10 80 00 0c 	b  36b4 <__ajit_set_ipi_interrupt__+0x16c>
+    362c:	85 28 60 18 	sll  %g1, 0x18, %g2
+    3630:	c2 0f a0 4c 	ldub  [ %fp + 0x4c ], %g1
+    3634:	82 08 60 ff 	and  %g1, 0xff, %g1
+    3638:	83 28 60 10 	sll  %g1, 0x10, %g1
+    363c:	84 10 80 01 	or  %g2, %g1, %g2
+    3640:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
+    3644:	82 08 60 ff 	and  %g1, 0xff, %g1
+    3648:	83 28 60 08 	sll  %g1, 8, %g1
+    364c:	84 10 80 01 	or  %g2, %g1, %g2
+    3650:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    3654:	82 08 60 ff 	and  %g1, 0xff, %g1
+    3658:	82 10 80 01 	or  %g2, %g1, %g1
+    365c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    3660:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
+    3664:	d2 07 bf f8 	ld  [ %fp + -8 ], %o1
+    3668:	7f ff fe 66 	call  3000 <__ajit_store_word_mmu_bypass__>
+    366c:	01 00 00 00 	nop 
+    3670:	c4 07 a0 58 	ld  [ %fp + 0x58 ], %g2
+    3674:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    3678:	82 00 60 04 	add  %g1, 4, %g1
+    367c:	90 10 00 02 	mov  %g2, %o0
+    3680:	92 10 00 01 	mov  %g1, %o1
+    3684:	7f ff fe 5f 	call  3000 <__ajit_store_word_mmu_bypass__>
     3688:	01 00 00 00 	nop 
     368c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
     3690:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1

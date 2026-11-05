@@ -294,6 +294,22 @@ procedure Mmu
 							wait(tlbFillDelay, 0);
 						end if;
 						if (needsRMWriteback) then
+							//Ref MmuCore.h's atomicRMUpdates. The locked read holds
+							//the bus until the write below, this core's next request.
+							if (mmu.atomicRMUpdates) then
+								$
+								phyMemReadProcedure.request.physicalAddress = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+								phyMemReadProcedure.request.lock     = true;
+								phyMemReadProcedure.request.data     = 0;
+								phyMemReadProcedure.request.byteMask = ((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? 0x0F : 0xF0;
+								$;
+								run phyMemReadProcedure;
+								$
+								uint64_t d = phyMemReadProcedure.response.readData;
+								mmu.stats.pageTableMemoryAccesses++;
+								mmu.stageRMUpdateOnCurrentPte(((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32));
+								$;
+							end if;
 							$
 							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
 							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;
@@ -463,6 +479,22 @@ procedure Mmu
 							wait(tlbFillDelay, 0);
 						end if;
 						if (needsRMWriteback) then
+							//Ref MmuCore.h's atomicRMUpdates. The locked read holds
+							//the bus until the write below, this core's next request.
+							if (mmu.atomicRMUpdates) then
+								$
+								phyMemReadProcedure.request.physicalAddress = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+								phyMemReadProcedure.request.lock     = true;
+								phyMemReadProcedure.request.data     = 0;
+								phyMemReadProcedure.request.byteMask = ((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? 0x0F : 0xF0;
+								$;
+								run phyMemReadProcedure;
+								$
+								uint64_t d = phyMemReadProcedure.response.readData;
+								mmu.stats.pageTableMemoryAccesses++;
+								mmu.stageRMUpdateOnCurrentPte(((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32));
+								$;
+							end if;
 							$
 							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
 							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;
@@ -555,6 +587,22 @@ procedure Mmu
 							wait(tlbFillDelay, 0);
 						end if;
 						if (needsRMWriteback) then
+							//Ref MmuCore.h's atomicRMUpdates. The locked read holds
+							//the bus until the write below, this core's next request.
+							if (mmu.atomicRMUpdates) then
+								$
+								phyMemReadProcedure.request.physicalAddress = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
+								phyMemReadProcedure.request.lock     = true;
+								phyMemReadProcedure.request.data     = 0;
+								phyMemReadProcedure.request.byteMask = ((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? 0x0F : 0xF0;
+								$;
+								run phyMemReadProcedure;
+								$
+								uint64_t d = phyMemReadProcedure.response.readData;
+								mmu.stats.pageTableMemoryAccesses++;
+								mmu.stageRMUpdateOnCurrentPte(((mmu.walkResultPhyAddrOfPte() & 0x4u)==0) ? (uint32_t)(d & 0xFFFFFFFFu) : (uint32_t)(d >> 32));
+								$;
+							end if;
 							$
 							uint64_t dwAddr = mmu.walkResultPhyAddrOfPte() & ~0x7ULL;
 							bool lowHalf = (mmu.walkResultPhyAddrOfPte() & 0x4u) == 0;

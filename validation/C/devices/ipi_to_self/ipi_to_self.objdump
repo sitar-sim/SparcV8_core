@@ -23,14 +23,14 @@ Disassembly of section .text:
       3c:	01 00 00 00 	nop 
       40:	01 00 00 00 	nop 
       44:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      48:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <ajit_global_interrupt_handlers+0xfffc4f0>
+      48:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <__bss_end+0xfffc4b0>
       4c:	82 10 2b ad 	mov  0xbad, %g1
       50:	40 00 0e 03 	call  385c <main>
       54:	01 00 00 00 	nop 
 
 00000058 <not_reached>:
       58:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <ajit_global_interrupt_handlers+0xa3ad>
+      5c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <__bss_end+0xa36d>
       60:	91 d0 20 00 	ta  0
       64:	01 00 00 00 	nop 
       68:	01 00 00 00 	nop 
@@ -3668,7 +3668,7 @@ Disassembly of section .text:
     30e0:	82 00 7f ff 	add  %g1, -1, %g1
     30e4:	10 80 00 03 	b  30f0 <report_and_halt+0x38>
     30e8:	01 00 00 00 	nop 
-    30ec:	82 10 3f ff 	mov  -1, %g1	! ffffffff <ajit_global_interrupt_handlers+0xffffc4ff>
+    30ec:	82 10 3f ff 	mov  -1, %g1	! ffffffff <__bss_end+0xffffc4bf>
     30f0:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
     30f4:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     30f8:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
@@ -3743,7 +3743,7 @@ Disassembly of section .text:
     31ec:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     31f0:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     31f4:	03 00 00 3f 	sethi  %hi(0xfc00), %g1
-    31f8:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <ajit_global_interrupt_handlers+0xc4ff>
+    31f8:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <__bss_end+0xc4bf>
     31fc:	82 08 80 01 	and  %g2, %g1, %g1
     3200:	b0 10 00 01 	mov  %g1, %i0
     3204:	81 e8 00 00 	restore 
@@ -3980,53 +3980,53 @@ Disassembly of section .text:
     3560:	01 00 00 00 	nop 
     3564:	82 10 00 08 	mov  %o0, %g1
     3568:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    356c:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
-    3570:	84 08 60 ff 	and  %g1, 0xff, %g2
-    3574:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
-    3578:	82 08 60 ff 	and  %g1, 0xff, %g1
-    357c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    3580:	92 10 00 02 	mov  %g2, %o1
-    3584:	94 10 00 01 	mov  %g1, %o2
-    3588:	7f ff ff c2 	call  3490 <ajitIpiMessageAddress>
-    358c:	01 00 00 00 	nop 
-    3590:	82 10 00 08 	mov  %o0, %g1
-    3594:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    3598:	c2 0f a0 48 	ldub  [ %fp + 0x48 ], %g1
-    359c:	82 08 60 ff 	and  %g1, 0xff, %g1
-    35a0:	85 28 60 18 	sll  %g1, 0x18, %g2
-    35a4:	c2 0f a0 4c 	ldub  [ %fp + 0x4c ], %g1
-    35a8:	82 08 60 ff 	and  %g1, 0xff, %g1
-    35ac:	83 28 60 10 	sll  %g1, 0x10, %g1
-    35b0:	84 10 80 01 	or  %g2, %g1, %g2
-    35b4:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
-    35b8:	82 08 60 ff 	and  %g1, 0xff, %g1
-    35bc:	83 28 60 08 	sll  %g1, 8, %g1
-    35c0:	84 10 80 01 	or  %g2, %g1, %g2
-    35c4:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    356c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    3570:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    3574:	84 08 80 01 	and  %g2, %g1, %g2
+    3578:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    357c:	82 08 80 01 	and  %g2, %g1, %g1
+    3580:	80 a0 60 00 	cmp  %g1, 0
+    3584:	02 80 00 05 	be  3598 <__ajit_set_ipi_interrupt__+0xb0>
+    3588:	01 00 00 00 	nop 
+    358c:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    3590:	10 80 00 31 	b  3654 <__ajit_set_ipi_interrupt__+0x16c>
+    3594:	01 00 00 00 	nop 
+    3598:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
+    359c:	84 08 60 ff 	and  %g1, 0xff, %g2
+    35a0:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    35a4:	82 08 60 ff 	and  %g1, 0xff, %g1
+    35a8:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    35ac:	92 10 00 02 	mov  %g2, %o1
+    35b0:	94 10 00 01 	mov  %g1, %o2
+    35b4:	7f ff ff b7 	call  3490 <ajitIpiMessageAddress>
+    35b8:	01 00 00 00 	nop 
+    35bc:	82 10 00 08 	mov  %o0, %g1
+    35c0:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    35c4:	c2 0f a0 48 	ldub  [ %fp + 0x48 ], %g1
     35c8:	82 08 60 ff 	and  %g1, 0xff, %g1
-    35cc:	82 10 80 01 	or  %g2, %g1, %g1
-    35d0:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    35d4:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
-    35d8:	d2 07 bf f8 	ld  [ %fp + -8 ], %o1
-    35dc:	7f ff fe 89 	call  3000 <__ajit_store_word_mmu_bypass__>
-    35e0:	01 00 00 00 	nop 
-    35e4:	c4 07 a0 58 	ld  [ %fp + 0x58 ], %g2
-    35e8:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    35ec:	82 00 60 04 	add  %g1, 4, %g1
-    35f0:	90 10 00 02 	mov  %g2, %o0
-    35f4:	92 10 00 01 	mov  %g1, %o1
-    35f8:	7f ff fe 82 	call  3000 <__ajit_store_word_mmu_bypass__>
-    35fc:	01 00 00 00 	nop 
-    3600:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    3604:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
-    3608:	84 08 80 01 	and  %g2, %g1, %g2
-    360c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    3610:	82 08 80 01 	and  %g2, %g1, %g1
-    3614:	80 a0 60 00 	cmp  %g1, 0
-    3618:	02 80 00 05 	be  362c <__ajit_set_ipi_interrupt__+0x144>
-    361c:	01 00 00 00 	nop 
-    3620:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    3624:	10 80 00 0c 	b  3654 <__ajit_set_ipi_interrupt__+0x16c>
+    35cc:	85 28 60 18 	sll  %g1, 0x18, %g2
+    35d0:	c2 0f a0 4c 	ldub  [ %fp + 0x4c ], %g1
+    35d4:	82 08 60 ff 	and  %g1, 0xff, %g1
+    35d8:	83 28 60 10 	sll  %g1, 0x10, %g1
+    35dc:	84 10 80 01 	or  %g2, %g1, %g2
+    35e0:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
+    35e4:	82 08 60 ff 	and  %g1, 0xff, %g1
+    35e8:	83 28 60 08 	sll  %g1, 8, %g1
+    35ec:	84 10 80 01 	or  %g2, %g1, %g2
+    35f0:	c2 0f a0 54 	ldub  [ %fp + 0x54 ], %g1
+    35f4:	82 08 60 ff 	and  %g1, 0xff, %g1
+    35f8:	82 10 80 01 	or  %g2, %g1, %g1
+    35fc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    3600:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
+    3604:	d2 07 bf f8 	ld  [ %fp + -8 ], %o1
+    3608:	7f ff fe 7e 	call  3000 <__ajit_store_word_mmu_bypass__>
+    360c:	01 00 00 00 	nop 
+    3610:	c4 07 a0 58 	ld  [ %fp + 0x58 ], %g2
+    3614:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    3618:	82 00 60 04 	add  %g1, 4, %g1
+    361c:	90 10 00 02 	mov  %g2, %o0
+    3620:	92 10 00 01 	mov  %g1, %o1
+    3624:	7f ff fe 77 	call  3000 <__ajit_store_word_mmu_bypass__>
     3628:	01 00 00 00 	nop 
     362c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
     3630:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
@@ -4140,7 +4140,7 @@ Disassembly of section .text:
 000037cc <ipi_handler>:
     37cc:	9d e3 bf 98 	save  %sp, -104, %sp
     37d0:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    37d4:	82 10 60 88 	or  %g1, 0x88, %g1	! ffff3088 <ajit_global_interrupt_handlers+0xfffef588>
+    37d4:	82 10 60 88 	or  %g1, 0x88, %g1	! ffff3088 <__bss_end+0xfffef548>
     37d8:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
     37dc:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
     37e0:	7f ff fe 11 	call  3024 <__ajit_load_word_mmu_bypass__>
@@ -4159,17 +4159,17 @@ Disassembly of section .text:
     3814:	82 10 62 fc 	or  %g1, 0x2fc, %g1	! 3afc <message_pointer>
     3818:	c4 20 40 00 	st  %g2, [ %g1 ]
     381c:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3820:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <ajit_global_interrupt_handlers+0xfffef580>
+    3820:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <__bss_end+0xfffef540>
     3824:	92 10 20 00 	clr  %o1
     3828:	94 10 20 00 	clr  %o2
     382c:	7f ff ff 8e 	call  3664 <__ajit_clear_ipi_interrupt__>
     3830:	01 00 00 00 	nop 
     3834:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3838:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <ipi_count>
+    3838:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <__bss_start>
     383c:	c2 00 40 00 	ld  [ %g1 ], %g1
     3840:	84 00 60 01 	add  %g1, 1, %g2
     3844:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3848:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <ipi_count>
+    3848:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <__bss_start>
     384c:	c4 20 40 00 	st  %g2, [ %g1 ]
     3850:	81 e8 00 00 	restore 
     3854:	81 c3 e0 08 	retl 
@@ -4191,7 +4191,7 @@ Disassembly of section .text:
     388c:	7f ff fe 47 	call  31a8 <writeInterruptControlRegister>
     3890:	01 00 00 00 	nop 
     3894:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3898:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <ajit_global_interrupt_handlers+0xfffef580>
+    3898:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <__bss_end+0xfffef540>
     389c:	92 10 20 00 	clr  %o1
     38a0:	94 10 20 00 	clr  %o2
     38a4:	7f ff ff a0 	call  3724 <__ajit_enable_ipi_interrupt__>
@@ -4206,11 +4206,11 @@ Disassembly of section .text:
     38c8:	03 00 00 04 	sethi  %hi(0x1000), %g1
     38cc:	90 10 60 c4 	or  %g1, 0xc4, %o0	! 10c4 <HW_trap_0x0c+0x4>
     38d0:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    38d4:	92 10 60 c8 	or  %g1, 0xc8, %o1	! ffff30c8 <ajit_global_interrupt_handlers+0xfffef5c8>
+    38d4:	92 10 60 c8 	or  %g1, 0xc8, %o1	! ffff30c8 <__bss_end+0xfffef588>
     38d8:	7f ff fd ca 	call  3000 <__ajit_store_word_mmu_bypass__>
     38dc:	01 00 00 00 	nop 
     38e0:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    38e4:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <ajit_global_interrupt_handlers+0xfffef580>
+    38e4:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <__bss_end+0xfffef540>
     38e8:	92 10 20 00 	clr  %o1
     38ec:	94 10 20 00 	clr  %o2
     38f0:	96 10 20 00 	clr  %o3
@@ -4228,14 +4228,14 @@ Disassembly of section .text:
     3920:	82 00 60 01 	inc  %g1
     3924:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
     3928:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    392c:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <ipi_count>
+    392c:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <__bss_start>
     3930:	c2 00 40 00 	ld  [ %g1 ], %g1
     3934:	80 a0 60 00 	cmp  %g1, 0
     3938:	12 80 00 08 	bne  3958 <main+0xfc>
     393c:	01 00 00 00 	nop 
     3940:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
     3944:	03 00 00 61 	sethi  %hi(0x18400), %g1
-    3948:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <ajit_global_interrupt_handlers+0x14b9f>
+    3948:	82 10 62 9f 	or  %g1, 0x29f, %g1	! 1869f <__bss_end+0x14b5f>
     394c:	80 a0 80 01 	cmp  %g2, %g1
     3950:	04 bf ff f3 	ble  391c <main+0xc0>
     3954:	01 00 00 00 	nop 
@@ -4254,7 +4254,7 @@ Disassembly of section .text:
     3988:	12 80 00 0b 	bne  39b4 <main+0x158>
     398c:	01 00 00 00 	nop 
     3990:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    3994:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <ipi_count>
+    3994:	82 10 62 f4 	or  %g1, 0x2f4, %g1	! 3af4 <__bss_start>
     3998:	c2 00 40 00 	ld  [ %g1 ], %g1
     399c:	80 a0 60 01 	cmp  %g1, 1
     39a0:	12 80 00 05 	bne  39b4 <main+0x158>
@@ -4280,7 +4280,7 @@ Disassembly of section .text:
     39f0:	82 10 60 04 	or  %g1, 4, %g1
     39f4:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
     39f8:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    39fc:	90 10 60 c8 	or  %g1, 0xc8, %o0	! ffff30c8 <ajit_global_interrupt_handlers+0xfffef5c8>
+    39fc:	90 10 60 c8 	or  %g1, 0xc8, %o0	! ffff30c8 <__bss_end+0xfffef588>
     3a00:	7f ff fd 89 	call  3024 <__ajit_load_word_mmu_bypass__>
     3a04:	01 00 00 00 	nop 
     3a08:	84 10 00 08 	mov  %o0, %g2
@@ -4290,7 +4290,7 @@ Disassembly of section .text:
     3a18:	12 80 00 0d 	bne  3a4c <main+0x1f0>
     3a1c:	01 00 00 00 	nop 
     3a20:	03 3f ff cc 	sethi  %hi(0xffff3000), %g1
-    3a24:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <ajit_global_interrupt_handlers+0xfffef580>
+    3a24:	90 10 60 80 	or  %g1, 0x80, %o0	! ffff3080 <__bss_end+0xfffef540>
     3a28:	7f ff fd 7f 	call  3024 <__ajit_load_word_mmu_bypass__>
     3a2c:	01 00 00 00 	nop 
     3a30:	82 10 00 08 	mov  %o0, %g1
@@ -4347,7 +4347,7 @@ Disassembly of section .text:
 Symbol table:
 
 
-Symbol table '.symtab' contains 298 entries:
+Symbol table '.symtab' contains 300 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
@@ -4640,10 +4640,12 @@ Symbol table '.symtab' contains 298 entries:
    288: 00003a70   128 FUNC    GLOBAL DEFAULT    1 memcpy
    289: 00003afc     4 OBJECT  GLOBAL DEFAULT    3 message_pointer
    290: 00003b00    64 OBJECT  GLOBAL DEFAULT    3 ajit_global_interrupt_han
-   291: 00003af8     4 OBJECT  GLOBAL DEFAULT    3 message_ids
-   292: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   293: 00003af4     4 OBJECT  GLOBAL DEFAULT    3 ipi_count
-   294: 0000385c   532 FUNC    GLOBAL DEFAULT    1 main
-   295: 00003af0     4 OBJECT  GLOBAL DEFAULT    2 payload
-   296: 000032c8    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
-   297: 00003314    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
+   291: 00003b40     0 NOTYPE  GLOBAL DEFAULT    3 __bss_end
+   292: 00003af8     4 OBJECT  GLOBAL DEFAULT    3 message_ids
+   293: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   294: 00003af4     4 OBJECT  GLOBAL DEFAULT    3 ipi_count
+   295: 00003af4     0 NOTYPE  GLOBAL DEFAULT    3 __bss_start
+   296: 0000385c   532 FUNC    GLOBAL DEFAULT    1 main
+   297: 00003af0     4 OBJECT  GLOBAL DEFAULT    2 payload
+   298: 000032c8    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
+   299: 00003314    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle

@@ -460,6 +460,8 @@ int main(int argc, char** argv)
 			TOP->system.cores[i].mmu.mmu.access(set, ignored);
 	}
 
+	for (unsigned int i = 0; i < numCores; i++)
+		TOP->system.cores[i].mmu.mmu.atomicRMUpdates = runCores > 1;
 	TOP->system.bridge.coherent    = coherent;
 	TOP->system.bridge.snoopFilter = snoopFilter;
 
@@ -619,6 +621,25 @@ int main(int argc, char** argv)
 			{
 				std::cout << "FAIL: " << name << " expected 0x" << std::hex << expected
 				           << " (mask 0x" << mask << ") got 0x" << actual << std::dec << "\n";
+				allPass = false;
+			}
+		}
+		else if (kind == "SERIAL_LINES")
+		{
+			//The lines transmitted, as hex, in any order.
+			std::string expectedHex, expected;
+			ss >> expectedHex;
+			if (expectedHex == "-")
+				expectedHex.clear();
+			for (size_t h = 0; h + 1 < expectedHex.size(); h += 2)
+				expected.push_back((char) std::strtoul(expectedHex.substr(h, 2).c_str(), NULL, 16));
+			numChecks++;
+			if (sameLinesInAnyOrder(serialRecorder->transmitted(), expected))
+				std::cout << "PASS: serial lines (" << serialRecorder->transmitted().size() << " bytes)\n";
+			else
+			{
+				std::cout << "FAIL: serial lines expected, in any order, '" << expected
+				          << "' got '" << serialRecorder->transmitted() << "'\n";
 				allPass = false;
 			}
 		}

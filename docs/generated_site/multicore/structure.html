@@ -1570,6 +1570,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#page-table-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page table updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-end-of-a-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2400,6 +2411,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#page-table-updates" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Page table updates
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#the-end-of-a-run" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2675,6 +2697,16 @@ A store or atomic whose fault is suppressed by the MMU's NF bit reaches no
 memory and has no physical address, so it removes nothing.
 <code>--stats</code> counts these as <code>synonyms removed</code>. A bypass-ASI access goes
 around the cache on purpose, and leaves this core's own copy alone.</p>
+<h3 id="page-table-updates">Page table updates<a class="headerlink" href="#page-table-updates" title="Permanent link">&para;</a></h3>
+<p>A successful translation sets the R bit of the page table entry, and a first write also
+sets its M bit. Both are written back to memory. With several cores, what the walk or
+the TLB holds may by then be out of date, and writing it back could undo a change
+another core has just made. So when more than one core runs, the MMU reads the entry
+again and sets the bits on what it finds, and an entry that is no longer a PTE is left
+alone. In the sitar_model the second read is locked, so the bus is held until the
+write. In the cpp_model each access runs to completion, so nothing can come between
+them. The second read costs a memory access, so it is left out with <code>--run-cores 1</code>,
+and in the single-core configurations, where nothing else writes the entry.</p>
 <h3 id="the-end-of-a-run">The end of a run<a class="headerlink" href="#the-end-of-a-run" title="Permanent link">&para;</a></h3>
 <p>In the single-core configurations, <code>Core</code> stops the simulation as soon
 as its core halts. Here a halted core only logs that it has halted,
@@ -2772,6 +2804,11 @@ not yet modeled.</p>
 <td>Atomic <code>LDSTUB</code> and <code>SWAP</code> across cores</td>
 <td>Both models.</td>
 <td>The cpp_model runs each instruction to completion. In the sitar_model, the bridge locks the bus from the read to the write (see <a href="#the-bus-lock">The bus lock</a>), by core and for the whole bus, as in AJIT.</td>
+</tr>
+<tr>
+<td>Page table entry updates</td>
+<td>Atomic across cores, by a locked read and write in the sitar_model</td>
+<td>The R and M bits are set on the entry in memory, not on a copy. See <a href="#page-table-updates">Page table updates</a>.</td>
 </tr>
 <tr>
 <td>Bus arbitration (sitar_model)</td>

@@ -1670,6 +1670,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#devices-and-the-mmu-across-cores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Devices and the MMU across cores
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Devices and the MMU across cores">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-shared-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A shared console
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sending-ipis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sending IPIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tlb-shootdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLB shootdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits-of-these-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits of these routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#routines-provided" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2450,6 +2511,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#devices-and-the-mmu-across-cores" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Devices and the MMU across cores
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Devices and the MMU across cores">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-shared-console" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A shared console
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#sending-ipis" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Sending IPIs
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#tlb-shootdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLB shootdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#limits-of-these-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Limits of these routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#routines-provided" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2766,9 +2888,67 @@ that must act differently on each core reads the core ID itself.</p>
 </ul>
 <p>The IPI routines change the shared mask and value words by
 read-modify-write. If two cores send IPIs at the same time, one core's
-change can be lost. A program should therefore hold a mutex while
+change can be lost. The routines in the next section take care of this.
+A program that uses <code>ajit_ipi.h</code> directly should hold a mutex while
 sending an IPI, or send them from one core at a time, as the test
 <code>interrupts/ipi_from_core0</code> does.</p>
+<hr />
+<h2 id="devices-and-the-mmu-across-cores">Devices and the MMU across cores<a class="headerlink" href="#devices-and-the-mmu-across-cores" title="Permanent link">&para;</a></h2>
+<p>The header
+<a href="https://github.com/sitar-sim/SparcV8_core/blob/main/compiler/sparc_common_routines/multicore_platform.h"><code>compiler/sparc_common_routines/multicore_platform.h</code></a>
+holds what several cores need in order to share the devices and the page tables. A
+program includes it in place of <code>ajit_mt_irc.h</code>.</p>
+<h3 id="a-shared-console">A shared console<a class="headerlink" href="#a-shared-console" title="Permanent link">&para;</a></h3>
+<p>One core calls <code>console_start()</code> once. After that, any core can call <code>console_puts()</code>,
+which prints a whole string under a lock, so that lines from different cores never mix.
+A run ends when every core has halted, so a program calls <code>console_wait_until_sent()</code>
+before halting, or its last character can be lost.</p>
+<h3 id="sending-ipis">Sending IPIs<a class="headerlink" href="#sending-ipis" title="Permanent link">&para;</a></h3>
+<p>Each core calls <code>ipi_start_on_this_core()</code> with its handler, before any core sends it
+an IPI. A core then sends with <code>ipi_send()</code>, and a handler reads the message and clears
+the IPI with <code>ipi_receive()</code>.</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-6-1"><a id="__codelineno-6-1" name="__codelineno-6-1" href="#__codelineno-6-1"></a><span class="k">static</span><span class="w"> </span><span class="kt">void</span><span class="w"> </span><span class="nf">handler</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-6-2"><a id="__codelineno-6-2" name="__codelineno-6-2" href="#__codelineno-6-2"></a><span class="p">{</span>
+</span><span id="__span-6-3"><a id="__codelineno-6-3" name="__codelineno-6-3" href="#__codelineno-6-3"></a><span class="w">    </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">source</span><span class="p">;</span>
+</span><span id="__span-6-4"><a id="__codelineno-6-4" name="__codelineno-6-4" href="#__codelineno-6-4"></a><span class="w">    </span><span class="kt">void</span><span class="o">*</span><span class="w"> </span><span class="n">pointer</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">ipi_receive</span><span class="p">(</span><span class="o">&amp;</span><span class="n">source</span><span class="p">);</span>
+</span><span id="__span-6-5"><a id="__codelineno-6-5" name="__codelineno-6-5" href="#__codelineno-6-5"></a><span class="w">    </span><span class="c1">// ...</span>
+</span><span id="__span-6-6"><a id="__codelineno-6-6" name="__codelineno-6-6" href="#__codelineno-6-6"></a><span class="p">}</span>
+</span><span id="__span-6-7"><a id="__codelineno-6-7" name="__codelineno-6-7" href="#__codelineno-6-7"></a>
+</span><span id="__span-6-8"><a id="__codelineno-6-8" name="__codelineno-6-8" href="#__codelineno-6-8"></a><span class="kt">int</span><span class="w"> </span><span class="nf">main</span><span class="p">(</span><span class="kt">void</span><span class="p">)</span>
+</span><span id="__span-6-9"><a id="__codelineno-6-9" name="__codelineno-6-9" href="#__codelineno-6-9"></a><span class="p">{</span>
+</span><span id="__span-6-10"><a id="__codelineno-6-10" name="__codelineno-6-10" href="#__codelineno-6-10"></a><span class="w">    </span><span class="n">ipi_start_on_this_core</span><span class="p">(</span><span class="n">handler</span><span class="p">);</span>
+</span><span id="__span-6-11"><a id="__codelineno-6-11" name="__codelineno-6-11" href="#__codelineno-6-11"></a><span class="w">    </span><span class="c1">// ...</span>
+</span><span id="__span-6-12"><a id="__codelineno-6-12" name="__codelineno-6-12" href="#__codelineno-6-12"></a><span class="w">    </span><span class="n">ipi_send</span><span class="p">(</span><span class="n">destination_core</span><span class="p">,</span><span class="w"> </span><span class="n">some_pointer</span><span class="p">);</span>
+</span></code></pre></div>
+<p>Both routines change the controller's registers under one lock. A handler needs that
+lock too, so a core holds it only with its interrupts off, using <code>interrupts_off()</code> and
+<code>interrupts_restore()</code>. Otherwise a handler could interrupt the core that holds the
+lock, and wait for it for ever. A sender whose destination has not yet taken its last
+IPI waits without the lock, since the destination's handler needs the lock in order to
+clear that IPI.</p>
+<h3 id="tlb-shootdown">TLB shootdown<a class="headerlink" href="#tlb-shootdown" title="Permanent link">&para;</a></h3>
+<p>Each core's TLB is its own, and a core goes on using its TLB's copy of a page table
+entry after another core has changed the entry in memory. Emptying the caches does not
+help. The test <code>tlb_shootdown/stale_without_shootdown</code> shows this. A core that changes
+an entry must therefore get every core to drop its copy.</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-7-1"><a id="__codelineno-7-1" name="__codelineno-7-1" href="#__codelineno-7-1"></a><span class="n">tlb_shootdown_start_on_this_core</span><span class="p">();</span><span class="w">      </span><span class="c1">// on each core, once</span>
+</span><span id="__span-7-2"><a id="__codelineno-7-2" name="__codelineno-7-2" href="#__codelineno-7-2"></a><span class="c1">// ...</span>
+</span><span id="__span-7-3"><a id="__codelineno-7-3" name="__codelineno-7-3" href="#__codelineno-7-3"></a><span class="c1">// On the core that changes the entry, after writing it to memory:</span>
+</span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">tlb_shootdown_page</span><span class="p">(</span><span class="n">va</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_CORES</span><span class="p">);</span>
+</span></code></pre></div>
+<p><code>tlb_shootdown_page()</code> drops this core's copy, sends an IPI to each of the others, and
+waits for each to answer. When it returns, no core can use the old translation. It
+returns the number of cores that did not answer, which is 0 unless a core has halted
+or has stopped taking interrupts. Only one shootdown runs at a time. A core waiting for
+its turn keeps its interrupts on, so it can take the one under way.</p>
+<p>A handler drops a translation with a store using ASI 3, which also empties that core's
+L1 caches. A cached line of the old page therefore goes as well, even with coherence
+off.</p>
+<h3 id="limits-of-these-routines">Limits of these routines<a class="headerlink" href="#limits-of-these-routines" title="Permanent link">&para;</a></h3>
+<p>The locks and the shootdown's shared words are reached at their physical addresses, so
+with the MMU on a program's data must be identity-mapped. The shootdown installs its
+own IPI handler, so a program cannot use it alongside IPIs of its own. A handler must
+not send IPIs or start a shootdown.</p>
 <hr />
 <h2 id="routines-provided">Routines provided<a class="headerlink" href="#routines-provided" title="Permanent link">&para;</a></h2>
 <table>
@@ -2826,6 +3006,31 @@ sending an IPI, or send them from one core at a time, as the test
 <td>See <a href="#locks-and-synchronization">Locks and synchronization</a>.</td>
 </tr>
 <tr>
+<td><code>console_start()</code>, <code>console_puts()</code>, <code>console_wait_until_sent()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_platform.h</code></td>
+<td>See <a href="#a-shared-console">A shared console</a>.</td>
+</tr>
+<tr>
+<td><code>ipi_start_on_this_core()</code>, <code>ipi_send()</code>, <code>ipi_try_send()</code>, <code>ipi_pending()</code>, <code>ipi_receive()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_platform.h</code></td>
+<td>See <a href="#sending-ipis">Sending IPIs</a>.</td>
+</tr>
+<tr>
+<td><code>interrupts_off()</code>, <code>interrupts_restore()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_platform.h</code></td>
+<td>Hold this core's maskable interrupts off, and let them back on.</td>
+</tr>
+<tr>
+<td><code>mmu_context()</code>, <code>mmu_set_context()</code>, <code>tlb_flush_page()</code>, <code>tlb_flush_entire()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_platform.h</code></td>
+<td>Read or change this core's MMU context, and drop its own translations.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown_start_on_this_core()</code>, <code>tlb_shootdown_page()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_platform.h</code></td>
+<td>See <a href="#tlb-shootdown">TLB shootdown</a>.</td>
+</tr>
+<tr>
 <td><code>report_and_halt()</code></td>
 <td><code>validation/multicore/multicore_common.h</code></td>
 <td>Reports this core's checks in <code>%o0</code> and <code>%o1</code>, and halts.</td>
@@ -2847,7 +3052,8 @@ AJIT's own access routines, so code written for AJIT compiles here
 unchanged. The interrupt levels' names, <code>TIMER_IRL</code>, <code>IPI_IRL</code> and
 <code>SERIAL_IRL</code>, are in <code>compiler/include/device_addresses.h</code>. <code>multicore_common.h</code> belongs to
 the validation suite. A program outside <code>validation/multicore/</code> can
-include it by its path, or copy what it needs.</p>
+include it by its path, or copy what it needs. The IPI routines of <code>ajit_ipi.h</code> write a
+message only once the destination is free, so an IPI not yet taken keeps its message.</p>
 <p>Support for OpenMP programs is planned, on top of these routines.</p>
 
 

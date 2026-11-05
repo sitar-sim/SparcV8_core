@@ -1688,6 +1688,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tlb-shootdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLB shootdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2345,6 +2356,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#tlb-shootdown" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        TLB shootdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2462,6 +2484,22 @@ synchronization library also include <code>multicore_sync.h</code>.</p>
 <tr>
 <td><code>interrupts/timer_to_selected_cores</code></td>
 <td>Cores 0 to 2 enable the timer's level and core 3 does not. Cores 0 to 2 each take exactly one timer interrupt, and core 3 takes none.</td>
+</tr>
+<tr>
+<td><code>interrupts/ipi_ping_pong</code></td>
+<td>Two pairs of cores pass an IPI back and forth at the same time. Every IPI arrives, from the right core, with the right pointer.</td>
+</tr>
+<tr>
+<td><code>interrupts/ipi_all_to_all</code></td>
+<td>Every core sends to every other core at once. All arrive, with message headers and pointers that agree, and each sender's in order.</td>
+</tr>
+<tr>
+<td><code>devices/console_under_lock</code></td>
+<td>Every core prints lines at once. They come out whole, in any order.</td>
+</tr>
+<tr>
+<td><code>devices/scratch_pad_across_cores</code></td>
+<td>A write by one core is seen by the others, also through the alias, and byte stores by different cores to one word all take effect.</td>
 </tr>
 <tr>
 <td><code>examples/parallel_sum</code></td>
@@ -2732,6 +2770,24 @@ so an invalidate has to find its line from the physical address alone. They run 
 <td>Shared</td>
 <td>Message passing.</td>
 </tr>
+<tr>
+<td><code>mmu_coherence/pte_write_race</code></td>
+<td>Same</td>
+<td>Shared</td>
+<td>Core 0 rewrites a page table entry while other cores walk to it. The R update must not undo the write.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/pte_update_through_stale_tlb</code></td>
+<td>Same</td>
+<td>Shared</td>
+<td>A store through a TLB entry that is out of date must set the M bit in the entry in memory, not write the old copy back.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/pte_keeps_both_bits</code></td>
+<td>Same</td>
+<td>Shared</td>
+<td>One core stores and another loads, each walking at once. The entry ends with both R and M set.</td>
+</tr>
 </tbody>
 </table>
 <p>On one core, <code>validation/C/caches/synonyms/</code> covers the same combinations, with
@@ -2741,6 +2797,47 @@ a byte store, <code>LDSTUB</code> and <code>SWAP</code>, and reads through the o
 <code>faulting_access_keeps_line</code> covers a store or atomic that faults with the MMU's NF bit
 set. Such a fault looks like a store to an uncached page, but it has no physical address,
 so it must not remove a line.</p>
+<h3 id="tlb-shootdown">TLB shootdown<a class="headerlink" href="#tlb-shootdown" title="Permanent link">&para;</a></h3>
+<p>A shootdown needs the page table setups above, with an IPI to each core and an answer
+from each. <code>tlb_shootdown/</code> tests <code>tlb_shootdown_page()</code>.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>tlb_shootdown/stale_without_shootdown</code></td>
+<td>Why it is needed. After core 0 changes an entry, a core that empties its caches still reads the old page, until it drops its TLB entry.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/remap_page</code></td>
+<td>Core 0 keeps moving a page between two physical pages. Each round, every core reads the page chosen.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/revoke_write</code></td>
+<td>Write permission taken away. A store by every core faults, and does not reach memory.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/from_every_core</code></td>
+<td>Every core moves a page of its own at once, so shootdowns overlap.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/other_context</code></td>
+<td>The other cores are running in another context when the entry changes.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/waits_for_every_core</code></td>
+<td>The other cores hold their interrupts off for a while. The shootdown must not return before they have answered.</td>
+</tr>
+<tr>
+<td><code>tlb_shootdown/core_that_does_not_answer</code></td>
+<td>One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core.</td>
+</tr>
+</tbody>
+</table>
 <h3 id="checking-that-the-tests-can-fail">Checking that the tests can fail<a class="headerlink" href="#checking-that-the-tests-can-fail" title="Permanent link">&para;</a></h3>
 <p>A test that cannot fail proves nothing, so these were also run on a
 sitar_model with the bus lock turned off. Eight of the ten <code>atomics/</code>
@@ -2809,6 +2906,50 @@ model.</p>
 <tr>
 <td>Tags ignore the context</td>
 <td><code>diff_pa_same_va</code> and <code>line_in_another_context</code>, in both models.</td>
+</tr>
+<tr>
+<td>An R or M update writes back the old copy of the entry</td>
+<td><code>pte_update_through_stale_tlb</code> in both models, and also <code>pte_write_race</code> and <code>pte_keeps_both_bits</code> on the sitar_model, since the cpp_model has no such race.</td>
+</tr>
+<tr>
+<td>An R or M update reads the entry again, without holding the bus</td>
+<td><code>pte_write_race</code> and <code>pte_keeps_both_bits</code>, on the sitar_model.</td>
+</tr>
+<tr>
+<td>A TLB flush does nothing</td>
+<td>Every shootdown test but the two about waiting, and also <code>pte_keeps_both_bits</code>, in both models.</td>
+</tr>
+<tr>
+<td>A shootdown's handler does not drop the translation, or no IPIs are sent</td>
+<td><code>remap_page</code>, <code>revoke_write</code>, <code>from_every_core</code> and <code>other_context</code>, in both models.</td>
+</tr>
+<tr>
+<td>The handler flushes the running context, not the one named</td>
+<td><code>other_context</code>, in both models.</td>
+</tr>
+<tr>
+<td>The starter does not drop its own translation</td>
+<td><code>remap_page</code>, <code>revoke_write</code> and <code>from_every_core</code>, in both models.</td>
+</tr>
+<tr>
+<td>The starter does not wait for answers</td>
+<td><code>waits_for_every_core</code> and <code>core_that_does_not_answer</code>, in both models.</td>
+</tr>
+<tr>
+<td>No shootdown lock</td>
+<td><code>from_every_core</code>, in both models.</td>
+</tr>
+<tr>
+<td>No lock around the IPI registers and the console</td>
+<td><code>console_under_lock</code>, <code>ipi_ping_pong</code>, <code>ipi_all_to_all</code>, and most shootdown tests, in both models.</td>
+</tr>
+<tr>
+<td>Senders wait for a busy destination by retrying under the lock</td>
+<td><code>ipi_all_to_all</code>, which then never ends, in both models.</td>
+</tr>
+<tr>
+<td>A message is written before checking for an IPI not yet taken</td>
+<td><code>ipi_all_to_all</code>, in both models.</td>
 </tr>
 </tbody>
 </table>

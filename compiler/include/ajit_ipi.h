@@ -58,14 +58,15 @@ static inline int __ajit_set_ipi_interrupt__(uint32_t ipi_base_address,
 	uint32_t mask = __ajit_load_word_mmu_bypass__(ipi_base_address);
 	uint32_t vals = __ajit_load_word_mmu_bypass__(ipi_base_address + 4);
 
+	//An IPI not yet taken still needs its own message.
+	if (vals & mask & bit)
+		return 1;
+
 	uint32_t msg = ajitIpiMessageAddress(ipi_base_address, dest_core_id, dest_thread_id);
 	uint32_t ids = ((uint32_t) source_core_id << 24) | ((uint32_t) source_thread_id << 16)
 	             | ((uint32_t) dest_core_id << 8)    | (uint32_t) dest_thread_id;
 	__ajit_store_word_mmu_bypass__(ids, msg);
 	__ajit_store_word_mmu_bypass__((uint32_t) ptr, msg + 4);
-
-	if (vals & mask & bit)
-		return 1;
 	__ajit_store_word_mmu_bypass__(vals | bit, ipi_base_address + 4);
 	return 0;
 }

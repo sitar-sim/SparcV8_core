@@ -8,6 +8,7 @@ path, so a program only needs the `#include`.
 |---|---|
 | `multicore_core.h` | This core's ID, uncached reads of what another core wrote, and flushing this core's caches. |
 | `multicore_sync.h` | The atomic instructions (`LDSTUB`, `SWAP`), mutexes with the names and arguments of AJIT's, an atomic counter, a ticket lock, a barrier and a semaphore. |
+| `multicore_platform.h` | A console shared under a lock, sending and taking IPIs, holding interrupts off, the MMU's context and TLB flushes, and TLB shootdown. |
 
 All of these are written for this project. Where a routine has an AJIT
 name, it has AJIT's arguments, so code written for AJIT compiles here. Each
@@ -23,6 +24,6 @@ load also works, and the routines themselves work the same either way.
 
 The startup file, `crt0_multicore.s`, stays in `compiler/`, where a test's
 `STARTUP` line looks for it. The tests of these routines are in
-`validation/multicore/sync_library/` and `validation/multicore/atomics/`, and
+`validation/multicore/sync_library/`, `atomics/`, `devices/`, `interrupts/` and `tlb_shootdown/`, and
 the "Programming the Multicore System" page of the documentation explains how
 to use them.

@@ -201,6 +201,18 @@ memory and has no physical address, so it removes nothing.
 `--stats` counts these as `synonyms removed`. A bypass-ASI access goes
 around the cache on purpose, and leaves this core's own copy alone.
 
+### Page table updates
+
+A successful translation sets the R bit of the page table entry, and a first write also
+sets its M bit. Both are written back to memory. With several cores, what the walk or
+the TLB holds may by then be out of date, and writing it back could undo a change
+another core has just made. So when more than one core runs, the MMU reads the entry
+again and sets the bits on what it finds, and an entry that is no longer a PTE is left
+alone. In the sitar_model the second read is locked, so the bus is held until the
+write. In the cpp_model each access runs to completion, so nothing can come between
+them. The second read costs a memory access, so it is left out with `--run-cores 1`,
+and in the single-core configurations, where nothing else writes the entry.
+
 ### The end of a run
 
 In the single-core configurations, `Core` stops the simulation as soon
@@ -268,6 +280,7 @@ not yet modeled.
 | Synonyms | At most one copy of a physical line per cache | AJIT removes an older copy too, unless both have the same virtual address, in different contexts. Here that older copy is removed as well, since a store in one context would otherwise leave it stale. |
 | Memory ordering | Sequentially consistent | No store buffer. SPARC's TSO allows more than this, so correct programs still work. `STBAR` has no effect. |
 | Atomic `LDSTUB` and `SWAP` across cores | Both models. | The cpp_model runs each instruction to completion. In the sitar_model, the bridge locks the bus from the read to the write (see [The bus lock](#the-bus-lock)), by core and for the whole bus, as in AJIT. |
+| Page table entry updates | Atomic across cores, by a locked read and write in the sitar_model | The R and M bits are set on the entry in memory, not on a copy. See [Page table updates](#page-table-updates). |
 | Bus arbitration (sitar_model) | Round-robin over the cores, one transaction at a time | An assumption, not taken from AJIT. |
 | Bus timing (sitar_model) | `SystemBridge`'s, plus the `bridge.delay` knob | |
 | Main memory and devices | One of each, shared by every core | As in AJIT. |

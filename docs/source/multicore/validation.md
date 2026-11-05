@@ -46,6 +46,10 @@ synchronization library also include `multicore_sync.h`.
 | `boot/deep_calls_mmu_on` | A call chain deeper than the register windows, with the MMU on. A window overflow writes above the stack pointer, so the startup file must leave room above its first one. |
 | `interrupts/ipi_from_core0` | Core 0 sends an inter-processor interrupt to each of cores 1 to 3 in turn. Each takes exactly one, with the right message, and core 0 takes none. |
 | `interrupts/timer_to_selected_cores` | Cores 0 to 2 enable the timer's level and core 3 does not. Cores 0 to 2 each take exactly one timer interrupt, and core 3 takes none. |
+| `interrupts/ipi_ping_pong` | Two pairs of cores pass an IPI back and forth at the same time. Every IPI arrives, from the right core, with the right pointer. |
+| `interrupts/ipi_all_to_all` | Every core sends to every other core at once. All arrive, with message headers and pointers that agree, and each sender's in order. |
+| `devices/console_under_lock` | Every core prints lines at once. They come out whole, in any order. |
+| `devices/scratch_pad_across_cores` | A write by one core is seen by the others, also through the alias, and byte stores by different cores to one word all take effect. |
 | `examples/parallel_sum` | The [parallel array sum](examples.md#parallel-array-sum) example. Checks each core's partial sum and the total. |
 | `examples/parallel_matmul` | The [parallel matrix multiply](examples.md#parallel-matrix-multiply) example. Checks every element of the product. |
 
@@ -134,6 +138,9 @@ so an invalidate has to find its line from the physical address alone. They run 
 | `mmu_coherence/lock_through_aliases` | Different per core | Different per core | A spinlock and a counter, with plain loads. |
 | `mmu_coherence/fill_race` | Different per core | Shared | A write during a fill. |
 | `mmu_coherence/litmus_mp` | Different per core | Shared | Message passing. |
+| `mmu_coherence/pte_write_race` | Same | Shared | Core 0 rewrites a page table entry while other cores walk to it. The R update must not undo the write. |
+| `mmu_coherence/pte_update_through_stale_tlb` | Same | Shared | A store through a TLB entry that is out of date must set the M bit in the entry in memory, not write the old copy back. |
+| `mmu_coherence/pte_keeps_both_bits` | Same | Shared | One core stores and another loads, each walking at once. The entry ends with both R and M set. |
 
 On one core, `validation/C/caches/synonyms/` covers the same combinations, with
 the MMU on and on every configuration with caches. Each test maps one physical page
@@ -142,6 +149,21 @@ a byte store, `LDSTUB` and `SWAP`, and reads through the other. The test
 `faulting_access_keeps_line` covers a store or atomic that faults with the MMU's NF bit
 set. Such a fault looks like a store to an uncached page, but it has no physical address,
 so it must not remove a line.
+
+### TLB shootdown
+
+A shootdown needs the page table setups above, with an IPI to each core and an answer
+from each. `tlb_shootdown/` tests `tlb_shootdown_page()`.
+
+| Test | Checks |
+|---|---|
+| `tlb_shootdown/stale_without_shootdown` | Why it is needed. After core 0 changes an entry, a core that empties its caches still reads the old page, until it drops its TLB entry. |
+| `tlb_shootdown/remap_page` | Core 0 keeps moving a page between two physical pages. Each round, every core reads the page chosen. |
+| `tlb_shootdown/revoke_write` | Write permission taken away. A store by every core faults, and does not reach memory. |
+| `tlb_shootdown/from_every_core` | Every core moves a page of its own at once, so shootdowns overlap. |
+| `tlb_shootdown/other_context` | The other cores are running in another context when the entry changes. |
+| `tlb_shootdown/waits_for_every_core` | The other cores hold their interrupts off for a while. The shootdown must not return before they have answered. |
+| `tlb_shootdown/core_that_does_not_answer` | One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core. |
 
 ### Checking that the tests can fail
 
@@ -173,6 +195,17 @@ model.
 | A fault suppressed by the NF bit removes a line, as an uncached store does | `faulting_access_keeps_line`, in both models. |
 | An invalidate clears the whole set, not just the matching line | `same_va_diff_pa`, in both models. |
 | Tags ignore the context | `diff_pa_same_va` and `line_in_another_context`, in both models. |
+| An R or M update writes back the old copy of the entry | `pte_update_through_stale_tlb` in both models, and also `pte_write_race` and `pte_keeps_both_bits` on the sitar_model, since the cpp_model has no such race. |
+| An R or M update reads the entry again, without holding the bus | `pte_write_race` and `pte_keeps_both_bits`, on the sitar_model. |
+| A TLB flush does nothing | Every shootdown test but the two about waiting, and also `pte_keeps_both_bits`, in both models. |
+| A shootdown's handler does not drop the translation, or no IPIs are sent | `remap_page`, `revoke_write`, `from_every_core` and `other_context`, in both models. |
+| The handler flushes the running context, not the one named | `other_context`, in both models. |
+| The starter does not drop its own translation | `remap_page`, `revoke_write` and `from_every_core`, in both models. |
+| The starter does not wait for answers | `waits_for_every_core` and `core_that_does_not_answer`, in both models. |
+| No shootdown lock | `from_every_core`, in both models. |
+| No lock around the IPI registers and the console | `console_under_lock`, `ipi_ping_pong`, `ipi_all_to_all`, and most shootdown tests, in both models. |
+| Senders wait for a busy destination by retrying under the lock | `ipi_all_to_all`, which then never ends, in both models. |
+| A message is written before checking for an IPI not yet taken | `ipi_all_to_all`, in both models. |
 
 The first of these shows why each litmus test also checks that a plain load sees
 the writes at the end of each round. A stale cache only ever shows old values, which

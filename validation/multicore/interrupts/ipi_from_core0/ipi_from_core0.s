@@ -487,6 +487,18 @@ __ajit_set_ipi_interrupt__:
 	 nop
 	mov	%o0, %g1
 	st	%g1, [%fp-12]
+	ld	[%fp-12], %g2
+	ld	[%fp-16], %g1
+	and	%g2, %g1, %g2
+	ld	[%fp-20], %g1
+	and	%g2, %g1, %g1
+	cmp	%g1, 0
+	be	.LL46
+	 nop
+	mov	1, %g1
+	b	.LL47
+	 nop
+.LL46:
 	ldub	[%fp+80], %g1
 	and	%g1, 0xff, %g2
 	ldub	[%fp+84], %g1
@@ -524,18 +536,6 @@ __ajit_set_ipi_interrupt__:
 	mov	%g1, %o1
 	call	__ajit_store_word_mmu_bypass__, 0
 	 nop
-	ld	[%fp-12], %g2
-	ld	[%fp-16], %g1
-	and	%g2, %g1, %g2
-	ld	[%fp-20], %g1
-	and	%g2, %g1, %g1
-	cmp	%g1, 0
-	be	.LL46
-	 nop
-	mov	1, %g1
-	b	.LL47
-	 nop
-.LL46:
 	ld	[%fp-12], %g2
 	ld	[%fp-20], %g1
 	or	%g2, %g1, %g2
