@@ -27,7 +27,7 @@ Programs](../writing_and_running_c_programs.md#taking-interrupts)) with
 three additions.
 
 1. **A stack for each core.** Core `i`'s stack starts at
-   `0x0ffffff0 - i * 0x100000`, so each core has 1 MB of stack of its
+   `0x0fffffa0 - i * 0x100000`, so each core has 1 MB of stack of its
    own.
 2. **One-time initialization by core 0.** Core 0 clears `.bss`, the
    area of uninitialized global variables, before any core runs
@@ -169,6 +169,10 @@ cache, so a core running code it has just changed must still execute `FLUSH`.
 Other cores need no flush for that code. A bypass store does not update the
 writer's own cached copy either, though it does remove other cores' copies.
 
+Coherence works with the MMU on as well, whatever virtual addresses and contexts
+the cores use, because an invalidate goes by physical address. The tests in
+`mmu_coherence/` cover the combinations.
+
 ---
 
 ## Locks and synchronization
@@ -247,9 +251,10 @@ Three limits apply to all of them.
 - They wait by spinning, without a limit, so a lock that is never
   released keeps a core spinning until the run's cycle limit.
 - Their uncached loads take a physical address. The MMU is off when a
-  program starts, so this works as it is by default. It matters only if
-  a program turns the MMU on and maps shared data at a different
-  physical address.
+  program starts, so this works as it is by default. A program that turns
+  the MMU on must keep the locks and other shared structures at virtual
+  addresses equal to their physical addresses, as the tests in
+  `mmu_coherence/` do.
 - They are not safe to use from an interrupt handler. A handler that
   waits for a lock its own core already holds waits for ever.
 

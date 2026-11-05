@@ -1,0 +1,7 @@
+SOURCES = diff_va_same_set_two_ways.c
+RUN_OPTIONS = --dcache-ways 2
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000fff

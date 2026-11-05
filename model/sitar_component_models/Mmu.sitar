@@ -166,6 +166,7 @@ procedure Mmu
 		response.mae       = false;
 		response.cacheable = false;
 		response.acc       = 0;
+		response.physicalAddressValid = false;
 		needsFinalDataAccess = false;
 		translationOk        = false;
 		$;
@@ -498,6 +499,8 @@ procedure Mmu
 					run phyMemWriteProcedure;
 					$
 					response.mae = phyMemWriteProcedure.response.mae;
+					response.physicalAddress = translatedPhysAddr;
+					response.physicalAddressValid = true;
 					response.cacheable = translatedCacheable and MmuCore::isCacheableTarget(translatedPhysAddr) and not response.mae;
 					$;
 				else
@@ -594,7 +597,11 @@ procedure Mmu
 					phyMemWriteProcedure.request.lock     = false;
 					$;
 					run phyMemWriteProcedure;
-					$ response.mae = phyMemReadProcedure.response.mae or phyMemWriteProcedure.response.mae; $;
+					$
+					response.mae = phyMemReadProcedure.response.mae or phyMemWriteProcedure.response.mae;
+					response.physicalAddress = translatedPhysAddr;
+					response.physicalAddressValid = true;
+					$;
 				else
 					$ response.mae = !mmu.noFaultSuppressesTrap(request.asi); $;
 				end if;

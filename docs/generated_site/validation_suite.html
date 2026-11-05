@@ -2623,13 +2623,14 @@ whole of <code>validation/</code>:</p>
 </ul>
 <p><code>run_tests.py --config &lt;config&gt;</code> runs the tests whose requirements the
 configuration has, and lists the folders it skipped, with the reason:</p>
-<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>skipped 4 test(s) under validation/C/caches: core_only has no caches
-</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>skipped 8 test(s) under validation/C/devices: core_only has no devices
-</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>skipped 12 test(s) under validation/C/mmu: core_only has no mmu
+<div class="language-text highlight"><pre><span></span><code><span id="__span-5-1"><a id="__codelineno-5-1" name="__codelineno-5-1" href="#__codelineno-5-1"></a>skipped 13 test(s) under validation/C/caches: core_only has no caches
+</span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>skipped 9 test(s) under validation/C/devices: core_only has no devices
+</span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>skipped 15 test(s) under validation/C/mmu: core_only has no mmu
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>skipped 108 test(s) under validation/apara: core_only has no apara_standalone
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
-</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>
-</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>241/241 tests passed (158 skipped)
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>skipped 48 test(s) under validation/multicore: core_only has no devices, multicore
+</span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
+</span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>241/241 tests passed (219 skipped)
 </span></code></pre></div>
 <p>The components, and which configuration has which:</p>
 <table>
@@ -2859,8 +2860,8 @@ components, each living in its own folder:</p>
 <ul>
 <li><strong><code>validation/C/mmu/</code></strong><br />
     The MMU: register access, page-table walks, TLB hit/miss/fill,
-    faults, probe and flush, bypass. See <a href="model_components.html#mmu">Model
-    Components</a>.</li>
+    faults (including the trap a faulting store must take), probe and
+    flush, bypass. See <a href="model_components.html#mmu">Model Components</a>.</li>
 <li><strong><code>validation/C/devices/</code></strong><br />
     The timer, interrupt controller (including interrupt delivery to a
     real trap handler, priority, masking, and IPIs), and serial device
@@ -2870,7 +2871,8 @@ components, each living in its own folder:</p>
     limit, so run them with <code>--max-cycles 5000000</code>.</li>
 <li><strong><code>validation/C/caches/</code></strong><br />
     The L1 caches: write-through, staleness until a flush, device
-    registers never cached, atomics on a cached line, synonyms.
+    registers never cached, atomics on a cached line, and synonyms, in
+    every combination of virtual address and context, with the MMU on.
     Needs <code>core_l1cache_mmu_devices</code>. The whole suite above also runs
     through the caches on that configuration, and with every ordinary
     access cached if you set <code>SPARC_ALWAYS_CACHEABLE=1</code> in the

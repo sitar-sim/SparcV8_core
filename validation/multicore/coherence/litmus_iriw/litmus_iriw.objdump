@@ -28,7 +28,7 @@ Disassembly of section .text:
       50:	23 00 04 00 	sethi  %hi(0x100000), %l1
       54:	a2 54 00 11 	umul  %l0, %l1, %l1
       58:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      5c:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <STACK_TOP>
+      5c:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <STACK_TOP>
       60:	9c 23 80 11 	sub  %sp, %l1, %sp
       64:	25 3f ff cb 	sethi  %hi(0xffff2c00), %l2
       68:	80 a4 20 00 	cmp  %l0, 0
@@ -4129,7 +4129,7 @@ Disassembly of section .text:
     374c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
     3750:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
     3754:	03 27 8d de 	sethi  %hi(0x9e377800), %g1
-    3758:	82 10 61 b1 	or  %g1, 0x1b1, %g1	! 9e3779b1 <STACK_TOP+0x8e3779c1>
+    3758:	82 10 61 b1 	or  %g1, 0x1b1, %g1	! 9e3779b1 <STACK_TOP+0x8e377a11>
     375c:	a0 58 80 01 	smul  %g2, %g1, %l0
     3760:	7f ff fe 56 	call  30b8 <this_core_id>
     3764:	01 00 00 00 	nop 
@@ -4391,7 +4391,7 @@ Symbol table '.symtab' contains 312 entries:
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
      2: 00003b2c     0 SECTION LOCAL  DEFAULT    2 
-     3: 0ffffff0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
+     3: 0fffffa0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
      4: 00100000     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_BYTES_PER_CORE
      5: ffff2c00     0 NOTYPE  LOCAL  DEFAULT  ABS BOOT_RELEASE_FLAG
      6: 00001000     0 NOTYPE  LOCAL  DEFAULT    1 trap_table_base

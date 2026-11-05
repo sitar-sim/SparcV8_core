@@ -28,7 +28,7 @@ Disassembly of section .text:
       50:	23 00 04 00 	sethi  %hi(0x100000), %l1
       54:	a2 54 00 11 	umul  %l0, %l1, %l1
       58:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      5c:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <STACK_TOP>
+      5c:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <STACK_TOP>
       60:	9c 23 80 11 	sub  %sp, %l1, %sp
       64:	25 3f ff cb 	sethi  %hi(0xffff2c00), %l2
       68:	80 a4 20 00 	cmp  %l0, 0
@@ -4123,12 +4123,12 @@ Disassembly of section .text:
     373c:	01 00 00 00 	nop 
     3740:	03 00 04 04 	sethi  %hi(0x101000), %g1
     3744:	05 20 70 f8 	sethi  %hi(0x81c3e000), %g2
-    3748:	84 10 a0 08 	or  %g2, 8, %g2	! 81c3e008 <STACK_TOP+0x71c3e018>
+    3748:	84 10 a0 08 	or  %g2, 8, %g2	! 81c3e008 <STACK_TOP+0x71c3e068>
     374c:	c4 20 40 00 	st  %g2, [ %g1 ]
     3750:	03 00 04 04 	sethi  %hi(0x101000), %g1
     3754:	82 10 60 04 	or  %g1, 4, %g1	! 101004 <STACK_BYTES_PER_CORE+0x1004>
     3758:	05 24 04 08 	sethi  %hi(0x90102000), %g2
-    375c:	84 10 a0 01 	or  %g2, 1, %g2	! 90102001 <STACK_TOP+0x80102011>
+    375c:	84 10 a0 01 	or  %g2, 1, %g2	! 90102001 <STACK_TOP+0x80102061>
     3760:	c4 20 40 00 	st  %g2, [ %g1 ]
     3764:	03 00 00 0e 	sethi  %hi(0x3800), %g1
     3768:	90 10 60 dc 	or  %g1, 0xdc, %o0	! 38dc <barrier>
@@ -4157,7 +4157,7 @@ Disassembly of section .text:
     37c4:	03 00 04 04 	sethi  %hi(0x101000), %g1
     37c8:	82 10 60 04 	or  %g1, 4, %g1	! 101004 <STACK_BYTES_PER_CORE+0x1004>
     37cc:	05 24 04 08 	sethi  %hi(0x90102000), %g2
-    37d0:	84 10 a0 02 	or  %g2, 2, %g2	! 90102002 <STACK_TOP+0x80102012>
+    37d0:	84 10 a0 02 	or  %g2, 2, %g2	! 90102002 <STACK_TOP+0x80102062>
     37d4:	c4 20 40 00 	st  %g2, [ %g1 ]
     37d8:	03 00 04 04 	sethi  %hi(0x101000), %g1
     37dc:	81 d8 40 00 	flush  %g1
@@ -4228,7 +4228,7 @@ Symbol table '.symtab' contains 308 entries:
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
      2: 000038c0     0 SECTION LOCAL  DEFAULT    2 
-     3: 0ffffff0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
+     3: 0fffffa0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
      4: 00100000     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_BYTES_PER_CORE
      5: ffff2c00     0 NOTYPE  LOCAL  DEFAULT  ABS BOOT_RELEASE_FLAG
      6: 00001000     0 NOTYPE  LOCAL  DEFAULT    1 trap_table_base

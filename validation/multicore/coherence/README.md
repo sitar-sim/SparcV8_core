@@ -46,7 +46,7 @@ fail.
 | A fill in progress installs its line regardless | `fill_race` and `litmus_corr`, on the sitar_model. |
 | The snoop filter never forgets | `snoop_filter`, in both models. |
 | The instruction cache is not invalidated | `instruction_cache`, in both models. |
-| An older copy of a line is not removed on a fill | `validation/C/caches/synonym_one_copy`, in both models. |
+| An older copy of a line is not removed on a fill | `validation/C/caches/synonyms/`, in both models. |
 
 Three of these tests are shaped by what such a mistake would otherwise hide.
 `fill_race` evicts its line rather than flushing, since a flush slows the readers so

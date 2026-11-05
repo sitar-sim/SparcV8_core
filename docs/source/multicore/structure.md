@@ -194,7 +194,12 @@ Two virtual addresses, or one address in two MMU contexts, can map to one
 physical line. A cache holds at most one copy of it, in every
 configuration. Installing a line first removes any older copy with the
 same physical address, so a store through one address is never missed by
-a load through the other. `--stats` counts these as `synonyms removed`.
+a load through the other. A store through an uncached alias and an atomic
+instruction never install a line, so they remove the other copy themselves.
+A store or atomic whose fault is suppressed by the MMU's NF bit reaches no
+memory and has no physical address, so it removes nothing.
+`--stats` counts these as `synonyms removed`. A bypass-ASI access goes
+around the cache on purpose, and leaves this core's own copy alone.
 
 ### The end of a run
 

@@ -2669,7 +2669,12 @@ purpose.</p>
 physical line. A cache holds at most one copy of it, in every
 configuration. Installing a line first removes any older copy with the
 same physical address, so a store through one address is never missed by
-a load through the other. <code>--stats</code> counts these as <code>synonyms removed</code>.</p>
+a load through the other. A store through an uncached alias and an atomic
+instruction never install a line, so they remove the other copy themselves.
+A store or atomic whose fault is suppressed by the MMU's NF bit reaches no
+memory and has no physical address, so it removes nothing.
+<code>--stats</code> counts these as <code>synonyms removed</code>. A bypass-ASI access goes
+around the cache on purpose, and leaves this core's own copy alone.</p>
 <h3 id="the-end-of-a-run">The end of a run<a class="headerlink" href="#the-end-of-a-run" title="Permanent link">&para;</a></h3>
 <p>In the single-core configurations, <code>Core</code> stops the simulation as soon
 as its core halts. Here a halted core only logs that it has halted,

@@ -43,6 +43,7 @@ synchronization library also include `multicore_sync.h`.
 | `boot/release_flag_asm` | In assembly, without the startup file. Cores 1 to 3 wait on a release flag in the scratch-pad, set by core 0, then each core writes its own word of memory. Each core's ASR29 is checked too. |
 | `boot/crt0_multicore` | What the startup file promises every core: its ASR29 value, its own stack region, `.bss` cleared, and the release flag set. Each core records its arrival in shared memory. |
 | `boot/staggered_halt` | Core `i` counts to `(i + 1) * 3000` before halting, so the cores halt far apart, and the run still waits for all of them. |
+| `boot/deep_calls_mmu_on` | A call chain deeper than the register windows, with the MMU on. A window overflow writes above the stack pointer, so the startup file must leave room above its first one. |
 | `interrupts/ipi_from_core0` | Core 0 sends an inter-processor interrupt to each of cores 1 to 3 in turn. Each takes exactly one, with the right message, and core 0 takes none. |
 | `interrupts/timer_to_selected_cores` | Cores 0 to 2 enable the timer's level and core 3 does not. Cores 0 to 2 each take exactly one timer interrupt, and core 3 takes none. |
 | `examples/parallel_sum` | The [parallel array sum](examples.md#parallel-array-sum) example. Checks each core's partial sum and the total. |
@@ -114,8 +115,33 @@ never happens.
 | `coherence/litmus_corr` | Core 0 writes a word twice, and others read it twice. | Seeing the writes go backwards. |
 | `coherence/litmus_2plus2w` | Two cores each write both words, in opposite orders. | A final state that needs a cycle in the order of writes. |
 
-`validation/C/caches/synonym_one_copy`, on one core, checks synonyms. It runs on
-every configuration with caches, with the MMU on.
+### With the MMU on
+
+In `coherence/` the MMU is off, so a virtual and a physical address are the same.
+The tests in `mmu_coherence/` give each core its own view of a shared physical page,
+so an invalidate has to find its line from the physical address alone. They run with
+`--coherent`, and everything is cached.
+
+| Test | Virtual address | Context | What else |
+|---|---|---|---|
+| `mmu_coherence/diff_va_across_cores` | Different per core | Shared | Each in a different cache set. Every kind of write. |
+| `mmu_coherence/same_va_diff_context` | Same | Different per core | The tags all differ. Every kind of write. |
+| `mmu_coherence/diff_va_diff_context` | Different per core | Different per core | Every kind of write. |
+| `mmu_coherence/separate_page_tables` | Different per core | A context table per core | Every kind of write. |
+| `mmu_coherence/same_va_diff_pa` | Same, different physical pages | Different per core | Not synonyms, so a write must not disturb another core's line. |
+| `mmu_coherence/line_in_another_context` | Same | A reader switches away and back | An invalidate goes by physical address, whatever context is running. Runs with two ways, so that the second context's line does not evict the first. |
+| `mmu_coherence/code_through_another_address` | Different per core | Shared | The instruction cache. |
+| `mmu_coherence/lock_through_aliases` | Different per core | Different per core | A spinlock and a counter, with plain loads. |
+| `mmu_coherence/fill_race` | Different per core | Shared | A write during a fill. |
+| `mmu_coherence/litmus_mp` | Different per core | Shared | Message passing. |
+
+On one core, `validation/C/caches/synonyms/` covers the same combinations, with
+the MMU on and on every configuration with caches. Each test maps one physical page
+at two addresses, and writes through one with a store that misses, a store that hits,
+a byte store, `LDSTUB` and `SWAP`, and reads through the other. The test
+`faulting_access_keeps_line` covers a store or atomic that faults with the MMU's NF bit
+set. Such a fault looks like a store to an uncached page, but it has no physical address,
+so it must not remove a line.
 
 ### Checking that the tests can fail
 
@@ -135,11 +161,18 @@ model.
 
 | Mistake | Tests that then fail |
 |---|---|
-| No invalidates sent | All but `stale_without_coherence`, in both models. |
+| No invalidates sent | All but `stale_without_coherence`, and all of `mmu_coherence/` but `same_va_diff_pa`, which needs none, in both models. |
 | A fill in progress installs its line regardless | `fill_race` and `litmus_corr`, on the sitar_model only, since the cpp_model has no such race. |
 | The snoop filter never forgets | `snoop_filter`, in both models. |
 | The instruction cache is not invalidated | `instruction_cache`, in both models. |
-| An older copy of a line is not removed on a fill | `C/caches/synonym_one_copy`, in both models. |
+| An older copy of a line is not removed on a fill | `code_aliases` and three others in `C/caches/synonyms/`, in both models. |
+| The search for a line looks only in the set its physical address names | Most of `C/caches/synonyms/` and `mmu_coherence/`, in both models. |
+| A line keeps its virtual address in place of its physical address | Most of `C/caches/synonyms/` and `mmu_coherence/`, in both models. |
+| An atomic does not remove a copy under another address | Six of `C/caches/synonyms/`, in both models. |
+| A store through an uncached alias does not remove the cached copy | `uncached_alias`, in both models. |
+| A fault suppressed by the NF bit removes a line, as an uncached store does | `faulting_access_keeps_line`, in both models. |
+| An invalidate clears the whole set, not just the matching line | `same_va_diff_pa`, in both models. |
+| Tags ignore the context | `diff_pa_same_va` and `line_in_another_context`, in both models. |
 
 The first of these shows why each litmus test also checks that a plain load sees
 the writes at the end of each round. A stale cache only ever shows old values, which

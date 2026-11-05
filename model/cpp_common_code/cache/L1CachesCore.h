@@ -42,6 +42,9 @@
 //    line, and each cache holds at most one copy of it. Installing a line
 //    removes any older copy, as AJIT's caches do (Dcache.c, through its
 //    RLUT). A store through either address therefore keeps them consistent.
+//    A store through an uncached alias, and an atomic, never fill, so they
+//    remove the other copy themselves. A bypass-ASI access is the exception:
+//    it goes around the cache on purpose, and leaves this core's copy alone.
 //
 //Coherence: invalidatePhysicalLine() removes another core's written line from
 //both caches. Only a multicore system ever calls it. In a timing model it

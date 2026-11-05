@@ -242,6 +242,8 @@ void L1CachesCore::downstreamDone(const VirtualMemoryResponse& r)
 						invalidatedDuringFill_.clear();
 						step_ = Step::FILL_FOR_WRITE;
 					}
+					else if (r.physicalAddressValid) //through an uncached alias: no fill to remove another copy
+						dataStats.synonymsRemoved += dataCache.invalidatePhysicalLine(r.physicalAddress);
 				}
 				else if (request_.asi == ASI_MMU_FLUSH_PROBE || request_.asi == ASI_MMU_REGISTER)
 				{
@@ -258,6 +260,8 @@ void L1CachesCore::downstreamDone(const VirtualMemoryResponse& r)
 					uint64_t data = ((uint64_t) request_.word1 << 32) | request_.word0;
 					dataCache.writeBytes(index, request_.address, data, (uint8_t) request_.byteMask);
 				}
+				else if (r.physicalAddressValid) //an atomic never fills, so it must remove a copy under another address itself
+					dataStats.synonymsRemoved += dataCache.invalidatePhysicalLine(r.physicalAddress);
 			}
 			break;
 		}

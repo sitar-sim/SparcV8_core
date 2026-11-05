@@ -88,7 +88,11 @@ struct VirtualMemoryRequest
 //the page's ACC field (Ref Appendix H), for the cache's own permission
 //check on later hits. physicalAddress is where the access went, for the
 //cache to find this line by physical address later (Ref CacheArray.h).
-//Every other access type leaves these untouched.
+//physicalAddress is also set for a STORE or ATOMIC_LS that reached memory, with
+//physicalAddressValid, so that the cache can deal with another copy of that
+//line. A fault that the NF bit suppresses has no mae and no address, so
+//physicalAddressValid is what tells it from a store to an uncached page. Every
+//other access type leaves these untouched.
 struct VirtualMemoryResponse
 {
 	bool     valid;
@@ -99,6 +103,7 @@ struct VirtualMemoryResponse
 	bool     cacheable;
 	uint8_t  acc;
 	uint64_t physicalAddress;
+	bool     physicalAddressValid;
 };
 
 enum class PhysicalAccessType : uint32_t

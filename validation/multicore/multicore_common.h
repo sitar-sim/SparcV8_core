@@ -21,7 +21,7 @@
 #define NUM_CORES 4
 
 // The startup file's layout (Ref crt0_multicore.s).
-#define STACK_TOP            0x0ffffff0u
+#define STACK_TOP            0x0fffffa0u
 #define STACK_BYTES_PER_CORE 0x00100000u
 #define BOOT_RELEASE_FLAG    0xFFFF2C00u
 

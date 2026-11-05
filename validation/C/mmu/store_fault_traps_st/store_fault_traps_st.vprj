@@ -1,0 +1,5 @@
+SOURCES = store_fault_traps_st.c
+
+
+RESULTS =
+g1=0x00000009

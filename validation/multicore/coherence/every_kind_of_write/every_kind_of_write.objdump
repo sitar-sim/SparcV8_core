@@ -28,7 +28,7 @@ Disassembly of section .text:
       50:	23 00 04 00 	sethi  %hi(0x100000), %l1
       54:	a2 54 00 11 	umul  %l0, %l1, %l1
       58:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      5c:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <STACK_TOP>
+      5c:	9c 13 a3 a0 	or  %sp, 0x3a0, %sp	! fffffa0 <STACK_TOP>
       60:	9c 23 80 11 	sub  %sp, %l1, %sp
       64:	25 3f ff cb 	sethi  %hi(0xffff2c00), %l2
       68:	80 a4 20 00 	cmp  %l0, 0
@@ -4158,9 +4158,9 @@ Disassembly of section .text:
     37c0:	03 00 04 00 	sethi  %hi(0x100000), %g1
     37c4:	82 10 60 40 	or  %g1, 0x40, %g1	! 100040 <STACK_BYTES_PER_CORE+0x40>
     37c8:	05 04 48 8c 	sethi  %hi(0x11223000), %g2
-    37cc:	84 10 a3 44 	or  %g2, 0x344, %g2	! 11223344 <STACK_TOP+0x1223354>
+    37cc:	84 10 a3 44 	or  %g2, 0x344, %g2	! 11223344 <STACK_TOP+0x12233a4>
     37d0:	07 15 59 9d 	sethi  %hi(0x55667400), %g3
-    37d4:	86 10 e3 88 	or  %g3, 0x388, %g3	! 55667788 <STACK_TOP+0x45667798>
+    37d4:	86 10 e3 88 	or  %g3, 0x388, %g3	! 55667788 <STACK_TOP+0x456677e8>
     37d8:	c4 38 40 00 	std  %g2, [ %g1 ]
     37dc:	03 00 04 00 	sethi  %hi(0x100000), %g1
     37e0:	90 10 60 80 	or  %g1, 0x80, %o0	! 100080 <STACK_BYTES_PER_CORE+0x80>
@@ -4169,7 +4169,7 @@ Disassembly of section .text:
     37ec:	03 00 04 00 	sethi  %hi(0x100000), %g1
     37f0:	90 10 60 c0 	or  %g1, 0xc0, %o0	! 1000c0 <STACK_BYTES_PER_CORE+0xc0>
     37f4:	03 32 bf bc 	sethi  %hi(0xcafef000), %g1
-    37f8:	92 10 60 0d 	or  %g1, 0xd, %o1	! cafef00d <STACK_TOP+0xbafef01d>
+    37f8:	92 10 60 0d 	or  %g1, 0xd, %o1	! cafef00d <STACK_TOP+0xbafef06d>
     37fc:	7f ff ff 3f 	call  34f8 <atomic_swap>
     3800:	01 00 00 00 	nop 
     3804:	03 00 00 2f 	sethi  %hi(0xbc00), %g1
@@ -4196,12 +4196,12 @@ Disassembly of section .text:
     3858:	82 10 60 40 	or  %g1, 0x40, %g1	! 100040 <STACK_BYTES_PER_CORE+0x40>
     385c:	c4 18 40 00 	ldd  [ %g1 ], %g2
     3860:	03 04 48 8c 	sethi  %hi(0x11223000), %g1
-    3864:	82 10 63 44 	or  %g1, 0x344, %g1	! 11223344 <STACK_TOP+0x1223354>
+    3864:	82 10 63 44 	or  %g1, 0x344, %g1	! 11223344 <STACK_TOP+0x12233a4>
     3868:	80 a0 80 01 	cmp  %g2, %g1
     386c:	12 80 00 0a 	bne  3894 <main+0x15c>
     3870:	01 00 00 00 	nop 
     3874:	03 15 59 9d 	sethi  %hi(0x55667400), %g1
-    3878:	82 10 63 88 	or  %g1, 0x388, %g1	! 55667788 <STACK_TOP+0x45667798>
+    3878:	82 10 63 88 	or  %g1, 0x388, %g1	! 55667788 <STACK_TOP+0x456677e8>
     387c:	80 a0 c0 01 	cmp  %g3, %g1
     3880:	12 80 00 05 	bne  3894 <main+0x15c>
     3884:	01 00 00 00 	nop 
@@ -4222,7 +4222,7 @@ Disassembly of section .text:
     38c0:	82 10 60 c0 	or  %g1, 0xc0, %g1	! 1000c0 <STACK_BYTES_PER_CORE+0xc0>
     38c4:	c4 00 40 00 	ld  [ %g1 ], %g2
     38c8:	03 32 bf bc 	sethi  %hi(0xcafef000), %g1
-    38cc:	82 10 60 0d 	or  %g1, 0xd, %g1	! cafef00d <STACK_TOP+0xbafef01d>
+    38cc:	82 10 60 0d 	or  %g1, 0xd, %g1	! cafef00d <STACK_TOP+0xbafef06d>
     38d0:	80 a0 80 01 	cmp  %g2, %g1
     38d4:	12 80 00 05 	bne  38e8 <main+0x1b0>
     38d8:	01 00 00 00 	nop 
@@ -4296,7 +4296,7 @@ Symbol table '.symtab' contains 309 entries:
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
      2: 000039c8     0 SECTION LOCAL  DEFAULT    2 
-     3: 0ffffff0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
+     3: 0fffffa0     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_TOP
      4: 00100000     0 NOTYPE  LOCAL  DEFAULT  ABS STACK_BYTES_PER_CORE
      5: ffff2c00     0 NOTYPE  LOCAL  DEFAULT  ABS BOOT_RELEASE_FLAG
      6: 00001000     0 NOTYPE  LOCAL  DEFAULT    1 trap_table_base

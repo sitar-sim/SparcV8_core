@@ -1,4 +1,4 @@
-SOURCES = synonym_one_copy.c
+SOURCES = diff_pa_same_va.c
 
 
 RESULTS =

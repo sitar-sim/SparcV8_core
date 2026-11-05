@@ -266,6 +266,8 @@ class MmuCore : public VirtualMemoryInterface
 
 	private:
 		bool lastStoreCacheable_ = false; //set by handleWriteAccess(), Ref access()'s STORE case
+		uint64_t lastPhysicalAddress_ = 0; //set by a translated store or atomic, for the same reply
+		bool lastPhysicalAddressValid_ = false;
 		PhysicalMemoryInterface& downstream_;
 		int threadId_;
 		Tlb tlb_;

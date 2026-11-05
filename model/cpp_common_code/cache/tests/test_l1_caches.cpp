@@ -41,6 +41,7 @@ class FakeMmu : public VirtualMemoryInterface
 	public:
 		std::map<uint32_t, uint32_t> words;
 		bool    cacheable = true;
+		bool    suppressedFault = false;
 		uint8_t acc       = 3;
 		int     lineReads = 0, loads = 0, stores = 0, atomics = 0, ifetches = 0, other = 0;
 		int     dwordsRead = 0; //doublewords actually read for line reads
@@ -96,7 +97,10 @@ class FakeMmu : public VirtualMemoryInterface
 				case MemAccessType::STORE:
 				case MemAccessType::ATOMIC_LS:
 				{
+					if (suppressedFault) { r.cacheable = false; r.physicalAddressValid = false; return; } //as with the NF bit set
 					if (q.accessType == MemAccessType::STORE) { stores++; r.cacheable = cacheable; } else atomics++;
+					r.physicalAddress = physical(q.address);
+					r.physicalAddressValid = true;
 					uint32_t a = q.address & ~7u;
 					r.readWord0 = word(a);
 					r.readWord1 = word(a + 4);
@@ -390,6 +394,29 @@ static void testSynonyms()
 	check(run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA)).readWord0 == 0x22,
 	      "a store through one address is seen through the other");
 	check(c.dataStats.synonymsRemoved == 2, "and that read removed the other copy again");
+
+	//An atomic never fills, so it removes a copy under another address itself.
+	run(c, req(MemAccessType::ATOMIC_LS, 0x11000, ASI_SUPERVISOR_DATA, 0x33, 0, 0x0F));
+	check(c.dataStats.synonymsRemoved == 3, "an atomic through one address removes the copy under the other");
+	check(run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA)).readWord0 == 0x33,
+	      "and the atomic is seen through the other address");
+
+	//So does a store through an alias that is not cacheable.
+	run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA));
+	mmu.cacheable = false;
+	run(c, req(MemAccessType::STORE, 0x11000, ASI_SUPERVISOR_DATA, 0x44, 0, 0x0F));
+	mmu.cacheable = true;
+	check(run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA)).readWord0 == 0x44,
+	      "a store through an uncached alias is seen through the cached one");
+
+	//A fault that the NF bit suppresses looks the same, but it has no address.
+	run(c, req(MemAccessType::LOAD, 0x10000, ASI_SUPERVISOR_DATA));
+	uint64_t removed = c.dataStats.synonymsRemoved;
+	mmu.suppressedFault = true;
+	run(c, req(MemAccessType::STORE, 0x11000, ASI_SUPERVISOR_DATA, 0x55, 0, 0x0F));
+	run(c, req(MemAccessType::ATOMIC_LS, 0x11000, ASI_SUPERVISOR_DATA, 0x55, 0, 0x0F));
+	mmu.suppressedFault = false;
+	check(c.dataStats.synonymsRemoved == removed, "a fault suppressed by the NF bit removes nothing");
 }
 
 //The race in a timing model: the invalidate arrives while a fill is on its way.

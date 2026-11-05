@@ -394,6 +394,12 @@ procedure SparcThread
 														run memWriteProcedure;
 
 														$
+														core.MAE = memWriteProcedure.response.mae;
+														if (core.MAE)
+														{
+															core.trap = true;
+															core.data_access_exception = true;
+														}
 														core.stats.stores++;
 														log<<endl<<core.logger.log_mem_write(current_time.cycle(), core.address, core.writeWord0, core.writeWord1, core.byte_mask, memWriteProcedure.response.mae);
 														debug_hook_mem_access(core, DebugMemAccessKind::STORE, core.address, core.writeWord0, core.writeWord1);

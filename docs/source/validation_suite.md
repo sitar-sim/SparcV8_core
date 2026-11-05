@@ -200,13 +200,14 @@ whole of `validation/`:
 configuration has, and lists the folders it skipped, with the reason:
 
 ```text
-skipped 4 test(s) under validation/C/caches: core_only has no caches
-skipped 8 test(s) under validation/C/devices: core_only has no devices
-skipped 12 test(s) under validation/C/mmu: core_only has no mmu
+skipped 13 test(s) under validation/C/caches: core_only has no caches
+skipped 9 test(s) under validation/C/devices: core_only has no devices
+skipped 15 test(s) under validation/C/mmu: core_only has no mmu
 skipped 108 test(s) under validation/apara: core_only has no apara_standalone
+skipped 48 test(s) under validation/multicore: core_only has no devices, multicore
 skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
 
-241/241 tests passed (158 skipped)
+241/241 tests passed (219 skipped)
 ```
 
 The components, and which configuration has which:
@@ -353,8 +354,8 @@ components, each living in its own folder:
 
 - **`validation/C/mmu/`**  
     The MMU: register access, page-table walks, TLB hit/miss/fill,
-    faults, probe and flush, bypass. See [Model
-    Components](model_components.md#mmu).
+    faults (including the trap a faulting store must take), probe and
+    flush, bypass. See [Model Components](model_components.md#mmu).
 - **`validation/C/devices/`**  
     The timer, interrupt controller (including interrupt delivery to a
     real trap handler, priority, masking, and IPIs), and serial device
@@ -364,7 +365,8 @@ components, each living in its own folder:
     limit, so run them with `--max-cycles 5000000`.
 - **`validation/C/caches/`**  
     The L1 caches: write-through, staleness until a flush, device
-    registers never cached, atomics on a cached line, synonyms.
+    registers never cached, atomics on a cached line, and synonyms, in
+    every combination of virtual address and context, with the MMU on.
     Needs `core_l1cache_mmu_devices`. The whole suite above also runs
     through the caches on that configuration, and with every ordinary
     access cached if you set `SPARC_ALWAYS_CACHEABLE=1` in the

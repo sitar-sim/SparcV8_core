@@ -30,7 +30,11 @@
 .global _start
 .global main
 
-STACK_TOP            = 0x0ffffff0
+! STACK_TOP leaves 96 bytes above the first frame. A register window spilled by a
+! window overflow is written at %sp and upward, 64 bytes of it, so a stack pointer
+! at the very top of the region would write past the end of it. With the MMU on,
+! that address is unmapped, and the core would stop with a trap inside a trap.
+STACK_TOP            = 0x0fffffa0
 STACK_BYTES_PER_CORE = 0x00100000	! 1 MB
 BOOT_RELEASE_FLAG    = 0xFFFF2C00	! scratch-pad word 0
 

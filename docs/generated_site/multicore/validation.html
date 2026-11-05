@@ -1677,6 +1677,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#with-the-mmu-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the MMU on
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2323,6 +2334,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#with-the-mmu-on" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        With the MMU on
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2428,6 +2450,10 @@ synchronization library also include <code>multicore_sync.h</code>.</p>
 <tr>
 <td><code>boot/staggered_halt</code></td>
 <td>Core <code>i</code> counts to <code>(i + 1) * 3000</code> before halting, so the cores halt far apart, and the run still waits for all of them.</td>
+</tr>
+<tr>
+<td><code>boot/deep_calls_mmu_on</code></td>
+<td>A call chain deeper than the register windows, with the MMU on. A window overflow writes above the stack pointer, so the startup file must leave room above its first one.</td>
 </tr>
 <tr>
 <td><code>interrupts/ipi_from_core0</code></td>
@@ -2631,8 +2657,90 @@ never happens.</p>
 </tr>
 </tbody>
 </table>
-<p><code>validation/C/caches/synonym_one_copy</code>, on one core, checks synonyms. It runs on
-every configuration with caches, with the MMU on.</p>
+<h3 id="with-the-mmu-on">With the MMU on<a class="headerlink" href="#with-the-mmu-on" title="Permanent link">&para;</a></h3>
+<p>In <code>coherence/</code> the MMU is off, so a virtual and a physical address are the same.
+The tests in <code>mmu_coherence/</code> give each core its own view of a shared physical page,
+so an invalidate has to find its line from the physical address alone. They run with
+<code>--coherent</code>, and everything is cached.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Virtual address</th>
+<th>Context</th>
+<th>What else</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>mmu_coherence/diff_va_across_cores</code></td>
+<td>Different per core</td>
+<td>Shared</td>
+<td>Each in a different cache set. Every kind of write.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/same_va_diff_context</code></td>
+<td>Same</td>
+<td>Different per core</td>
+<td>The tags all differ. Every kind of write.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/diff_va_diff_context</code></td>
+<td>Different per core</td>
+<td>Different per core</td>
+<td>Every kind of write.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/separate_page_tables</code></td>
+<td>Different per core</td>
+<td>A context table per core</td>
+<td>Every kind of write.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/same_va_diff_pa</code></td>
+<td>Same, different physical pages</td>
+<td>Different per core</td>
+<td>Not synonyms, so a write must not disturb another core's line.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/line_in_another_context</code></td>
+<td>Same</td>
+<td>A reader switches away and back</td>
+<td>An invalidate goes by physical address, whatever context is running. Runs with two ways, so that the second context's line does not evict the first.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/code_through_another_address</code></td>
+<td>Different per core</td>
+<td>Shared</td>
+<td>The instruction cache.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/lock_through_aliases</code></td>
+<td>Different per core</td>
+<td>Different per core</td>
+<td>A spinlock and a counter, with plain loads.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/fill_race</code></td>
+<td>Different per core</td>
+<td>Shared</td>
+<td>A write during a fill.</td>
+</tr>
+<tr>
+<td><code>mmu_coherence/litmus_mp</code></td>
+<td>Different per core</td>
+<td>Shared</td>
+<td>Message passing.</td>
+</tr>
+</tbody>
+</table>
+<p>On one core, <code>validation/C/caches/synonyms/</code> covers the same combinations, with
+the MMU on and on every configuration with caches. Each test maps one physical page
+at two addresses, and writes through one with a store that misses, a store that hits,
+a byte store, <code>LDSTUB</code> and <code>SWAP</code>, and reads through the other. The test
+<code>faulting_access_keeps_line</code> covers a store or atomic that faults with the MMU's NF bit
+set. Such a fault looks like a store to an uncached page, but it has no physical address,
+so it must not remove a line.</p>
 <h3 id="checking-that-the-tests-can-fail">Checking that the tests can fail<a class="headerlink" href="#checking-that-the-tests-can-fail" title="Permanent link">&para;</a></h3>
 <p>A test that cannot fail proves nothing, so these were also run on a
 sitar_model with the bus lock turned off. Eight of the ten <code>atomics/</code>
@@ -2656,7 +2764,7 @@ model.</p>
 <tbody>
 <tr>
 <td>No invalidates sent</td>
-<td>All but <code>stale_without_coherence</code>, in both models.</td>
+<td>All but <code>stale_without_coherence</code>, and all of <code>mmu_coherence/</code> but <code>same_va_diff_pa</code>, which needs none, in both models.</td>
 </tr>
 <tr>
 <td>A fill in progress installs its line regardless</td>
@@ -2672,7 +2780,35 @@ model.</p>
 </tr>
 <tr>
 <td>An older copy of a line is not removed on a fill</td>
-<td><code>C/caches/synonym_one_copy</code>, in both models.</td>
+<td><code>code_aliases</code> and three others in <code>C/caches/synonyms/</code>, in both models.</td>
+</tr>
+<tr>
+<td>The search for a line looks only in the set its physical address names</td>
+<td>Most of <code>C/caches/synonyms/</code> and <code>mmu_coherence/</code>, in both models.</td>
+</tr>
+<tr>
+<td>A line keeps its virtual address in place of its physical address</td>
+<td>Most of <code>C/caches/synonyms/</code> and <code>mmu_coherence/</code>, in both models.</td>
+</tr>
+<tr>
+<td>An atomic does not remove a copy under another address</td>
+<td>Six of <code>C/caches/synonyms/</code>, in both models.</td>
+</tr>
+<tr>
+<td>A store through an uncached alias does not remove the cached copy</td>
+<td><code>uncached_alias</code>, in both models.</td>
+</tr>
+<tr>
+<td>A fault suppressed by the NF bit removes a line, as an uncached store does</td>
+<td><code>faulting_access_keeps_line</code>, in both models.</td>
+</tr>
+<tr>
+<td>An invalidate clears the whole set, not just the matching line</td>
+<td><code>same_va_diff_pa</code>, in both models.</td>
+</tr>
+<tr>
+<td>Tags ignore the context</td>
+<td><code>diff_pa_same_va</code> and <code>line_in_another_context</code>, in both models.</td>
 </tr>
 </tbody>
 </table>

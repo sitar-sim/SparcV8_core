@@ -10,7 +10,7 @@ MMU disabled. Reporting is the same as `validation/C/devices/`.
 | `write_through_visible` | Stores through the data cache are already in memory (bypass loads see them), including a byte store. |
 | `stale_until_flush` | A bypass store changes memory but not the cached copy, which stays stale until the cache is flushed: the caches are not coherent. |
 | `device_never_cached` | A device register read with plain loads keeps changing, even with "always cacheable" set. |
-| `synonym_one_copy` | Two virtual pages map to one physical page, with the MMU on. A store through one address is seen through the other, because a cache holds one copy. |
+| `synonyms/` | One physical page at two addresses, with the MMU on, in every combination of virtual address and context. A write through one is seen through the other, because a cache holds one copy. See its README. |
 | `atomic_on_cached_line` | LDSTUB on a cached byte returns the old value, and the cache and memory both see 0xFF afterward. |
 
 `stale_until_flush` would fail on a configuration without caches, so

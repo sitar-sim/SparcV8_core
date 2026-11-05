@@ -417,7 +417,7 @@ main:
 	ld	[%fp-32], %g1
 	sll	%g1, 20, %g1
 	sethi	%hi(268434432), %g2
-	or	%g2, 1008, %g2
+	or	%g2, 928, %g2
 	sub	%g2, %g1, %g1
 	st	%g1, [%fp-24]
 	ld	[%fp-24], %g2

@@ -2502,7 +2502,7 @@ Programs</a>) with
 three additions.</p>
 <ol>
 <li><strong>A stack for each core.</strong> Core <code>i</code>'s stack starts at
-   <code>0x0ffffff0 - i * 0x100000</code>, so each core has 1 MB of stack of its
+   <code>0x0fffffa0 - i * 0x100000</code>, so each core has 1 MB of stack of its
    own.</li>
 <li><strong>One-time initialization by core 0.</strong> Core 0 clears <code>.bss</code>, the
    area of uninitialized global variables, before any core runs
@@ -2619,6 +2619,9 @@ cores write often is better kept in separate lines, 64 bytes apart.</p>
 cache, so a core running code it has just changed must still execute <code>FLUSH</code>.
 Other cores need no flush for that code. A bypass store does not update the
 writer's own cached copy either, though it does remove other cores' copies.</p>
+<p>Coherence works with the MMU on as well, whatever virtual addresses and contexts
+the cores use, because an invalidate goes by physical address. The tests in
+<code>mmu_coherence/</code> cover the combinations.</p>
 <hr />
 <h2 id="locks-and-synchronization">Locks and synchronization<a class="headerlink" href="#locks-and-synchronization" title="Permanent link">&para;</a></h2>
 <p>A word written by more than one core needs a lock. Two cores
@@ -2715,9 +2718,10 @@ inside the lock, as the test <code>sync_library/flush_inside_lock</code> does.</
 <li>They wait by spinning, without a limit, so a lock that is never
   released keeps a core spinning until the run's cycle limit.</li>
 <li>Their uncached loads take a physical address. The MMU is off when a
-  program starts, so this works as it is by default. It matters only if
-  a program turns the MMU on and maps shared data at a different
-  physical address.</li>
+  program starts, so this works as it is by default. A program that turns
+  the MMU on must keep the locks and other shared structures at virtual
+  addresses equal to their physical addresses, as the tests in
+  <code>mmu_coherence/</code> do.</li>
 <li>They are not safe to use from an interrupt handler. A handler that
   waits for a lock its own core already holds waits for ever.</li>
 </ul>

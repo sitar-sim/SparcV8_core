@@ -20,12 +20,14 @@ lines.
 | `boot/release_flag_asm` | In assembly, without `crt0_multicore.s`: cores 1 to 3 wait on a release flag in the scratch-pad, set by core 0, then each core writes its own word of memory. Also each core's ASR29. |
 | `boot/crt0_multicore` | What `crt0_multicore.s` promises every core: its ASR29, its own stack region, `.bss` cleared, the release flag set. Each core records its arrival in shared memory. |
 | `boot/staggered_halt` | Core `i` counts to `(i+1)*3000` before halting, so the cores halt far apart, and the run still waits for all of them. |
+| `boot/deep_calls_mmu_on` | A call chain deeper than the register windows, with the MMU on, so the startup file must leave room above its first stack pointer. |
 
 The other folders have the rest of the tests. `interrupts/` covers per-core
 interrupts and IPIs, `examples/` holds the worked examples of the docs,
 `atomics/` tests `LDSTUB` and `SWAP` across cores, `sync_library/` tests
-the routines of `compiler/sparc_common_routines/multicore_sync.h`, and
-`coherence/` tests coherent caches. The last three have READMEs of their own.
+the routines of `compiler/sparc_common_routines/multicore_sync.h`, `coherence/`
+tests coherent caches, and `mmu_coherence/` tests them with the MMU on. The
+last four have READMEs of their own.
 
 ```sh
 validation/run_tests.py validation/multicore --config multicore

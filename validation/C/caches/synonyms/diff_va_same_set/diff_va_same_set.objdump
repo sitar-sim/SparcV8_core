@@ -1,5 +1,5 @@
 
-validation/C/caches/synonym_one_copy/synonym_one_copy.elf:     file format elf32-sparc
+validation/C/caches/synonyms/diff_va_same_set/diff_va_same_set.elf:     file format elf32-sparc
 
 
 Disassembly of section .text:
@@ -19,14 +19,14 @@ Disassembly of section .text:
       2c:	01 00 00 00 	nop 
       30:	01 00 00 00 	nop 
       34:	1d 03 ff ff 	sethi  %hi(0xffffc00), %sp
-      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <__bss_end+0xfffaff0>
+      38:	9c 13 a3 f0 	or  %sp, 0x3f0, %sp	! ffffff0 <__bss_end+0xfff8ff0>
       3c:	82 10 2b ad 	mov  0xbad, %g1
-      40:	40 00 07 f0 	call  2000 <main>
+      40:	40 00 09 e3 	call  27cc <main>
       44:	01 00 00 00 	nop 
 
 00000048 <not_reached>:
       48:	03 00 00 37 	sethi  %hi(0xdc00), %g1
-      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <__bss_end+0x8ead>
+      4c:	82 10 62 ad 	or  %g1, 0x2ad, %g1	! dead <__bss_end+0x6ead>
       50:	91 d0 20 00 	ta  0
       54:	01 00 00 00 	nop 
       58:	01 00 00 00 	nop 
@@ -2566,306 +2566,604 @@ Disassembly of section .text:
     1ff8:	01 00 00 00 	nop 
     1ffc:	01 00 00 00 	nop 
 
-00002000 <main>:
-    2000:	9d e3 bf 18 	save  %sp, -232, %sp
-    2004:	c0 27 bf 78 	clr  [ %fp + -136 ]
-    2008:	03 04 00 d0 	sethi  %hi(0x10034000), %g1
-    200c:	c2 27 bf 7c 	st  %g1, [ %fp + -132 ]
-    2010:	03 04 00 d4 	sethi  %hi(0x10035000), %g1
-    2014:	c2 27 bf 80 	st  %g1, [ %fp + -128 ]
-    2018:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    201c:	c2 27 bf 84 	st  %g1, [ %fp + -124 ]
-    2020:	c2 07 bf 80 	ld  [ %fp + -128 ], %g1
-    2024:	c2 27 bf 88 	st  %g1, [ %fp + -120 ]
-    2028:	03 00 00 10 	sethi  %hi(0x4000), %g1
-    202c:	82 10 60 00 	mov  %g1, %g1	! 4000 <target_page>
-    2030:	84 10 20 11 	mov  0x11, %g2
-    2034:	c4 20 40 00 	st  %g2, [ %g1 ]
-    2038:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    203c:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    2040:	88 08 60 3f 	and  %g1, 0x3f, %g4
-    2044:	03 00 00 10 	sethi  %hi(0x4000), %g1
-    2048:	82 10 60 00 	mov  %g1, %g1	! 4000 <target_page>
-    204c:	c2 27 bf 94 	st  %g1, [ %fp + -108 ]
-    2050:	82 10 20 03 	mov  3, %g1
-    2054:	c2 27 bf 90 	st  %g1, [ %fp + -112 ]
-    2058:	82 10 20 01 	mov  1, %g1
-    205c:	c2 27 bf 8c 	st  %g1, [ %fp + -116 ]
-    2060:	c2 07 bf 94 	ld  [ %fp + -108 ], %g1
-    2064:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    2068:	85 28 60 08 	sll  %g1, 8, %g2
-    206c:	c2 07 bf 8c 	ld  [ %fp + -116 ], %g1
-    2070:	80 a0 60 00 	cmp  %g1, 0
-    2074:	02 80 00 05 	be  2088 <main+0x88>
-    2078:	01 00 00 00 	nop 
-    207c:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
-    2080:	10 80 00 03 	b  208c <main+0x8c>
-    2084:	01 00 00 00 	nop 
-    2088:	82 10 20 00 	clr  %g1	! 0 <_start>
-    208c:	84 10 80 01 	or  %g2, %g1, %g2
-    2090:	c2 07 bf 90 	ld  [ %fp + -112 ], %g1
+00002000 <build_tables>:
+    2000:	9d e3 bf 60 	save  %sp, -160, %sp
+    2004:	c0 27 bf c0 	clr  [ %fp + -64 ]
+    2008:	10 80 00 80 	b  2208 <build_tables+0x208>
+    200c:	01 00 00 00 	nop 
+    2010:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2014:	c4 07 bf c0 	ld  [ %fp + -64 ], %g2
+    2018:	87 28 a0 08 	sll  %g2, 8, %g3
+    201c:	05 00 00 10 	sethi  %hi(0x4000), %g2
+    2020:	84 10 a0 00 	mov  %g2, %g2	! 4000 <l3_tables>
+    2024:	84 00 c0 02 	add  %g3, %g2, %g2
+    2028:	c4 27 bf c4 	st  %g2, [ %fp + -60 ]
+    202c:	c4 07 bf c4 	ld  [ %fp + -60 ], %g2
+    2030:	c4 27 bf c8 	st  %g2, [ %fp + -56 ]
+    2034:	c4 07 bf c8 	ld  [ %fp + -56 ], %g2
+    2038:	85 30 a0 06 	srl  %g2, 6, %g2
+    203c:	85 28 a0 02 	sll  %g2, 2, %g2
+    2040:	84 10 a0 01 	or  %g2, 1, %g2
+    2044:	86 10 00 02 	mov  %g2, %g3
+    2048:	05 00 00 0f 	sethi  %hi(0x3c00), %g2
+    204c:	84 10 a0 00 	mov  %g2, %g2	! 3c00 <l2_tables>
+    2050:	83 28 60 08 	sll  %g1, 8, %g1
+    2054:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
+    2058:	03 00 00 0d 	sethi  %hi(0x3400), %g1
+    205c:	84 10 60 00 	mov  %g1, %g2	! 3400 <l1_tables>
+    2060:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2064:	83 28 60 0a 	sll  %g1, 0xa, %g1
+    2068:	84 00 80 01 	add  %g2, %g1, %g2
+    206c:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2070:	87 28 60 08 	sll  %g1, 8, %g3
+    2074:	03 00 00 0f 	sethi  %hi(0x3c00), %g1
+    2078:	82 10 60 00 	mov  %g1, %g1	! 3c00 <l2_tables>
+    207c:	82 00 c0 01 	add  %g3, %g1, %g1
+    2080:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    2084:	c2 07 bf cc 	ld  [ %fp + -52 ], %g1
+    2088:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    208c:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    2090:	83 30 60 06 	srl  %g1, 6, %g1
     2094:	83 28 60 02 	sll  %g1, 2, %g1
-    2098:	82 10 80 01 	or  %g2, %g1, %g1
-    209c:	82 10 60 02 	or  %g1, 2, %g1
-    20a0:	86 10 00 01 	mov  %g1, %g3
-    20a4:	03 00 00 0f 	sethi  %hi(0x3c00), %g1
-    20a8:	84 10 60 00 	mov  %g1, %g2	! 3c00 <l3_table>
-    20ac:	83 29 20 02 	sll  %g4, 2, %g1
-    20b0:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    20b4:	c2 07 bf 80 	ld  [ %fp + -128 ], %g1
-    20b8:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    20bc:	88 08 60 3f 	and  %g1, 0x3f, %g4
-    20c0:	03 00 00 10 	sethi  %hi(0x4000), %g1
-    20c4:	82 10 60 00 	mov  %g1, %g1	! 4000 <target_page>
-    20c8:	c2 27 bf a0 	st  %g1, [ %fp + -96 ]
-    20cc:	82 10 20 03 	mov  3, %g1
-    20d0:	c2 27 bf 9c 	st  %g1, [ %fp + -100 ]
-    20d4:	82 10 20 01 	mov  1, %g1
-    20d8:	c2 27 bf 98 	st  %g1, [ %fp + -104 ]
-    20dc:	c2 07 bf a0 	ld  [ %fp + -96 ], %g1
-    20e0:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    20e4:	85 28 60 08 	sll  %g1, 8, %g2
-    20e8:	c2 07 bf 98 	ld  [ %fp + -104 ], %g1
-    20ec:	80 a0 60 00 	cmp  %g1, 0
-    20f0:	02 80 00 05 	be  2104 <main+0x104>
-    20f4:	01 00 00 00 	nop 
-    20f8:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
-    20fc:	10 80 00 03 	b  2108 <main+0x108>
-    2100:	01 00 00 00 	nop 
-    2104:	82 10 20 00 	clr  %g1	! 0 <_start>
-    2108:	84 10 80 01 	or  %g2, %g1, %g2
-    210c:	c2 07 bf 9c 	ld  [ %fp + -100 ], %g1
-    2110:	83 28 60 02 	sll  %g1, 2, %g1
-    2114:	82 10 80 01 	or  %g2, %g1, %g1
-    2118:	82 10 60 02 	or  %g1, 2, %g1
-    211c:	86 10 00 01 	mov  %g1, %g3
-    2120:	03 00 00 0f 	sethi  %hi(0x3c00), %g1
-    2124:	84 10 60 00 	mov  %g1, %g2	! 3c00 <l3_table>
-    2128:	83 29 20 02 	sll  %g4, 2, %g1
-    212c:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    2130:	c2 07 bf 7c 	ld  [ %fp + -132 ], %g1
-    2134:	83 30 60 12 	srl  %g1, 0x12, %g1
-    2138:	82 08 60 3f 	and  %g1, 0x3f, %g1
-    213c:	05 00 00 0f 	sethi  %hi(0x3c00), %g2
-    2140:	84 10 a0 00 	mov  %g2, %g2	! 3c00 <l3_table>
-    2144:	c4 27 bf a4 	st  %g2, [ %fp + -92 ]
-    2148:	c4 07 bf a4 	ld  [ %fp + -92 ], %g2
-    214c:	c4 27 bf a8 	st  %g2, [ %fp + -88 ]
-    2150:	c4 07 bf a8 	ld  [ %fp + -88 ], %g2
-    2154:	85 30 a0 06 	srl  %g2, 6, %g2
-    2158:	85 28 a0 02 	sll  %g2, 2, %g2
-    215c:	84 10 a0 01 	or  %g2, 1, %g2
-    2160:	86 10 00 02 	mov  %g2, %g3
-    2164:	05 00 00 0e 	sethi  %hi(0x3800), %g2
-    2168:	84 10 a0 00 	mov  %g2, %g2	! 3800 <l2_table>
-    216c:	83 28 60 02 	sll  %g1, 2, %g1
-    2170:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    2174:	03 00 00 0e 	sethi  %hi(0x3800), %g1
-    2178:	82 10 60 00 	mov  %g1, %g1	! 3800 <l2_table>
-    217c:	c2 27 bf ac 	st  %g1, [ %fp + -84 ]
-    2180:	c2 07 bf ac 	ld  [ %fp + -84 ], %g1
-    2184:	c2 27 bf b0 	st  %g1, [ %fp + -80 ]
-    2188:	c2 07 bf b0 	ld  [ %fp + -80 ], %g1
-    218c:	83 30 60 06 	srl  %g1, 6, %g1
-    2190:	83 28 60 02 	sll  %g1, 2, %g1
-    2194:	82 10 60 01 	or  %g1, 1, %g1
-    2198:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    219c:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l1_table>
-    21a0:	c4 27 bf b8 	st  %g2, [ %fp + -72 ]
-    21a4:	c2 27 bf b4 	st  %g1, [ %fp + -76 ]
-    21a8:	c0 27 bf bc 	clr  [ %fp + -68 ]
-    21ac:	10 80 00 0a 	b  21d4 <main+0x1d4>
-    21b0:	01 00 00 00 	nop 
-    21b4:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
-    21b8:	83 28 60 02 	sll  %g1, 2, %g1
-    21bc:	c4 07 bf b8 	ld  [ %fp + -72 ], %g2
-    21c0:	82 00 80 01 	add  %g2, %g1, %g1
-    21c4:	c0 20 40 00 	clr  [ %g1 ]
-    21c8:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
-    21cc:	82 00 60 01 	inc  %g1
-    21d0:	c2 27 bf bc 	st  %g1, [ %fp + -68 ]
-    21d4:	c2 07 bf bc 	ld  [ %fp + -68 ], %g1
-    21d8:	80 a0 60 ff 	cmp  %g1, 0xff
-    21dc:	04 bf ff f6 	ble  21b4 <main+0x1b4>
-    21e0:	01 00 00 00 	nop 
-    21e4:	c0 27 bf c8 	clr  [ %fp + -56 ]
-    21e8:	82 10 20 03 	mov  3, %g1
-    21ec:	c2 27 bf c4 	st  %g1, [ %fp + -60 ]
-    21f0:	82 10 20 01 	mov  1, %g1
-    21f4:	c2 27 bf c0 	st  %g1, [ %fp + -64 ]
-    21f8:	c2 07 bf c8 	ld  [ %fp + -56 ], %g1
-    21fc:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    2200:	85 28 60 08 	sll  %g1, 8, %g2
-    2204:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
-    2208:	80 a0 60 00 	cmp  %g1, 0
-    220c:	02 80 00 05 	be  2220 <main+0x220>
-    2210:	01 00 00 00 	nop 
-    2214:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
-    2218:	10 80 00 03 	b  2224 <main+0x224>
-    221c:	01 00 00 00 	nop 
-    2220:	82 10 20 00 	clr  %g1	! 0 <_start>
-    2224:	84 10 80 01 	or  %g2, %g1, %g2
-    2228:	c2 07 bf c4 	ld  [ %fp + -60 ], %g1
-    222c:	83 28 60 02 	sll  %g1, 2, %g1
-    2230:	82 10 80 01 	or  %g2, %g1, %g1
-    2234:	82 10 60 02 	or  %g1, 2, %g1
-    2238:	84 10 00 01 	mov  %g1, %g2
-    223c:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
-    2240:	c4 20 40 00 	st  %g2, [ %g1 ]
-    2244:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
-    2248:	84 00 60 3c 	add  %g1, 0x3c, %g2
-    224c:	03 03 c0 00 	sethi  %hi(0xf000000), %g1
-    2250:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
-    2254:	82 10 20 03 	mov  3, %g1
-    2258:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
-    225c:	82 10 20 01 	mov  1, %g1
-    2260:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
-    2264:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
-    2268:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    226c:	87 28 60 08 	sll  %g1, 8, %g3
-    2270:	c2 07 bf cc 	ld  [ %fp + -52 ], %g1
-    2274:	80 a0 60 00 	cmp  %g1, 0
-    2278:	02 80 00 05 	be  228c <main+0x28c>
-    227c:	01 00 00 00 	nop 
-    2280:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
-    2284:	10 80 00 03 	b  2290 <main+0x290>
-    2288:	01 00 00 00 	nop 
-    228c:	82 10 20 00 	clr  %g1	! 0 <_start>
-    2290:	86 10 c0 01 	or  %g3, %g1, %g3
-    2294:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
-    2298:	83 28 60 02 	sll  %g1, 2, %g1
-    229c:	82 10 c0 01 	or  %g3, %g1, %g1
-    22a0:	82 10 60 02 	or  %g1, 2, %g1
-    22a4:	c2 20 80 00 	st  %g1, [ %g2 ]
-    22a8:	c2 07 bf b8 	ld  [ %fp + -72 ], %g1
-    22ac:	82 00 60 40 	add  %g1, 0x40, %g1
-    22b0:	c4 07 bf b4 	ld  [ %fp + -76 ], %g2
-    22b4:	c4 20 40 00 	st  %g2, [ %g1 ]
-    22b8:	03 00 00 0c 	sethi  %hi(0x3000), %g1
-    22bc:	82 10 60 00 	mov  %g1, %g1	! 3000 <__bss_start>
-    22c0:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
-    22c4:	03 00 00 0d 	sethi  %hi(0x3400), %g1
-    22c8:	82 10 60 00 	mov  %g1, %g1	! 3400 <l1_table>
-    22cc:	c2 27 bf d8 	st  %g1, [ %fp + -40 ]
-    22d0:	c2 07 bf d8 	ld  [ %fp + -40 ], %g1
-    22d4:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
-    22d8:	c2 07 bf e0 	ld  [ %fp + -32 ], %g1
-    22dc:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
-    22e0:	c2 07 bf e4 	ld  [ %fp + -28 ], %g1
+    2098:	82 10 60 01 	or  %g1, 1, %g1
+    209c:	c4 27 bf d8 	st  %g2, [ %fp + -40 ]
+    20a0:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
+    20a4:	c0 27 bf dc 	clr  [ %fp + -36 ]
+    20a8:	10 80 00 0a 	b  20d0 <build_tables+0xd0>
+    20ac:	01 00 00 00 	nop 
+    20b0:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    20b4:	83 28 60 02 	sll  %g1, 2, %g1
+    20b8:	c4 07 bf d8 	ld  [ %fp + -40 ], %g2
+    20bc:	82 00 80 01 	add  %g2, %g1, %g1
+    20c0:	c0 20 40 00 	clr  [ %g1 ]
+    20c4:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    20c8:	82 00 60 01 	inc  %g1
+    20cc:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
+    20d0:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    20d4:	80 a0 60 ff 	cmp  %g1, 0xff
+    20d8:	04 bf ff f6 	ble  20b0 <build_tables+0xb0>
+    20dc:	01 00 00 00 	nop 
+    20e0:	c0 27 bf e8 	clr  [ %fp + -24 ]
+    20e4:	82 10 20 03 	mov  3, %g1
+    20e8:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
+    20ec:	82 10 20 01 	mov  1, %g1
+    20f0:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
+    20f4:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    20f8:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    20fc:	85 28 60 08 	sll  %g1, 8, %g2
+    2100:	c2 07 bf e0 	ld  [ %fp + -32 ], %g1
+    2104:	80 a0 60 00 	cmp  %g1, 0
+    2108:	02 80 00 05 	be  211c <build_tables+0x11c>
+    210c:	01 00 00 00 	nop 
+    2110:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
+    2114:	10 80 00 03 	b  2120 <build_tables+0x120>
+    2118:	01 00 00 00 	nop 
+    211c:	82 10 20 00 	clr  %g1	! 0 <_start>
+    2120:	84 10 80 01 	or  %g2, %g1, %g2
+    2124:	c2 07 bf e4 	ld  [ %fp + -28 ], %g1
+    2128:	83 28 60 02 	sll  %g1, 2, %g1
+    212c:	82 10 80 01 	or  %g2, %g1, %g1
+    2130:	82 10 60 02 	or  %g1, 2, %g1
+    2134:	84 10 00 01 	mov  %g1, %g2
+    2138:	c2 07 bf d8 	ld  [ %fp + -40 ], %g1
+    213c:	c4 20 40 00 	st  %g2, [ %g1 ]
+    2140:	c2 07 bf d8 	ld  [ %fp + -40 ], %g1
+    2144:	84 00 60 3c 	add  %g1, 0x3c, %g2
+    2148:	03 03 c0 00 	sethi  %hi(0xf000000), %g1
+    214c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2150:	82 10 20 03 	mov  3, %g1
+    2154:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    2158:	82 10 20 01 	mov  1, %g1
+    215c:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    2160:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    2164:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    2168:	87 28 60 08 	sll  %g1, 8, %g3
+    216c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    2170:	80 a0 60 00 	cmp  %g1, 0
+    2174:	02 80 00 05 	be  2188 <build_tables+0x188>
+    2178:	01 00 00 00 	nop 
+    217c:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
+    2180:	10 80 00 03 	b  218c <build_tables+0x18c>
+    2184:	01 00 00 00 	nop 
+    2188:	82 10 20 00 	clr  %g1	! 0 <_start>
+    218c:	86 10 c0 01 	or  %g3, %g1, %g3
+    2190:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    2194:	83 28 60 02 	sll  %g1, 2, %g1
+    2198:	82 10 c0 01 	or  %g3, %g1, %g1
+    219c:	82 10 60 02 	or  %g1, 2, %g1
+    21a0:	c2 20 80 00 	st  %g1, [ %g2 ]
+    21a4:	c2 07 bf d8 	ld  [ %fp + -40 ], %g1
+    21a8:	82 00 60 40 	add  %g1, 0x40, %g1
+    21ac:	c4 07 bf d4 	ld  [ %fp + -44 ], %g2
+    21b0:	c4 20 40 00 	st  %g2, [ %g1 ]
+    21b4:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    21b8:	c4 07 bf c0 	ld  [ %fp + -64 ], %g2
+    21bc:	87 28 a0 0a 	sll  %g2, 0xa, %g3
+    21c0:	05 00 00 0d 	sethi  %hi(0x3400), %g2
+    21c4:	84 10 a0 00 	mov  %g2, %g2	! 3400 <l1_tables>
+    21c8:	84 00 c0 02 	add  %g3, %g2, %g2
+    21cc:	c4 27 bf f8 	st  %g2, [ %fp + -8 ]
+    21d0:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
+    21d4:	c4 27 bf fc 	st  %g2, [ %fp + -4 ]
+    21d8:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    21dc:	85 30 a0 06 	srl  %g2, 6, %g2
+    21e0:	85 28 a0 02 	sll  %g2, 2, %g2
+    21e4:	84 10 a0 01 	or  %g2, 1, %g2
+    21e8:	86 10 00 02 	mov  %g2, %g3
+    21ec:	05 00 00 0c 	sethi  %hi(0x3000), %g2
+    21f0:	84 10 a0 00 	mov  %g2, %g2	! 3000 <__bss_start>
+    21f4:	83 28 60 02 	sll  %g1, 2, %g1
+    21f8:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
+    21fc:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    2200:	82 00 60 01 	inc  %g1
+    2204:	c2 27 bf c0 	st  %g1, [ %fp + -64 ]
+    2208:	c2 07 bf c0 	ld  [ %fp + -64 ], %g1
+    220c:	80 a0 60 01 	cmp  %g1, 1
+    2210:	08 bf ff 80 	bleu  2010 <build_tables+0x10>
+    2214:	01 00 00 00 	nop 
+    2218:	81 e8 00 00 	restore 
+    221c:	81 c3 e0 08 	retl 
+    2220:	01 00 00 00 	nop 
+
+00002224 <map_page>:
+    2224:	9d e3 bf 90 	save  %sp, -112, %sp
+    2228:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    222c:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    2230:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    2234:	f6 27 a0 50 	st  %i3, [ %fp + 0x50 ]
+    2238:	da 07 a0 44 	ld  [ %fp + 0x44 ], %o5
+    223c:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    2240:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    2244:	88 08 60 3f 	and  %g1, 0x3f, %g4
+    2248:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    224c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    2250:	82 10 20 03 	mov  3, %g1
+    2254:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    2258:	c2 07 a0 50 	ld  [ %fp + 0x50 ], %g1
+    225c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2260:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2264:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    2268:	85 28 60 08 	sll  %g1, 8, %g2
+    226c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    2270:	80 a0 60 00 	cmp  %g1, 0
+    2274:	02 80 00 05 	be  2288 <map_page+0x64>
+    2278:	01 00 00 00 	nop 
+    227c:	82 10 20 80 	mov  0x80, %g1	! 80 <not_reached+0x38>
+    2280:	10 80 00 03 	b  228c <map_page+0x68>
+    2284:	01 00 00 00 	nop 
+    2288:	82 10 20 00 	clr  %g1	! 0 <_start>
+    228c:	84 10 80 01 	or  %g2, %g1, %g2
+    2290:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    2294:	83 28 60 02 	sll  %g1, 2, %g1
+    2298:	82 10 80 01 	or  %g2, %g1, %g1
+    229c:	82 10 60 02 	or  %g1, 2, %g1
+    22a0:	86 10 00 01 	mov  %g1, %g3
+    22a4:	03 00 00 10 	sethi  %hi(0x4000), %g1
+    22a8:	84 10 60 00 	mov  %g1, %g2	! 4000 <l3_tables>
+    22ac:	83 2b 60 06 	sll  %o5, 6, %g1
+    22b0:	82 00 40 04 	add  %g1, %g4, %g1
+    22b4:	83 28 60 02 	sll  %g1, 2, %g1
+    22b8:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
+    22bc:	81 e8 00 00 	restore 
+    22c0:	81 c3 e0 08 	retl 
+    22c4:	01 00 00 00 	nop 
+
+000022c8 <enable_mmu>:
+    22c8:	9d e3 bf 88 	save  %sp, -120, %sp
+    22cc:	03 00 00 0c 	sethi  %hi(0x3000), %g1
+    22d0:	82 10 60 00 	mov  %g1, %g1	! 3000 <__bss_start>
+    22d4:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
+    22d8:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    22dc:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    22e0:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
     22e4:	83 30 60 06 	srl  %g1, 6, %g1
     22e8:	83 28 60 02 	sll  %g1, 2, %g1
     22ec:	82 10 60 01 	or  %g1, 1, %g1
-    22f0:	84 10 00 01 	mov  %g1, %g2
-    22f4:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
-    22f8:	c4 20 40 00 	st  %g2, [ %g1 ]
-    22fc:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
-    2300:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
-    2304:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
-    2308:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    230c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    2310:	83 30 60 06 	srl  %g1, 6, %g1
-    2314:	83 28 60 02 	sll  %g1, 2, %g1
-    2318:	82 10 60 01 	or  %g1, 1, %g1
-    231c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    2320:	82 10 21 00 	mov  0x100, %g1
-    2324:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
-    2328:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    232c:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
-    2330:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
-    2334:	82 10 20 01 	mov  1, %g1
-    2338:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    233c:	c0 27 bf f8 	clr  [ %fp + -8 ]
-    2340:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2344:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
-    2348:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
-    234c:	c2 07 bf 84 	ld  [ %fp + -124 ], %g1
-    2350:	c2 00 40 00 	ld  [ %g1 ], %g1
-    2354:	80 a0 60 11 	cmp  %g1, 0x11
-    2358:	12 80 00 0a 	bne  2380 <main+0x380>
-    235c:	01 00 00 00 	nop 
-    2360:	c2 07 bf 88 	ld  [ %fp + -120 ], %g1
-    2364:	c2 00 40 00 	ld  [ %g1 ], %g1
-    2368:	80 a0 60 11 	cmp  %g1, 0x11
-    236c:	12 80 00 05 	bne  2380 <main+0x380>
-    2370:	01 00 00 00 	nop 
-    2374:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    2378:	82 10 60 01 	or  %g1, 1, %g1
-    237c:	c2 27 bf 78 	st  %g1, [ %fp + -136 ]
-    2380:	c2 07 bf 88 	ld  [ %fp + -120 ], %g1
-    2384:	84 10 20 22 	mov  0x22, %g2
-    2388:	c4 20 40 00 	st  %g2, [ %g1 ]
-    238c:	c2 07 bf 84 	ld  [ %fp + -124 ], %g1
-    2390:	c2 00 40 00 	ld  [ %g1 ], %g1
-    2394:	80 a0 60 22 	cmp  %g1, 0x22
-    2398:	12 80 00 05 	bne  23ac <main+0x3ac>
-    239c:	01 00 00 00 	nop 
-    23a0:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    23a4:	82 10 60 02 	or  %g1, 2, %g1
-    23a8:	c2 27 bf 78 	st  %g1, [ %fp + -136 ]
-    23ac:	c2 07 bf 84 	ld  [ %fp + -124 ], %g1
-    23b0:	84 10 20 33 	mov  0x33, %g2
-    23b4:	c4 20 40 00 	st  %g2, [ %g1 ]
-    23b8:	c2 07 bf 88 	ld  [ %fp + -120 ], %g1
-    23bc:	c2 00 40 00 	ld  [ %g1 ], %g1
-    23c0:	80 a0 60 33 	cmp  %g1, 0x33
-    23c4:	12 80 00 05 	bne  23d8 <main+0x3d8>
-    23c8:	01 00 00 00 	nop 
-    23cc:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    23d0:	82 10 60 04 	or  %g1, 4, %g1
-    23d4:	c2 27 bf 78 	st  %g1, [ %fp + -136 ]
-    23d8:	c2 07 bf 78 	ld  [ %fp + -136 ], %g1
-    23dc:	80 a0 60 07 	cmp  %g1, 7
-    23e0:	12 80 00 05 	bne  23f4 <main+0x3f4>
-    23e4:	01 00 00 00 	nop 
-    23e8:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    23ec:	10 80 00 03 	b  23f8 <main+0x3f8>
-    23f0:	01 00 00 00 	nop 
-    23f4:	82 10 20 00 	clr  %g1	! 0 <_start>
-    23f8:	c4 07 bf 78 	ld  [ %fp + -136 ], %g2
-    23fc:	90 10 00 01 	mov  %g1, %o0
-    2400:	92 10 00 02 	mov  %g2, %o1
-    2404:	91 d0 20 00 	ta  0
-    2408:	10 80 00 00 	b  2408 <main+0x408>
-    240c:	01 00 00 00 	nop 
+    22f0:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    22f4:	82 10 21 00 	mov  0x100, %g1
+    22f8:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    22fc:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    2300:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
+    2304:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    2308:	82 10 20 01 	mov  1, %g1
+    230c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    2310:	c0 27 bf f8 	clr  [ %fp + -8 ]
+    2314:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    2318:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
+    231c:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    2320:	81 e8 00 00 	restore 
+    2324:	81 c3 e0 08 	retl 
+    2328:	01 00 00 00 	nop 
 
-00002410 <memcpy>:
-    2410:	9d e3 bf 90 	save  %sp, -112, %sp
-    2414:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    2418:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    241c:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    2420:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    2424:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    2428:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    242c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    2430:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    2434:	10 80 00 0d 	b  2468 <memcpy+0x58>
-    2438:	01 00 00 00 	nop 
-    243c:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    2440:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2444:	82 00 80 01 	add  %g2, %g1, %g1
-    2448:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
-    244c:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    2450:	84 00 c0 02 	add  %g3, %g2, %g2
-    2454:	c4 08 80 00 	ldub  [ %g2 ], %g2
-    2458:	c4 28 40 00 	stb  %g2, [ %g1 ]
-    245c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    2460:	82 00 60 01 	inc  %g1
-    2464:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    2468:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    246c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    2470:	80 a0 80 01 	cmp  %g2, %g1
-    2474:	0a bf ff f2 	bcs  243c <memcpy+0x2c>
-    2478:	01 00 00 00 	nop 
-    247c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    2480:	b0 10 00 01 	mov  %g1, %i0
-    2484:	81 e8 00 00 	restore 
-    2488:	81 c3 e0 08 	retl 
+0000232c <read_alias>:
+    232c:	9d e3 bf 98 	save  %sp, -104, %sp
+    2330:	82 10 00 18 	mov  %i0, %g1
+    2334:	c4 00 60 04 	ld  [ %g1 + 4 ], %g2
+    2338:	c4 27 bf fc 	st  %g2, [ %fp + -4 ]
+    233c:	84 10 22 00 	mov  0x200, %g2
+    2340:	c4 27 bf f8 	st  %g2, [ %fp + -8 ]
+    2344:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    2348:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    234c:	c4 a0 c0 80 	sta  %g2, [ %g3 ] #ASI_N
+    2350:	c2 00 40 00 	ld  [ %g1 ], %g1
+    2354:	c2 00 40 00 	ld  [ %g1 ], %g1
+    2358:	b0 10 00 01 	mov  %g1, %i0
+    235c:	81 e8 00 00 	restore 
+    2360:	81 c3 e0 08 	retl 
+    2364:	01 00 00 00 	nop 
+
+00002368 <check_one_direction>:
+    2368:	9d e3 bf 68 	save  %sp, -152, %sp
+    236c:	a2 10 00 18 	mov  %i0, %l1
+    2370:	a0 10 00 19 	mov  %i1, %l0
+    2374:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    2378:	c0 27 bf d0 	clr  [ %fp + -48 ]
+    237c:	c2 04 00 00 	ld  [ %l0 ], %g1
+    2380:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2384:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    2388:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    238c:	82 07 bf c8 	add  %fp, -56, %g1
+    2390:	90 10 00 01 	mov  %g1, %o0
+    2394:	7f ff ff e6 	call  232c <read_alias>
+    2398:	01 00 00 00 	nop 
+    239c:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    23a0:	c2 27 bf dc 	st  %g1, [ %fp + -36 ]
+    23a4:	82 10 22 00 	mov  0x200, %g1
+    23a8:	c2 27 bf d8 	st  %g1, [ %fp + -40 ]
+    23ac:	c2 07 bf dc 	ld  [ %fp + -36 ], %g1
+    23b0:	c4 07 bf d8 	ld  [ %fp + -40 ], %g2
+    23b4:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    23b8:	c2 04 40 00 	ld  [ %l1 ], %g1
+    23bc:	c4 07 a0 4c 	ld  [ %fp + 0x4c ], %g2
+    23c0:	84 00 a0 01 	inc  %g2
+    23c4:	c4 20 40 00 	st  %g2, [ %g1 ]
+    23c8:	c2 04 00 00 	ld  [ %l0 ], %g1
+    23cc:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    23d0:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    23d4:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    23d8:	82 07 bf c8 	add  %fp, -56, %g1
+    23dc:	90 10 00 01 	mov  %g1, %o0
+    23e0:	7f ff ff d3 	call  232c <read_alias>
+    23e4:	01 00 00 00 	nop 
+    23e8:	84 10 00 08 	mov  %o0, %g2
+    23ec:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    23f0:	82 00 60 01 	inc  %g1
+    23f4:	80 a0 80 01 	cmp  %g2, %g1
+    23f8:	12 80 00 05 	bne  240c <check_one_direction+0xa4>
+    23fc:	01 00 00 00 	nop 
+    2400:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    2404:	82 10 60 01 	or  %g1, 1, %g1
+    2408:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    240c:	c2 04 40 00 	ld  [ %l1 ], %g1
+    2410:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2414:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    2418:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    241c:	82 07 bf c8 	add  %fp, -56, %g1
+    2420:	90 10 00 01 	mov  %g1, %o0
+    2424:	7f ff ff c2 	call  232c <read_alias>
+    2428:	01 00 00 00 	nop 
+    242c:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    2430:	c2 27 bf e4 	st  %g1, [ %fp + -28 ]
+    2434:	82 10 22 00 	mov  0x200, %g1
+    2438:	c2 27 bf e0 	st  %g1, [ %fp + -32 ]
+    243c:	c2 07 bf e4 	ld  [ %fp + -28 ], %g1
+    2440:	c4 07 bf e0 	ld  [ %fp + -32 ], %g2
+    2444:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    2448:	c2 04 40 00 	ld  [ %l1 ], %g1
+    244c:	c4 07 a0 4c 	ld  [ %fp + 0x4c ], %g2
+    2450:	84 00 a0 02 	add  %g2, 2, %g2
+    2454:	c4 20 40 00 	st  %g2, [ %g1 ]
+    2458:	c2 04 00 00 	ld  [ %l0 ], %g1
+    245c:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2460:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    2464:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    2468:	82 07 bf c8 	add  %fp, -56, %g1
+    246c:	90 10 00 01 	mov  %g1, %o0
+    2470:	7f ff ff af 	call  232c <read_alias>
+    2474:	01 00 00 00 	nop 
+    2478:	84 10 00 08 	mov  %o0, %g2
+    247c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    2480:	82 00 60 02 	add  %g1, 2, %g1
+    2484:	80 a0 80 01 	cmp  %g2, %g1
+    2488:	12 80 00 05 	bne  249c <check_one_direction+0x134>
     248c:	01 00 00 00 	nop 
+    2490:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    2494:	82 10 60 02 	or  %g1, 2, %g1
+    2498:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    249c:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    24a0:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    24a4:	82 10 22 00 	mov  0x200, %g1
+    24a8:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
+    24ac:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    24b0:	c4 07 bf e8 	ld  [ %fp + -24 ], %g2
+    24b4:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    24b8:	c2 04 40 00 	ld  [ %l1 ], %g1
+    24bc:	84 10 3f ab 	mov  -85, %g2
+    24c0:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    24c4:	c2 04 00 00 	ld  [ %l0 ], %g1
+    24c8:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    24cc:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    24d0:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    24d4:	82 07 bf c8 	add  %fp, -56, %g1
+    24d8:	90 10 00 01 	mov  %g1, %o0
+    24dc:	7f ff ff 94 	call  232c <read_alias>
+    24e0:	01 00 00 00 	nop 
+    24e4:	84 10 00 08 	mov  %o0, %g2
+    24e8:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    24ec:	86 00 60 02 	add  %g1, 2, %g3
+    24f0:	03 00 3f ff 	sethi  %hi(0xfffc00), %g1
+    24f4:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffffff <__bss_end+0xff8fff>
+    24f8:	86 08 c0 01 	and  %g3, %g1, %g3
+    24fc:	03 2a c0 00 	sethi  %hi(0xab000000), %g1
+    2500:	82 10 c0 01 	or  %g3, %g1, %g1
+    2504:	80 a0 80 01 	cmp  %g2, %g1
+    2508:	12 80 00 05 	bne  251c <check_one_direction+0x1b4>
+    250c:	01 00 00 00 	nop 
+    2510:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    2514:	82 10 60 04 	or  %g1, 4, %g1
+    2518:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    251c:	c2 04 00 00 	ld  [ %l0 ], %g1
+    2520:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2524:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    2528:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    252c:	82 07 bf c8 	add  %fp, -56, %g1
+    2530:	90 10 00 01 	mov  %g1, %o0
+    2534:	7f ff ff 7e 	call  232c <read_alias>
+    2538:	01 00 00 00 	nop 
+    253c:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    2540:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2544:	82 10 22 00 	mov  0x200, %g1
+    2548:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    254c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    2550:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
+    2554:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    2558:	c2 04 40 00 	ld  [ %l1 ], %g1
+    255c:	c2 68 40 00 	ldstub  [ %g1 ], %g1
+    2560:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
+    2564:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
+    2568:	80 a0 60 ab 	cmp  %g1, 0xab
+    256c:	12 80 00 15 	bne  25c0 <check_one_direction+0x258>
+    2570:	01 00 00 00 	nop 
+    2574:	c2 04 00 00 	ld  [ %l0 ], %g1
+    2578:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    257c:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    2580:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    2584:	82 07 bf c8 	add  %fp, -56, %g1
+    2588:	90 10 00 01 	mov  %g1, %o0
+    258c:	7f ff ff 68 	call  232c <read_alias>
+    2590:	01 00 00 00 	nop 
+    2594:	84 10 00 08 	mov  %o0, %g2
+    2598:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    259c:	86 00 60 02 	add  %g1, 2, %g3
+    25a0:	03 3f c0 00 	sethi  %hi(0xff000000), %g1
+    25a4:	82 10 c0 01 	or  %g3, %g1, %g1
+    25a8:	80 a0 80 01 	cmp  %g2, %g1
+    25ac:	12 80 00 05 	bne  25c0 <check_one_direction+0x258>
+    25b0:	01 00 00 00 	nop 
+    25b4:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    25b8:	82 10 60 08 	or  %g1, 8, %g1
+    25bc:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    25c0:	c2 04 00 00 	ld  [ %l0 ], %g1
+    25c4:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    25c8:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    25cc:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    25d0:	82 07 bf c8 	add  %fp, -56, %g1
+    25d4:	90 10 00 01 	mov  %g1, %o0
+    25d8:	7f ff ff 55 	call  232c <read_alias>
+    25dc:	01 00 00 00 	nop 
+    25e0:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    25e4:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    25e8:	82 10 22 00 	mov  0x200, %g1
+    25ec:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    25f0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    25f4:	c4 07 bf f8 	ld  [ %fp + -8 ], %g2
+    25f8:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    25fc:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    2600:	82 00 60 03 	add  %g1, 3, %g1
+    2604:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
+    2608:	c4 04 40 00 	ld  [ %l1 ], %g2
+    260c:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
+    2610:	c2 78 80 00 	swap  [ %g2 ], %g1
+    2614:	c2 27 bf d4 	st  %g1, [ %fp + -44 ]
+    2618:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    261c:	84 00 60 02 	add  %g1, 2, %g2
+    2620:	03 3f c0 00 	sethi  %hi(0xff000000), %g1
+    2624:	84 10 80 01 	or  %g2, %g1, %g2
+    2628:	c2 07 bf d4 	ld  [ %fp + -44 ], %g1
+    262c:	80 a0 80 01 	cmp  %g2, %g1
+    2630:	12 80 00 13 	bne  267c <check_one_direction+0x314>
+    2634:	01 00 00 00 	nop 
+    2638:	c2 04 00 00 	ld  [ %l0 ], %g1
+    263c:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2640:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    2644:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    2648:	82 07 bf c8 	add  %fp, -56, %g1
+    264c:	90 10 00 01 	mov  %g1, %o0
+    2650:	7f ff ff 37 	call  232c <read_alias>
+    2654:	01 00 00 00 	nop 
+    2658:	84 10 00 08 	mov  %o0, %g2
+    265c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    2660:	82 00 60 03 	add  %g1, 3, %g1
+    2664:	80 a0 80 01 	cmp  %g2, %g1
+    2668:	12 80 00 05 	bne  267c <check_one_direction+0x314>
+    266c:	01 00 00 00 	nop 
+    2670:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    2674:	82 10 60 10 	or  %g1, 0x10, %g1
+    2678:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    267c:	c2 04 40 00 	ld  [ %l1 ], %g1
+    2680:	c2 27 bf c8 	st  %g1, [ %fp + -56 ]
+    2684:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    2688:	c2 27 bf cc 	st  %g1, [ %fp + -52 ]
+    268c:	82 07 bf c8 	add  %fp, -56, %g1
+    2690:	90 10 00 01 	mov  %g1, %o0
+    2694:	7f ff ff 26 	call  232c <read_alias>
+    2698:	01 00 00 00 	nop 
+    269c:	84 10 00 08 	mov  %o0, %g2
+    26a0:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    26a4:	82 00 60 03 	add  %g1, 3, %g1
+    26a8:	80 a0 80 01 	cmp  %g2, %g1
+    26ac:	12 80 00 05 	bne  26c0 <check_one_direction+0x358>
+    26b0:	01 00 00 00 	nop 
+    26b4:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    26b8:	82 10 60 20 	or  %g1, 0x20, %g1
+    26bc:	c2 27 bf d0 	st  %g1, [ %fp + -48 ]
+    26c0:	c2 07 bf d0 	ld  [ %fp + -48 ], %g1
+    26c4:	b0 10 00 01 	mov  %g1, %i0
+    26c8:	81 e8 00 00 	restore 
+    26cc:	81 c3 e0 08 	retl 
+    26d0:	01 00 00 00 	nop 
+
+000026d4 <check_alias_pair>:
+    26d4:	9d e3 bf 90 	save  %sp, -112, %sp
+    26d8:	a0 10 00 18 	mov  %i0, %l0
+    26dc:	a2 10 00 19 	mov  %i1, %l1
+    26e0:	c2 04 00 00 	ld  [ %l0 ], %g1
+    26e4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    26e8:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    26ec:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    26f0:	c2 04 40 00 	ld  [ %l1 ], %g1
+    26f4:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    26f8:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    26fc:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2700:	84 07 bf f8 	add  %fp, -8, %g2
+    2704:	82 07 bf f0 	add  %fp, -16, %g1
+    2708:	90 10 00 02 	mov  %g2, %o0
+    270c:	92 10 00 01 	mov  %g1, %o1
+    2710:	15 00 00 04 	sethi  %hi(0x1000), %o2
+    2714:	7f ff ff 15 	call  2368 <check_one_direction>
+    2718:	01 00 00 00 	nop 
+    271c:	a4 10 00 08 	mov  %o0, %l2
+    2720:	c2 04 40 00 	ld  [ %l1 ], %g1
+    2724:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    2728:	c2 04 60 04 	ld  [ %l1 + 4 ], %g1
+    272c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2730:	c2 04 00 00 	ld  [ %l0 ], %g1
+    2734:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    2738:	c2 04 20 04 	ld  [ %l0 + 4 ], %g1
+    273c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    2740:	84 07 bf f0 	add  %fp, -16, %g2
+    2744:	82 07 bf f8 	add  %fp, -8, %g1
+    2748:	90 10 00 02 	mov  %g2, %o0
+    274c:	92 10 00 01 	mov  %g1, %o1
+    2750:	15 00 00 08 	sethi  %hi(0x2000), %o2
+    2754:	7f ff ff 05 	call  2368 <check_one_direction>
+    2758:	01 00 00 00 	nop 
+    275c:	82 10 00 08 	mov  %o0, %g1
+    2760:	83 28 60 06 	sll  %g1, 6, %g1
+    2764:	82 14 80 01 	or  %l2, %g1, %g1
+    2768:	b0 10 00 01 	mov  %g1, %i0
+    276c:	81 e8 00 00 	restore 
+    2770:	81 c3 e0 08 	retl 
+    2774:	01 00 00 00 	nop 
+
+00002778 <report_and_halt>:
+    2778:	9d e3 bf 98 	save  %sp, -104, %sp
+    277c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    2780:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    2784:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    2788:	84 10 20 01 	mov  1, %g2
+    278c:	83 28 80 01 	sll  %g2, %g1, %g1
+    2790:	82 00 7f ff 	add  %g1, -1, %g1
+    2794:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    2798:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
+    279c:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    27a0:	82 18 80 01 	xor  %g2, %g1, %g1
+    27a4:	80 a0 00 01 	cmp  %g0, %g1
+    27a8:	82 60 3f ff 	subx  %g0, -1, %g1
+    27ac:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    27b0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    27b4:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
+    27b8:	90 10 00 01 	mov  %g1, %o0
+    27bc:	92 10 00 02 	mov  %g2, %o1
+    27c0:	91 d0 20 00 	ta  0
+    27c4:	10 80 00 00 	b  27c4 <report_and_halt+0x4c>
+    27c8:	01 00 00 00 	nop 
+
+000027cc <main>:
+    27cc:	9d e3 bf 80 	save  %sp, -128, %sp
+    27d0:	03 04 00 40 	sethi  %hi(0x10010000), %g1
+    27d4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    27d8:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    27dc:	03 04 00 60 	sethi  %hi(0x10018000), %g1
+    27e0:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    27e4:	c0 27 bf f4 	clr  [ %fp + -12 ]
+    27e8:	7f ff fe 06 	call  2000 <build_tables>
+    27ec:	01 00 00 00 	nop 
+    27f0:	90 10 20 00 	clr  %o0	! 0 <_start>
+    27f4:	13 04 00 40 	sethi  %hi(0x10010000), %o1
+    27f8:	03 00 00 14 	sethi  %hi(0x5000), %g1
+    27fc:	94 10 60 00 	mov  %g1, %o2	! 5000 <frame>
+    2800:	96 10 20 01 	mov  1, %o3
+    2804:	7f ff fe 88 	call  2224 <map_page>
+    2808:	01 00 00 00 	nop 
+    280c:	90 10 20 00 	clr  %o0	! 0 <_start>
+    2810:	13 04 00 60 	sethi  %hi(0x10018000), %o1
+    2814:	03 00 00 14 	sethi  %hi(0x5000), %g1
+    2818:	94 10 60 00 	mov  %g1, %o2	! 5000 <frame>
+    281c:	96 10 20 01 	mov  1, %o3
+    2820:	7f ff fe 81 	call  2224 <map_page>
+    2824:	01 00 00 00 	nop 
+    2828:	7f ff fe a8 	call  22c8 <enable_mmu>
+    282c:	01 00 00 00 	nop 
+    2830:	c4 1f bf f8 	ldd  [ %fp + -8 ], %g2
+    2834:	c4 3f bf e8 	std  %g2, [ %fp + -24 ]
+    2838:	c4 1f bf f0 	ldd  [ %fp + -16 ], %g2
+    283c:	c4 3f bf e0 	std  %g2, [ %fp + -32 ]
+    2840:	84 07 bf e8 	add  %fp, -24, %g2
+    2844:	82 07 bf e0 	add  %fp, -32, %g1
+    2848:	90 10 00 02 	mov  %g2, %o0
+    284c:	92 10 00 01 	mov  %g1, %o1
+    2850:	7f ff ff a1 	call  26d4 <check_alias_pair>
+    2854:	01 00 00 00 	nop 
+    2858:	82 10 00 08 	mov  %o0, %g1
+    285c:	90 10 00 01 	mov  %g1, %o0
+    2860:	92 10 20 0c 	mov  0xc, %o1
+    2864:	7f ff ff c5 	call  2778 <report_and_halt>
+    2868:	01 00 00 00 	nop 
+    286c:	82 10 20 00 	clr  %g1	! 0 <_start>
+    2870:	b0 10 00 01 	mov  %g1, %i0
+    2874:	81 e8 00 00 	restore 
+    2878:	81 c3 e0 08 	retl 
+    287c:	01 00 00 00 	nop 
+
+00002880 <memcpy>:
+    2880:	9d e3 bf 90 	save  %sp, -112, %sp
+    2884:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    2888:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    288c:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    2890:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    2894:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    2898:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    289c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    28a0:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    28a4:	10 80 00 0d 	b  28d8 <memcpy+0x58>
+    28a8:	01 00 00 00 	nop 
+    28ac:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    28b0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    28b4:	82 00 80 01 	add  %g2, %g1, %g1
+    28b8:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    28bc:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    28c0:	84 00 c0 02 	add  %g3, %g2, %g2
+    28c4:	c4 08 80 00 	ldub  [ %g2 ], %g2
+    28c8:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    28cc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    28d0:	82 00 60 01 	inc  %g1
+    28d4:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    28d8:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    28dc:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    28e0:	80 a0 80 01 	cmp  %g2, %g1
+    28e4:	0a bf ff f2 	bcs  28ac <memcpy+0x2c>
+    28e8:	01 00 00 00 	nop 
+    28ec:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    28f0:	b0 10 00 01 	mov  %g1, %i0
+    28f4:	81 e8 00 00 	restore 
+    28f8:	81 c3 e0 08 	retl 
+    28fc:	01 00 00 00 	nop 
 
 Symbol table:
 
 
-Symbol table '.symtab' contains 274 entries:
+Symbol table '.symtab' contains 282 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
@@ -3129,15 +3427,23 @@ Symbol table '.symtab' contains 274 entries:
    259: 00001fc0     0 NOTYPE  LOCAL  DEFAULT    1 SW_trap_0xfc
    260: 00001fd0     0 NOTYPE  LOCAL  DEFAULT    1 SW_trap_0xfd
    261: 00001fe0     0 NOTYPE  LOCAL  DEFAULT    1 SW_trap_0xfe
-   262: 00000000     0 FILE    LOCAL  DEFAULT  ABS synonym_one_copy.c
+   262: 00000000     0 FILE    LOCAL  DEFAULT  ABS diff_va_same_set.c
    263: 00003000  1024 OBJECT  LOCAL  DEFAULT    2 context_table
-   264: 00003400  1024 OBJECT  LOCAL  DEFAULT    2 l1_table
-   265: 00003800   256 OBJECT  LOCAL  DEFAULT    2 l2_table
-   266: 00003c00   256 OBJECT  LOCAL  DEFAULT    2 l3_table
-   267: 00004000  4096 OBJECT  LOCAL  DEFAULT    2 target_page
-   268: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
-   269: 00002410   128 FUNC    GLOBAL DEFAULT    1 memcpy
-   270: 00005000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
-   271: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   272: 00003000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
-   273: 00002000  1040 FUNC    GLOBAL DEFAULT    1 main
+   264: 00003400  2048 OBJECT  LOCAL  DEFAULT    2 l1_tables
+   265: 00003c00   512 OBJECT  LOCAL  DEFAULT    2 l2_tables
+   266: 00004000   512 OBJECT  LOCAL  DEFAULT    2 l3_tables
+   267: 00005000  4096 OBJECT  LOCAL  DEFAULT    2 frame
+   268: 00006000  4096 OBJECT  LOCAL  DEFAULT    2 other_frame
+   269: 00002000   548 FUNC    LOCAL  DEFAULT    1 build_tables
+   270: 00002224   164 FUNC    LOCAL  DEFAULT    1 map_page
+   271: 000022c8   100 FUNC    LOCAL  DEFAULT    1 enable_mmu
+   272: 0000232c    60 FUNC    LOCAL  DEFAULT    1 read_alias
+   273: 00002368   876 FUNC    LOCAL  DEFAULT    1 check_one_direction
+   274: 000026d4   164 FUNC    LOCAL  DEFAULT    1 check_alias_pair
+   275: 00002778    84 FUNC    LOCAL  DEFAULT    1 report_and_halt
+   276: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
+   277: 00002880   128 FUNC    GLOBAL DEFAULT    1 memcpy
+   278: 00007000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
+   279: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   280: 00003000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
+   281: 000027cc   180 FUNC    GLOBAL DEFAULT    1 main

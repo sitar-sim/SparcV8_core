@@ -88,6 +88,8 @@ void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse&
 	response.readWord0 = 0;
 	response.readWord1 = 0;
 	response.mae        = false;
+	response.physicalAddressValid = false;
+	lastPhysicalAddressValid_     = false;
 
 	switch (request.accessType)
 	{
@@ -108,10 +110,14 @@ void MmuCore::access(const VirtualMemoryRequest& request, VirtualMemoryResponse&
 			//successful access to cacheable main memory (Ref AJIT's
 			//Dcache.c, first_is_not_cacheable).
 			response.cacheable = lastStoreCacheable_ && !response.mae;
+			response.physicalAddress = lastPhysicalAddress_;
+			response.physicalAddressValid = lastPhysicalAddressValid_;
 			break;
 		case MemAccessType::ATOMIC_LS:
 			handleAtomicAccess(request.address, request.word0, request.word1, request.byteMask, request.asi,
 			                    response.readWord0, response.readWord1, response.mae);
+			response.physicalAddress = lastPhysicalAddress_;
+			response.physicalAddressValid = lastPhysicalAddressValid_;
 			break;
 		case MemAccessType::READ_LINE:
 			handleReadLine(request, response);
@@ -312,6 +318,8 @@ void MmuCore::handleWriteAccess(uint32_t address, uint32_t word0, uint32_t word1
 	if (!ok) { mae = !noFaultSuppressesTrap(asi); return; }
 	writePhysicalMaskedDoubleWord(physAddr, word0, word1, byte_mask, mae);
 	lastStoreCacheable_ = cacheable && isCacheableTarget(physAddr);
+	lastPhysicalAddress_ = physAddr;
+	lastPhysicalAddressValid_ = true;
 }
 
 void MmuCore::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word1, uint32_t byte_mask, uint32_t asi,
@@ -344,6 +352,8 @@ void MmuCore::handleAtomicAccess(uint32_t address, uint32_t word0, uint32_t word
 	bool ok = translate(address, asi, /*isInstructionFetch=*/false, /*isWrite=*/true, /*isAtomic=*/true, physAddr, cacheable, acc);
 	if (!ok) { mae = !noFaultSuppressesTrap(asi); return; }
 	atomicReadModifyWritePhysical(physAddr, word0, word1, byte_mask, readWord0, readWord1, mae);
+	lastPhysicalAddress_ = physAddr;
+	lastPhysicalAddressValid_ = true;
 }
 
 //---------------------------------------------------------------------
