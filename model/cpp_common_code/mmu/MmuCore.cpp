@@ -750,11 +750,9 @@ void MmuCore::atomicReadModifyWritePhysical(uint64_t physAddr, uint32_t word0, u
 	//No ATOMIC_LS at the physical interface (Ref MemoryInterfaces.h's
 	//file comment): a locked READ, immediately followed by an ordinary
 	//WRITE, both to physAddr -- matching AJIT's own actual bus behavior
-	//(confirmed directly in its C model) and how a future multi-island
-	//arbitration point would enforce the lock (Ref
-	//Notes_multi_core_modeling.md's "Atomic load-store in a multi-core
-	//model" section: mimic AJIT's global-lock-by-core-id, not modeled
-	//yet, `lock` reserved for it).
+	//(confirmed directly in its C model). The multicore sitar_model's
+	//bridge enforces the lock (Ref CoherentBridge.sitar). The cpp_models run
+	//one instruction at a time, so nothing can come between the two.
 	//The locked read names the same bytes the write will modify.
 	PhysicalMemoryRequest readRequest{true, PhysicalAccessType::READ, /*lock=*/true, physAddr, 0, (uint8_t) byte_mask};
 	PhysicalMemoryResponse readResponse{false, 0, false};

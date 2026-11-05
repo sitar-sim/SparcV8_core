@@ -26,9 +26,9 @@ validation suite.
   interrupt controller, serial device, scratch-pad) compatible with
   those of IIT Bombay's AJIT processor.
 - **A multicore system.** Several cores sharing memory and devices,
-  with per-core interrupts, inter-processor interrupts, example
-  parallel programs, and a choice of how the cores' instructions
-  interleave.
+  with per-core interrupts, inter-processor interrupts, atomic
+  instructions, a library of locks and barriers, example parallel
+  programs, and a choice of how the cores' instructions interleave.
 - **The APARA accelerator.** A four-threaded vector compute engine,
   on its own or beside the SPARC core, with its own assembler and C
   compiler.
@@ -92,7 +92,8 @@ a C program, and debugging with gdb.
   configuration can run.
 - `compiler/` holds the SPARC cross-toolchain and its scripts, the
   startup files, bare-metal C routines for the devices and the APARA
-  engine (`include/`), and the APARA engine's assembler and C compiler
+  engine (`include/`), locks and other routines for multicore programs
+  (`sparc_common_routines/`), and the APARA engine's assembler and C compiler
   (`apara/`).
 - `performance_evaluation/` holds models and programs for measuring
   the simulator itself, such as the parallel speedup demonstration.

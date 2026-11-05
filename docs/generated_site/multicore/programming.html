@@ -1587,6 +1587,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#locks-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locks and synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locks and synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mutex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A mutex
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-lock-does-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a lock does not do
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-other-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The other routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mixing-ldstub-and-swap-on-one-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mixing LDSTUB and SWAP on one lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#interrupts-on-several-cores" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2295,6 +2356,67 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#locks-and-synchronization" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Locks and synchronization
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Locks and synchronization">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#a-mutex" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        A mutex
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#what-a-lock-does-not-do" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What a lock does not do
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#the-other-routines" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        The other routines
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#mixing-ldstub-and-swap-on-one-lock" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Mixing LDSTUB and SWAP on one lock
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#interrupts-on-several-cores" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2422,10 +2544,10 @@ way, and the validation suite runs them both ways.</p>
 ways.</p>
 <ol>
 <li><strong>An uncached load.</strong> A load with an MMU-bypass ASI never uses the
-   cache. <code>read_shared()</code> (in <code>multicore_common.h</code>) reads a word this
+   cache. <code>read_shared()</code> (in <code>multicore_core.h</code>) reads a word this
    way. With the MMU off, a variable's address is its physical address,
    so <code>read_shared(&amp;flag)</code> works on any global variable.</li>
-<li><strong>A cache flush.</strong> <code>flush_caches()</code> (also in <code>multicore_common.h</code>)
+<li><strong>A cache flush.</strong> <code>flush_caches()</code> (also in <code>multicore_core.h</code>)
    empties the core's own caches with a store to ASI <code>0x10</code>. Every load
    after it comes from main memory, until the lines are cached again.
    This suits reading a large block of data that another core has
@@ -2435,9 +2557,8 @@ ways.</p>
 </ol>
 <p>Stores need no such care, because the caches are write-through.</p>
 <h3 id="waiting-for-another-core">Waiting for another core<a class="headerlink" href="#waiting-for-another-core" title="Permanent link">&para;</a></h3>
-<p>Until the cores have atomic operations (a later stage), cores
-coordinate through <strong>flags</strong>, words that only one core ever writes. A
-core announces that something is ready by storing to its own flag, and
+<p>The simplest way for cores to coordinate is through <strong>flags</strong>, words
+that only one core ever writes. A core announces that something is ready by storing to its own flag, and
 another core waits by reading that flag until it changes.</p>
 <div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// core k, after publishing its result:</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">partial_sum</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
@@ -2448,16 +2569,119 @@ another core waits by reading that flag until it changes.</p>
 </span><span id="__span-2-7"><a id="__codelineno-2-7" name="__codelineno-2-7" href="#__codelineno-2-7"></a><span class="w">    </span><span class="p">;</span>
 </span><span id="__span-2-8"><a id="__codelineno-2-8" name="__codelineno-2-8" href="#__codelineno-2-8"></a><span class="n">total</span><span class="w"> </span><span class="o">+=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">partial_sum</span><span class="p">[</span><span class="n">k</span><span class="p">]);</span>
 </span></code></pre></div>
-<p>A word written by more than one core needs a lock, and a lock needs an
-atomic operation. Two cores incrementing the same counter, for example,
-can each read the old value and each write back one more, losing an
-increment. The examples here therefore give each core its own words to
-write. The <code>multicore</code> cpp_model runs each instruction to completion,
-so <code>LDSTUB</code> and <code>SWAP</code> are atomic there, but the sitar_model does not
-lock the bus for them yet (see <a href="structure.html#assumptions">Assumptions</a>).</p>
 <p>The tests bound every wait with <code>WAIT_LIMIT</code> polls, so a program whose
 partner never answers fails its check instead of running until the
 cycle limit.</p>
+<hr />
+<h2 id="locks-and-synchronization">Locks and synchronization<a class="headerlink" href="#locks-and-synchronization" title="Permanent link">&para;</a></h2>
+<p>A word written by more than one core needs a lock. Two cores
+incrementing the same counter can each read the old value and each
+write back one more, and one of the increments is lost. In the test
+<code>atomics/counter_without_lock</code>, four cores each add 1 to a counter 100
+times. Running in step on the sitar_model, they end with a total of just
+100, not 400. The cpp_model schedules that were tried give between 100
+and 215, and none of them reaches 400.</p>
+<p>A lock in turn needs an atomic instruction. SPARC V8 has two, and both
+are atomic across cores in both models (see <a href="structure.html#the-bus-lock">The bus
+lock</a>).</p>
+<ul>
+<li><strong><code>LDSTUB</code></strong> reads a byte and sets it to <code>0xFF</code>. It returns 0 only if
+  this core was the one that set it.</li>
+<li><strong><code>SWAP</code></strong> exchanges a word with a register.</li>
+</ul>
+<p>The routines below are small inline functions in two headers in
+<code>compiler/sparc_common_routines/</code>, which <code>compile_c.sh</code> puts on the
+include path. <code>multicore_core.h</code> holds what the earlier sections use,
+and <code>multicore_sync.h</code> holds everything built on the atomic instructions.</p>
+<h3 id="a-mutex">A mutex<a class="headerlink" href="#a-mutex" title="Permanent link">&para;</a></h3>
+<p>A mutex is one byte or word in shared memory, and 0 means free. Global
+variables start at 0, so a mutex needs no setup.</p>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;multicore_sync.h&quot;</span>
+</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
+</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">counter_lock</span><span class="p">;</span>
+</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">counter</span><span class="p">;</span>
+</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
+</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="n">acquire_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+</span><span id="__span-3-7"><a id="__codelineno-3-7" name="__codelineno-3-7" href="#__codelineno-3-7"></a><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-3-8"><a id="__codelineno-3-8" name="__codelineno-3-8" href="#__codelineno-3-8"></a><span class="n">release_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+</span></code></pre></div>
+<p>The routines have the names and arguments of AJIT's own. While the lock
+is held, a waiting core spins on an uncached load, and tries the atomic
+instruction again only when the lock looks free. Spinning on the atomic
+instruction itself would lock the bus over and over and slow every
+other core.</p>
+<p>Spinning on an uncached load is a deliberate difference from AJIT's
+routines, which spin with a plain load. Without coherent caches, a plain
+load could keep reading an old cached copy of the lock and never see it
+released.</p>
+<h3 id="what-a-lock-does-not-do">What a lock does not do<a class="headerlink" href="#what-a-lock-does-not-do" title="Permanent link">&para;</a></h3>
+<p>A lock makes sure only one core is inside, but it does not refresh the
+cache. Inside the lock, a plain load can still return this core's old
+copy of the data. Data shared under a lock must be read with
+<code>read_shared()</code>, as above, or with a plain load after <code>flush_caches()</code>
+inside the lock, as the test <code>sync_library/flush_inside_lock</code> does.</p>
+<h3 id="the-other-routines">The other routines<a class="headerlink" href="#the-other-routines" title="Permanent link">&para;</a></h3>
+<table>
+<thead>
+<tr>
+<th>Routine</th>
+<th>What it is for</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>atomic_ldstub()</code>, <code>atomic_swap()</code></td>
+<td>The two instructions themselves.</td>
+</tr>
+<tr>
+<td><code>memory_fence()</code></td>
+<td><code>STBAR</code>. It keeps earlier stores ahead of later ones. The model never reorders stores, so here it has no effect, but the architecture allows reordering, so a correct program uses it, as the release routines do.</td>
+</tr>
+<tr>
+<td><code>acquire_mutex_using_swap()</code>, <code>release_mutex_using_swap()</code></td>
+<td>A mutex in one word, using <code>SWAP</code>.</td>
+</tr>
+<tr>
+<td><code>try_acquire_mutex_using_ldstub()</code></td>
+<td>Takes the mutex only if it is free, and returns whether it did.</td>
+</tr>
+<tr>
+<td><code>atomic_fetch_and_add()</code>, <code>atomic_counter_read()</code></td>
+<td>An <code>atomic_counter_t</code>. SPARC V8 has no fetch-and-add instruction, so the counter has a lock byte of its own.</td>
+</tr>
+<tr>
+<td><code>ticket_lock_acquire()</code>, <code>ticket_lock_release()</code></td>
+<td>A <code>ticket_lock_t</code>. Unlike a mutex, it serves cores strictly in the order they arrived, so no core can be overtaken for ever.</td>
+</tr>
+<tr>
+<td><code>barrier_wait()</code></td>
+<td>A <code>barrier_t</code>. No core leaves until the given number of cores have arrived. It can be reused at once.</td>
+</tr>
+<tr>
+<td><code>semaphore_wait()</code>, <code>semaphore_try_wait()</code>, <code>semaphore_post()</code></td>
+<td>A <code>semaphore_t</code>, a count of free resources, initialized with <code>SEMAPHORE_INITIALIZER(n)</code>.</td>
+</tr>
+</tbody>
+</table>
+<p>Three limits apply to all of them.</p>
+<ul>
+<li>They wait by spinning, without a limit, so a lock that is never
+  released keeps a core spinning until the run's cycle limit.</li>
+<li>Their uncached loads take a physical address. The MMU is off when a
+  program starts, so this works as it is by default. It matters only if
+  a program turns the MMU on and maps shared data at a different
+  physical address.</li>
+<li>They are not safe to use from an interrupt handler. A handler that
+  waits for a lock its own core already holds waits for ever.</li>
+</ul>
+<h3 id="mixing-ldstub-and-swap-on-one-lock">Mixing <code>LDSTUB</code> and <code>SWAP</code> on one lock<a class="headerlink" href="#mixing-ldstub-and-swap-on-one-lock" title="Permanent link">&para;</a></h3>
+<p><code>LDSTUB</code> looks only at the byte it names, and the machine is big-endian,
+so byte 0 is the most significant byte of a word. A <code>SWAP</code> of the value
+1 leaves that byte 0, and an <code>LDSTUB</code> on the same word would see the
+lock as free. A program that uses both on one lock must <code>SWAP</code> a value
+with the top byte set, as the test <code>atomics/mixed_instructions</code> does.
+The routines above use each lock with one instruction only, so they do
+not have this problem.</p>
 <hr />
 <h2 id="interrupts-on-several-cores">Interrupts on several cores<a class="headerlink" href="#interrupts-on-several-cores" title="Permanent link">&para;</a></h2>
 <p>The Interrupt Controller has a slot for each core, and core <code>i</code> takes
@@ -2465,9 +2689,9 @@ its interrupts from slot <code>2i</code> (see <a href="structure.html#interrupts
 Each core enables its own slot, and the levels it wants, by writing its
 own slot's control register. Bit 0 enables the slot, and bit <code>n</code> lets
 level <code>n</code> through.</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this_core_id</span><span class="p">();</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">TIMER_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">timer_handler</span><span class="p">);</span>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">TIMER_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="kt">uint32_t</span><span class="w"> </span><span class="n">id</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">this_core_id</span><span class="p">();</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="n">ajit_set_interrupt_handler</span><span class="p">(</span><span class="n">TIMER_IRL</span><span class="p">,</span><span class="w"> </span><span class="n">timer_handler</span><span class="p">);</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="n">writeInterruptControlRegister</span><span class="p">(</span><span class="n">id</span><span class="p">,</span><span class="w"> </span><span class="mi">0</span><span class="p">,</span><span class="w"> </span><span class="p">(</span><span class="mi">1u</span><span class="w"> </span><span class="o">&lt;&lt;</span><span class="w"> </span><span class="n">TIMER_IRL</span><span class="p">)</span><span class="w"> </span><span class="o">|</span><span class="w"> </span><span class="mi">1u</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The table of handlers that <code>ajit_set_interrupt_handler()</code> fills in,
 <code>ajit_global_interrupt_handlers</code>, is one global array, shared by every
@@ -2491,10 +2715,9 @@ that must act differently on each core reads the core ID itself.</p>
 </ul>
 <p>The IPI routines change the shared mask and value words by
 read-modify-write. If two cores send IPIs at the same time, one core's
-change can be lost. Until the cores have atomic operations, a program
-should therefore send IPIs from one core at a time, as the test
-<code>interrupts/ipi_from_core0</code> does. The IPI block's lock word is meant
-for this purpose once a lock can be built.</p>
+change can be lost. A program should therefore hold a mutex while
+sending an IPI, or send them from one core at a time, as the test
+<code>interrupts/ipi_from_core0</code> does.</p>
 <hr />
 <h2 id="routines-provided">Routines provided<a class="headerlink" href="#routines-provided" title="Permanent link">&para;</a></h2>
 <table>
@@ -2533,23 +2756,33 @@ for this purpose once a lock can be built.</p>
 </tr>
 <tr>
 <td><code>this_core_id()</code></td>
-<td><code>validation/multicore/multicore_common.h</code></td>
+<td><code>compiler/sparc_common_routines/multicore_core.h</code></td>
 <td>This core's ID, as a number.</td>
 </tr>
 <tr>
-<td><code>read_shared()</code></td>
-<td><code>validation/multicore/multicore_common.h</code></td>
-<td>Reads a word another core writes, with an uncached load.</td>
+<td><code>read_shared()</code>, <code>read_shared_byte()</code></td>
+<td><code>compiler/sparc_common_routines/multicore_core.h</code></td>
+<td>Read a word or byte another core writes, with an uncached load.</td>
 </tr>
 <tr>
 <td><code>flush_caches()</code></td>
-<td><code>validation/multicore/multicore_common.h</code></td>
+<td><code>compiler/sparc_common_routines/multicore_core.h</code></td>
 <td>Empties this core's own L1 caches.</td>
+</tr>
+<tr>
+<td>Mutexes, atomic counter, ticket lock, barrier, semaphore</td>
+<td><code>compiler/sparc_common_routines/multicore_sync.h</code></td>
+<td>See <a href="#locks-and-synchronization">Locks and synchronization</a>.</td>
 </tr>
 <tr>
 <td><code>report_and_halt()</code></td>
 <td><code>validation/multicore/multicore_common.h</code></td>
 <td>Reports this core's checks in <code>%o0</code> and <code>%o1</code>, and halts.</td>
+</tr>
+<tr>
+<td><code>finish_and_wait_for_all()</code></td>
+<td><code>validation/multicore/multicore_common.h</code></td>
+<td>Marks this core finished in a word of its own and waits for the others, so that every core can check a final result.</td>
 </tr>
 <tr>
 <td><code>NUM_CORES</code>, <code>SHARED_BASE</code>, <code>WAIT_LIMIT</code></td>
@@ -2564,8 +2797,7 @@ unchanged. The interrupt levels' names, <code>TIMER_IRL</code>, <code>IPI_IRL</c
 <code>SERIAL_IRL</code>, are in <code>compiler/include/device_addresses.h</code>. <code>multicore_common.h</code> belongs to
 the validation suite. A program outside <code>validation/multicore/</code> can
 include it by its path, or copy what it needs.</p>
-<p>A library of synchronization routines (locks and barriers) and support
-for OpenMP programs are planned, once the cores have atomic operations.</p>
+<p>Support for OpenMP programs is planned, on top of these routines.</p>
 
 
 

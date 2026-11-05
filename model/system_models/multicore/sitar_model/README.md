@@ -18,7 +18,9 @@ below their MMUs, and one `PhysicalMainMemory` and one
 Each core runs on its own, one instruction per cycle at most, and the
 cores meet only at the bridge. The bridge serves one request at a time,
 granting the cores round-robin, with `SystemBridge`'s timing, so with
-one core running the timing is exactly `core_l1cache_mmu_devices`'.
+one core running the timing is exactly `core_l1cache_mmu_devices`'. The
+bridge also locks the bus from an `LDSTUB` or `SWAP`'s read to its write,
+which makes those instructions atomic across cores.
 
 The compile-time knobs `NUM_CORES` (default 4) and `COHERENT` (only
 `false` so far) are `System`'s parameters, in `src/System.sitar`, next to
@@ -35,4 +37,4 @@ has halted.
 
 `--run-cores <m>` (or `SPARC_RUN_CORES`) holds cores m and up in reset
 (their RESET pin stays high). `--stats` adds the bridge's transaction
-count per core.
+count per core, and the number of locked read-write pairs.

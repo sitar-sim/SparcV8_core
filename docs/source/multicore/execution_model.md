@@ -63,6 +63,11 @@ time at all. The peripheral devices tick once per cycle, and each core
 receives its interrupt level over its own net, one cycle after the
 Interrupt Controller changes it.
 
+An `LDSTUB` or `SWAP` takes two bus transactions here, a read and then
+a write. The bridge keeps every other core off the bus between them, so
+the instruction is atomic in this model too (see [The bus
+lock](structure.md#the-bus-lock)).
+
 The effect of the shared bus can be seen directly. In the validation
 test `multicore/boot/staggered_halt`, core `i` counts to
 `(i + 1) * 3000`. With the MMU off nothing is cached, so every

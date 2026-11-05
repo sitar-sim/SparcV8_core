@@ -1,0 +1,10 @@
+SOURCES = ldstub_counter_asm.s
+MAX_CYCLES = 20000000
+
+
+RESULTS =
+o0=0x00000064
+core1.o0=0x00000064
+core2.o0=0x00000064
+core3.o0=0x00000064
+m[0x8010]=0x00000190

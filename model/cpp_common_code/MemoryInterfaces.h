@@ -28,8 +28,8 @@
 //per byte) selecting which bytes actually matter. No ATOMIC_LS on the
 //physical side: atomicity is already resolved above this interface, by
 //the time a translation succeeds. `lock` marks an atomic access's
-//locked read half, and is reserved for multi-core arbitration, unused
-//until that exists.
+//locked read half, which the multicore bridge uses to keep every other
+//core off the bus until the write half (Ref CoherentBridge.sitar).
 
 #ifndef MEMORY_INTERFACES_H
 #define MEMORY_INTERFACES_H
@@ -108,7 +108,7 @@ struct PhysicalMemoryRequest
 {
 	bool               valid;
 	PhysicalAccessType accessType;
-	bool               lock;             //reserved, unused until multi-island arbitration exists
+	bool               lock;             //READ only: locks the bus to this core until its next request (Ref CoherentBridge.sitar). Ignored where there is one requester
 	uint64_t           physicalAddress;  //36 bits meaningful, zero-padded
 	uint64_t           data;             //WRITE only
 	uint8_t            byteMask;         //one bit per byte of data: WRITE, the bytes written; READ, the bytes the requester needs (memory ignores it, a device uses it to avoid read side effects on registers not actually read)

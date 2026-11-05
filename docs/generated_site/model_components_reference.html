@@ -2685,7 +2685,7 @@ Assumptions</a>.</p>
 <td>common</td>
 <td>None (uses <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/cpp_common_code/SystemAddressMap.h"><code>SystemAddressMap.h</code></a>)</td>
 <td><code>System</code> (1 instance: <code>bridge</code>)</td>
-<td>The physical bus below the cores' MMUs. Grants the cores round robin and routes each request to main memory or to the devices, one transaction at a time.</td>
+<td>The physical bus below the cores' MMUs. Grants the cores round robin and routes each request to main memory or to the devices, one transaction at a time. Holds the bus lock that makes <code>LDSTUB</code> and <code>SWAP</code> atomic across cores.</td>
 </tr>
 </tbody>
 </table>

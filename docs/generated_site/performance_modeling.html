@@ -2621,6 +2621,12 @@ once for each core, then the shared memory's and devices' once (see
 <td>The physical transactions each core sent over the shared bus. A core that works from its own caches makes few. See <a href="multicore/examples.html">Example Programs</a>.</td>
 </tr>
 <tr>
+<td><strong>Bus lock</strong></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/CoherentBridge.sitar"><code>CoherentBridge</code></a></td>
+<td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/">multicore/sitar</a></td>
+<td>The number of locked read-write pairs the bridge served, one per <code>LDSTUB</code> or <code>SWAP</code>.</td>
+</tr>
+<tr>
 <td><strong>Threads</strong></td>
 <td>the sitar_model's main</td>
 <td><a href="https://github.com/sitar-sim/SparcV8_core/tree/main/model/system_models/multicore/sitar_model/">multicore/sitar</a></td>

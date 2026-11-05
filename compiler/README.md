@@ -71,6 +71,10 @@ minimal `stdint.h` (GCC 4.4.3 does not provide one for a freestanding
 build). `compile_c.sh` puts it on the include path. See the C Programs
 and "The Engine in a System" pages of the documentation.
 
+`sparc_common_routines/` holds header-only routines for programs running
+on several cores (`multicore_core.h`, `multicore_sync.h`), also on the
+include path. See its README.
+
 ## `apara/`
 
 The APARA engine's own tools: the mcode assembler and disassembler, and

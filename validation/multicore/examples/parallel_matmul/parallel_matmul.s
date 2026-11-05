@@ -73,6 +73,52 @@ ajit_get_core_and_thread_id:
 	 nop
 	.size	ajit_get_core_and_thread_id, .-ajit_get_core_and_thread_id
 	.align 4
+	.type	this_core_id, #function
+	.proc	016
+this_core_id:
+	save	%sp, -104, %sp
+	add	%fp, -1, %g2
+	add	%fp, -2, %g1
+	mov	%g2, %o0
+	mov	%g1, %o1
+	call	ajit_get_core_and_thread_id, 0
+	 nop
+	ldub	[%fp-1], %g1
+	and	%g1, 0xff, %g1
+	mov	%g1, %i0
+	restore
+	jmp	%o7+8
+	 nop
+	.size	this_core_id, .-this_core_id
+	.align 4
+	.type	read_shared, #function
+	.proc	016
+read_shared:
+	save	%sp, -96, %sp
+	st	%i0, [%fp+68]
+	ld	[%fp+68], %g1
+	mov	%g1, %o0
+	call	__ajit_load_word_mmu_bypass__, 0
+	 nop
+	mov	%o0, %g1
+	mov	%g1, %i0
+	restore
+	jmp	%o7+8
+	 nop
+	.size	read_shared, .-read_shared
+	.align 4
+	.type	flush_caches, #function
+	.proc	020
+flush_caches:
+	save	%sp, -96, %sp
+! 48 "/media/nehak/work/1_Research/SparcV8_model.git/compiler/sparc_common_routines/multicore_core.h" 1
+	sta %g0, [%g0] 0x10
+! 0 "" 2
+	restore
+	jmp	%o7+8
+	 nop
+	.size	flush_caches, .-flush_caches
+	.align 4
 	.type	ajitInterruptControlRegisterAddress, #function
 	.proc	016
 ajitInterruptControlRegisterAddress:
@@ -214,9 +260,9 @@ disableInterruptController:
 ajit_initialize_interrupt_handlers_to_null:
 	save	%sp, -104, %sp
 	st	%g0, [%fp-4]
-	b	.LL22
+	b	.LL28
 	 nop
-.LL23:
+.LL29:
 	ld	[%fp-4], %g1
 	sethi	%hi(ajit_global_interrupt_handlers), %g2
 	or	%g2, %lo(ajit_global_interrupt_handlers), %g2
@@ -225,10 +271,10 @@ ajit_initialize_interrupt_handlers_to_null:
 	ld	[%fp-4], %g1
 	add	%g1, 1, %g1
 	st	%g1, [%fp-4]
-.LL22:
+.LL28:
 	ld	[%fp-4], %g1
 	cmp	%g1, 15
-	ble	.LL23
+	ble	.LL29
 	 nop
 	restore
 	jmp	%o7+8
@@ -244,7 +290,7 @@ ajit_set_interrupt_handler:
 	st	%i1, [%fp+72]
 	ld	[%fp+68], %g1
 	cmp	%g1, 15
-	bgu	.LL27
+	bgu	.LL33
 	 nop
 	ld	[%fp+68], %g1
 	sethi	%hi(ajit_global_interrupt_handlers), %g2
@@ -252,7 +298,7 @@ ajit_set_interrupt_handler:
 	sll	%g1, 2, %g1
 	ld	[%fp+72], %g3
 	st	%g3, [%g2+%g1]
-.LL27:
+.LL33:
 	restore
 	jmp	%o7+8
 	 nop
@@ -286,11 +332,11 @@ ajit_generic_interrupt_handler:
 	st	%g1, [%fp-8]
 	ld	[%fp-8], %g1
 	cmp	%g1, 16
-	bleu	.LL29
+	bleu	.LL35
 	 nop
 	ld	[%fp-8], %g1
 	cmp	%g1, 31
-	bgu	.LL29
+	bgu	.LL35
 	 nop
 	ld	[%fp-8], %g1
 	add	%g1, -16, %g1
@@ -301,13 +347,13 @@ ajit_generic_interrupt_handler:
 	st	%g1, [%fp-4]
 	ld	[%fp-4], %g1
 	cmp	%g1, 0
-	be	.LL29
+	be	.LL35
 	 nop
 	ld	[%fp-4], %g1
 	call	%g1, 0
 	 nop
 	st	%g0, [%fp-12]
-.LL29:
+.LL35:
 	ldub	[%fp-13], %g1
 	and	%g1, 0xff, %g2
 	ldub	[%fp-14], %g1
@@ -318,62 +364,16 @@ ajit_generic_interrupt_handler:
 	 nop
 	ld	[%fp-12], %g1
 	cmp	%g1, 0
-	be	.LL31
+	be	.LL37
 	 nop
 ! 149 "/media/nehak/work/1_Research/SparcV8_model.git/compiler/include/ajit_mt_irc.h" 1
 	ta 0
 ! 0 "" 2
-.LL31:
+.LL37:
 	restore
 	jmp	%o7+8
 	 nop
 	.size	ajit_generic_interrupt_handler, .-ajit_generic_interrupt_handler
-	.align 4
-	.type	this_core_id, #function
-	.proc	016
-this_core_id:
-	save	%sp, -104, %sp
-	add	%fp, -1, %g2
-	add	%fp, -2, %g1
-	mov	%g2, %o0
-	mov	%g1, %o1
-	call	ajit_get_core_and_thread_id, 0
-	 nop
-	ldub	[%fp-1], %g1
-	and	%g1, 0xff, %g1
-	mov	%g1, %i0
-	restore
-	jmp	%o7+8
-	 nop
-	.size	this_core_id, .-this_core_id
-	.align 4
-	.type	read_shared, #function
-	.proc	016
-read_shared:
-	save	%sp, -96, %sp
-	st	%i0, [%fp+68]
-	ld	[%fp+68], %g1
-	mov	%g1, %o0
-	call	__ajit_load_word_mmu_bypass__, 0
-	 nop
-	mov	%o0, %g1
-	mov	%g1, %i0
-	restore
-	jmp	%o7+8
-	 nop
-	.size	read_shared, .-read_shared
-	.align 4
-	.type	flush_caches, #function
-	.proc	020
-flush_caches:
-	save	%sp, -96, %sp
-! 60 "validation/multicore/examples/parallel_matmul/../../multicore_common.h" 1
-	sta %g0, [%g0] 0x10
-! 0 "" 2
-	restore
-	jmp	%o7+8
-	 nop
-	.size	flush_caches, .-flush_caches
 	.align 4
 	.type	report_and_halt, #function
 	.proc	020
@@ -403,7 +403,7 @@ report_and_halt:
 	st	%g1, [%fp-4]
 	ld	[%fp-4], %g1
 	ld	[%fp+68], %g2
-! 69 "validation/multicore/examples/parallel_matmul/../../multicore_common.h" 1
+! 59 "validation/multicore/examples/parallel_matmul/../../multicore_common.h" 1
 	mov %g1, %o0
 	mov %g2, %o1
 	ta 0

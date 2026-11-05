@@ -13,6 +13,7 @@
 
 #include <stdint.h>
 #include "ajit_access_routines.h"
+#include "multicore_core.h"
 // Defines ajit_generic_interrupt_handler(), which crt0_multicore.s's
 // interrupt entry calls.
 #include "ajit_mt_irc.h"
@@ -33,31 +34,20 @@
 // limit.
 #define WAIT_LIMIT 100000
 
-static inline uint32_t this_core_id(void)
+// Marks this core finished in a word of its own, then waits for all the
+// others to do the same, so that a test can check a final result on
+// every core. Returns 1 if they all finished within WAIT_LIMIT polls.
+static inline uint32_t finish_and_wait_for_all(volatile uint32_t* done)
 {
-	uint8_t core_id, thread_id;
-	ajit_get_core_and_thread_id(&core_id, &thread_id);
-	return core_id;
-}
-
-// Reads a word another core writes. The caches are not coherent yet, so
-// a plain load could keep returning this core's own old cached copy
-// (with SPARC_ALWAYS_CACHEABLE=1). An MMU-bypass load is never cached.
-// The tests run with the MMU off, so the variable's address is its
-// physical address. Writes need no such care: the caches are
-// write-through.
-static inline uint32_t read_shared(volatile uint32_t* p)
-{
-	return __ajit_load_word_mmu_bypass__((uint32_t) p);
-}
-
-// Empties this core's own L1 caches (a store with ASI 0x10 flushes both,
-// Ref model/cpp_common_code/cache/L1CachesCore.h). After it, the core's
-// next load of any address comes from main memory, so it sees every
-// write another core has made so far.
-static inline void flush_caches(void)
-{
-	__asm__ __volatile__("sta %%g0, [%%g0] 0x10" : : : "memory");
+	uint32_t c, tries;
+	done[this_core_id()] = 1;
+	for (c = 0; c < NUM_CORES; c++)
+	{
+		for (tries = 0; read_shared(&done[c]) != 1; tries++)
+			if (tries >= WAIT_LIMIT)
+				return 0;
+	}
+	return 1;
 }
 
 static inline void report_and_halt(uint32_t checks_passed_bits, uint32_t number_of_checks)

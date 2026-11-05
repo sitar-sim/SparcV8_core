@@ -102,10 +102,10 @@ A core can make sure it reads what another core has written in three
 ways.
 
 1. **An uncached load.** A load with an MMU-bypass ASI never uses the
-   cache. `read_shared()` (in `multicore_common.h`) reads a word this
+   cache. `read_shared()` (in `multicore_core.h`) reads a word this
    way. With the MMU off, a variable's address is its physical address,
    so `read_shared(&flag)` works on any global variable.
-2. **A cache flush.** `flush_caches()` (also in `multicore_common.h`)
+2. **A cache flush.** `flush_caches()` (also in `multicore_core.h`)
    empties the core's own caches with a store to ASI `0x10`. Every load
    after it comes from main memory, until the lines are cached again.
    This suits reading a large block of data that another core has
@@ -117,9 +117,8 @@ Stores need no such care, because the caches are write-through.
 
 ### Waiting for another core
 
-Until the cores have atomic operations (a later stage), cores
-coordinate through **flags**, words that only one core ever writes. A
-core announces that something is ready by storing to its own flag, and
+The simplest way for cores to coordinate is through **flags**, words
+that only one core ever writes. A core announces that something is ready by storing to its own flag, and
 another core waits by reading that flag until it changes.
 
 ```c
@@ -133,17 +132,103 @@ while (read_shared(&done[k]) == 0)
 total += read_shared(&partial_sum[k]);
 ```
 
-A word written by more than one core needs a lock, and a lock needs an
-atomic operation. Two cores incrementing the same counter, for example,
-can each read the old value and each write back one more, losing an
-increment. The examples here therefore give each core its own words to
-write. The `multicore` cpp_model runs each instruction to completion,
-so `LDSTUB` and `SWAP` are atomic there, but the sitar_model does not
-lock the bus for them yet (see [Assumptions](structure.md#assumptions)).
-
 The tests bound every wait with `WAIT_LIMIT` polls, so a program whose
 partner never answers fails its check instead of running until the
 cycle limit.
+
+---
+
+## Locks and synchronization
+
+A word written by more than one core needs a lock. Two cores
+incrementing the same counter can each read the old value and each
+write back one more, and one of the increments is lost. In the test
+`atomics/counter_without_lock`, four cores each add 1 to a counter 100
+times. Running in step on the sitar_model, they end with a total of just
+100, not 400. The cpp_model schedules that were tried give between 100
+and 215, and none of them reaches 400.
+
+A lock in turn needs an atomic instruction. SPARC V8 has two, and both
+are atomic across cores in both models (see [The bus
+lock](structure.md#the-bus-lock)).
+
+- **`LDSTUB`** reads a byte and sets it to `0xFF`. It returns 0 only if
+  this core was the one that set it.
+- **`SWAP`** exchanges a word with a register.
+
+The routines below are small inline functions in two headers in
+`compiler/sparc_common_routines/`, which `compile_c.sh` puts on the
+include path. `multicore_core.h` holds what the earlier sections use,
+and `multicore_sync.h` holds everything built on the atomic instructions.
+
+### A mutex
+
+A mutex is one byte or word in shared memory, and 0 means free. Global
+variables start at 0, so a mutex needs no setup.
+
+```c
+#include "multicore_sync.h"
+
+static volatile uint8_t  counter_lock;
+static volatile uint32_t counter;
+
+acquire_mutex_using_ldstub((int) &counter_lock);
+counter = read_shared(&counter) + 1;
+release_mutex_using_ldstub((int) &counter_lock);
+```
+
+The routines have the names and arguments of AJIT's own. While the lock
+is held, a waiting core spins on an uncached load, and tries the atomic
+instruction again only when the lock looks free. Spinning on the atomic
+instruction itself would lock the bus over and over and slow every
+other core.
+
+Spinning on an uncached load is a deliberate difference from AJIT's
+routines, which spin with a plain load. Without coherent caches, a plain
+load could keep reading an old cached copy of the lock and never see it
+released.
+
+### What a lock does not do
+
+A lock makes sure only one core is inside, but it does not refresh the
+cache. Inside the lock, a plain load can still return this core's old
+copy of the data. Data shared under a lock must be read with
+`read_shared()`, as above, or with a plain load after `flush_caches()`
+inside the lock, as the test `sync_library/flush_inside_lock` does.
+
+### The other routines
+
+| Routine | What it is for |
+|---|---|
+| `atomic_ldstub()`, `atomic_swap()` | The two instructions themselves. |
+| `memory_fence()` | `STBAR`. It keeps earlier stores ahead of later ones. The model never reorders stores, so here it has no effect, but the architecture allows reordering, so a correct program uses it, as the release routines do. |
+| `acquire_mutex_using_swap()`, `release_mutex_using_swap()` | A mutex in one word, using `SWAP`. |
+| `try_acquire_mutex_using_ldstub()` | Takes the mutex only if it is free, and returns whether it did. |
+| `atomic_fetch_and_add()`, `atomic_counter_read()` | An `atomic_counter_t`. SPARC V8 has no fetch-and-add instruction, so the counter has a lock byte of its own. |
+| `ticket_lock_acquire()`, `ticket_lock_release()` | A `ticket_lock_t`. Unlike a mutex, it serves cores strictly in the order they arrived, so no core can be overtaken for ever. |
+| `barrier_wait()` | A `barrier_t`. No core leaves until the given number of cores have arrived. It can be reused at once. |
+| `semaphore_wait()`, `semaphore_try_wait()`, `semaphore_post()` | A `semaphore_t`, a count of free resources, initialized with `SEMAPHORE_INITIALIZER(n)`. |
+
+Three limits apply to all of them.
+
+- They wait by spinning, without a limit, so a lock that is never
+  released keeps a core spinning until the run's cycle limit.
+- Their uncached loads take a physical address. The MMU is off when a
+  program starts, so this works as it is by default. It matters only if
+  a program turns the MMU on and maps shared data at a different
+  physical address.
+- They are not safe to use from an interrupt handler. A handler that
+  waits for a lock its own core already holds waits for ever.
+
+### Mixing `LDSTUB` and `SWAP` on one lock
+
+`LDSTUB` looks only at the byte it names, and the machine is big-endian,
+so byte 0 is the most significant byte of a word. A `SWAP` of the value
+1 leaves that byte 0, and an `LDSTUB` on the same word would see the
+lock as free. A program that uses both on one lock must `SWAP` a value
+with the top byte set, as the test `atomics/mixed_instructions` does.
+The routines above use each lock with one instruction only, so they do
+not have this problem.
 
 ---
 
@@ -183,10 +268,9 @@ that must act differently on each core reads the core ID itself.
 
 The IPI routines change the shared mask and value words by
 read-modify-write. If two cores send IPIs at the same time, one core's
-change can be lost. Until the cores have atomic operations, a program
-should therefore send IPIs from one core at a time, as the test
-`interrupts/ipi_from_core0` does. The IPI block's lock word is meant
-for this purpose once a lock can be built.
+change can be lost. A program should therefore hold a mutex while
+sending an IPI, or send them from one core at a time, as the test
+`interrupts/ipi_from_core0` does.
 
 ---
 
@@ -199,10 +283,12 @@ for this purpose once a lock can be built.
 | `writeInterruptControlRegister()`, `enableInterrupt()`, `setInterruptMask()`, and others | `compiler/include/ajit_mt_irc.h` | Set up a core's own Interrupt Controller slot. |
 | `ajit_set_interrupt_handler()` | `compiler/include/ajit_mt_irc.h` | Installs the handler for an interrupt level, in the table every core shares. |
 | `__ajit_enable_ipi_interrupt__()`, `__ajit_set_ipi_interrupt__()`, `__ajit_clear_ipi_interrupt__()`, `ajitIpiMessageAddress()` | `compiler/include/ajit_ipi.h` | Send, receive and clear inter-processor interrupts. |
-| `this_core_id()` | `validation/multicore/multicore_common.h` | This core's ID, as a number. |
-| `read_shared()` | `validation/multicore/multicore_common.h` | Reads a word another core writes, with an uncached load. |
-| `flush_caches()` | `validation/multicore/multicore_common.h` | Empties this core's own L1 caches. |
+| `this_core_id()` | `compiler/sparc_common_routines/multicore_core.h` | This core's ID, as a number. |
+| `read_shared()`, `read_shared_byte()` | `compiler/sparc_common_routines/multicore_core.h` | Read a word or byte another core writes, with an uncached load. |
+| `flush_caches()` | `compiler/sparc_common_routines/multicore_core.h` | Empties this core's own L1 caches. |
+| Mutexes, atomic counter, ticket lock, barrier, semaphore | `compiler/sparc_common_routines/multicore_sync.h` | See [Locks and synchronization](#locks-and-synchronization). |
 | `report_and_halt()` | `validation/multicore/multicore_common.h` | Reports this core's checks in `%o0` and `%o1`, and halts. |
+| `finish_and_wait_for_all()` | `validation/multicore/multicore_common.h` | Marks this core finished in a word of its own and waits for the others, so that every core can check a final result. |
 | `NUM_CORES`, `SHARED_BASE`, `WAIT_LIMIT` | `validation/multicore/multicore_common.h` | The number of cores the tests assume, a shared area for results at `0x00100000`, and the bound on every wait loop. |
 
 The routines in `compiler/include/` follow the names and signatures of
@@ -212,5 +298,4 @@ unchanged. The interrupt levels' names, `TIMER_IRL`, `IPI_IRL` and
 the validation suite. A program outside `validation/multicore/` can
 include it by its path, or copy what it needs.
 
-A library of synchronization routines (locks and barriers) and support
-for OpenMP programs are planned, once the cores have atomic operations.
+Support for OpenMP programs is planned, on top of these routines.

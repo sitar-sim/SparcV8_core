@@ -22,6 +22,9 @@ that design is known.
 - **Coherence.** None yet. A core's caches can keep an old copy of a
   line after another core writes to it. Programs read shared data with
   uncached loads, or flush their caches first.
+- **Atomic instructions.** `LDSTUB` and `SWAP` are atomic across cores
+  in both models, and a library of [locks, barriers and
+  semaphores](programming.md#locks-and-synchronization) is built on them.
 - **Memory and devices.** One main memory and one set of devices
   (Timer, Serial, Interrupt Controller, [Scratch-pad](../peripheral_devices_scratch_pad.md)),
   shared by every core. The Interrupt Controller has a slot for each
@@ -39,7 +42,7 @@ The configuration is being built in stages.
 | Stage | Contents | Status |
 |---|---|---|
 | 1 | The cores, the shared bus, startup of every core, checking each core's results, per-core interrupts | Done |
-| 2 | Atomic `LDSTUB` and `SWAP` across cores, and a library of synchronization routines (locks, barriers) | Planned |
+| 2 | Atomic `LDSTUB` and `SWAP` across cores, and a library of synchronization routines (locks, barriers) | Done |
 | 3 | Write-invalidate cache coherence, the `COHERENT` knob | Planned |
 | 4 | Shared devices from several cores (a console under a lock, TLB shootdown through IPIs) | Planned |
 | 5 | OpenMP programs, with a bare-metal OpenMP runtime | Planned |
@@ -107,8 +110,9 @@ Settings](../model_configuration_settings.md#multicore-multicore).
   and the sitar_model run several cores, and why their results can
   differ for some programs.
 - **[Programming the Multicore System](programming.md)** covers the
-  startup file, the core ID, sharing data without coherent caches,
-  interrupts on several cores, and the routines provided.
+  startup file, the core ID, sharing data without coherent caches, locks
+  and other synchronization, interrupts on several cores, and the
+  routines provided.
 - **[Example Programs](examples.md)** walks through a parallel array
   sum and a parallel matrix multiply.
 - **[Logging and Debugging](debugging.md)** covers per-core traces,

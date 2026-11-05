@@ -516,6 +516,7 @@ int main(int argc, char** argv)
 		std::cout << "\n=== shared ===\n Bridge transactions per core:";
 		for (unsigned int i = 0; i < numCores; i++)
 			std::cout << "\n\t core " << i << " = " << TOP->system.bridge.transactionsPerCore[i];
+		std::cout << "\n Bridge locked read-write pairs (LDSTUB, SWAP) = " << TOP->system.bridge.lockedPairs;
 		std::cout << "\n" << TOP->system.mainMemory.mem.stats.toString()
 		          << TOP->system.devices.devices.stats.toString();
 	}

@@ -116,9 +116,31 @@ granted, it checks each port in turn, skips a port with no request
 waiting, and grants the first one that has a request.
 
 The bridge is named after AJIT's coherent memory controller, which
-plays the same role. In later stages it will also hold the lock that
-makes `LDSTUB` and `SWAP` atomic across cores, and send the
+plays the same role. In a later stage it will also send the
 invalidations that keep the caches coherent.
+
+### The bus lock
+
+The bridge makes `LDSTUB` and `SWAP` atomic across cores. Each of these
+instructions reads a location and then writes it, and in the
+sitar_model those are two separate bus transactions, so another core
+could otherwise come in between them. The core's MMU marks the read
+with a `lock` bit, as AJIT's does.
+
+A read with the `lock` bit set locks the bus to the core that made it,
+and that core's next request releases it. While the bus is locked, the
+bridge looks only at that core's port, so every other core's requests
+wait, whichever address they are for. As in AJIT's bridge, there is one
+lock for the whole bus, and it belongs to a core. This is coarser than
+atomicity strictly needs, since two atomic instructions on unrelated
+addresses need not exclude each other, but it is simple and it covers
+main memory and the devices alike.
+
+The lock holds no extra time beyond the two transactions, so it changes
+no timing when only one core is using the bus. An access to an address
+that maps to nothing still takes and releases the lock, so it cannot
+leave the bus locked. `--stats` prints the number of locked read-write
+pairs the bridge has served.
 
 ### The end of a run
 
@@ -184,7 +206,7 @@ not yet modeled.
 | Number of cores | 1 to 4, set at compile time | Limited by the Interrupt Controller's 8 slots. |
 | L1 caches | Each core's own, VIVT, write-through, as in `core_l1cache_mmu_devices` | |
 | Coherence | None | A core's caches can hold an old copy of a line another core has written. Write-invalidate coherence, as in AJIT, is planned (`COHERENT`). |
-| Atomic `LDSTUB` and `SWAP` across cores | cpp_model: yes. sitar_model: not yet. | The cpp_model runs each instruction to completion. In the sitar_model, the read and the write of an atomic instruction are two bus transactions, and another core's access can come between them. A bus lock is planned. |
+| Atomic `LDSTUB` and `SWAP` across cores | Both models. | The cpp_model runs each instruction to completion. In the sitar_model, the bridge locks the bus from the read to the write (see [The bus lock](#the-bus-lock)), by core and for the whole bus, as in AJIT. |
 | Bus arbitration (sitar_model) | Round-robin over the cores, one transaction at a time | An assumption, not taken from AJIT. |
 | Bus timing (sitar_model) | `SystemBridge`'s, plus the `bridge.delay` knob | |
 | Main memory and devices | One of each, shared by every core | As in AJIT. |

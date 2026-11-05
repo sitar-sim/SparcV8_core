@@ -2323,6 +2323,9 @@ that design is known.</p>
 <li><strong>Coherence.</strong> None yet. A core's caches can keep an old copy of a
   line after another core writes to it. Programs read shared data with
   uncached loads, or flush their caches first.</li>
+<li><strong>Atomic instructions.</strong> <code>LDSTUB</code> and <code>SWAP</code> are atomic across cores
+  in both models, and a library of <a href="programming.html#locks-and-synchronization">locks, barriers and
+  semaphores</a> is built on them.</li>
 <li><strong>Memory and devices.</strong> One main memory and one set of devices
   (Timer, Serial, Interrupt Controller, <a href="../peripheral_devices_scratch_pad.html">Scratch-pad</a>),
   shared by every core. The Interrupt Controller has a slot for each
@@ -2351,7 +2354,7 @@ that design is known.</p>
 <tr>
 <td>2</td>
 <td>Atomic <code>LDSTUB</code> and <code>SWAP</code> across cores, and a library of synchronization routines (locks, barriers)</td>
-<td>Planned</td>
+<td>Done</td>
 </tr>
 <tr>
 <td>3</td>
@@ -2447,8 +2450,9 @@ Settings</a>.</p>
   and the sitar_model run several cores, and why their results can
   differ for some programs.</li>
 <li><strong><a href="programming.html">Programming the Multicore System</a></strong> covers the
-  startup file, the core ID, sharing data without coherent caches,
-  interrupts on several cores, and the routines provided.</li>
+  startup file, the core ID, sharing data without coherent caches, locks
+  and other synchronization, interrupts on several cores, and the
+  routines provided.</li>
 <li><strong><a href="examples.html">Example Programs</a></strong> walks through a parallel array
   sum and a parallel matrix multiply.</li>
 <li><strong><a href="debugging.html">Logging and Debugging</a></strong> covers per-core traces,

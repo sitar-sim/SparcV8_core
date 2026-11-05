@@ -21,6 +21,12 @@ lines.
 | `boot/crt0_multicore` | What `crt0_multicore.s` promises every core: its ASR29, its own stack region, `.bss` cleared, the release flag set. Each core records its arrival in shared memory. |
 | `boot/staggered_halt` | Core `i` counts to `(i+1)*3000` before halting, so the cores halt far apart, and the run still waits for all of them. |
 
+The other folders have the rest of the tests. `interrupts/` covers per-core
+interrupts and IPIs, `examples/` holds the worked examples of the docs,
+`atomics/` tests `LDSTUB` and `SWAP` across cores, and `sync_library/` tests
+the routines of `compiler/sparc_common_routines/multicore_sync.h`. The last
+two have READMEs of their own.
+
 ```sh
 validation/run_tests.py validation/multicore --config multicore
 validation/run_tests.py validation/multicore --config multicore --sitar

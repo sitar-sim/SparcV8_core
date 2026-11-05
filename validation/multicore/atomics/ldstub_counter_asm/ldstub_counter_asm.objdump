@@ -1,0 +1,44 @@
+
+validation/multicore/atomics/ldstub_counter_asm/ldstub_counter_asm.elf:     file format elf32-sparc
+
+
+Disassembly of section .text:
+
+00000000 <main>:
+   0:	23 00 00 20 	sethi  %hi(0x8000), %l1
+   4:	25 00 00 20 	sethi  %hi(0x8000), %l2
+   8:	a4 14 a0 10 	or  %l2, 0x10, %l2	! 8010 <COUNTER>
+   c:	90 10 20 00 	clr  %o0
+
+00000010 <next_iteration>:
+  10:	e6 6c 40 00 	ldstub  [ %l1 ], %l3
+  14:	80 a4 e0 00 	cmp  %l3, 0
+  18:	12 bf ff fe 	bne  10 <next_iteration>
+  1c:	01 00 00 00 	nop 
+  20:	e8 84 84 00 	lda  [ %l2 ] #ASI_SCRATCHPAD, %l4
+  24:	a8 05 20 01 	inc  %l4
+  28:	e8 24 80 00 	st  %l4, [ %l2 ]
+  2c:	81 43 c0 00 	stbar 
+  30:	c0 2c 40 00 	clrb  [ %l1 ]
+  34:	90 02 20 01 	inc  %o0
+  38:	80 a2 20 64 	cmp  %o0, 0x64
+  3c:	12 bf ff f5 	bne  10 <next_iteration>
+  40:	01 00 00 00 	nop 
+  44:	91 d0 20 00 	ta  0
+  48:	01 00 00 00 	nop 
+
+Symbol table:
+
+
+Symbol table '.symtab' contains 10 entries:
+   Num:    Value  Size Type    Bind   Vis      Ndx Name
+     0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
+     1: 00000000     0 SECTION LOCAL  DEFAULT    1 
+     2: 00000064     0 NOTYPE  LOCAL  DEFAULT  ABS ITERATIONS
+     3: 00008000     0 NOTYPE  LOCAL  DEFAULT  ABS LOCK
+     4: 00008010     0 NOTYPE  LOCAL  DEFAULT  ABS COUNTER
+     5: 00000010     0 NOTYPE  LOCAL  DEFAULT    1 next_iteration
+     6: 00000010     0 NOTYPE  LOCAL  DEFAULT    1 try_lock
+     7: 0000004c     0 NOTYPE  GLOBAL DEFAULT    1 __bss_end
+     8: 0000004c     0 NOTYPE  GLOBAL DEFAULT    1 __bss_start
+     9: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 main

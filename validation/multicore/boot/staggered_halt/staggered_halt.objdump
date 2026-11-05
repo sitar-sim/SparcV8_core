@@ -2662,7 +2662,7 @@ Disassembly of section .text:
     2138:	01 00 00 00 	nop 
     213c:	01 00 00 00 	nop 
     2140:	91 58 00 00 	rd  %tbr, %o0
-    2144:	40 00 04 68 	call  32e4 <ajit_generic_interrupt_handler>
+    2144:	40 00 04 75 	call  3318 <ajit_generic_interrupt_handler>
     2148:	01 00 00 00 	nop 
     214c:	81 8c 00 00 	mov  %l0, %psr
     2150:	01 00 00 00 	nop 
@@ -3662,235 +3662,235 @@ Disassembly of section .text:
     30b0:	81 c3 e0 08 	retl 
     30b4:	01 00 00 00 	nop 
 
-000030b8 <ajitInterruptControlRegisterAddress>:
-    30b8:	9d e3 bf a0 	save  %sp, -96, %sp
-    30bc:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    30c0:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    30c4:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    30c8:	82 00 40 01 	add  %g1, %g1, %g1
-    30cc:	84 10 00 01 	mov  %g1, %g2
-    30d0:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    30d4:	82 00 80 01 	add  %g2, %g1, %g1
-    30d8:	84 10 00 01 	mov  %g1, %g2
-    30dc:	03 0f ff f3 	sethi  %hi(0x3fffcc00), %g1
-    30e0:	82 00 80 01 	add  %g2, %g1, %g1
-    30e4:	83 28 60 02 	sll  %g1, 2, %g1
-    30e8:	b0 10 00 01 	mov  %g1, %i0
-    30ec:	81 e8 00 00 	restore 
-    30f0:	81 c3 e0 08 	retl 
-    30f4:	01 00 00 00 	nop 
+000030b8 <this_core_id>:
+    30b8:	9d e3 bf 98 	save  %sp, -104, %sp
+    30bc:	84 07 bf ff 	add  %fp, -1, %g2
+    30c0:	82 07 bf fe 	add  %fp, -2, %g1
+    30c4:	90 10 00 02 	mov  %g2, %o0
+    30c8:	92 10 00 01 	mov  %g1, %o1
+    30cc:	7f ff ff e8 	call  306c <ajit_get_core_and_thread_id>
+    30d0:	01 00 00 00 	nop 
+    30d4:	c2 0f bf ff 	ldub  [ %fp + -1 ], %g1
+    30d8:	82 08 60 ff 	and  %g1, 0xff, %g1
+    30dc:	b0 10 00 01 	mov  %g1, %i0
+    30e0:	81 e8 00 00 	restore 
+    30e4:	81 c3 e0 08 	retl 
+    30e8:	01 00 00 00 	nop 
 
-000030f8 <readInterruptControlRegister>:
-    30f8:	9d e3 bf a0 	save  %sp, -96, %sp
-    30fc:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    3100:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    3104:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    3108:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    310c:	7f ff ff eb 	call  30b8 <ajitInterruptControlRegisterAddress>
-    3110:	01 00 00 00 	nop 
-    3114:	82 10 00 08 	mov  %o0, %g1
-    3118:	90 10 00 01 	mov  %g1, %o0
-    311c:	7f ff ff c2 	call  3024 <__ajit_load_word_mmu_bypass__>
-    3120:	01 00 00 00 	nop 
-    3124:	82 10 00 08 	mov  %o0, %g1
-    3128:	b0 10 00 01 	mov  %g1, %i0
-    312c:	81 e8 00 00 	restore 
-    3130:	81 c3 e0 08 	retl 
-    3134:	01 00 00 00 	nop 
+000030ec <ajitInterruptControlRegisterAddress>:
+    30ec:	9d e3 bf a0 	save  %sp, -96, %sp
+    30f0:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    30f4:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    30f8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    30fc:	82 00 40 01 	add  %g1, %g1, %g1
+    3100:	84 10 00 01 	mov  %g1, %g2
+    3104:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    3108:	82 00 80 01 	add  %g2, %g1, %g1
+    310c:	84 10 00 01 	mov  %g1, %g2
+    3110:	03 0f ff f3 	sethi  %hi(0x3fffcc00), %g1
+    3114:	82 00 80 01 	add  %g2, %g1, %g1
+    3118:	83 28 60 02 	sll  %g1, 2, %g1
+    311c:	b0 10 00 01 	mov  %g1, %i0
+    3120:	81 e8 00 00 	restore 
+    3124:	81 c3 e0 08 	retl 
+    3128:	01 00 00 00 	nop 
 
-00003138 <writeInterruptControlRegister>:
-    3138:	9d e3 bf a0 	save  %sp, -96, %sp
-    313c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    3140:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    3144:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    3148:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    314c:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    3150:	7f ff ff da 	call  30b8 <ajitInterruptControlRegisterAddress>
+0000312c <readInterruptControlRegister>:
+    312c:	9d e3 bf a0 	save  %sp, -96, %sp
+    3130:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    3134:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    3138:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    313c:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    3140:	7f ff ff eb 	call  30ec <ajitInterruptControlRegisterAddress>
+    3144:	01 00 00 00 	nop 
+    3148:	82 10 00 08 	mov  %o0, %g1
+    314c:	90 10 00 01 	mov  %g1, %o0
+    3150:	7f ff ff b5 	call  3024 <__ajit_load_word_mmu_bypass__>
     3154:	01 00 00 00 	nop 
     3158:	82 10 00 08 	mov  %o0, %g1
-    315c:	d0 07 a0 4c 	ld  [ %fp + 0x4c ], %o0
-    3160:	92 10 00 01 	mov  %g1, %o1
-    3164:	7f ff ff a7 	call  3000 <__ajit_store_word_mmu_bypass__>
+    315c:	b0 10 00 01 	mov  %g1, %i0
+    3160:	81 e8 00 00 	restore 
+    3164:	81 c3 e0 08 	retl 
     3168:	01 00 00 00 	nop 
-    316c:	81 e8 00 00 	restore 
-    3170:	81 c3 e0 08 	retl 
-    3174:	01 00 00 00 	nop 
 
-00003178 <ajitInterruptControlWritableBits>:
-    3178:	9d e3 bf a0 	save  %sp, -96, %sp
-    317c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    3180:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
-    3184:	03 00 00 3f 	sethi  %hi(0xfc00), %g1
-    3188:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <__bss_end+0xc9db>
-    318c:	82 08 80 01 	and  %g2, %g1, %g1
-    3190:	b0 10 00 01 	mov  %g1, %i0
-    3194:	81 e8 00 00 	restore 
-    3198:	81 c3 e0 08 	retl 
+0000316c <writeInterruptControlRegister>:
+    316c:	9d e3 bf a0 	save  %sp, -96, %sp
+    3170:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    3174:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    3178:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    317c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    3180:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    3184:	7f ff ff da 	call  30ec <ajitInterruptControlRegisterAddress>
+    3188:	01 00 00 00 	nop 
+    318c:	82 10 00 08 	mov  %o0, %g1
+    3190:	d0 07 a0 4c 	ld  [ %fp + 0x4c ], %o0
+    3194:	92 10 00 01 	mov  %g1, %o1
+    3198:	7f ff ff 9a 	call  3000 <__ajit_store_word_mmu_bypass__>
     319c:	01 00 00 00 	nop 
+    31a0:	81 e8 00 00 	restore 
+    31a4:	81 c3 e0 08 	retl 
+    31a8:	01 00 00 00 	nop 
 
-000031a0 <enableInterruptController>:
-    31a0:	9d e3 bf 98 	save  %sp, -104, %sp
-    31a4:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    31a8:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    31ac:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    31b0:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    31b4:	7f ff ff d1 	call  30f8 <readInterruptControlRegister>
-    31b8:	01 00 00 00 	nop 
-    31bc:	82 10 00 08 	mov  %o0, %g1
-    31c0:	90 10 00 01 	mov  %g1, %o0
-    31c4:	7f ff ff ed 	call  3178 <ajitInterruptControlWritableBits>
-    31c8:	01 00 00 00 	nop 
-    31cc:	82 10 00 08 	mov  %o0, %g1
-    31d0:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    31d4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    31d8:	82 10 60 01 	or  %g1, 1, %g1
-    31dc:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    31e0:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    31e4:	94 10 00 01 	mov  %g1, %o2
-    31e8:	7f ff ff d4 	call  3138 <writeInterruptControlRegister>
+000031ac <ajitInterruptControlWritableBits>:
+    31ac:	9d e3 bf a0 	save  %sp, -96, %sp
+    31b0:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    31b4:	c4 07 a0 44 	ld  [ %fp + 0x44 ], %g2
+    31b8:	03 00 00 3f 	sethi  %hi(0xfc00), %g1
+    31bc:	82 10 63 ff 	or  %g1, 0x3ff, %g1	! ffff <__bss_end+0xc9db>
+    31c0:	82 08 80 01 	and  %g2, %g1, %g1
+    31c4:	b0 10 00 01 	mov  %g1, %i0
+    31c8:	81 e8 00 00 	restore 
+    31cc:	81 c3 e0 08 	retl 
+    31d0:	01 00 00 00 	nop 
+
+000031d4 <enableInterruptController>:
+    31d4:	9d e3 bf 98 	save  %sp, -104, %sp
+    31d8:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    31dc:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    31e0:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    31e4:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    31e8:	7f ff ff d1 	call  312c <readInterruptControlRegister>
     31ec:	01 00 00 00 	nop 
-    31f0:	81 e8 00 00 	restore 
-    31f4:	81 c3 e0 08 	retl 
-    31f8:	01 00 00 00 	nop 
+    31f0:	82 10 00 08 	mov  %o0, %g1
+    31f4:	90 10 00 01 	mov  %g1, %o0
+    31f8:	7f ff ff ed 	call  31ac <ajitInterruptControlWritableBits>
+    31fc:	01 00 00 00 	nop 
+    3200:	82 10 00 08 	mov  %o0, %g1
+    3204:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    3208:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    320c:	82 10 60 01 	or  %g1, 1, %g1
+    3210:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    3214:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    3218:	94 10 00 01 	mov  %g1, %o2
+    321c:	7f ff ff d4 	call  316c <writeInterruptControlRegister>
+    3220:	01 00 00 00 	nop 
+    3224:	81 e8 00 00 	restore 
+    3228:	81 c3 e0 08 	retl 
+    322c:	01 00 00 00 	nop 
 
-000031fc <disableInterruptController>:
-    31fc:	9d e3 bf 98 	save  %sp, -104, %sp
-    3200:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    3204:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    3208:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    320c:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    3210:	7f ff ff ba 	call  30f8 <readInterruptControlRegister>
-    3214:	01 00 00 00 	nop 
-    3218:	82 10 00 08 	mov  %o0, %g1
-    321c:	90 10 00 01 	mov  %g1, %o0
-    3220:	7f ff ff d6 	call  3178 <ajitInterruptControlWritableBits>
-    3224:	01 00 00 00 	nop 
-    3228:	82 10 00 08 	mov  %o0, %g1
-    322c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    3230:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    3234:	82 08 7f fe 	and  %g1, -2, %g1
-    3238:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    323c:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    3240:	94 10 00 01 	mov  %g1, %o2
-    3244:	7f ff ff bd 	call  3138 <writeInterruptControlRegister>
+00003230 <disableInterruptController>:
+    3230:	9d e3 bf 98 	save  %sp, -104, %sp
+    3234:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    3238:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    323c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    3240:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    3244:	7f ff ff ba 	call  312c <readInterruptControlRegister>
     3248:	01 00 00 00 	nop 
-    324c:	81 e8 00 00 	restore 
-    3250:	81 c3 e0 08 	retl 
-    3254:	01 00 00 00 	nop 
+    324c:	82 10 00 08 	mov  %o0, %g1
+    3250:	90 10 00 01 	mov  %g1, %o0
+    3254:	7f ff ff d6 	call  31ac <ajitInterruptControlWritableBits>
+    3258:	01 00 00 00 	nop 
+    325c:	82 10 00 08 	mov  %o0, %g1
+    3260:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    3264:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    3268:	82 08 7f fe 	and  %g1, -2, %g1
+    326c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    3270:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    3274:	94 10 00 01 	mov  %g1, %o2
+    3278:	7f ff ff bd 	call  316c <writeInterruptControlRegister>
+    327c:	01 00 00 00 	nop 
+    3280:	81 e8 00 00 	restore 
+    3284:	81 c3 e0 08 	retl 
+    3288:	01 00 00 00 	nop 
 
-00003258 <ajit_initialize_interrupt_handlers_to_null>:
-    3258:	9d e3 bf 98 	save  %sp, -104, %sp
-    325c:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    3260:	10 80 00 0a 	b  3288 <ajit_initialize_interrupt_handlers_to_null+0x30>
-    3264:	01 00 00 00 	nop 
-    3268:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    326c:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    3270:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
-    3274:	83 28 60 02 	sll  %g1, 2, %g1
-    3278:	c0 20 80 01 	clr  [ %g2 + %g1 ]
-    327c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    3280:	82 00 60 01 	inc  %g1
-    3284:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    3288:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    328c:	80 a0 60 0f 	cmp  %g1, 0xf
-    3290:	04 bf ff f6 	ble  3268 <ajit_initialize_interrupt_handlers_to_null+0x10>
-    3294:	01 00 00 00 	nop 
-    3298:	81 e8 00 00 	restore 
-    329c:	81 c3 e0 08 	retl 
-    32a0:	01 00 00 00 	nop 
+0000328c <ajit_initialize_interrupt_handlers_to_null>:
+    328c:	9d e3 bf 98 	save  %sp, -104, %sp
+    3290:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    3294:	10 80 00 0a 	b  32bc <ajit_initialize_interrupt_handlers_to_null+0x30>
+    3298:	01 00 00 00 	nop 
+    329c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    32a0:	05 00 00 0d 	sethi  %hi(0x3400), %g2
+    32a4:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
+    32a8:	83 28 60 02 	sll  %g1, 2, %g1
+    32ac:	c0 20 80 01 	clr  [ %g2 + %g1 ]
+    32b0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    32b4:	82 00 60 01 	inc  %g1
+    32b8:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    32bc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    32c0:	80 a0 60 0f 	cmp  %g1, 0xf
+    32c4:	04 bf ff f6 	ble  329c <ajit_initialize_interrupt_handlers_to_null+0x10>
+    32c8:	01 00 00 00 	nop 
+    32cc:	81 e8 00 00 	restore 
+    32d0:	81 c3 e0 08 	retl 
+    32d4:	01 00 00 00 	nop 
 
-000032a4 <ajit_set_interrupt_handler>:
-    32a4:	9d e3 bf a0 	save  %sp, -96, %sp
-    32a8:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    32ac:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    32b0:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    32b4:	80 a0 60 0f 	cmp  %g1, 0xf
-    32b8:	18 80 00 08 	bgu  32d8 <ajit_set_interrupt_handler+0x34>
-    32bc:	01 00 00 00 	nop 
-    32c0:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    32c4:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    32c8:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
-    32cc:	83 28 60 02 	sll  %g1, 2, %g1
-    32d0:	c6 07 a0 48 	ld  [ %fp + 0x48 ], %g3
-    32d4:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    32d8:	81 e8 00 00 	restore 
-    32dc:	81 c3 e0 08 	retl 
-    32e0:	01 00 00 00 	nop 
+000032d8 <ajit_set_interrupt_handler>:
+    32d8:	9d e3 bf a0 	save  %sp, -96, %sp
+    32dc:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    32e0:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    32e4:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    32e8:	80 a0 60 0f 	cmp  %g1, 0xf
+    32ec:	18 80 00 08 	bgu  330c <ajit_set_interrupt_handler+0x34>
+    32f0:	01 00 00 00 	nop 
+    32f4:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    32f8:	05 00 00 0d 	sethi  %hi(0x3400), %g2
+    32fc:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
+    3300:	83 28 60 02 	sll  %g1, 2, %g1
+    3304:	c6 07 a0 48 	ld  [ %fp + 0x48 ], %g3
+    3308:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
+    330c:	81 e8 00 00 	restore 
+    3310:	81 c3 e0 08 	retl 
+    3314:	01 00 00 00 	nop 
 
-000032e4 <ajit_generic_interrupt_handler>:
-    32e4:	9d e3 bf 90 	save  %sp, -112, %sp
-    32e8:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    32ec:	84 07 bf f3 	add  %fp, -13, %g2
-    32f0:	82 07 bf f2 	add  %fp, -14, %g1
-    32f4:	90 10 00 02 	mov  %g2, %o0
-    32f8:	92 10 00 01 	mov  %g1, %o1
-    32fc:	7f ff ff 5c 	call  306c <ajit_get_core_and_thread_id>
-    3300:	01 00 00 00 	nop 
-    3304:	c2 0f bf f3 	ldub  [ %fp + -13 ], %g1
-    3308:	84 08 60 ff 	and  %g1, 0xff, %g2
-    330c:	c2 0f bf f2 	ldub  [ %fp + -14 ], %g1
-    3310:	82 08 60 ff 	and  %g1, 0xff, %g1
-    3314:	90 10 00 02 	mov  %g2, %o0
-    3318:	92 10 00 01 	mov  %g1, %o1
-    331c:	7f ff ff b8 	call  31fc <disableInterruptController>
-    3320:	01 00 00 00 	nop 
-    3324:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
-    3328:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    332c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    3330:	83 30 60 04 	srl  %g1, 4, %g1
-    3334:	82 08 60 ff 	and  %g1, 0xff, %g1
-    3338:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    333c:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    3340:	80 a0 60 10 	cmp  %g1, 0x10
-    3344:	08 80 00 15 	bleu  3398 <ajit_generic_interrupt_handler+0xb4>
-    3348:	01 00 00 00 	nop 
-    334c:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    3350:	80 a0 60 1f 	cmp  %g1, 0x1f
-    3354:	18 80 00 11 	bgu  3398 <ajit_generic_interrupt_handler+0xb4>
-    3358:	01 00 00 00 	nop 
-    335c:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    3360:	82 00 7f f0 	add  %g1, -16, %g1
-    3364:	05 00 00 0d 	sethi  %hi(0x3400), %g2
-    3368:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
-    336c:	83 28 60 02 	sll  %g1, 2, %g1
-    3370:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
-    3374:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    3378:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    337c:	80 a0 60 00 	cmp  %g1, 0
-    3380:	02 80 00 06 	be  3398 <ajit_generic_interrupt_handler+0xb4>
-    3384:	01 00 00 00 	nop 
-    3388:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    338c:	9f c0 40 00 	call  %g1
-    3390:	01 00 00 00 	nop 
-    3394:	c0 27 bf f4 	clr  [ %fp + -12 ]
-    3398:	c2 0f bf f3 	ldub  [ %fp + -13 ], %g1
-    339c:	84 08 60 ff 	and  %g1, 0xff, %g2
-    33a0:	c2 0f bf f2 	ldub  [ %fp + -14 ], %g1
-    33a4:	82 08 60 ff 	and  %g1, 0xff, %g1
-    33a8:	90 10 00 02 	mov  %g2, %o0
-    33ac:	92 10 00 01 	mov  %g1, %o1
-    33b0:	7f ff ff 7c 	call  31a0 <enableInterruptController>
-    33b4:	01 00 00 00 	nop 
-    33b8:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    33bc:	80 a0 60 00 	cmp  %g1, 0
-    33c0:	02 80 00 03 	be  33cc <ajit_generic_interrupt_handler+0xe8>
+00003318 <ajit_generic_interrupt_handler>:
+    3318:	9d e3 bf 90 	save  %sp, -112, %sp
+    331c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    3320:	84 07 bf f3 	add  %fp, -13, %g2
+    3324:	82 07 bf f2 	add  %fp, -14, %g1
+    3328:	90 10 00 02 	mov  %g2, %o0
+    332c:	92 10 00 01 	mov  %g1, %o1
+    3330:	7f ff ff 4f 	call  306c <ajit_get_core_and_thread_id>
+    3334:	01 00 00 00 	nop 
+    3338:	c2 0f bf f3 	ldub  [ %fp + -13 ], %g1
+    333c:	84 08 60 ff 	and  %g1, 0xff, %g2
+    3340:	c2 0f bf f2 	ldub  [ %fp + -14 ], %g1
+    3344:	82 08 60 ff 	and  %g1, 0xff, %g1
+    3348:	90 10 00 02 	mov  %g2, %o0
+    334c:	92 10 00 01 	mov  %g1, %o1
+    3350:	7f ff ff b8 	call  3230 <disableInterruptController>
+    3354:	01 00 00 00 	nop 
+    3358:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    335c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    3360:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    3364:	83 30 60 04 	srl  %g1, 4, %g1
+    3368:	82 08 60 ff 	and  %g1, 0xff, %g1
+    336c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    3370:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    3374:	80 a0 60 10 	cmp  %g1, 0x10
+    3378:	08 80 00 15 	bleu  33cc <ajit_generic_interrupt_handler+0xb4>
+    337c:	01 00 00 00 	nop 
+    3380:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    3384:	80 a0 60 1f 	cmp  %g1, 0x1f
+    3388:	18 80 00 11 	bgu  33cc <ajit_generic_interrupt_handler+0xb4>
+    338c:	01 00 00 00 	nop 
+    3390:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    3394:	82 00 7f f0 	add  %g1, -16, %g1
+    3398:	05 00 00 0d 	sethi  %hi(0x3400), %g2
+    339c:	84 10 a1 e4 	or  %g2, 0x1e4, %g2	! 35e4 <__bss_start>
+    33a0:	83 28 60 02 	sll  %g1, 2, %g1
+    33a4:	c2 00 80 01 	ld  [ %g2 + %g1 ], %g1
+    33a8:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    33ac:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    33b0:	80 a0 60 00 	cmp  %g1, 0
+    33b4:	02 80 00 06 	be  33cc <ajit_generic_interrupt_handler+0xb4>
+    33b8:	01 00 00 00 	nop 
+    33bc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    33c0:	9f c0 40 00 	call  %g1
     33c4:	01 00 00 00 	nop 
-    33c8:	91 d0 20 00 	ta  0
-    33cc:	81 e8 00 00 	restore 
-    33d0:	81 c3 e0 08 	retl 
-    33d4:	01 00 00 00 	nop 
-
-000033d8 <this_core_id>:
-    33d8:	9d e3 bf 98 	save  %sp, -104, %sp
-    33dc:	84 07 bf ff 	add  %fp, -1, %g2
-    33e0:	82 07 bf fe 	add  %fp, -2, %g1
-    33e4:	90 10 00 02 	mov  %g2, %o0
-    33e8:	92 10 00 01 	mov  %g1, %o1
-    33ec:	7f ff ff 20 	call  306c <ajit_get_core_and_thread_id>
-    33f0:	01 00 00 00 	nop 
-    33f4:	c2 0f bf ff 	ldub  [ %fp + -1 ], %g1
-    33f8:	82 08 60 ff 	and  %g1, 0xff, %g1
-    33fc:	b0 10 00 01 	mov  %g1, %i0
+    33c8:	c0 27 bf f4 	clr  [ %fp + -12 ]
+    33cc:	c2 0f bf f3 	ldub  [ %fp + -13 ], %g1
+    33d0:	84 08 60 ff 	and  %g1, 0xff, %g2
+    33d4:	c2 0f bf f2 	ldub  [ %fp + -14 ], %g1
+    33d8:	82 08 60 ff 	and  %g1, 0xff, %g1
+    33dc:	90 10 00 02 	mov  %g2, %o0
+    33e0:	92 10 00 01 	mov  %g1, %o1
+    33e4:	7f ff ff 7c 	call  31d4 <enableInterruptController>
+    33e8:	01 00 00 00 	nop 
+    33ec:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    33f0:	80 a0 60 00 	cmp  %g1, 0
+    33f4:	02 80 00 03 	be  3400 <ajit_generic_interrupt_handler+0xe8>
+    33f8:	01 00 00 00 	nop 
+    33fc:	91 d0 20 00 	ta  0
     3400:	81 e8 00 00 	restore 
     3404:	81 c3 e0 08 	retl 
     3408:	01 00 00 00 	nop 
@@ -3928,7 +3928,7 @@ Disassembly of section .text:
 0000347c <main>:
     347c:	9d e3 bf 88 	save  %sp, -120, %sp
     3480:	c0 27 bf f0 	clr  [ %fp + -16 ]
-    3484:	7f ff ff d5 	call  33d8 <this_core_id>
+    3484:	7f ff ff 0d 	call  30b8 <this_core_id>
     3488:	01 00 00 00 	nop 
     348c:	82 10 00 08 	mov  %o0, %g1
     3490:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
@@ -4303,21 +4303,21 @@ Symbol table '.symtab' contains 297 entries:
    276: 00003024    40 FUNC    LOCAL  DEFAULT    1 __ajit_load_word_mmu_bypa
    277: 0000304c    32 FUNC    LOCAL  DEFAULT    1 __ajit_read_core_thread_i
    278: 0000306c    76 FUNC    LOCAL  DEFAULT    1 ajit_get_core_and_thread_
-   279: 000030b8    64 FUNC    LOCAL  DEFAULT    1 ajitInterruptControlRegis
-   280: 000030f8    64 FUNC    LOCAL  DEFAULT    1 readInterruptControlRegis
-   281: 00003138    64 FUNC    LOCAL  DEFAULT    1 writeInterruptControlRegi
-   282: 00003178    40 FUNC    LOCAL  DEFAULT    1 ajitInterruptControlWrita
-   283: 000031a0    92 FUNC    LOCAL  DEFAULT    1 enableInterruptController
-   284: 000031fc    92 FUNC    LOCAL  DEFAULT    1 disableInterruptControlle
-   285: 000033d8    52 FUNC    LOCAL  DEFAULT    1 this_core_id
+   279: 000030b8    52 FUNC    LOCAL  DEFAULT    1 this_core_id
+   280: 000030ec    64 FUNC    LOCAL  DEFAULT    1 ajitInterruptControlRegis
+   281: 0000312c    64 FUNC    LOCAL  DEFAULT    1 readInterruptControlRegis
+   282: 0000316c    64 FUNC    LOCAL  DEFAULT    1 writeInterruptControlRegi
+   283: 000031ac    40 FUNC    LOCAL  DEFAULT    1 ajitInterruptControlWrita
+   284: 000031d4    92 FUNC    LOCAL  DEFAULT    1 enableInterruptController
+   285: 00003230    92 FUNC    LOCAL  DEFAULT    1 disableInterruptControlle
    286: 0000340c   112 FUNC    LOCAL  DEFAULT    1 report_and_halt
    287: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
-   288: 000032e4   244 FUNC    GLOBAL DEFAULT    1 ajit_generic_interrupt_ha
+   288: 00003318   244 FUNC    GLOBAL DEFAULT    1 ajit_generic_interrupt_ha
    289: 00003564   128 FUNC    GLOBAL DEFAULT    1 memcpy
    290: 000035e4    64 OBJECT  GLOBAL DEFAULT    2 ajit_global_interrupt_han
    291: 00003624     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
    292: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
    293: 000035e4     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
    294: 0000347c   232 FUNC    GLOBAL DEFAULT    1 main
-   295: 00003258    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
-   296: 000032a4    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
+   295: 0000328c    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
+   296: 000032d8    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
