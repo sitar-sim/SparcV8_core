@@ -213,7 +213,8 @@ maskable interrupt masked, so they do not nest.
 
 On the `multicore` configuration every core runs the same program, from
 its own stack, after the startup file `crt0_multicore.s` has prepared
-it. See [Programming the Multicore System](multicore/programming.md).
+it. See [Programming the Multicore System](multicore/programming.md), and
+[OpenMP Programs](multicore/openmp.md) for programs that use OpenMP's pragmas.
 
 ---
 

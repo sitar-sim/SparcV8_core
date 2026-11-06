@@ -13,4 +13,4 @@ for each to answer. The tests use the page table setup of `../mmu_coherence/`.
 | `from_every_core` | Every core moves a page of its own at once, so shootdowns overlap. A core waiting for its turn must still take the one under way. |
 | `other_context` | The other cores are running in another context when the entry changes. |
 | `waits_for_every_core` | The other cores hold their interrupts off for a while. The shootdown must not return before they have answered. |
-| `core_that_does_not_answer` | One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core. |
+| `core_that_does_not_answer` | One core holds its interrupts off until two shootdowns return, so the second cannot even send it an IPI. Each must return anyway, and report that core. |

@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="execution_model.html">
+        <link rel="prev" href="index.html">
       
       
         <link rel="next" href="openmp.html">
@@ -1418,62 +1418,6 @@
                 
   
   
-  
-  
-    <li class="md-nav__item">
-      <a href="structure.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Structure and Assumptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
     
   
   
@@ -1821,6 +1765,62 @@
     
   
     Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
   
 
     
@@ -2295,6 +2295,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development_notes.html" class="md-nav__link">
         
   
@@ -2638,7 +2666,9 @@ file that prepares every core, how a program finds its core ID, how
 cores share data and wait for each other, with and without coherent
 caches, how each core takes its own interrupts, and the routines this
 project provides for all of this. <a href="examples.html">Example Programs</a> puts
-these pieces together in two complete programs.</p>
+these pieces together in two complete programs. A program can instead
+leave the division of work to OpenMP's pragmas, as <a href="openmp.html">OpenMP
+Programs</a> describes.</p>
 <hr />
 <h2 id="the-startup-file">The startup file<a class="headerlink" href="#the-startup-file" title="Permanent link">&para;</a></h2>
 <p>C programs for the <code>multicore</code> configuration start from
@@ -2732,8 +2762,9 @@ ways.</p>
 <p>Stores need no such care, because the caches are write-through.</p>
 <h3 id="waiting-for-another-core">Waiting for another core<a class="headerlink" href="#waiting-for-another-core" title="Permanent link">&para;</a></h3>
 <p>The simplest way for cores to coordinate is through <strong>flags</strong>, words
-that only one core ever writes. A core announces that something is ready by storing to its own flag, and
-another core waits by reading that flag until it changes.</p>
+that only one core ever writes. A core announces that something is ready
+by storing to its own flag, and another core waits by reading that flag
+until it changes.</p>
 <div class="language-c highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="c1">// core k, after publishing its result:</span>
 </span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a><span class="n">partial_sum</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">sum</span><span class="p">;</span>
 </span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="n">done</span><span class="p">[</span><span class="n">k</span><span class="p">]</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span><span class="w">            </span><span class="c1">// stores reach memory in order, so the sum is there first</span>
@@ -2796,14 +2827,15 @@ and <code>multicore_sync.h</code> holds everything built on the atomic instructi
 <h3 id="a-mutex">A mutex<a class="headerlink" href="#a-mutex" title="Permanent link">&para;</a></h3>
 <p>A mutex is one byte or word in shared memory, and 0 means free. Global
 variables start at 0, so a mutex needs no setup.</p>
-<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;multicore_sync.h&quot;</span>
-</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a>
-</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">counter_lock</span><span class="p">;</span>
-</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">counter</span><span class="p">;</span>
-</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a>
-</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a><span class="n">acquire_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
-</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
-</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">release_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+<div class="language-c highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;ajit_mt_irc.h&quot;</span><span class="c1">       // needed by the startup file</span>
+</span><span id="__span-4-2"><a id="__codelineno-4-2" name="__codelineno-4-2" href="#__codelineno-4-2"></a><span class="cp">#include</span><span class="w"> </span><span class="cpf">&quot;multicore_sync.h&quot;</span>
+</span><span id="__span-4-3"><a id="__codelineno-4-3" name="__codelineno-4-3" href="#__codelineno-4-3"></a>
+</span><span id="__span-4-4"><a id="__codelineno-4-4" name="__codelineno-4-4" href="#__codelineno-4-4"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint8_t</span><span class="w">  </span><span class="n">counter_lock</span><span class="p">;</span>
+</span><span id="__span-4-5"><a id="__codelineno-4-5" name="__codelineno-4-5" href="#__codelineno-4-5"></a><span class="k">static</span><span class="w"> </span><span class="k">volatile</span><span class="w"> </span><span class="kt">uint32_t</span><span class="w"> </span><span class="n">counter</span><span class="p">;</span>
+</span><span id="__span-4-6"><a id="__codelineno-4-6" name="__codelineno-4-6" href="#__codelineno-4-6"></a>
+</span><span id="__span-4-7"><a id="__codelineno-4-7" name="__codelineno-4-7" href="#__codelineno-4-7"></a><span class="n">acquire_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
+</span><span id="__span-4-8"><a id="__codelineno-4-8" name="__codelineno-4-8" href="#__codelineno-4-8"></a><span class="n">counter</span><span class="w"> </span><span class="o">=</span><span class="w"> </span><span class="n">read_shared</span><span class="p">(</span><span class="o">&amp;</span><span class="n">counter</span><span class="p">)</span><span class="w"> </span><span class="o">+</span><span class="w"> </span><span class="mi">1</span><span class="p">;</span>
+</span><span id="__span-4-9"><a id="__codelineno-4-9" name="__codelineno-4-9" href="#__codelineno-4-9"></a><span class="n">release_mutex_using_ldstub</span><span class="p">((</span><span class="kt">int</span><span class="p">)</span><span class="w"> </span><span class="o">&amp;</span><span class="n">counter_lock</span><span class="p">);</span>
 </span></code></pre></div>
 <p>The routines have the names and arguments of AJIT's own. While the lock
 is held, a waiting core spins on an uncached load, and tries the atomic
@@ -2816,8 +2848,9 @@ load could keep reading an old cached copy of the lock and never see it
 released. The routines work the same way with <code>--coherent</code> on or off.</p>
 <h3 id="what-a-lock-does-not-do">What a lock does not do<a class="headerlink" href="#what-a-lock-does-not-do" title="Permanent link">&para;</a></h3>
 <p>This section applies when the caches are not coherent. A lock makes sure
-only one core is inside, but it does not refresh the cache. Inside the lock, a plain load can still return this core's old
-copy of the data. Data shared under a lock must be read with
+only one core is inside, but it does not refresh the cache. Inside the
+lock, a plain load can still return this core's old copy of the data.
+Data shared under a lock must be read with
 <code>read_shared()</code>, as above, or with a plain load after <code>flush_caches()</code>
 inside the lock, as the test <code>sync_library/flush_inside_lock</code> does.</p>
 <h3 id="the-other-routines">The other routines<a class="headerlink" href="#the-other-routines" title="Permanent link">&para;</a></h3>
@@ -2965,10 +2998,12 @@ an entry must therefore get every core to drop its copy.</p>
 </span><span id="__span-7-4"><a id="__codelineno-7-4" name="__codelineno-7-4" href="#__codelineno-7-4"></a><span class="n">tlb_shootdown_page</span><span class="p">(</span><span class="n">va</span><span class="p">,</span><span class="w"> </span><span class="n">context</span><span class="p">,</span><span class="w"> </span><span class="n">NUM_CORES</span><span class="p">);</span>
 </span></code></pre></div>
 <p><code>tlb_shootdown_page()</code> drops this core's copy, sends an IPI to each of the others, and
-waits for each to answer. When it returns, no core can use the old translation. It
-returns the number of cores that did not answer, which is 0 unless a core has halted
-or has stopped taking interrupts. Only one shootdown runs at a time. A core waiting for
-its turn keeps its interrupts on, so it can take the one under way.</p>
+waits for each to answer. It returns the number of cores that did not answer, which is 0
+unless a core has halted or has stopped taking interrupts. It waits a bounded time, so such
+a core cannot hold it up for ever. When it returns 0, no core can use the old translation.
+A core that did not answer still can, so a nonzero result needs the program's attention.
+Only one shootdown runs at a time. A core waiting for its turn keeps its interrupts on, so
+it can take the one under way.</p>
 <p>A handler drops a translation with a store using ASI 3, which also empties that core's
 L1 caches. A cached line of the old page therefore goes as well, even with coherence
 off.</p>

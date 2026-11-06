@@ -4,9 +4,10 @@ This project's APARA model is its own implementation of the engine,
 written from the engine's documents and checked against APARA's
 reference model. Its sources, in order of authority:
 
-1. **The microarchitecture document** (*APARA Engine: Microarchitecture
-   and Timing*, `engine_isp/docs/microarch` in the APARA repository), for
-   the engine's structure and timing. Its latency table gives the timing
+1. **The microarchitecture document** ([*APARA Engine: Microarchitecture
+   and Timing*](../references/APARA_engine_microarch_and_timing.pdf)), for
+   the engine's structure and timing. Its [latency
+   table](../references/APARA_engine_microarch_and_timing.pdf#page=31) gives the timing
    model's default latencies. The timing model has been checked against
    this document, but not yet against the hardware's own (Aa_model)
    simulation traces.

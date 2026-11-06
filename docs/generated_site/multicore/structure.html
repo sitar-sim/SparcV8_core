@@ -13,10 +13,10 @@
       
       
       
-        <link rel="prev" href="index.html">
+        <link rel="prev" href="execution_model.html">
       
       
-        <link rel="next" href="execution_model.html">
+        <link rel="next" href="validation.html">
       
       
         
@@ -1418,6 +1418,146 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="programming.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Programming the System
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="openmp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMP Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="examples.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Example Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="debugging.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -1633,146 +1773,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="programming.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Programming the System
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="openmp.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    OpenMP Programs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="examples.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Example Programs
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="debugging.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Logging and Debugging
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -2239,6 +2239,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development_notes.html" class="md-nav__link">
         
   
@@ -2587,7 +2615,7 @@ devices.</p>
       +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
 </pre>
 
-<p>Each core has three nets of its own, and the bus reaches memory and the
+<p>Each core has four nets of its own, and the bus reaches memory and the
 devices over four more. Each net carries data from an output port to an
 input port.</p>
 <table>
@@ -2613,6 +2641,11 @@ input port.</p>
 <td><code>interruptLevelNet[i]</code></td>
 <td><code>devices.interruptLevelOut[i]</code></td>
 <td><code>cores[i].interruptLevelIn</code></td>
+</tr>
+<tr>
+<td><code>coreInvalidateNet[i]</code></td>
+<td><code>bridge.coreInvalidateOut[i]</code></td>
+<td><code>cores[i].invalidateIn</code></td>
 </tr>
 <tr>
 <td><code>memoryRequestNet</code></td>
@@ -2776,9 +2809,12 @@ its own slot.</p>
 <p>The controller's slot count is the reason <code>NUM_CORES</code> is at most 4.</p>
 <hr />
 <h2 id="assumptions">Assumptions<a class="headerlink" href="#assumptions" title="Permanent link">&para;</a></h2>
-<p>The model follows AJIT's multicore design wherever that design is
-known. The table lists where it makes its own assumptions, and what is
-not yet modeled.</p>
+<p>The model follows AJIT's multi-core design wherever that design is
+known, from the <a href="../references/ajit_processor_description.pdf#page=47">AJIT processor
+description</a> and its
+section on <a href="../references/ajit_processor_description.pdf#page=43">cache coherence</a>.
+The table lists where it makes its own assumptions, and what is not yet
+modeled.</p>
 <table>
 <thead>
 <tr>
@@ -2806,7 +2842,7 @@ not yet modeled.</p>
 <tr>
 <td>Number of cores</td>
 <td>1 to 4, set at compile time</td>
-<td>Limited by the Interrupt Controller's 8 slots.</td>
+<td>Limited by the Interrupt Controller's 8 slots. The validation suite assumes 4.</td>
 </tr>
 <tr>
 <td>L1 caches</td>
@@ -2822,6 +2858,11 @@ not yet modeled.</p>
 <td>Synonyms</td>
 <td>At most one copy of a physical line per cache</td>
 <td>AJIT removes an older copy too, unless both have the same virtual address, in different contexts. Here that older copy is removed as well, since a store in one context would otherwise leave it stale.</td>
+</tr>
+<tr>
+<td><code>FLUSH</code></td>
+<td>Empties the caches of the core that executes it, and no other</td>
+<td>The other cores' copies go through coherence, or a flush of their own.</td>
 </tr>
 <tr>
 <td>Memory ordering</td>

@@ -7,7 +7,9 @@ file that prepares every core, how a program finds its core ID, how
 cores share data and wait for each other, with and without coherent
 caches, how each core takes its own interrupts, and the routines this
 project provides for all of this. [Example Programs](examples.md) puts
-these pieces together in two complete programs.
+these pieces together in two complete programs. A program can instead
+leave the division of work to OpenMP's pragmas, as [OpenMP
+Programs](openmp.md) describes.
 
 ---
 
@@ -120,8 +122,9 @@ Stores need no such care, because the caches are write-through.
 ### Waiting for another core
 
 The simplest way for cores to coordinate is through **flags**, words
-that only one core ever writes. A core announces that something is ready by storing to its own flag, and
-another core waits by reading that flag until it changes.
+that only one core ever writes. A core announces that something is ready
+by storing to its own flag, and another core waits by reading that flag
+until it changes.
 
 ```c
 // core k, after publishing its result:
@@ -204,6 +207,7 @@ A mutex is one byte or word in shared memory, and 0 means free. Global
 variables start at 0, so a mutex needs no setup.
 
 ```c
+#include "ajit_mt_irc.h"       // needed by the startup file
 #include "multicore_sync.h"
 
 static volatile uint8_t  counter_lock;
@@ -228,8 +232,9 @@ released. The routines work the same way with `--coherent` on or off.
 ### What a lock does not do
 
 This section applies when the caches are not coherent. A lock makes sure
-only one core is inside, but it does not refresh the cache. Inside the lock, a plain load can still return this core's old
-copy of the data. Data shared under a lock must be read with
+only one core is inside, but it does not refresh the cache. Inside the
+lock, a plain load can still return this core's old copy of the data.
+Data shared under a lock must be read with
 `read_shared()`, as above, or with a plain load after `flush_caches()`
 inside the lock, as the test `sync_library/flush_inside_lock` does.
 
@@ -370,10 +375,12 @@ tlb_shootdown_page(va, context, NUM_CORES);
 ```
 
 `tlb_shootdown_page()` drops this core's copy, sends an IPI to each of the others, and
-waits for each to answer. When it returns, no core can use the old translation. It
-returns the number of cores that did not answer, which is 0 unless a core has halted
-or has stopped taking interrupts. Only one shootdown runs at a time. A core waiting for
-its turn keeps its interrupts on, so it can take the one under way.
+waits for each to answer. It returns the number of cores that did not answer, which is 0
+unless a core has halted or has stopped taking interrupts. It waits a bounded time, so such
+a core cannot hold it up for ever. When it returns 0, no core can use the old translation.
+A core that did not answer still can, so a nonzero result needs the program's attention.
+Only one shootdown runs at a time. A core waiting for its turn keeps its interrupts on, so
+it can take the one under way.
 
 A handler drops a translation with a store using ASI 3, which also empties that core's
 L1 caches. A cached line of the old page therefore goes as well, even with coherence

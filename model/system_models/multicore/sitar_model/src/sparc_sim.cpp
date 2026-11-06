@@ -244,11 +244,15 @@ int main(int argc, char** argv)
 		coherent = (std::string(env) == "1");
 	if (const char* env = std::getenv("SPARC_SNOOP_FILTER"))
 		snoopFilter = (std::string(env) == "1");
-	unsigned long runCores = 0; //0: all cores
+	unsigned long runCores = 0;
+	bool runCoresGiven = false;
 	unsigned int numThreads = 0; //0: OMP_NUM_THREADS, else 1
 	std::string threadMapSpec;
 	if (const char* env = std::getenv("SPARC_RUN_CORES"))
+	{
 		runCores = std::strtoul(env, NULL, 10);
+		runCoresGiven = true;
+	}
 	std::vector<std::string> args;
 	for (int i = 1; i < argc; i++)
 	{
@@ -257,7 +261,10 @@ int main(int argc, char** argv)
 		if (arg == "--stats")
 			printStats = true;
 		else if (arg == "--run-cores" && hasValue)
+		{
 			runCores = std::strtoul(argv[++i], NULL, 10);
+			runCoresGiven = true;
+		}
 		else if (arg == "--serial-in" && hasValue)
 		{
 			serialConfig.inputFile = argv[++i];
@@ -292,6 +299,12 @@ int main(int argc, char** argv)
 			numThreads = (unsigned int) std::strtoul(argv[++i], NULL, 10);
 		else if (arg == "--thread-map" && hasValue)
 			threadMapSpec = argv[++i];
+		else if (arg.compare(0, 2, "--") == 0)
+		{
+			//A mistyped option must not be taken for a file name, or be ignored.
+			std::cerr << "ERROR: unknown option, or option without its value: " << arg << "\n";
+			return 1;
+		}
 		else
 			args.push_back(arg);
 	}
@@ -317,9 +330,9 @@ int main(int argc, char** argv)
 	TOP->setHierarchicalId("");
 
 	const unsigned int numCores = sizeof(TOP->system.cores) / sizeof(TOP->system.cores[0]);
-	if (runCores == 0)
+	if (!runCoresGiven)
 		runCores = numCores;
-	if (runCores > numCores)
+	if (runCores < 1 || runCores > numCores)
 	{
 		std::cerr << "ERROR: --run-cores must be 1 to " << numCores << "\n";
 		return 1;

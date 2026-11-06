@@ -6,7 +6,8 @@ own split L1 instruction and data caches and its own MMU, exactly as in
 the single-core [`core_l1cache_mmu_devices`](../model_configurations.md)
 configuration. The cores reach memory and the devices over one shared
 bus, so a program can run on all of them at once and share data
-through memory. The design follows AJIT's multicore processor wherever
+through memory. The design follows [AJIT's multi-core
+processors](../references/ajit_processor_description.pdf#page=47) wherever
 that design is known.
 
 ---
@@ -28,6 +29,8 @@ that design is known.
 - **Atomic instructions.** `LDSTUB` and `SWAP` are atomic across cores
   in both models, and a library of [locks, barriers and
   semaphores](programming.md#locks-and-synchronization) is built on them.
+- **OpenMP.** C programs can use [real OpenMP pragmas](openmp.md), on a
+  runtime written for this system.
 - **Memory and devices.** One main memory and one set of devices
   (Timer, Serial, Interrupt Controller, [Scratch-pad](../peripheral_devices_scratch_pad.md)),
   shared by every core. The Interrupt Controller has a slot for each
@@ -56,25 +59,66 @@ These pages describe what is done, and grow with each stage.
 
 ---
 
-## Building and running
+## A first run
 
-Both models are built like any other configuration.
-
-```sh
-cd model/system_models/multicore/cpp_model   && ./build.sh
-cd model/system_models/multicore/sitar_model && ./build.sh
-```
-
-A program then runs on all cores at once.
+Both models are built like any other configuration. The following commands
+build the sitar_model, and run a worked example that sums an array on all
+four cores.
 
 ```sh
-./executable/sparc_sim_cpp_multicore <program.hex> [expected] [max_cycles] [--stats] \
-    [--schedule <spec>] [--run-cores <m>] ...
+cd $SPARC_HOME/model/system_models/multicore/sitar_model
+./build.sh
+./executable/sparc_sim_sitar_multicore \
+    $SPARC_HOME/validation/multicore/examples/parallel_sum/parallel_sum.hex "" 5000000
 ```
 
-The other options are those of `core_l1cache_mmu_devices` (cache sizes,
-serial and timer options), and they apply to every core.
+With no expected results to check, the simulator prints the final state of
+each core under its own heading, and then the length of the run.
 
+```
+=== core 0 ===
+PROCESSOR STATE: ERROR
+...
+Simulation halted after 3085726 cycles (all 4 cores halted).
+```
+
+As on a single core, `PROCESSOR STATE: ERROR` is how a program ends (see
+[Run the program](../getting_started.md#run-the-program)). The third
+argument is the cycle limit, and its default of one million is too small for
+this run, as the next section explains.
+
+---
+
+## Three ways to run a program
+
+Whether anything is cached decides both a run's length and what a program
+must do to share data, so a run is one of three kinds.
+
+| Options | What is cached | The program's shared data | Timing |
+|---|---|---|---|
+| None | Nothing, with the MMU off | Every load sees main memory | Slow on the sitar_model, since every fetch crosses the bus |
+| `--always-cacheable` | All of main memory | A plain load can return an old copy, so the program must read with `read_shared()` or flush first | Realistic |
+| `--always-cacheable --coherent` | All of main memory | A plain load always sees the latest value | The most realistic |
+
+[Sharing data between cores](programming.md#sharing-data-between-cores)
+explains the difference. `parallel_sum` above takes about 3.1 million cycles
+the first way, and about 470 thousand the second.
+
+---
+
+## Options
+
+```sh
+./executable/sparc_sim_cpp_multicore <program.hex> [expected] [max_cycles] [options]
+```
+
+The cache size, serial and timer options are those of
+`core_l1cache_mmu_devices`, and they apply to every core. An option the
+simulator does not know stops the run with an error, so a mistyped option
+cannot go unnoticed.
+
+- **`--always-cacheable`** makes every access cacheable while the MMU is off.
+  `SPARC_ALWAYS_CACHEABLE=1` does the same.
 - **`--run-cores <m>`** runs only cores 0 to `m-1`. The others never
   leave reset, and the run does not wait for them. With `--run-cores 1`,
   any single-core program runs unchanged. The environment variable
@@ -99,7 +143,7 @@ serial and timer options), and they apply to every core.
 
 | Knob | Default | Where | Description |
 |---|---|---|---|
-| `NUM_CORES` | 4 | cpp_model: [`MulticoreConfig.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h)<br>sitar_model: `System`'s parameter in [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores. |
+| `NUM_CORES` | 4 | cpp_model: [`MulticoreConfig.h`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h)<br>sitar_model: `System`'s parameter in [`System.sitar`](https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar) | Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores. The validation suite assumes 4. |
 
 Every Sitar latency knob of the single-core configuration is also in
 `System.sitar`, set the same for every core, along with the bus's own
@@ -110,21 +154,28 @@ Settings](../model_configuration_settings.md#multicore-multicore).
 
 ## In these pages
 
-- **[Model Structure and Assumptions](structure.md)** shows how each
-  model is built, how the shared bus arbitrates between cores, and
-  where the model makes its own assumptions.
-- **[Execution Model](execution_model.md)** describes how the cpp_model
-  and the sitar_model run several cores, and why their results can
-  differ for some programs.
+To write programs for the system:
+
 - **[Programming the Multicore System](programming.md)** covers the
   startup file, the core ID, sharing data with and without coherent
   caches, locks and other synchronization, interrupts on several cores,
-  and the routines provided.
+  shared devices, and the routines provided.
+- **[OpenMP Programs](openmp.md)** covers programs that use OpenMP's
+  pragmas, and what the runtime supports.
 - **[Example Programs](examples.md)** walks through a parallel array
   sum and a parallel matrix multiply.
 - **[Logging and Debugging](debugging.md)** covers per-core traces,
   gdb with several cores, and finding data races.
-- **[Validation Suite](validation.md)** lists the multicore tests and
-  how to run them.
+
+To understand or change the model:
+
+- **[Execution Model](execution_model.md)** describes how the cpp_model
+  and the sitar_model run several cores, and why their results can
+  differ for some programs.
+- **[Model Structure and Assumptions](structure.md)** shows how each
+  model is built, how the shared bus arbitrates between cores, and
+  where the model makes its own assumptions.
+- **[Validation Suite](validation.md)** lists the multicore tests, how
+  to run them, and what they do not cover.
 - **[Parallel Simulation](parallel_simulation.md)** runs the sitar_model
   on several host threads, and explains when that is faster.

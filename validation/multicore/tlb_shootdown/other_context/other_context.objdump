@@ -61,7 +61,7 @@ Disassembly of section .text:
 
 000000bc <released>:
       bc:	82 10 2b ad 	mov  0xbad, %g1	! bad <not_reached+0xae5>
-      c0:	40 00 11 e2 	call  4848 <main>
+      c0:	40 00 12 09 	call  48e4 <main>
       c4:	01 00 00 00 	nop 
 
 000000c8 <not_reached>:
@@ -1047,25 +1047,25 @@ Disassembly of section .text:
     100c:	01 00 00 00 	nop 
 
 00001010 <HW_trap_0x01>:
-    1010:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    1010:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
     1014:	81 e8 00 00 	restore 
     1018:	91 d0 20 00 	ta  0
     101c:	01 00 00 00 	nop 
 
 00001020 <HW_trap_0x02>:
-    1020:	82 10 20 02 	mov  2, %g1	! 2 <_start+0x2>
+    1020:	82 10 20 02 	mov  2, %g1	! 2 <__tls_align+0x1>
     1024:	81 e8 00 00 	restore 
     1028:	91 d0 20 00 	ta  0
     102c:	01 00 00 00 	nop 
 
 00001030 <HW_trap_0x03>:
-    1030:	82 10 20 03 	mov  3, %g1	! 3 <_start+0x3>
+    1030:	82 10 20 03 	mov  3, %g1	! 3 <__tls_align+0x2>
     1034:	81 e8 00 00 	restore 
     1038:	91 d0 20 00 	ta  0
     103c:	01 00 00 00 	nop 
 
 00001040 <HW_trap_0x04>:
-    1040:	82 10 20 04 	mov  4, %g1	! 4 <_start+0x4>
+    1040:	82 10 20 04 	mov  4, %g1	! 4 <__tls_align+0x3>
     1044:	81 e8 00 00 	restore 
     1048:	91 d0 20 00 	ta  0
     104c:	01 00 00 00 	nop 
@@ -1083,61 +1083,61 @@ Disassembly of section .text:
     106c:	01 00 00 00 	nop 
 
 00001070 <HW_trap_0x07>:
-    1070:	82 10 20 07 	mov  7, %g1	! 7 <_start+0x7>
+    1070:	82 10 20 07 	mov  7, %g1	! 7 <__tls_align+0x6>
     1074:	81 e8 00 00 	restore 
     1078:	91 d0 20 00 	ta  0
     107c:	01 00 00 00 	nop 
 
 00001080 <HW_trap_0x08>:
-    1080:	82 10 20 08 	mov  8, %g1	! 8 <_start+0x8>
+    1080:	82 10 20 08 	mov  8, %g1	! 8 <__tls_align+0x7>
     1084:	81 e8 00 00 	restore 
     1088:	91 d0 20 00 	ta  0
     108c:	01 00 00 00 	nop 
 
 00001090 <HW_trap_0x09>:
-    1090:	82 10 20 09 	mov  9, %g1	! 9 <_start+0x9>
+    1090:	82 10 20 09 	mov  9, %g1	! 9 <__tls_align+0x8>
     1094:	81 e8 00 00 	restore 
     1098:	91 d0 20 00 	ta  0
     109c:	01 00 00 00 	nop 
 
 000010a0 <HW_trap_0x0a>:
-    10a0:	82 10 20 0a 	mov  0xa, %g1	! a <_start+0xa>
+    10a0:	82 10 20 0a 	mov  0xa, %g1	! a <__tls_align+0x9>
     10a4:	81 e8 00 00 	restore 
     10a8:	91 d0 20 00 	ta  0
     10ac:	01 00 00 00 	nop 
 
 000010b0 <HW_trap_0x0b>:
-    10b0:	82 10 20 0b 	mov  0xb, %g1	! b <_start+0xb>
+    10b0:	82 10 20 0b 	mov  0xb, %g1	! b <__tls_align+0xa>
     10b4:	81 e8 00 00 	restore 
     10b8:	91 d0 20 00 	ta  0
     10bc:	01 00 00 00 	nop 
 
 000010c0 <HW_trap_0x0c>:
-    10c0:	82 10 20 0c 	mov  0xc, %g1	! c <_start+0xc>
+    10c0:	82 10 20 0c 	mov  0xc, %g1	! c <__tls_align+0xb>
     10c4:	81 e8 00 00 	restore 
     10c8:	91 d0 20 00 	ta  0
     10cc:	01 00 00 00 	nop 
 
 000010d0 <HW_trap_0x0d>:
-    10d0:	82 10 20 0d 	mov  0xd, %g1	! d <_start+0xd>
+    10d0:	82 10 20 0d 	mov  0xd, %g1	! d <__tls_align+0xc>
     10d4:	81 e8 00 00 	restore 
     10d8:	91 d0 20 00 	ta  0
     10dc:	01 00 00 00 	nop 
 
 000010e0 <HW_trap_0x0e>:
-    10e0:	82 10 20 0e 	mov  0xe, %g1	! e <_start+0xe>
+    10e0:	82 10 20 0e 	mov  0xe, %g1	! e <__tls_align+0xd>
     10e4:	81 e8 00 00 	restore 
     10e8:	91 d0 20 00 	ta  0
     10ec:	01 00 00 00 	nop 
 
 000010f0 <HW_trap_0x0f>:
-    10f0:	82 10 20 0f 	mov  0xf, %g1	! f <_start+0xf>
+    10f0:	82 10 20 0f 	mov  0xf, %g1	! f <__tls_align+0xe>
     10f4:	81 e8 00 00 	restore 
     10f8:	91 d0 20 00 	ta  0
     10fc:	01 00 00 00 	nop 
 
 00001100 <HW_trap_0x10>:
-    1100:	82 10 20 10 	mov  0x10, %g1	! 10 <_start+0x10>
+    1100:	82 10 20 10 	mov  0x10, %g1	! 10 <__tls_align+0xf>
     1104:	81 e8 00 00 	restore 
     1108:	91 d0 20 00 	ta  0
     110c:	01 00 00 00 	nop 
@@ -1233,601 +1233,601 @@ Disassembly of section .text:
     11fc:	01 00 00 00 	nop 
 
 00001200 <HW_trap_0x20>:
-    1200:	82 10 20 20 	mov  0x20, %g1	! 20 <_start+0x20>
+    1200:	82 10 20 20 	mov  0x20, %g1	! 20 <__tls_align+0x1f>
     1204:	81 e8 00 00 	restore 
     1208:	91 d0 20 00 	ta  0
     120c:	01 00 00 00 	nop 
 
 00001210 <HW_trap_0x21>:
-    1210:	82 10 20 21 	mov  0x21, %g1	! 21 <_start+0x21>
+    1210:	82 10 20 21 	mov  0x21, %g1	! 21 <__tls_align+0x20>
     1214:	81 e8 00 00 	restore 
     1218:	91 d0 20 00 	ta  0
     121c:	01 00 00 00 	nop 
 
 00001220 <HW_trap_0x22>:
-    1220:	82 10 20 22 	mov  0x22, %g1	! 22 <_start+0x22>
+    1220:	82 10 20 22 	mov  0x22, %g1	! 22 <__tls_align+0x21>
     1224:	81 e8 00 00 	restore 
     1228:	91 d0 20 00 	ta  0
     122c:	01 00 00 00 	nop 
 
 00001230 <HW_trap_0x23>:
-    1230:	82 10 20 23 	mov  0x23, %g1	! 23 <_start+0x23>
+    1230:	82 10 20 23 	mov  0x23, %g1	! 23 <__tls_align+0x22>
     1234:	81 e8 00 00 	restore 
     1238:	91 d0 20 00 	ta  0
     123c:	01 00 00 00 	nop 
 
 00001240 <HW_trap_0x24>:
-    1240:	82 10 20 24 	mov  0x24, %g1	! 24 <_start+0x24>
+    1240:	82 10 20 24 	mov  0x24, %g1	! 24 <__tls_align+0x23>
     1244:	81 e8 00 00 	restore 
     1248:	91 d0 20 00 	ta  0
     124c:	01 00 00 00 	nop 
 
 00001250 <HW_trap_0x25>:
-    1250:	82 10 20 25 	mov  0x25, %g1	! 25 <_start+0x25>
+    1250:	82 10 20 25 	mov  0x25, %g1	! 25 <__tls_align+0x24>
     1254:	81 e8 00 00 	restore 
     1258:	91 d0 20 00 	ta  0
     125c:	01 00 00 00 	nop 
 
 00001260 <HW_trap_0x26>:
-    1260:	82 10 20 26 	mov  0x26, %g1	! 26 <_start+0x26>
+    1260:	82 10 20 26 	mov  0x26, %g1	! 26 <__tls_align+0x25>
     1264:	81 e8 00 00 	restore 
     1268:	91 d0 20 00 	ta  0
     126c:	01 00 00 00 	nop 
 
 00001270 <HW_trap_0x27>:
-    1270:	82 10 20 27 	mov  0x27, %g1	! 27 <_start+0x27>
+    1270:	82 10 20 27 	mov  0x27, %g1	! 27 <__tls_align+0x26>
     1274:	81 e8 00 00 	restore 
     1278:	91 d0 20 00 	ta  0
     127c:	01 00 00 00 	nop 
 
 00001280 <HW_trap_0x28>:
-    1280:	82 10 20 28 	mov  0x28, %g1	! 28 <_start+0x28>
+    1280:	82 10 20 28 	mov  0x28, %g1	! 28 <__tls_align+0x27>
     1284:	81 e8 00 00 	restore 
     1288:	91 d0 20 00 	ta  0
     128c:	01 00 00 00 	nop 
 
 00001290 <HW_trap_0x29>:
-    1290:	82 10 20 29 	mov  0x29, %g1	! 29 <_start+0x29>
+    1290:	82 10 20 29 	mov  0x29, %g1	! 29 <__tls_align+0x28>
     1294:	81 e8 00 00 	restore 
     1298:	91 d0 20 00 	ta  0
     129c:	01 00 00 00 	nop 
 
 000012a0 <HW_trap_0x2a>:
-    12a0:	82 10 20 2a 	mov  0x2a, %g1	! 2a <_start+0x2a>
+    12a0:	82 10 20 2a 	mov  0x2a, %g1	! 2a <__tls_align+0x29>
     12a4:	81 e8 00 00 	restore 
     12a8:	91 d0 20 00 	ta  0
     12ac:	01 00 00 00 	nop 
 
 000012b0 <HW_trap_0x2b>:
-    12b0:	82 10 20 2b 	mov  0x2b, %g1	! 2b <_start+0x2b>
+    12b0:	82 10 20 2b 	mov  0x2b, %g1	! 2b <__tls_align+0x2a>
     12b4:	81 e8 00 00 	restore 
     12b8:	91 d0 20 00 	ta  0
     12bc:	01 00 00 00 	nop 
 
 000012c0 <HW_trap_0x2c>:
-    12c0:	82 10 20 2c 	mov  0x2c, %g1	! 2c <_start+0x2c>
+    12c0:	82 10 20 2c 	mov  0x2c, %g1	! 2c <__tls_align+0x2b>
     12c4:	81 e8 00 00 	restore 
     12c8:	91 d0 20 00 	ta  0
     12cc:	01 00 00 00 	nop 
 
 000012d0 <HW_trap_0x2d>:
-    12d0:	82 10 20 2d 	mov  0x2d, %g1	! 2d <_start+0x2d>
+    12d0:	82 10 20 2d 	mov  0x2d, %g1	! 2d <__tls_align+0x2c>
     12d4:	81 e8 00 00 	restore 
     12d8:	91 d0 20 00 	ta  0
     12dc:	01 00 00 00 	nop 
 
 000012e0 <HW_trap_0x2e>:
-    12e0:	82 10 20 2e 	mov  0x2e, %g1	! 2e <_start+0x2e>
+    12e0:	82 10 20 2e 	mov  0x2e, %g1	! 2e <__tls_align+0x2d>
     12e4:	81 e8 00 00 	restore 
     12e8:	91 d0 20 00 	ta  0
     12ec:	01 00 00 00 	nop 
 
 000012f0 <HW_trap_0x2f>:
-    12f0:	82 10 20 2f 	mov  0x2f, %g1	! 2f <_start+0x2f>
+    12f0:	82 10 20 2f 	mov  0x2f, %g1	! 2f <__tls_align+0x2e>
     12f4:	81 e8 00 00 	restore 
     12f8:	91 d0 20 00 	ta  0
     12fc:	01 00 00 00 	nop 
 
 00001300 <HW_trap_0x30>:
-    1300:	82 10 20 30 	mov  0x30, %g1	! 30 <_start+0x30>
+    1300:	82 10 20 30 	mov  0x30, %g1	! 30 <__tls_align+0x2f>
     1304:	81 e8 00 00 	restore 
     1308:	91 d0 20 00 	ta  0
     130c:	01 00 00 00 	nop 
 
 00001310 <HW_trap_0x31>:
-    1310:	82 10 20 31 	mov  0x31, %g1	! 31 <_start+0x31>
+    1310:	82 10 20 31 	mov  0x31, %g1	! 31 <__tls_align+0x30>
     1314:	81 e8 00 00 	restore 
     1318:	91 d0 20 00 	ta  0
     131c:	01 00 00 00 	nop 
 
 00001320 <HW_trap_0x32>:
-    1320:	82 10 20 32 	mov  0x32, %g1	! 32 <_start+0x32>
+    1320:	82 10 20 32 	mov  0x32, %g1	! 32 <__tls_align+0x31>
     1324:	81 e8 00 00 	restore 
     1328:	91 d0 20 00 	ta  0
     132c:	01 00 00 00 	nop 
 
 00001330 <HW_trap_0x33>:
-    1330:	82 10 20 33 	mov  0x33, %g1	! 33 <_start+0x33>
+    1330:	82 10 20 33 	mov  0x33, %g1	! 33 <__tls_align+0x32>
     1334:	81 e8 00 00 	restore 
     1338:	91 d0 20 00 	ta  0
     133c:	01 00 00 00 	nop 
 
 00001340 <HW_trap_0x34>:
-    1340:	82 10 20 34 	mov  0x34, %g1	! 34 <_start+0x34>
+    1340:	82 10 20 34 	mov  0x34, %g1	! 34 <__tls_align+0x33>
     1344:	81 e8 00 00 	restore 
     1348:	91 d0 20 00 	ta  0
     134c:	01 00 00 00 	nop 
 
 00001350 <HW_trap_0x35>:
-    1350:	82 10 20 35 	mov  0x35, %g1	! 35 <_start+0x35>
+    1350:	82 10 20 35 	mov  0x35, %g1	! 35 <__tls_align+0x34>
     1354:	81 e8 00 00 	restore 
     1358:	91 d0 20 00 	ta  0
     135c:	01 00 00 00 	nop 
 
 00001360 <HW_trap_0x36>:
-    1360:	82 10 20 36 	mov  0x36, %g1	! 36 <_start+0x36>
+    1360:	82 10 20 36 	mov  0x36, %g1	! 36 <__tls_align+0x35>
     1364:	81 e8 00 00 	restore 
     1368:	91 d0 20 00 	ta  0
     136c:	01 00 00 00 	nop 
 
 00001370 <HW_trap_0x37>:
-    1370:	82 10 20 37 	mov  0x37, %g1	! 37 <_start+0x37>
+    1370:	82 10 20 37 	mov  0x37, %g1	! 37 <__tls_align+0x36>
     1374:	81 e8 00 00 	restore 
     1378:	91 d0 20 00 	ta  0
     137c:	01 00 00 00 	nop 
 
 00001380 <HW_trap_0x38>:
-    1380:	82 10 20 38 	mov  0x38, %g1	! 38 <_start+0x38>
+    1380:	82 10 20 38 	mov  0x38, %g1	! 38 <__tls_align+0x37>
     1384:	81 e8 00 00 	restore 
     1388:	91 d0 20 00 	ta  0
     138c:	01 00 00 00 	nop 
 
 00001390 <HW_trap_0x39>:
-    1390:	82 10 20 39 	mov  0x39, %g1	! 39 <_start+0x39>
+    1390:	82 10 20 39 	mov  0x39, %g1	! 39 <__tls_align+0x38>
     1394:	81 e8 00 00 	restore 
     1398:	91 d0 20 00 	ta  0
     139c:	01 00 00 00 	nop 
 
 000013a0 <HW_trap_0x3a>:
-    13a0:	82 10 20 3a 	mov  0x3a, %g1	! 3a <_start+0x3a>
+    13a0:	82 10 20 3a 	mov  0x3a, %g1	! 3a <__tls_align+0x39>
     13a4:	81 e8 00 00 	restore 
     13a8:	91 d0 20 00 	ta  0
     13ac:	01 00 00 00 	nop 
 
 000013b0 <HW_trap_0x3b>:
-    13b0:	82 10 20 3b 	mov  0x3b, %g1	! 3b <_start+0x3b>
+    13b0:	82 10 20 3b 	mov  0x3b, %g1	! 3b <__tls_align+0x3a>
     13b4:	81 e8 00 00 	restore 
     13b8:	91 d0 20 00 	ta  0
     13bc:	01 00 00 00 	nop 
 
 000013c0 <HW_trap_0x3c>:
-    13c0:	82 10 20 3c 	mov  0x3c, %g1	! 3c <_start+0x3c>
+    13c0:	82 10 20 3c 	mov  0x3c, %g1	! 3c <__tls_align+0x3b>
     13c4:	81 e8 00 00 	restore 
     13c8:	91 d0 20 00 	ta  0
     13cc:	01 00 00 00 	nop 
 
 000013d0 <HW_trap_0x3d>:
-    13d0:	82 10 20 3d 	mov  0x3d, %g1	! 3d <_start+0x3d>
+    13d0:	82 10 20 3d 	mov  0x3d, %g1	! 3d <__tls_align+0x3c>
     13d4:	81 e8 00 00 	restore 
     13d8:	91 d0 20 00 	ta  0
     13dc:	01 00 00 00 	nop 
 
 000013e0 <HW_trap_0x3e>:
-    13e0:	82 10 20 3e 	mov  0x3e, %g1	! 3e <_start+0x3e>
+    13e0:	82 10 20 3e 	mov  0x3e, %g1	! 3e <__tls_align+0x3d>
     13e4:	81 e8 00 00 	restore 
     13e8:	91 d0 20 00 	ta  0
     13ec:	01 00 00 00 	nop 
 
 000013f0 <HW_trap_0x3f>:
-    13f0:	82 10 20 3f 	mov  0x3f, %g1	! 3f <_start+0x3f>
+    13f0:	82 10 20 3f 	mov  0x3f, %g1	! 3f <__tls_align+0x3e>
     13f4:	81 e8 00 00 	restore 
     13f8:	91 d0 20 00 	ta  0
     13fc:	01 00 00 00 	nop 
 
 00001400 <HW_trap_0x40>:
-    1400:	82 10 20 40 	mov  0x40, %g1	! 40 <_start+0x40>
+    1400:	82 10 20 40 	mov  0x40, %g1	! 40 <__tls_align+0x3f>
     1404:	81 e8 00 00 	restore 
     1408:	91 d0 20 00 	ta  0
     140c:	01 00 00 00 	nop 
 
 00001410 <HW_trap_0x41>:
-    1410:	82 10 20 41 	mov  0x41, %g1	! 41 <_start+0x41>
+    1410:	82 10 20 41 	mov  0x41, %g1	! 41 <__tls_align+0x40>
     1414:	81 e8 00 00 	restore 
     1418:	91 d0 20 00 	ta  0
     141c:	01 00 00 00 	nop 
 
 00001420 <HW_trap_0x42>:
-    1420:	82 10 20 42 	mov  0x42, %g1	! 42 <_start+0x42>
+    1420:	82 10 20 42 	mov  0x42, %g1	! 42 <__tls_align+0x41>
     1424:	81 e8 00 00 	restore 
     1428:	91 d0 20 00 	ta  0
     142c:	01 00 00 00 	nop 
 
 00001430 <HW_trap_0x43>:
-    1430:	82 10 20 43 	mov  0x43, %g1	! 43 <_start+0x43>
+    1430:	82 10 20 43 	mov  0x43, %g1	! 43 <__tls_align+0x42>
     1434:	81 e8 00 00 	restore 
     1438:	91 d0 20 00 	ta  0
     143c:	01 00 00 00 	nop 
 
 00001440 <HW_trap_0x44>:
-    1440:	82 10 20 44 	mov  0x44, %g1	! 44 <_start+0x44>
+    1440:	82 10 20 44 	mov  0x44, %g1	! 44 <__tls_align+0x43>
     1444:	81 e8 00 00 	restore 
     1448:	91 d0 20 00 	ta  0
     144c:	01 00 00 00 	nop 
 
 00001450 <HW_trap_0x45>:
-    1450:	82 10 20 45 	mov  0x45, %g1	! 45 <_start+0x45>
+    1450:	82 10 20 45 	mov  0x45, %g1	! 45 <__tls_align+0x44>
     1454:	81 e8 00 00 	restore 
     1458:	91 d0 20 00 	ta  0
     145c:	01 00 00 00 	nop 
 
 00001460 <HW_trap_0x46>:
-    1460:	82 10 20 46 	mov  0x46, %g1	! 46 <_start+0x46>
+    1460:	82 10 20 46 	mov  0x46, %g1	! 46 <__tls_align+0x45>
     1464:	81 e8 00 00 	restore 
     1468:	91 d0 20 00 	ta  0
     146c:	01 00 00 00 	nop 
 
 00001470 <HW_trap_0x47>:
-    1470:	82 10 20 47 	mov  0x47, %g1	! 47 <_start+0x47>
+    1470:	82 10 20 47 	mov  0x47, %g1	! 47 <__tls_align+0x46>
     1474:	81 e8 00 00 	restore 
     1478:	91 d0 20 00 	ta  0
     147c:	01 00 00 00 	nop 
 
 00001480 <HW_trap_0x48>:
-    1480:	82 10 20 48 	mov  0x48, %g1	! 48 <_start+0x48>
+    1480:	82 10 20 48 	mov  0x48, %g1	! 48 <__tls_align+0x47>
     1484:	81 e8 00 00 	restore 
     1488:	91 d0 20 00 	ta  0
     148c:	01 00 00 00 	nop 
 
 00001490 <HW_trap_0x49>:
-    1490:	82 10 20 49 	mov  0x49, %g1	! 49 <_start+0x49>
+    1490:	82 10 20 49 	mov  0x49, %g1	! 49 <__tls_align+0x48>
     1494:	81 e8 00 00 	restore 
     1498:	91 d0 20 00 	ta  0
     149c:	01 00 00 00 	nop 
 
 000014a0 <HW_trap_0x4a>:
-    14a0:	82 10 20 4a 	mov  0x4a, %g1	! 4a <_start+0x4a>
+    14a0:	82 10 20 4a 	mov  0x4a, %g1	! 4a <__tls_align+0x49>
     14a4:	81 e8 00 00 	restore 
     14a8:	91 d0 20 00 	ta  0
     14ac:	01 00 00 00 	nop 
 
 000014b0 <HW_trap_0x4b>:
-    14b0:	82 10 20 4b 	mov  0x4b, %g1	! 4b <_start+0x4b>
+    14b0:	82 10 20 4b 	mov  0x4b, %g1	! 4b <__tls_align+0x4a>
     14b4:	81 e8 00 00 	restore 
     14b8:	91 d0 20 00 	ta  0
     14bc:	01 00 00 00 	nop 
 
 000014c0 <HW_trap_0x4c>:
-    14c0:	82 10 20 4c 	mov  0x4c, %g1	! 4c <_start+0x4c>
+    14c0:	82 10 20 4c 	mov  0x4c, %g1	! 4c <__tls_align+0x4b>
     14c4:	81 e8 00 00 	restore 
     14c8:	91 d0 20 00 	ta  0
     14cc:	01 00 00 00 	nop 
 
 000014d0 <HW_trap_0x4d>:
-    14d0:	82 10 20 4d 	mov  0x4d, %g1	! 4d <_start+0x4d>
+    14d0:	82 10 20 4d 	mov  0x4d, %g1	! 4d <__tls_align+0x4c>
     14d4:	81 e8 00 00 	restore 
     14d8:	91 d0 20 00 	ta  0
     14dc:	01 00 00 00 	nop 
 
 000014e0 <HW_trap_0x4e>:
-    14e0:	82 10 20 4e 	mov  0x4e, %g1	! 4e <_start+0x4e>
+    14e0:	82 10 20 4e 	mov  0x4e, %g1	! 4e <__tls_align+0x4d>
     14e4:	81 e8 00 00 	restore 
     14e8:	91 d0 20 00 	ta  0
     14ec:	01 00 00 00 	nop 
 
 000014f0 <HW_trap_0x4f>:
-    14f0:	82 10 20 4f 	mov  0x4f, %g1	! 4f <_start+0x4f>
+    14f0:	82 10 20 4f 	mov  0x4f, %g1	! 4f <__tls_align+0x4e>
     14f4:	81 e8 00 00 	restore 
     14f8:	91 d0 20 00 	ta  0
     14fc:	01 00 00 00 	nop 
 
 00001500 <HW_trap_0x50>:
-    1500:	82 10 20 50 	mov  0x50, %g1	! 50 <_start+0x50>
+    1500:	82 10 20 50 	mov  0x50, %g1	! 50 <__tls_align+0x4f>
     1504:	81 e8 00 00 	restore 
     1508:	91 d0 20 00 	ta  0
     150c:	01 00 00 00 	nop 
 
 00001510 <HW_trap_0x51>:
-    1510:	82 10 20 51 	mov  0x51, %g1	! 51 <_start+0x51>
+    1510:	82 10 20 51 	mov  0x51, %g1	! 51 <__tls_align+0x50>
     1514:	81 e8 00 00 	restore 
     1518:	91 d0 20 00 	ta  0
     151c:	01 00 00 00 	nop 
 
 00001520 <HW_trap_0x52>:
-    1520:	82 10 20 52 	mov  0x52, %g1	! 52 <_start+0x52>
+    1520:	82 10 20 52 	mov  0x52, %g1	! 52 <__tls_align+0x51>
     1524:	81 e8 00 00 	restore 
     1528:	91 d0 20 00 	ta  0
     152c:	01 00 00 00 	nop 
 
 00001530 <HW_trap_0x53>:
-    1530:	82 10 20 53 	mov  0x53, %g1	! 53 <_start+0x53>
+    1530:	82 10 20 53 	mov  0x53, %g1	! 53 <__tls_align+0x52>
     1534:	81 e8 00 00 	restore 
     1538:	91 d0 20 00 	ta  0
     153c:	01 00 00 00 	nop 
 
 00001540 <HW_trap_0x54>:
-    1540:	82 10 20 54 	mov  0x54, %g1	! 54 <_start+0x54>
+    1540:	82 10 20 54 	mov  0x54, %g1	! 54 <__tls_align+0x53>
     1544:	81 e8 00 00 	restore 
     1548:	91 d0 20 00 	ta  0
     154c:	01 00 00 00 	nop 
 
 00001550 <HW_trap_0x55>:
-    1550:	82 10 20 55 	mov  0x55, %g1	! 55 <_start+0x55>
+    1550:	82 10 20 55 	mov  0x55, %g1	! 55 <__tls_align+0x54>
     1554:	81 e8 00 00 	restore 
     1558:	91 d0 20 00 	ta  0
     155c:	01 00 00 00 	nop 
 
 00001560 <HW_trap_0x56>:
-    1560:	82 10 20 56 	mov  0x56, %g1	! 56 <_start+0x56>
+    1560:	82 10 20 56 	mov  0x56, %g1	! 56 <__tls_align+0x55>
     1564:	81 e8 00 00 	restore 
     1568:	91 d0 20 00 	ta  0
     156c:	01 00 00 00 	nop 
 
 00001570 <HW_trap_0x57>:
-    1570:	82 10 20 57 	mov  0x57, %g1	! 57 <_start+0x57>
+    1570:	82 10 20 57 	mov  0x57, %g1	! 57 <__tls_align+0x56>
     1574:	81 e8 00 00 	restore 
     1578:	91 d0 20 00 	ta  0
     157c:	01 00 00 00 	nop 
 
 00001580 <HW_trap_0x58>:
-    1580:	82 10 20 58 	mov  0x58, %g1	! 58 <_start+0x58>
+    1580:	82 10 20 58 	mov  0x58, %g1	! 58 <__tls_align+0x57>
     1584:	81 e8 00 00 	restore 
     1588:	91 d0 20 00 	ta  0
     158c:	01 00 00 00 	nop 
 
 00001590 <HW_trap_0x59>:
-    1590:	82 10 20 59 	mov  0x59, %g1	! 59 <_start+0x59>
+    1590:	82 10 20 59 	mov  0x59, %g1	! 59 <__tls_align+0x58>
     1594:	81 e8 00 00 	restore 
     1598:	91 d0 20 00 	ta  0
     159c:	01 00 00 00 	nop 
 
 000015a0 <HW_trap_0x5a>:
-    15a0:	82 10 20 5a 	mov  0x5a, %g1	! 5a <_start+0x5a>
+    15a0:	82 10 20 5a 	mov  0x5a, %g1	! 5a <__tls_align+0x59>
     15a4:	81 e8 00 00 	restore 
     15a8:	91 d0 20 00 	ta  0
     15ac:	01 00 00 00 	nop 
 
 000015b0 <HW_trap_0x5b>:
-    15b0:	82 10 20 5b 	mov  0x5b, %g1	! 5b <_start+0x5b>
+    15b0:	82 10 20 5b 	mov  0x5b, %g1	! 5b <__tls_align+0x5a>
     15b4:	81 e8 00 00 	restore 
     15b8:	91 d0 20 00 	ta  0
     15bc:	01 00 00 00 	nop 
 
 000015c0 <HW_trap_0x5c>:
-    15c0:	82 10 20 5c 	mov  0x5c, %g1	! 5c <_start+0x5c>
+    15c0:	82 10 20 5c 	mov  0x5c, %g1	! 5c <__tls_align+0x5b>
     15c4:	81 e8 00 00 	restore 
     15c8:	91 d0 20 00 	ta  0
     15cc:	01 00 00 00 	nop 
 
 000015d0 <HW_trap_0x5d>:
-    15d0:	82 10 20 5d 	mov  0x5d, %g1	! 5d <_start+0x5d>
+    15d0:	82 10 20 5d 	mov  0x5d, %g1	! 5d <__tls_align+0x5c>
     15d4:	81 e8 00 00 	restore 
     15d8:	91 d0 20 00 	ta  0
     15dc:	01 00 00 00 	nop 
 
 000015e0 <HW_trap_0x5e>:
-    15e0:	82 10 20 5e 	mov  0x5e, %g1	! 5e <_start+0x5e>
+    15e0:	82 10 20 5e 	mov  0x5e, %g1	! 5e <__tls_align+0x5d>
     15e4:	81 e8 00 00 	restore 
     15e8:	91 d0 20 00 	ta  0
     15ec:	01 00 00 00 	nop 
 
 000015f0 <HW_trap_0x5f>:
-    15f0:	82 10 20 5f 	mov  0x5f, %g1	! 5f <_start+0x5f>
+    15f0:	82 10 20 5f 	mov  0x5f, %g1	! 5f <__tls_align+0x5e>
     15f4:	81 e8 00 00 	restore 
     15f8:	91 d0 20 00 	ta  0
     15fc:	01 00 00 00 	nop 
 
 00001600 <HW_trap_0x60>:
-    1600:	82 10 20 60 	mov  0x60, %g1	! 60 <_start+0x60>
+    1600:	82 10 20 60 	mov  0x60, %g1	! 60 <__tls_align+0x5f>
     1604:	81 e8 00 00 	restore 
     1608:	91 d0 20 00 	ta  0
     160c:	01 00 00 00 	nop 
 
 00001610 <HW_trap_0x61>:
-    1610:	82 10 20 61 	mov  0x61, %g1	! 61 <_start+0x61>
+    1610:	82 10 20 61 	mov  0x61, %g1	! 61 <__tls_align+0x60>
     1614:	81 e8 00 00 	restore 
     1618:	91 d0 20 00 	ta  0
     161c:	01 00 00 00 	nop 
 
 00001620 <HW_trap_0x62>:
-    1620:	82 10 20 62 	mov  0x62, %g1	! 62 <_start+0x62>
+    1620:	82 10 20 62 	mov  0x62, %g1	! 62 <__tls_align+0x61>
     1624:	81 e8 00 00 	restore 
     1628:	91 d0 20 00 	ta  0
     162c:	01 00 00 00 	nop 
 
 00001630 <HW_trap_0x63>:
-    1630:	82 10 20 63 	mov  0x63, %g1	! 63 <_start+0x63>
+    1630:	82 10 20 63 	mov  0x63, %g1	! 63 <__tls_align+0x62>
     1634:	81 e8 00 00 	restore 
     1638:	91 d0 20 00 	ta  0
     163c:	01 00 00 00 	nop 
 
 00001640 <HW_trap_0x64>:
-    1640:	82 10 20 64 	mov  0x64, %g1	! 64 <_start+0x64>
+    1640:	82 10 20 64 	mov  0x64, %g1	! 64 <__tls_align+0x63>
     1644:	81 e8 00 00 	restore 
     1648:	91 d0 20 00 	ta  0
     164c:	01 00 00 00 	nop 
 
 00001650 <HW_trap_0x65>:
-    1650:	82 10 20 65 	mov  0x65, %g1	! 65 <_start+0x65>
+    1650:	82 10 20 65 	mov  0x65, %g1	! 65 <__tls_align+0x64>
     1654:	81 e8 00 00 	restore 
     1658:	91 d0 20 00 	ta  0
     165c:	01 00 00 00 	nop 
 
 00001660 <HW_trap_0x66>:
-    1660:	82 10 20 66 	mov  0x66, %g1	! 66 <_start+0x66>
+    1660:	82 10 20 66 	mov  0x66, %g1	! 66 <__tls_align+0x65>
     1664:	81 e8 00 00 	restore 
     1668:	91 d0 20 00 	ta  0
     166c:	01 00 00 00 	nop 
 
 00001670 <HW_trap_0x67>:
-    1670:	82 10 20 67 	mov  0x67, %g1	! 67 <_start+0x67>
+    1670:	82 10 20 67 	mov  0x67, %g1	! 67 <__tls_align+0x66>
     1674:	81 e8 00 00 	restore 
     1678:	91 d0 20 00 	ta  0
     167c:	01 00 00 00 	nop 
 
 00001680 <HW_trap_0x68>:
-    1680:	82 10 20 68 	mov  0x68, %g1	! 68 <_start+0x68>
+    1680:	82 10 20 68 	mov  0x68, %g1	! 68 <__tls_align+0x67>
     1684:	81 e8 00 00 	restore 
     1688:	91 d0 20 00 	ta  0
     168c:	01 00 00 00 	nop 
 
 00001690 <HW_trap_0x69>:
-    1690:	82 10 20 69 	mov  0x69, %g1	! 69 <_start+0x69>
+    1690:	82 10 20 69 	mov  0x69, %g1	! 69 <__tls_align+0x68>
     1694:	81 e8 00 00 	restore 
     1698:	91 d0 20 00 	ta  0
     169c:	01 00 00 00 	nop 
 
 000016a0 <HW_trap_0x6a>:
-    16a0:	82 10 20 6a 	mov  0x6a, %g1	! 6a <_start+0x6a>
+    16a0:	82 10 20 6a 	mov  0x6a, %g1	! 6a <__tls_align+0x69>
     16a4:	81 e8 00 00 	restore 
     16a8:	91 d0 20 00 	ta  0
     16ac:	01 00 00 00 	nop 
 
 000016b0 <HW_trap_0x6b>:
-    16b0:	82 10 20 6b 	mov  0x6b, %g1	! 6b <_start+0x6b>
+    16b0:	82 10 20 6b 	mov  0x6b, %g1	! 6b <__tls_align+0x6a>
     16b4:	81 e8 00 00 	restore 
     16b8:	91 d0 20 00 	ta  0
     16bc:	01 00 00 00 	nop 
 
 000016c0 <HW_trap_0x6c>:
-    16c0:	82 10 20 6c 	mov  0x6c, %g1	! 6c <_start+0x6c>
+    16c0:	82 10 20 6c 	mov  0x6c, %g1	! 6c <__tls_align+0x6b>
     16c4:	81 e8 00 00 	restore 
     16c8:	91 d0 20 00 	ta  0
     16cc:	01 00 00 00 	nop 
 
 000016d0 <HW_trap_0x6d>:
-    16d0:	82 10 20 6d 	mov  0x6d, %g1	! 6d <_start+0x6d>
+    16d0:	82 10 20 6d 	mov  0x6d, %g1	! 6d <__tls_align+0x6c>
     16d4:	81 e8 00 00 	restore 
     16d8:	91 d0 20 00 	ta  0
     16dc:	01 00 00 00 	nop 
 
 000016e0 <HW_trap_0x6e>:
-    16e0:	82 10 20 6e 	mov  0x6e, %g1	! 6e <_start+0x6e>
+    16e0:	82 10 20 6e 	mov  0x6e, %g1	! 6e <__tls_align+0x6d>
     16e4:	81 e8 00 00 	restore 
     16e8:	91 d0 20 00 	ta  0
     16ec:	01 00 00 00 	nop 
 
 000016f0 <HW_trap_0x6f>:
-    16f0:	82 10 20 6f 	mov  0x6f, %g1	! 6f <_start+0x6f>
+    16f0:	82 10 20 6f 	mov  0x6f, %g1	! 6f <__tls_align+0x6e>
     16f4:	81 e8 00 00 	restore 
     16f8:	91 d0 20 00 	ta  0
     16fc:	01 00 00 00 	nop 
 
 00001700 <HW_trap_0x70>:
-    1700:	82 10 20 70 	mov  0x70, %g1	! 70 <_start+0x70>
+    1700:	82 10 20 70 	mov  0x70, %g1	! 70 <__tls_align+0x6f>
     1704:	81 e8 00 00 	restore 
     1708:	91 d0 20 00 	ta  0
     170c:	01 00 00 00 	nop 
 
 00001710 <HW_trap_0x71>:
-    1710:	82 10 20 71 	mov  0x71, %g1	! 71 <_start+0x71>
+    1710:	82 10 20 71 	mov  0x71, %g1	! 71 <__tls_align+0x70>
     1714:	81 e8 00 00 	restore 
     1718:	91 d0 20 00 	ta  0
     171c:	01 00 00 00 	nop 
 
 00001720 <HW_trap_0x72>:
-    1720:	82 10 20 72 	mov  0x72, %g1	! 72 <_start+0x72>
+    1720:	82 10 20 72 	mov  0x72, %g1	! 72 <__tls_align+0x71>
     1724:	81 e8 00 00 	restore 
     1728:	91 d0 20 00 	ta  0
     172c:	01 00 00 00 	nop 
 
 00001730 <HW_trap_0x73>:
-    1730:	82 10 20 73 	mov  0x73, %g1	! 73 <_start+0x73>
+    1730:	82 10 20 73 	mov  0x73, %g1	! 73 <__tls_align+0x72>
     1734:	81 e8 00 00 	restore 
     1738:	91 d0 20 00 	ta  0
     173c:	01 00 00 00 	nop 
 
 00001740 <HW_trap_0x74>:
-    1740:	82 10 20 74 	mov  0x74, %g1	! 74 <_start+0x74>
+    1740:	82 10 20 74 	mov  0x74, %g1	! 74 <__tls_align+0x73>
     1744:	81 e8 00 00 	restore 
     1748:	91 d0 20 00 	ta  0
     174c:	01 00 00 00 	nop 
 
 00001750 <HW_trap_0x75>:
-    1750:	82 10 20 75 	mov  0x75, %g1	! 75 <_start+0x75>
+    1750:	82 10 20 75 	mov  0x75, %g1	! 75 <__tls_align+0x74>
     1754:	81 e8 00 00 	restore 
     1758:	91 d0 20 00 	ta  0
     175c:	01 00 00 00 	nop 
 
 00001760 <HW_trap_0x76>:
-    1760:	82 10 20 76 	mov  0x76, %g1	! 76 <_start+0x76>
+    1760:	82 10 20 76 	mov  0x76, %g1	! 76 <__tls_align+0x75>
     1764:	81 e8 00 00 	restore 
     1768:	91 d0 20 00 	ta  0
     176c:	01 00 00 00 	nop 
 
 00001770 <HW_trap_0x77>:
-    1770:	82 10 20 77 	mov  0x77, %g1	! 77 <_start+0x77>
+    1770:	82 10 20 77 	mov  0x77, %g1	! 77 <__tls_align+0x76>
     1774:	81 e8 00 00 	restore 
     1778:	91 d0 20 00 	ta  0
     177c:	01 00 00 00 	nop 
 
 00001780 <HW_trap_0x78>:
-    1780:	82 10 20 78 	mov  0x78, %g1	! 78 <_start+0x78>
+    1780:	82 10 20 78 	mov  0x78, %g1	! 78 <__tls_align+0x77>
     1784:	81 e8 00 00 	restore 
     1788:	91 d0 20 00 	ta  0
     178c:	01 00 00 00 	nop 
 
 00001790 <HW_trap_0x79>:
-    1790:	82 10 20 79 	mov  0x79, %g1	! 79 <_start+0x79>
+    1790:	82 10 20 79 	mov  0x79, %g1	! 79 <__tls_align+0x78>
     1794:	81 e8 00 00 	restore 
     1798:	91 d0 20 00 	ta  0
     179c:	01 00 00 00 	nop 
 
 000017a0 <HW_trap_0x7a>:
-    17a0:	82 10 20 7a 	mov  0x7a, %g1	! 7a <_start+0x7a>
+    17a0:	82 10 20 7a 	mov  0x7a, %g1	! 7a <__tls_align+0x79>
     17a4:	81 e8 00 00 	restore 
     17a8:	91 d0 20 00 	ta  0
     17ac:	01 00 00 00 	nop 
 
 000017b0 <HW_trap_0x7b>:
-    17b0:	82 10 20 7b 	mov  0x7b, %g1	! 7b <_start+0x7b>
+    17b0:	82 10 20 7b 	mov  0x7b, %g1	! 7b <__tls_align+0x7a>
     17b4:	81 e8 00 00 	restore 
     17b8:	91 d0 20 00 	ta  0
     17bc:	01 00 00 00 	nop 
 
 000017c0 <HW_trap_0x7c>:
-    17c0:	82 10 20 7c 	mov  0x7c, %g1	! 7c <_start+0x7c>
+    17c0:	82 10 20 7c 	mov  0x7c, %g1	! 7c <__tls_align+0x7b>
     17c4:	81 e8 00 00 	restore 
     17c8:	91 d0 20 00 	ta  0
     17cc:	01 00 00 00 	nop 
 
 000017d0 <HW_trap_0x7d>:
-    17d0:	82 10 20 7d 	mov  0x7d, %g1	! 7d <_start+0x7d>
+    17d0:	82 10 20 7d 	mov  0x7d, %g1	! 7d <__tls_align+0x7c>
     17d4:	81 e8 00 00 	restore 
     17d8:	91 d0 20 00 	ta  0
     17dc:	01 00 00 00 	nop 
 
 000017e0 <HW_trap_0x7e>:
-    17e0:	82 10 20 7e 	mov  0x7e, %g1	! 7e <_start+0x7e>
+    17e0:	82 10 20 7e 	mov  0x7e, %g1	! 7e <__tls_align+0x7d>
     17e4:	81 e8 00 00 	restore 
     17e8:	91 d0 20 00 	ta  0
     17ec:	01 00 00 00 	nop 
 
 000017f0 <HW_trap_0x7f>:
-    17f0:	82 10 20 7f 	mov  0x7f, %g1	! 7f <_start+0x7f>
+    17f0:	82 10 20 7f 	mov  0x7f, %g1	! 7f <__tls_align+0x7e>
     17f4:	81 e8 00 00 	restore 
     17f8:	91 d0 20 00 	ta  0
     17fc:	01 00 00 00 	nop 
 
 00001800 <SW_trap_0x80>:
-    1800:	82 10 20 80 	mov  0x80, %g1	! 80 <_start+0x80>
+    1800:	82 10 20 80 	mov  0x80, %g1	! 80 <__tls_align+0x7f>
     1804:	81 e8 00 00 	restore 
     1808:	91 d0 20 00 	ta  0
     180c:	01 00 00 00 	nop 
 
 00001810 <SW_trap_0x81>:
-    1810:	82 10 20 81 	mov  0x81, %g1	! 81 <_start+0x81>
+    1810:	82 10 20 81 	mov  0x81, %g1	! 81 <__tls_align+0x80>
     1814:	81 e8 00 00 	restore 
     1818:	91 d0 20 00 	ta  0
     181c:	01 00 00 00 	nop 
 
 00001820 <SW_trap_0x82>:
-    1820:	82 10 20 82 	mov  0x82, %g1	! 82 <_start+0x82>
+    1820:	82 10 20 82 	mov  0x82, %g1	! 82 <__tls_align+0x81>
     1824:	81 e8 00 00 	restore 
     1828:	91 d0 20 00 	ta  0
     182c:	01 00 00 00 	nop 
 
 00001830 <SW_trap_0x83>:
-    1830:	82 10 20 83 	mov  0x83, %g1	! 83 <_start+0x83>
+    1830:	82 10 20 83 	mov  0x83, %g1	! 83 <__tls_align+0x82>
     1834:	81 e8 00 00 	restore 
     1838:	91 d0 20 00 	ta  0
     183c:	01 00 00 00 	nop 
@@ -3874,7 +3874,7 @@ Disassembly of section .text:
     33a0:	92 10 00 01 	mov  %g1, %o1
     33a4:	7f ff ff b8 	call  3284 <disableInterruptController>
     33a8:	01 00 00 00 	nop 
-    33ac:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    33ac:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
     33b0:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
     33b4:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
     33b8:	83 30 60 04 	srl  %g1, 4, %g1
@@ -4188,7 +4188,7 @@ Disassembly of section .text:
     3838:	80 a0 60 00 	cmp  %g1, 0
     383c:	02 80 00 05 	be  3850 <build_context+0x114>
     3840:	01 00 00 00 	nop 
-    3844:	82 10 20 80 	mov  0x80, %g1	! 80 <_start+0x80>
+    3844:	82 10 20 80 	mov  0x80, %g1	! 80 <__tls_align+0x7f>
     3848:	10 80 00 03 	b  3854 <build_context+0x118>
     384c:	01 00 00 00 	nop 
     3850:	82 10 20 00 	clr  %g1	! 0 <_start>
@@ -4215,7 +4215,7 @@ Disassembly of section .text:
     38a4:	80 a0 60 00 	cmp  %g1, 0
     38a8:	02 80 00 05 	be  38bc <build_context+0x180>
     38ac:	01 00 00 00 	nop 
-    38b0:	82 10 20 80 	mov  0x80, %g1	! 80 <_start+0x80>
+    38b0:	82 10 20 80 	mov  0x80, %g1	! 80 <__tls_align+0x7f>
     38b4:	10 80 00 03 	b  38c0 <build_context+0x184>
     38b8:	01 00 00 00 	nop 
     38bc:	82 10 20 00 	clr  %g1	! 0 <_start>
@@ -4273,7 +4273,7 @@ Disassembly of section .text:
     3984:	80 a0 60 00 	cmp  %g1, 0
     3988:	02 80 00 05 	be  399c <map_page+0x60>
     398c:	01 00 00 00 	nop 
-    3990:	82 10 20 80 	mov  0x80, %g1	! 80 <_start+0x80>
+    3990:	82 10 20 80 	mov  0x80, %g1	! 80 <__tls_align+0x7f>
     3994:	10 80 00 03 	b  39a0 <map_page+0x64>
     3998:	01 00 00 00 	nop 
     399c:	82 10 20 00 	clr  %g1	! 0 <_start>
@@ -4353,7 +4353,7 @@ Disassembly of section .text:
     3aa4:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
     3aa8:	7f ff ff e2 	call  3a30 <set_context>
     3aac:	01 00 00 00 	nop 
-    3ab0:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    3ab0:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
     3ab4:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
     3ab8:	c0 27 bf f8 	clr  [ %fp + -8 ]
     3abc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
@@ -4578,7 +4578,7 @@ Disassembly of section .text:
     3e08:	80 a0 60 00 	cmp  %g1, 0
     3e0c:	02 80 00 05 	be  3e20 <__ajit_set_ipi_interrupt__+0xb0>
     3e10:	01 00 00 00 	nop 
-    3e14:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    3e14:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
     3e18:	10 80 00 31 	b  3edc <__ajit_set_ipi_interrupt__+0x16c>
     3e1c:	01 00 00 00 	nop 
     3e20:	c2 0f a0 50 	ldub  [ %fp + 0x50 ], %g1
@@ -4711,7 +4711,7 @@ Disassembly of section .text:
     400c:	80 a0 60 00 	cmp  %g1, 0
     4010:	02 80 00 05 	be  4024 <__ajit_enable_ipi_interrupt__+0x78>
     4014:	01 00 00 00 	nop 
-    4018:	82 10 20 01 	mov  1, %g1	! 1 <_start+0x1>
+    4018:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
     401c:	10 80 00 0a 	b  4044 <__ajit_enable_ipi_interrupt__+0x98>
     4020:	01 00 00 00 	nop 
     4024:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
@@ -4913,538 +4913,577 @@ Disassembly of section .text:
     42fc:	81 c3 e0 08 	retl 
     4300:	01 00 00 00 	nop 
 
-00004304 <ipi_send>:
-    4304:	9d e3 bf a0 	save  %sp, -96, %sp
+00004304 <ipi_receive>:
+    4304:	9d e3 bf 88 	save  %sp, -120, %sp
     4308:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    430c:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    4310:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    4314:	7f ff ff dc 	call  4284 <ipi_pending>
-    4318:	01 00 00 00 	nop 
-    431c:	82 10 00 08 	mov  %o0, %g1
-    4320:	80 a0 60 00 	cmp  %g1, 0
-    4324:	12 bf ff fb 	bne  4310 <ipi_send+0xc>
-    4328:	01 00 00 00 	nop 
-    432c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    4330:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    4334:	7f ff ff b0 	call  41f4 <ipi_try_send>
+    430c:	7f ff fb 6b 	call  30b8 <this_core_id>
+    4310:	01 00 00 00 	nop 
+    4314:	82 10 00 08 	mov  %o0, %g1
+    4318:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    431c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    4320:	82 08 60 ff 	and  %g1, 0xff, %g1
+    4324:	05 3f ff cc 	sethi  %hi(0xffff3000), %g2
+    4328:	90 10 a0 80 	or  %g2, 0x80, %o0	! ffff3080 <BOOT_RELEASE_FLAG+0x480>
+    432c:	92 10 00 01 	mov  %g1, %o1
+    4330:	94 10 20 00 	clr  %o2
+    4334:	7f ff fe 79 	call  3d18 <ajitIpiMessageAddress>
     4338:	01 00 00 00 	nop 
     433c:	82 10 00 08 	mov  %o0, %g1
-    4340:	80 a0 60 00 	cmp  %g1, 0
-    4344:	12 bf ff f3 	bne  4310 <ipi_send+0xc>
-    4348:	01 00 00 00 	nop 
-    434c:	81 e8 00 00 	restore 
-    4350:	81 c3 e0 08 	retl 
-    4354:	01 00 00 00 	nop 
-
-00004358 <ipi_receive>:
-    4358:	9d e3 bf 88 	save  %sp, -120, %sp
-    435c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    4360:	7f ff fb 56 	call  30b8 <this_core_id>
-    4364:	01 00 00 00 	nop 
-    4368:	82 10 00 08 	mov  %o0, %g1
-    436c:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    4370:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    4374:	82 08 60 ff 	and  %g1, 0xff, %g1
-    4378:	05 3f ff cc 	sethi  %hi(0xffff3000), %g2
-    437c:	90 10 a0 80 	or  %g2, 0x80, %o0	! ffff3080 <BOOT_RELEASE_FLAG+0x480>
-    4380:	92 10 00 01 	mov  %g1, %o1
-    4384:	94 10 20 00 	clr  %o2
-    4388:	7f ff fe 64 	call  3d18 <ajitIpiMessageAddress>
-    438c:	01 00 00 00 	nop 
-    4390:	82 10 00 08 	mov  %o0, %g1
-    4394:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
-    4398:	d0 07 bf f0 	ld  [ %fp + -16 ], %o0
-    439c:	7f ff fb 22 	call  3024 <__ajit_load_word_mmu_bypass__>
-    43a0:	01 00 00 00 	nop 
-    43a4:	82 10 00 08 	mov  %o0, %g1
-    43a8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    43ac:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
-    43b0:	82 00 60 04 	add  %g1, 4, %g1
-    43b4:	90 10 00 01 	mov  %g1, %o0
-    43b8:	7f ff fb 1b 	call  3024 <__ajit_load_word_mmu_bypass__>
+    4340:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    4344:	d0 07 bf f0 	ld  [ %fp + -16 ], %o0
+    4348:	7f ff fb 37 	call  3024 <__ajit_load_word_mmu_bypass__>
+    434c:	01 00 00 00 	nop 
+    4350:	82 10 00 08 	mov  %o0, %g1
+    4354:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4358:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    435c:	82 00 60 04 	add  %g1, 4, %g1
+    4360:	90 10 00 01 	mov  %g1, %o0
+    4364:	7f ff fb 30 	call  3024 <__ajit_load_word_mmu_bypass__>
+    4368:	01 00 00 00 	nop 
+    436c:	82 10 00 08 	mov  %o0, %g1
+    4370:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    4374:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4378:	90 10 60 1d 	or  %g1, 0x1d, %o0	! d01d <ipi_lock>
+    437c:	7f ff ff 55 	call  40d0 <platform_lock>
+    4380:	01 00 00 00 	nop 
+    4384:	82 10 00 08 	mov  %o0, %g1
+    4388:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    438c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    4390:	82 08 60 ff 	and  %g1, 0xff, %g1
+    4394:	05 3f ff cc 	sethi  %hi(0xffff3000), %g2
+    4398:	90 10 a0 80 	or  %g2, 0x80, %o0	! ffff3080 <BOOT_RELEASE_FLAG+0x480>
+    439c:	92 10 00 01 	mov  %g1, %o1
+    43a0:	94 10 20 00 	clr  %o2
+    43a4:	7f ff fe d2 	call  3eec <__ajit_clear_ipi_interrupt__>
+    43a8:	01 00 00 00 	nop 
+    43ac:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    43b0:	90 10 60 1d 	or  %g1, 0x1d, %o0	! d01d <ipi_lock>
+    43b4:	d2 07 bf fc 	ld  [ %fp + -4 ], %o1
+    43b8:	7f ff ff 55 	call  410c <platform_unlock>
     43bc:	01 00 00 00 	nop 
-    43c0:	82 10 00 08 	mov  %o0, %g1
-    43c4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    43c8:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    43cc:	90 10 60 1d 	or  %g1, 0x1d, %o0	! d01d <ipi_lock>
-    43d0:	7f ff ff 40 	call  40d0 <platform_lock>
-    43d4:	01 00 00 00 	nop 
-    43d8:	82 10 00 08 	mov  %o0, %g1
-    43dc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    43e0:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    43e4:	82 08 60 ff 	and  %g1, 0xff, %g1
-    43e8:	05 3f ff cc 	sethi  %hi(0xffff3000), %g2
-    43ec:	90 10 a0 80 	or  %g2, 0x80, %o0	! ffff3080 <BOOT_RELEASE_FLAG+0x480>
-    43f0:	92 10 00 01 	mov  %g1, %o1
-    43f4:	94 10 20 00 	clr  %o2
-    43f8:	7f ff fe bd 	call  3eec <__ajit_clear_ipi_interrupt__>
-    43fc:	01 00 00 00 	nop 
-    4400:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4404:	90 10 60 1d 	or  %g1, 0x1d, %o0	! d01d <ipi_lock>
-    4408:	d2 07 bf fc 	ld  [ %fp + -4 ], %o1
-    440c:	7f ff ff 40 	call  410c <platform_unlock>
-    4410:	01 00 00 00 	nop 
-    4414:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4418:	80 a0 60 00 	cmp  %g1, 0
-    441c:	02 80 00 06 	be  4434 <ipi_receive+0xdc>
-    4420:	01 00 00 00 	nop 
-    4424:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    4428:	85 30 60 18 	srl  %g1, 0x18, %g2
-    442c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4430:	c4 20 40 00 	st  %g2, [ %g1 ]
-    4434:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    4438:	b0 10 00 01 	mov  %g1, %i0
-    443c:	81 e8 00 00 	restore 
-    4440:	81 c3 e0 08 	retl 
-    4444:	01 00 00 00 	nop 
+    43c0:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    43c4:	80 a0 60 00 	cmp  %g1, 0
+    43c8:	02 80 00 06 	be  43e0 <ipi_receive+0xdc>
+    43cc:	01 00 00 00 	nop 
+    43d0:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    43d4:	85 30 60 18 	srl  %g1, 0x18, %g2
+    43d8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    43dc:	c4 20 40 00 	st  %g2, [ %g1 ]
+    43e0:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    43e4:	b0 10 00 01 	mov  %g1, %i0
+    43e8:	81 e8 00 00 	restore 
+    43ec:	81 c3 e0 08 	retl 
+    43f0:	01 00 00 00 	nop 
 
-00004448 <mmu_context>:
-    4448:	9d e3 bf 98 	save  %sp, -104, %sp
-    444c:	82 10 22 00 	mov  0x200, %g1
-    4450:	c2 80 40 80 	lda  [ %g1 ] #ASI_N, %g1
-    4454:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    4458:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    445c:	b0 10 00 01 	mov  %g1, %i0
-    4460:	81 e8 00 00 	restore 
-    4464:	81 c3 e0 08 	retl 
-    4468:	01 00 00 00 	nop 
+000043f4 <mmu_context>:
+    43f4:	9d e3 bf 98 	save  %sp, -104, %sp
+    43f8:	82 10 22 00 	mov  0x200, %g1
+    43fc:	c2 80 40 80 	lda  [ %g1 ] #ASI_N, %g1
+    4400:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    4404:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4408:	b0 10 00 01 	mov  %g1, %i0
+    440c:	81 e8 00 00 	restore 
+    4410:	81 c3 e0 08 	retl 
+    4414:	01 00 00 00 	nop 
 
-0000446c <mmu_set_context>:
-    446c:	9d e3 bf a0 	save  %sp, -96, %sp
-    4470:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    4474:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4478:	84 10 22 00 	mov  0x200, %g2
-    447c:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
-    4480:	81 e8 00 00 	restore 
-    4484:	81 c3 e0 08 	retl 
-    4488:	01 00 00 00 	nop 
+00004418 <mmu_set_context>:
+    4418:	9d e3 bf a0 	save  %sp, -96, %sp
+    441c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    4420:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    4424:	84 10 22 00 	mov  0x200, %g2
+    4428:	c2 a0 80 80 	sta  %g1, [ %g2 ] #ASI_N
+    442c:	81 e8 00 00 	restore 
+    4430:	81 c3 e0 08 	retl 
+    4434:	01 00 00 00 	nop 
 
-0000448c <tlb_flush_page>:
-    448c:	9d e3 bf 98 	save  %sp, -104, %sp
-    4490:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    4494:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    4498:	7f ff fe ef 	call  4054 <interrupts_off>
+00004438 <tlb_flush_page>:
+    4438:	9d e3 bf 98 	save  %sp, -104, %sp
+    443c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    4440:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    4444:	7f ff ff 04 	call  4054 <interrupts_off>
+    4448:	01 00 00 00 	nop 
+    444c:	82 10 00 08 	mov  %o0, %g1
+    4450:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    4454:	7f ff ff e8 	call  43f4 <mmu_context>
+    4458:	01 00 00 00 	nop 
+    445c:	82 10 00 08 	mov  %o0, %g1
+    4460:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    4464:	d0 07 a0 48 	ld  [ %fp + 0x48 ], %o0
+    4468:	7f ff ff ec 	call  4418 <mmu_set_context>
+    446c:	01 00 00 00 	nop 
+    4470:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    4474:	82 08 70 00 	and  %g1, -4096, %g1
+    4478:	c0 a0 40 60 	sta  %g0, [ %g1 ] (3)
+    447c:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
+    4480:	7f ff ff e6 	call  4418 <mmu_set_context>
+    4484:	01 00 00 00 	nop 
+    4488:	d0 07 bf f8 	ld  [ %fp + -8 ], %o0
+    448c:	7f ff ff 02 	call  4094 <interrupts_restore>
+    4490:	01 00 00 00 	nop 
+    4494:	81 e8 00 00 	restore 
+    4498:	81 c3 e0 08 	retl 
     449c:	01 00 00 00 	nop 
-    44a0:	82 10 00 08 	mov  %o0, %g1
-    44a4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    44a8:	7f ff ff e8 	call  4448 <mmu_context>
+
+000044a0 <tlb_shootdown_ipi_handler>:
+    44a0:	9d e3 bf 98 	save  %sp, -104, %sp
+    44a4:	90 10 20 00 	clr  %o0
+    44a8:	7f ff ff 97 	call  4304 <ipi_receive>
     44ac:	01 00 00 00 	nop 
-    44b0:	82 10 00 08 	mov  %o0, %g1
-    44b4:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    44b8:	d0 07 a0 48 	ld  [ %fp + 0x48 ], %o0
-    44bc:	7f ff ff ec 	call  446c <mmu_set_context>
-    44c0:	01 00 00 00 	nop 
-    44c4:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    44c8:	82 08 70 00 	and  %g1, -4096, %g1
-    44cc:	c0 a0 40 60 	sta  %g0, [ %g1 ] (3)
-    44d0:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
-    44d4:	7f ff ff e6 	call  446c <mmu_set_context>
-    44d8:	01 00 00 00 	nop 
-    44dc:	d0 07 bf f8 	ld  [ %fp + -8 ], %o0
-    44e0:	7f ff fe ed 	call  4094 <interrupts_restore>
+    44b0:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    44b4:	90 10 60 20 	or  %g1, 0x20, %o0	! d020 <shootdown_va>
+    44b8:	7f ff fb 0d 	call  30ec <read_shared>
+    44bc:	01 00 00 00 	nop 
+    44c0:	a0 10 00 08 	mov  %o0, %l0
+    44c4:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    44c8:	90 10 60 24 	or  %g1, 0x24, %o0	! d024 <shootdown_context>
+    44cc:	7f ff fb 08 	call  30ec <read_shared>
+    44d0:	01 00 00 00 	nop 
+    44d4:	82 10 00 08 	mov  %o0, %g1
+    44d8:	90 10 00 10 	mov  %l0, %o0
+    44dc:	92 10 00 01 	mov  %g1, %o1
+    44e0:	7f ff ff d6 	call  4438 <tlb_flush_page>
     44e4:	01 00 00 00 	nop 
-    44e8:	81 e8 00 00 	restore 
-    44ec:	81 c3 e0 08 	retl 
-    44f0:	01 00 00 00 	nop 
+    44e8:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    44ec:	90 10 60 28 	or  %g1, 0x28, %o0	! d028 <shootdown_number>
+    44f0:	7f ff fa ff 	call  30ec <read_shared>
+    44f4:	01 00 00 00 	nop 
+    44f8:	82 10 00 08 	mov  %o0, %g1
+    44fc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    4500:	7f ff fa ee 	call  30b8 <this_core_id>
+    4504:	01 00 00 00 	nop 
+    4508:	82 10 00 08 	mov  %o0, %g1
+    450c:	85 28 60 02 	sll  %g1, 2, %g2
+    4510:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4514:	82 10 60 2c 	or  %g1, 0x2c, %g1	! d02c <shootdown_done>
+    4518:	82 00 80 01 	add  %g2, %g1, %g1
+    451c:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
+    4520:	92 10 00 01 	mov  %g1, %o1
+    4524:	7f ff fa b7 	call  3000 <__ajit_store_word_mmu_bypass__>
+    4528:	01 00 00 00 	nop 
+    452c:	81 e8 00 00 	restore 
+    4530:	81 c3 e0 08 	retl 
+    4534:	01 00 00 00 	nop 
 
-000044f4 <tlb_shootdown_ipi_handler>:
-    44f4:	9d e3 bf 98 	save  %sp, -104, %sp
-    44f8:	90 10 20 00 	clr  %o0
-    44fc:	7f ff ff 97 	call  4358 <ipi_receive>
-    4500:	01 00 00 00 	nop 
-    4504:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4508:	90 10 60 20 	or  %g1, 0x20, %o0	! d020 <shootdown_va>
-    450c:	7f ff fa f8 	call  30ec <read_shared>
-    4510:	01 00 00 00 	nop 
-    4514:	a0 10 00 08 	mov  %o0, %l0
-    4518:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    451c:	90 10 60 24 	or  %g1, 0x24, %o0	! d024 <shootdown_context>
-    4520:	7f ff fa f3 	call  30ec <read_shared>
-    4524:	01 00 00 00 	nop 
-    4528:	82 10 00 08 	mov  %o0, %g1
-    452c:	90 10 00 10 	mov  %l0, %o0
-    4530:	92 10 00 01 	mov  %g1, %o1
-    4534:	7f ff ff d6 	call  448c <tlb_flush_page>
-    4538:	01 00 00 00 	nop 
-    453c:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4540:	90 10 60 28 	or  %g1, 0x28, %o0	! d028 <shootdown_number>
-    4544:	7f ff fa ea 	call  30ec <read_shared>
+00004538 <tlb_shootdown_start_on_this_core>:
+    4538:	9d e3 bf a0 	save  %sp, -96, %sp
+    453c:	03 00 00 11 	sethi  %hi(0x4400), %g1
+    4540:	90 10 60 a0 	or  %g1, 0xa0, %o0	! 44a0 <tlb_shootdown_ipi_handler>
+    4544:	7f ff fe ff 	call  4140 <ipi_start_on_this_core>
     4548:	01 00 00 00 	nop 
-    454c:	82 10 00 08 	mov  %o0, %g1
-    4550:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    4554:	7f ff fa d9 	call  30b8 <this_core_id>
-    4558:	01 00 00 00 	nop 
-    455c:	82 10 00 08 	mov  %o0, %g1
-    4560:	85 28 60 02 	sll  %g1, 2, %g2
-    4564:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4568:	82 10 60 2c 	or  %g1, 0x2c, %g1	! d02c <shootdown_done>
-    456c:	82 00 80 01 	add  %g2, %g1, %g1
-    4570:	d0 07 bf fc 	ld  [ %fp + -4 ], %o0
-    4574:	92 10 00 01 	mov  %g1, %o1
-    4578:	7f ff fa a2 	call  3000 <__ajit_store_word_mmu_bypass__>
-    457c:	01 00 00 00 	nop 
-    4580:	81 e8 00 00 	restore 
-    4584:	81 c3 e0 08 	retl 
-    4588:	01 00 00 00 	nop 
+    454c:	81 e8 00 00 	restore 
+    4550:	81 c3 e0 08 	retl 
+    4554:	01 00 00 00 	nop 
 
-0000458c <tlb_shootdown_start_on_this_core>:
-    458c:	9d e3 bf a0 	save  %sp, -96, %sp
-    4590:	03 00 00 11 	sethi  %hi(0x4400), %g1
-    4594:	90 10 60 f4 	or  %g1, 0xf4, %o0	! 44f4 <tlb_shootdown_ipi_handler>
-    4598:	7f ff fe ea 	call  4140 <ipi_start_on_this_core>
-    459c:	01 00 00 00 	nop 
-    45a0:	81 e8 00 00 	restore 
-    45a4:	81 c3 e0 08 	retl 
-    45a8:	01 00 00 00 	nop 
+00004558 <tlb_shootdown_send_ipi>:
+    4558:	9d e3 bf 98 	save  %sp, -104, %sp
+    455c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    4560:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    4564:	10 80 00 17 	b  45c0 <tlb_shootdown_send_ipi+0x68>
+    4568:	01 00 00 00 	nop 
+    456c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    4570:	7f ff ff 45 	call  4284 <ipi_pending>
+    4574:	01 00 00 00 	nop 
+    4578:	82 10 00 08 	mov  %o0, %g1
+    457c:	80 a0 60 00 	cmp  %g1, 0
+    4580:	12 80 00 0d 	bne  45b4 <tlb_shootdown_send_ipi+0x5c>
+    4584:	01 00 00 00 	nop 
+    4588:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    458c:	92 10 20 00 	clr  %o1
+    4590:	7f ff ff 19 	call  41f4 <ipi_try_send>
+    4594:	01 00 00 00 	nop 
+    4598:	82 10 00 08 	mov  %o0, %g1
+    459c:	80 a0 60 00 	cmp  %g1, 0
+    45a0:	12 80 00 05 	bne  45b4 <tlb_shootdown_send_ipi+0x5c>
+    45a4:	01 00 00 00 	nop 
+    45a8:	82 10 20 01 	mov  1, %g1	! 1 <__tls_align>
+    45ac:	10 80 00 0c 	b  45dc <tlb_shootdown_send_ipi+0x84>
+    45b0:	01 00 00 00 	nop 
+    45b4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    45b8:	82 00 60 01 	inc  %g1
+    45bc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    45c0:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    45c4:	03 00 07 a1 	sethi  %hi(0x1e8400), %g1
+    45c8:	82 10 60 7f 	or  %g1, 0x7f, %g1	! 1e847f <STACK_BYTES_PER_CORE+0xe847f>
+    45cc:	80 a0 80 01 	cmp  %g2, %g1
+    45d0:	08 bf ff e7 	bleu  456c <tlb_shootdown_send_ipi+0x14>
+    45d4:	01 00 00 00 	nop 
+    45d8:	82 10 20 00 	clr  %g1	! 0 <_start>
+    45dc:	b0 10 00 01 	mov  %g1, %i0
+    45e0:	81 e8 00 00 	restore 
+    45e4:	81 c3 e0 08 	retl 
+    45e8:	01 00 00 00 	nop 
 
-000045ac <tlb_shootdown_page>:
-    45ac:	9d e3 bf 88 	save  %sp, -120, %sp
-    45b0:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    45b4:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    45b8:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    45bc:	c0 27 bf f8 	clr  [ %fp + -8 ]
-    45c0:	7f ff fa be 	call  30b8 <this_core_id>
-    45c4:	01 00 00 00 	nop 
-    45c8:	82 10 00 08 	mov  %o0, %g1
-    45cc:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    45d0:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    45d4:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
-    45d8:	7f ff ff ad 	call  448c <tlb_flush_page>
-    45dc:	01 00 00 00 	nop 
-    45e0:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    45e4:	82 10 60 1e 	or  %g1, 0x1e, %g1	! d01e <shootdown_lock>
-    45e8:	90 10 00 01 	mov  %g1, %o0
-    45ec:	7f ff fb d4 	call  353c <acquire_mutex_using_ldstub>
-    45f0:	01 00 00 00 	nop 
-    45f4:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    45f8:	90 10 60 28 	or  %g1, 0x28, %o0	! d028 <shootdown_number>
-    45fc:	7f ff fa bc 	call  30ec <read_shared>
-    4600:	01 00 00 00 	nop 
-    4604:	82 10 00 08 	mov  %o0, %g1
-    4608:	82 00 60 01 	inc  %g1
-    460c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    4610:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4614:	82 10 60 20 	or  %g1, 0x20, %g1	! d020 <shootdown_va>
-    4618:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
-    461c:	92 10 00 01 	mov  %g1, %o1
-    4620:	7f ff fa 78 	call  3000 <__ajit_store_word_mmu_bypass__>
-    4624:	01 00 00 00 	nop 
-    4628:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    462c:	82 10 60 24 	or  %g1, 0x24, %g1	! d024 <shootdown_context>
-    4630:	d0 07 a0 48 	ld  [ %fp + 0x48 ], %o0
-    4634:	92 10 00 01 	mov  %g1, %o1
-    4638:	7f ff fa 72 	call  3000 <__ajit_store_word_mmu_bypass__>
-    463c:	01 00 00 00 	nop 
-    4640:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4644:	82 10 60 28 	or  %g1, 0x28, %g1	! d028 <shootdown_number>
-    4648:	d0 07 bf f4 	ld  [ %fp + -12 ], %o0
-    464c:	92 10 00 01 	mov  %g1, %o1
-    4650:	7f ff fa 6c 	call  3000 <__ajit_store_word_mmu_bypass__>
-    4654:	01 00 00 00 	nop 
-    4658:	c0 27 bf ec 	clr  [ %fp + -20 ]
-    465c:	10 80 00 0e 	b  4694 <tlb_shootdown_page+0xe8>
-    4660:	01 00 00 00 	nop 
-    4664:	c4 07 bf ec 	ld  [ %fp + -20 ], %g2
-    4668:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    466c:	80 a0 80 01 	cmp  %g2, %g1
-    4670:	02 80 00 06 	be  4688 <tlb_shootdown_page+0xdc>
-    4674:	01 00 00 00 	nop 
-    4678:	d0 07 bf ec 	ld  [ %fp + -20 ], %o0
-    467c:	92 10 20 00 	clr  %o1
-    4680:	7f ff ff 21 	call  4304 <ipi_send>
-    4684:	01 00 00 00 	nop 
-    4688:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    468c:	82 00 60 01 	inc  %g1
-    4690:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    4694:	c4 07 bf ec 	ld  [ %fp + -20 ], %g2
-    4698:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    469c:	80 a0 80 01 	cmp  %g2, %g1
-    46a0:	0a bf ff f1 	bcs  4664 <tlb_shootdown_page+0xb8>
+000045ec <tlb_shootdown_page>:
+    45ec:	9d e3 bf 88 	save  %sp, -120, %sp
+    45f0:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    45f4:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    45f8:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    45fc:	c0 27 bf f4 	clr  [ %fp + -12 ]
+    4600:	7f ff fa ae 	call  30b8 <this_core_id>
+    4604:	01 00 00 00 	nop 
+    4608:	82 10 00 08 	mov  %o0, %g1
+    460c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    4610:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    4614:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    4618:	d2 07 a0 48 	ld  [ %fp + 0x48 ], %o1
+    461c:	7f ff ff 87 	call  4438 <tlb_flush_page>
+    4620:	01 00 00 00 	nop 
+    4624:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4628:	82 10 60 1e 	or  %g1, 0x1e, %g1	! d01e <shootdown_lock>
+    462c:	90 10 00 01 	mov  %g1, %o0
+    4630:	7f ff fb c3 	call  353c <acquire_mutex_using_ldstub>
+    4634:	01 00 00 00 	nop 
+    4638:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    463c:	90 10 60 28 	or  %g1, 0x28, %o0	! d028 <shootdown_number>
+    4640:	7f ff fa ab 	call  30ec <read_shared>
+    4644:	01 00 00 00 	nop 
+    4648:	82 10 00 08 	mov  %o0, %g1
+    464c:	82 00 60 01 	inc  %g1
+    4650:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
+    4654:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4658:	82 10 60 20 	or  %g1, 0x20, %g1	! d020 <shootdown_va>
+    465c:	d0 07 a0 44 	ld  [ %fp + 0x44 ], %o0
+    4660:	92 10 00 01 	mov  %g1, %o1
+    4664:	7f ff fa 67 	call  3000 <__ajit_store_word_mmu_bypass__>
+    4668:	01 00 00 00 	nop 
+    466c:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4670:	82 10 60 24 	or  %g1, 0x24, %g1	! d024 <shootdown_context>
+    4674:	d0 07 a0 48 	ld  [ %fp + 0x48 ], %o0
+    4678:	92 10 00 01 	mov  %g1, %o1
+    467c:	7f ff fa 61 	call  3000 <__ajit_store_word_mmu_bypass__>
+    4680:	01 00 00 00 	nop 
+    4684:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    4688:	82 10 60 28 	or  %g1, 0x28, %g1	! d028 <shootdown_number>
+    468c:	d0 07 bf f0 	ld  [ %fp + -16 ], %o0
+    4690:	92 10 00 01 	mov  %g1, %o1
+    4694:	7f ff fa 5b 	call  3000 <__ajit_store_word_mmu_bypass__>
+    4698:	01 00 00 00 	nop 
+    469c:	c0 27 bf e8 	clr  [ %fp + -24 ]
+    46a0:	10 80 00 17 	b  46fc <tlb_shootdown_page+0x110>
     46a4:	01 00 00 00 	nop 
-    46a8:	c0 27 bf ec 	clr  [ %fp + -20 ]
-    46ac:	10 80 00 2b 	b  4758 <tlb_shootdown_page+0x1ac>
-    46b0:	01 00 00 00 	nop 
-    46b4:	c4 07 bf ec 	ld  [ %fp + -20 ], %g2
-    46b8:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    46bc:	80 a0 80 01 	cmp  %g2, %g1
-    46c0:	02 80 00 22 	be  4748 <tlb_shootdown_page+0x19c>
+    46a8:	c4 07 bf e8 	ld  [ %fp + -24 ], %g2
+    46ac:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    46b0:	80 a0 80 01 	cmp  %g2, %g1
+    46b4:	02 80 00 0f 	be  46f0 <tlb_shootdown_page+0x104>
+    46b8:	01 00 00 00 	nop 
+    46bc:	d0 07 bf e8 	ld  [ %fp + -24 ], %o0
+    46c0:	7f ff ff a6 	call  4558 <tlb_shootdown_send_ipi>
     46c4:	01 00 00 00 	nop 
-    46c8:	c0 27 bf f0 	clr  [ %fp + -16 ]
-    46cc:	10 80 00 10 	b  470c <tlb_shootdown_page+0x160>
-    46d0:	01 00 00 00 	nop 
-    46d4:	c4 07 bf f0 	ld  [ %fp + -16 ], %g2
-    46d8:	03 00 07 a1 	sethi  %hi(0x1e8400), %g1
-    46dc:	82 10 60 7f 	or  %g1, 0x7f, %g1	! 1e847f <STACK_BYTES_PER_CORE+0xe847f>
-    46e0:	80 a0 80 01 	cmp  %g2, %g1
-    46e4:	08 80 00 07 	bleu  4700 <tlb_shootdown_page+0x154>
-    46e8:	01 00 00 00 	nop 
-    46ec:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    46f0:	82 00 60 01 	inc  %g1
-    46f4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    46f8:	10 80 00 15 	b  474c <tlb_shootdown_page+0x1a0>
-    46fc:	01 00 00 00 	nop 
-    4700:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
-    4704:	82 00 60 01 	inc  %g1
-    4708:	c2 27 bf f0 	st  %g1, [ %fp + -16 ]
-    470c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    4710:	85 28 60 02 	sll  %g1, 2, %g2
-    4714:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4718:	82 10 60 2c 	or  %g1, 0x2c, %g1	! d02c <shootdown_done>
-    471c:	82 00 80 01 	add  %g2, %g1, %g1
-    4720:	90 10 00 01 	mov  %g1, %o0
-    4724:	7f ff fa 72 	call  30ec <read_shared>
-    4728:	01 00 00 00 	nop 
-    472c:	84 10 00 08 	mov  %o0, %g2
-    4730:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    4734:	80 a0 80 01 	cmp  %g2, %g1
-    4738:	12 bf ff e7 	bne  46d4 <tlb_shootdown_page+0x128>
-    473c:	01 00 00 00 	nop 
-    4740:	10 80 00 03 	b  474c <tlb_shootdown_page+0x1a0>
-    4744:	01 00 00 00 	nop 
-    4748:	01 00 00 00 	nop 
-    474c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
-    4750:	82 00 60 01 	inc  %g1
-    4754:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
-    4758:	c4 07 bf ec 	ld  [ %fp + -20 ], %g2
-    475c:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    4760:	80 a0 80 01 	cmp  %g2, %g1
-    4764:	0a bf ff d4 	bcs  46b4 <tlb_shootdown_page+0x108>
-    4768:	01 00 00 00 	nop 
-    476c:	03 00 00 34 	sethi  %hi(0xd000), %g1
-    4770:	82 10 60 1e 	or  %g1, 0x1e, %g1	! d01e <shootdown_lock>
-    4774:	90 10 00 01 	mov  %g1, %o0
-    4778:	7f ff fb 8a 	call  35a0 <release_mutex_using_ldstub>
-    477c:	01 00 00 00 	nop 
-    4780:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    4784:	b0 10 00 01 	mov  %g1, %i0
-    4788:	81 e8 00 00 	restore 
-    478c:	81 c3 e0 08 	retl 
-    4790:	01 00 00 00 	nop 
-
-00004794 <write_pte>:
-    4794:	9d e3 bf 90 	save  %sp, -112, %sp
-    4798:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    479c:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    47a0:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    47a4:	f6 27 a0 50 	st  %i3, [ %fp + 0x50 ]
-    47a8:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    47ac:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    47b0:	c2 07 a0 50 	ld  [ %fp + 0x50 ], %g1
-    47b4:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    47b8:	82 10 20 01 	mov  1, %g1
-    47bc:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    47c0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    47c4:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    47c8:	85 28 60 08 	sll  %g1, 8, %g2
-    47cc:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    47d0:	80 a0 60 00 	cmp  %g1, 0
-    47d4:	02 80 00 05 	be  47e8 <write_pte+0x54>
+    46c8:	82 10 00 08 	mov  %o0, %g1
+    46cc:	80 a0 60 00 	cmp  %g1, 0
+    46d0:	12 80 00 08 	bne  46f0 <tlb_shootdown_page+0x104>
+    46d4:	01 00 00 00 	nop 
+    46d8:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    46dc:	84 10 20 01 	mov  1, %g2
+    46e0:	83 28 80 01 	sll  %g2, %g1, %g1
+    46e4:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    46e8:	82 10 80 01 	or  %g2, %g1, %g1
+    46ec:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    46f0:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    46f4:	82 00 60 01 	inc  %g1
+    46f8:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
+    46fc:	c4 07 bf e8 	ld  [ %fp + -24 ], %g2
+    4700:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    4704:	80 a0 80 01 	cmp  %g2, %g1
+    4708:	0a bf ff e8 	bcs  46a8 <tlb_shootdown_page+0xbc>
+    470c:	01 00 00 00 	nop 
+    4710:	c0 27 bf e8 	clr  [ %fp + -24 ]
+    4714:	10 80 00 38 	b  47f4 <tlb_shootdown_page+0x208>
+    4718:	01 00 00 00 	nop 
+    471c:	c4 07 bf e8 	ld  [ %fp + -24 ], %g2
+    4720:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    4724:	80 a0 80 01 	cmp  %g2, %g1
+    4728:	02 80 00 2f 	be  47e4 <tlb_shootdown_page+0x1f8>
+    472c:	01 00 00 00 	nop 
+    4730:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    4734:	84 10 20 01 	mov  1, %g2
+    4738:	85 28 80 01 	sll  %g2, %g1, %g2
+    473c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4740:	82 08 80 01 	and  %g2, %g1, %g1
+    4744:	80 a0 60 00 	cmp  %g1, 0
+    4748:	02 80 00 07 	be  4764 <tlb_shootdown_page+0x178>
+    474c:	01 00 00 00 	nop 
+    4750:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    4754:	82 00 60 01 	inc  %g1
+    4758:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    475c:	10 80 00 23 	b  47e8 <tlb_shootdown_page+0x1fc>
+    4760:	01 00 00 00 	nop 
+    4764:	c0 27 bf ec 	clr  [ %fp + -20 ]
+    4768:	10 80 00 10 	b  47a8 <tlb_shootdown_page+0x1bc>
+    476c:	01 00 00 00 	nop 
+    4770:	c4 07 bf ec 	ld  [ %fp + -20 ], %g2
+    4774:	03 00 07 a1 	sethi  %hi(0x1e8400), %g1
+    4778:	82 10 60 7f 	or  %g1, 0x7f, %g1	! 1e847f <STACK_BYTES_PER_CORE+0xe847f>
+    477c:	80 a0 80 01 	cmp  %g2, %g1
+    4780:	08 80 00 07 	bleu  479c <tlb_shootdown_page+0x1b0>
+    4784:	01 00 00 00 	nop 
+    4788:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    478c:	82 00 60 01 	inc  %g1
+    4790:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4794:	10 80 00 15 	b  47e8 <tlb_shootdown_page+0x1fc>
+    4798:	01 00 00 00 	nop 
+    479c:	c2 07 bf ec 	ld  [ %fp + -20 ], %g1
+    47a0:	82 00 60 01 	inc  %g1
+    47a4:	c2 27 bf ec 	st  %g1, [ %fp + -20 ]
+    47a8:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    47ac:	85 28 60 02 	sll  %g1, 2, %g2
+    47b0:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    47b4:	82 10 60 2c 	or  %g1, 0x2c, %g1	! d02c <shootdown_done>
+    47b8:	82 00 80 01 	add  %g2, %g1, %g1
+    47bc:	90 10 00 01 	mov  %g1, %o0
+    47c0:	7f ff fa 4b 	call  30ec <read_shared>
+    47c4:	01 00 00 00 	nop 
+    47c8:	84 10 00 08 	mov  %o0, %g2
+    47cc:	c2 07 bf f0 	ld  [ %fp + -16 ], %g1
+    47d0:	80 a0 80 01 	cmp  %g2, %g1
+    47d4:	12 bf ff e7 	bne  4770 <tlb_shootdown_page+0x184>
     47d8:	01 00 00 00 	nop 
-    47dc:	82 10 20 80 	mov  0x80, %g1	! 80 <_start+0x80>
-    47e0:	10 80 00 03 	b  47ec <write_pte+0x58>
+    47dc:	10 80 00 03 	b  47e8 <tlb_shootdown_page+0x1fc>
+    47e0:	01 00 00 00 	nop 
     47e4:	01 00 00 00 	nop 
-    47e8:	82 10 20 00 	clr  %g1	! 0 <_start>
-    47ec:	84 10 80 01 	or  %g2, %g1, %g2
-    47f0:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    47f4:	83 28 60 02 	sll  %g1, 2, %g1
-    47f8:	82 10 80 01 	or  %g2, %g1, %g1
-    47fc:	82 10 60 02 	or  %g1, 2, %g1
-    4800:	84 10 00 01 	mov  %g1, %g2
-    4804:	03 00 00 1e 	sethi  %hi(0x7800), %g1
-    4808:	86 10 60 00 	mov  %g1, %g3	! 7800 <l3_tables>
-    480c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4810:	89 28 60 06 	sll  %g1, 6, %g4
-    4814:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    4818:	83 30 60 0c 	srl  %g1, 0xc, %g1
-    481c:	82 08 60 3f 	and  %g1, 0x3f, %g1
-    4820:	82 01 00 01 	add  %g4, %g1, %g1
-    4824:	83 28 60 02 	sll  %g1, 2, %g1
-    4828:	82 00 c0 01 	add  %g3, %g1, %g1
-    482c:	90 10 00 02 	mov  %g2, %o0
-    4830:	92 10 00 01 	mov  %g1, %o1
-    4834:	7f ff f9 f3 	call  3000 <__ajit_store_word_mmu_bypass__>
-    4838:	01 00 00 00 	nop 
-    483c:	81 e8 00 00 	restore 
-    4840:	81 c3 e0 08 	retl 
-    4844:	01 00 00 00 	nop 
+    47e8:	c2 07 bf e8 	ld  [ %fp + -24 ], %g1
+    47ec:	82 00 60 01 	inc  %g1
+    47f0:	c2 27 bf e8 	st  %g1, [ %fp + -24 ]
+    47f4:	c4 07 bf e8 	ld  [ %fp + -24 ], %g2
+    47f8:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    47fc:	80 a0 80 01 	cmp  %g2, %g1
+    4800:	0a bf ff c7 	bcs  471c <tlb_shootdown_page+0x130>
+    4804:	01 00 00 00 	nop 
+    4808:	03 00 00 34 	sethi  %hi(0xd000), %g1
+    480c:	82 10 60 1e 	or  %g1, 0x1e, %g1	! d01e <shootdown_lock>
+    4810:	90 10 00 01 	mov  %g1, %o0
+    4814:	7f ff fb 63 	call  35a0 <release_mutex_using_ldstub>
+    4818:	01 00 00 00 	nop 
+    481c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    4820:	b0 10 00 01 	mov  %g1, %i0
+    4824:	81 e8 00 00 	restore 
+    4828:	81 c3 e0 08 	retl 
+    482c:	01 00 00 00 	nop 
 
-00004848 <main>:
-    4848:	9d e3 bf 90 	save  %sp, -112, %sp
-    484c:	c0 27 bf f4 	clr  [ %fp + -12 ]
-    4850:	7f ff fa 1a 	call  30b8 <this_core_id>
-    4854:	01 00 00 00 	nop 
-    4858:	82 10 00 08 	mov  %o0, %g1
-    485c:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    4860:	03 04 00 40 	sethi  %hi(0x10010000), %g1
-    4864:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    4868:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+00004830 <write_pte>:
+    4830:	9d e3 bf 90 	save  %sp, -112, %sp
+    4834:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    4838:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    483c:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    4840:	f6 27 a0 50 	st  %i3, [ %fp + 0x50 ]
+    4844:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    4848:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    484c:	c2 07 a0 50 	ld  [ %fp + 0x50 ], %g1
+    4850:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    4854:	82 10 20 01 	mov  1, %g1
+    4858:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    485c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4860:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    4864:	85 28 60 08 	sll  %g1, 8, %g2
+    4868:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
     486c:	80 a0 60 00 	cmp  %g1, 0
-    4870:	12 80 00 28 	bne  4910 <main+0xc8>
+    4870:	02 80 00 05 	be  4884 <write_pte+0x54>
     4874:	01 00 00 00 	nop 
-    4878:	90 10 20 00 	clr  %o0	! 0 <_start>
-    487c:	7f ff fb b0 	call  373c <build_context>
+    4878:	82 10 20 80 	mov  0x80, %g1	! 80 <__tls_align+0x7f>
+    487c:	10 80 00 03 	b  4888 <write_pte+0x58>
     4880:	01 00 00 00 	nop 
-    4884:	90 10 20 01 	mov  1, %o0	! 1 <_start+0x1>
-    4888:	7f ff fb ad 	call  373c <build_context>
-    488c:	01 00 00 00 	nop 
-    4890:	90 10 20 02 	mov  2, %o0	! 2 <_start+0x2>
-    4894:	7f ff fb aa 	call  373c <build_context>
-    4898:	01 00 00 00 	nop 
-    489c:	90 10 20 01 	mov  1, %o0	! 1 <_start+0x1>
-    48a0:	13 04 00 40 	sethi  %hi(0x10010000), %o1
-    48a4:	03 00 00 20 	sethi  %hi(0x8000), %g1
-    48a8:	94 10 60 00 	mov  %g1, %o2	! 8000 <frame>
-    48ac:	7f ff fc 24 	call  393c <map_page>
-    48b0:	01 00 00 00 	nop 
-    48b4:	90 10 20 02 	mov  2, %o0	! 2 <_start+0x2>
-    48b8:	13 04 00 40 	sethi  %hi(0x10010000), %o1
-    48bc:	03 00 00 24 	sethi  %hi(0x9000), %g1
-    48c0:	94 10 60 00 	mov  %g1, %o2	! 9000 <other_frames>
-    48c4:	7f ff fc 1e 	call  393c <map_page>
-    48c8:	01 00 00 00 	nop 
-    48cc:	03 00 00 20 	sethi  %hi(0x8000), %g1
-    48d0:	82 10 60 00 	mov  %g1, %g1	! 8000 <frame>
-    48d4:	84 10 20 0a 	mov  0xa, %g2
-    48d8:	c4 20 40 00 	st  %g2, [ %g1 ]
-    48dc:	03 00 00 24 	sethi  %hi(0x9000), %g1
-    48e0:	82 10 60 00 	mov  %g1, %g1	! 9000 <other_frames>
-    48e4:	84 10 20 0c 	mov  0xc, %g2
-    48e8:	c4 20 40 00 	st  %g2, [ %g1 ]
-    48ec:	03 00 00 24 	sethi  %hi(0x9000), %g1
-    48f0:	84 10 60 00 	mov  %g1, %g2	! 9000 <other_frames>
-    48f4:	03 00 00 04 	sethi  %hi(0x1000), %g1
-    48f8:	86 10 20 0b 	mov  0xb, %g3
-    48fc:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
-    4900:	7f ff fc 37 	call  39dc <release_tables>
-    4904:	01 00 00 00 	nop 
-    4908:	10 80 00 04 	b  4918 <main+0xd0>
-    490c:	01 00 00 00 	nop 
-    4910:	7f ff fc 3c 	call  3a00 <wait_for_tables>
-    4914:	01 00 00 00 	nop 
-    4918:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    491c:	82 18 60 00 	xor  %g1, 0, %g1
-    4920:	80 a0 00 01 	cmp  %g0, %g1
-    4924:	82 40 20 00 	addx  %g0, 0, %g1
-    4928:	90 10 00 01 	mov  %g1, %o0
-    492c:	7f ff fc 4d 	call  3a60 <start_mmu>
-    4930:	01 00 00 00 	nop 
-    4934:	7f ff ff 16 	call  458c <tlb_shootdown_start_on_this_core>
-    4938:	01 00 00 00 	nop 
-    493c:	7f ff fb 77 	call  3718 <sync_cores>
-    4940:	01 00 00 00 	nop 
-    4944:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    4948:	80 a0 60 00 	cmp  %g1, 0
-    494c:	02 80 00 09 	be  4970 <main+0x128>
-    4950:	01 00 00 00 	nop 
-    4954:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    4958:	c2 00 40 00 	ld  [ %g1 ], %g1
-    495c:	90 10 20 02 	mov  2, %o0
-    4960:	7f ff fc 34 	call  3a30 <set_context>
-    4964:	01 00 00 00 	nop 
-    4968:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    496c:	c2 00 40 00 	ld  [ %g1 ], %g1
-    4970:	7f ff fb 6a 	call  3718 <sync_cores>
-    4974:	01 00 00 00 	nop 
-    4978:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    497c:	80 a0 60 00 	cmp  %g1, 0
-    4980:	12 80 00 17 	bne  49dc <main+0x194>
-    4984:	01 00 00 00 	nop 
-    4988:	90 10 20 01 	mov  1, %o0	! 1 <_start+0x1>
-    498c:	13 04 00 40 	sethi  %hi(0x10010000), %o1
-    4990:	03 00 00 28 	sethi  %hi(0xa000), %g1
-    4994:	94 10 60 00 	mov  %g1, %o2	! a000 <other_frames+0x1000>
-    4998:	96 10 20 03 	mov  3, %o3
-    499c:	7f ff ff 7e 	call  4794 <write_pte>
-    49a0:	01 00 00 00 	nop 
-    49a4:	82 10 20 03 	mov  3, %g1	! 3 <_start+0x3>
-    49a8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    49ac:	11 04 00 40 	sethi  %hi(0x10010000), %o0
-    49b0:	92 10 20 01 	mov  1, %o1
-    49b4:	94 10 20 04 	mov  4, %o2
-    49b8:	7f ff fe fd 	call  45ac <tlb_shootdown_page>
-    49bc:	01 00 00 00 	nop 
-    49c0:	82 10 00 08 	mov  %o0, %g1
-    49c4:	80 a0 60 00 	cmp  %g1, 0
-    49c8:	12 80 00 05 	bne  49dc <main+0x194>
-    49cc:	01 00 00 00 	nop 
-    49d0:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    49d4:	82 10 60 04 	or  %g1, 4, %g1
-    49d8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    49dc:	7f ff fb 4f 	call  3718 <sync_cores>
-    49e0:	01 00 00 00 	nop 
-    49e4:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
-    49e8:	80 a0 60 00 	cmp  %g1, 0
-    49ec:	02 80 00 17 	be  4a48 <main+0x200>
-    49f0:	01 00 00 00 	nop 
-    49f4:	82 10 20 04 	mov  4, %g1	! 4 <_start+0x4>
-    49f8:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    49fc:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    4a00:	c2 00 40 00 	ld  [ %g1 ], %g1
-    4a04:	80 a0 60 0c 	cmp  %g1, 0xc
-    4a08:	12 80 00 05 	bne  4a1c <main+0x1d4>
-    4a0c:	01 00 00 00 	nop 
-    4a10:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    4a14:	82 10 60 01 	or  %g1, 1, %g1
-    4a18:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    4a1c:	90 10 20 01 	mov  1, %o0
-    4a20:	7f ff fc 04 	call  3a30 <set_context>
-    4a24:	01 00 00 00 	nop 
-    4a28:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    4a2c:	c2 00 40 00 	ld  [ %g1 ], %g1
-    4a30:	80 a0 60 0b 	cmp  %g1, 0xb
-    4a34:	12 80 00 05 	bne  4a48 <main+0x200>
-    4a38:	01 00 00 00 	nop 
-    4a3c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
-    4a40:	82 10 60 02 	or  %g1, 2, %g1
-    4a44:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    4a48:	d0 07 bf f4 	ld  [ %fp + -12 ], %o0
-    4a4c:	92 10 20 03 	mov  3, %o1
-    4a50:	7f ff fa 84 	call  3460 <report_and_halt>
-    4a54:	01 00 00 00 	nop 
-    4a58:	82 10 20 00 	clr  %g1	! 0 <_start>
-    4a5c:	b0 10 00 01 	mov  %g1, %i0
-    4a60:	81 e8 00 00 	restore 
-    4a64:	81 c3 e0 08 	retl 
-    4a68:	01 00 00 00 	nop 
+    4884:	82 10 20 00 	clr  %g1	! 0 <_start>
+    4888:	84 10 80 01 	or  %g2, %g1, %g2
+    488c:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    4890:	83 28 60 02 	sll  %g1, 2, %g1
+    4894:	82 10 80 01 	or  %g2, %g1, %g1
+    4898:	82 10 60 02 	or  %g1, 2, %g1
+    489c:	84 10 00 01 	mov  %g1, %g2
+    48a0:	03 00 00 1e 	sethi  %hi(0x7800), %g1
+    48a4:	86 10 60 00 	mov  %g1, %g3	! 7800 <l3_tables>
+    48a8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    48ac:	89 28 60 06 	sll  %g1, 6, %g4
+    48b0:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    48b4:	83 30 60 0c 	srl  %g1, 0xc, %g1
+    48b8:	82 08 60 3f 	and  %g1, 0x3f, %g1
+    48bc:	82 01 00 01 	add  %g4, %g1, %g1
+    48c0:	83 28 60 02 	sll  %g1, 2, %g1
+    48c4:	82 00 c0 01 	add  %g3, %g1, %g1
+    48c8:	90 10 00 02 	mov  %g2, %o0
+    48cc:	92 10 00 01 	mov  %g1, %o1
+    48d0:	7f ff f9 cc 	call  3000 <__ajit_store_word_mmu_bypass__>
+    48d4:	01 00 00 00 	nop 
+    48d8:	81 e8 00 00 	restore 
+    48dc:	81 c3 e0 08 	retl 
+    48e0:	01 00 00 00 	nop 
 
-00004a6c <memcpy>:
-    4a6c:	9d e3 bf 90 	save  %sp, -112, %sp
-    4a70:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
-    4a74:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
-    4a78:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
-    4a7c:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4a80:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
-    4a84:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
-    4a88:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
-    4a8c:	c0 27 bf fc 	clr  [ %fp + -4 ]
-    4a90:	10 80 00 0d 	b  4ac4 <memcpy+0x58>
-    4a94:	01 00 00 00 	nop 
-    4a98:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
-    4a9c:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    4aa0:	82 00 80 01 	add  %g2, %g1, %g1
-    4aa4:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
-    4aa8:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    4aac:	84 00 c0 02 	add  %g3, %g2, %g2
-    4ab0:	c4 08 80 00 	ldub  [ %g2 ], %g2
-    4ab4:	c4 28 40 00 	stb  %g2, [ %g1 ]
-    4ab8:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
-    4abc:	82 00 60 01 	inc  %g1
-    4ac0:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
-    4ac4:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
-    4ac8:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
-    4acc:	80 a0 80 01 	cmp  %g2, %g1
-    4ad0:	0a bf ff f2 	bcs  4a98 <memcpy+0x2c>
+000048e4 <main>:
+    48e4:	9d e3 bf 90 	save  %sp, -112, %sp
+    48e8:	c0 27 bf f4 	clr  [ %fp + -12 ]
+    48ec:	7f ff f9 f3 	call  30b8 <this_core_id>
+    48f0:	01 00 00 00 	nop 
+    48f4:	82 10 00 08 	mov  %o0, %g1
+    48f8:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    48fc:	03 04 00 40 	sethi  %hi(0x10010000), %g1
+    4900:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    4904:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    4908:	80 a0 60 00 	cmp  %g1, 0
+    490c:	12 80 00 28 	bne  49ac <main+0xc8>
+    4910:	01 00 00 00 	nop 
+    4914:	90 10 20 00 	clr  %o0	! 0 <_start>
+    4918:	7f ff fb 89 	call  373c <build_context>
+    491c:	01 00 00 00 	nop 
+    4920:	90 10 20 01 	mov  1, %o0	! 1 <__tls_align>
+    4924:	7f ff fb 86 	call  373c <build_context>
+    4928:	01 00 00 00 	nop 
+    492c:	90 10 20 02 	mov  2, %o0	! 2 <__tls_align+0x1>
+    4930:	7f ff fb 83 	call  373c <build_context>
+    4934:	01 00 00 00 	nop 
+    4938:	90 10 20 01 	mov  1, %o0	! 1 <__tls_align>
+    493c:	13 04 00 40 	sethi  %hi(0x10010000), %o1
+    4940:	03 00 00 20 	sethi  %hi(0x8000), %g1
+    4944:	94 10 60 00 	mov  %g1, %o2	! 8000 <frame>
+    4948:	7f ff fb fd 	call  393c <map_page>
+    494c:	01 00 00 00 	nop 
+    4950:	90 10 20 02 	mov  2, %o0	! 2 <__tls_align+0x1>
+    4954:	13 04 00 40 	sethi  %hi(0x10010000), %o1
+    4958:	03 00 00 24 	sethi  %hi(0x9000), %g1
+    495c:	94 10 60 00 	mov  %g1, %o2	! 9000 <other_frames>
+    4960:	7f ff fb f7 	call  393c <map_page>
+    4964:	01 00 00 00 	nop 
+    4968:	03 00 00 20 	sethi  %hi(0x8000), %g1
+    496c:	82 10 60 00 	mov  %g1, %g1	! 8000 <frame>
+    4970:	84 10 20 0a 	mov  0xa, %g2
+    4974:	c4 20 40 00 	st  %g2, [ %g1 ]
+    4978:	03 00 00 24 	sethi  %hi(0x9000), %g1
+    497c:	82 10 60 00 	mov  %g1, %g1	! 9000 <other_frames>
+    4980:	84 10 20 0c 	mov  0xc, %g2
+    4984:	c4 20 40 00 	st  %g2, [ %g1 ]
+    4988:	03 00 00 24 	sethi  %hi(0x9000), %g1
+    498c:	84 10 60 00 	mov  %g1, %g2	! 9000 <other_frames>
+    4990:	03 00 00 04 	sethi  %hi(0x1000), %g1
+    4994:	86 10 20 0b 	mov  0xb, %g3
+    4998:	c6 20 80 01 	st  %g3, [ %g2 + %g1 ]
+    499c:	7f ff fc 10 	call  39dc <release_tables>
+    49a0:	01 00 00 00 	nop 
+    49a4:	10 80 00 04 	b  49b4 <main+0xd0>
+    49a8:	01 00 00 00 	nop 
+    49ac:	7f ff fc 15 	call  3a00 <wait_for_tables>
+    49b0:	01 00 00 00 	nop 
+    49b4:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    49b8:	82 18 60 00 	xor  %g1, 0, %g1
+    49bc:	80 a0 00 01 	cmp  %g0, %g1
+    49c0:	82 40 20 00 	addx  %g0, 0, %g1
+    49c4:	90 10 00 01 	mov  %g1, %o0
+    49c8:	7f ff fc 26 	call  3a60 <start_mmu>
+    49cc:	01 00 00 00 	nop 
+    49d0:	7f ff fe da 	call  4538 <tlb_shootdown_start_on_this_core>
+    49d4:	01 00 00 00 	nop 
+    49d8:	7f ff fb 50 	call  3718 <sync_cores>
+    49dc:	01 00 00 00 	nop 
+    49e0:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    49e4:	80 a0 60 00 	cmp  %g1, 0
+    49e8:	02 80 00 09 	be  4a0c <main+0x128>
+    49ec:	01 00 00 00 	nop 
+    49f0:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    49f4:	c2 00 40 00 	ld  [ %g1 ], %g1
+    49f8:	90 10 20 02 	mov  2, %o0
+    49fc:	7f ff fc 0d 	call  3a30 <set_context>
+    4a00:	01 00 00 00 	nop 
+    4a04:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4a08:	c2 00 40 00 	ld  [ %g1 ], %g1
+    4a0c:	7f ff fb 43 	call  3718 <sync_cores>
+    4a10:	01 00 00 00 	nop 
+    4a14:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    4a18:	80 a0 60 00 	cmp  %g1, 0
+    4a1c:	12 80 00 17 	bne  4a78 <main+0x194>
+    4a20:	01 00 00 00 	nop 
+    4a24:	90 10 20 01 	mov  1, %o0	! 1 <__tls_align>
+    4a28:	13 04 00 40 	sethi  %hi(0x10010000), %o1
+    4a2c:	03 00 00 28 	sethi  %hi(0xa000), %g1
+    4a30:	94 10 60 00 	mov  %g1, %o2	! a000 <other_frames+0x1000>
+    4a34:	96 10 20 03 	mov  3, %o3
+    4a38:	7f ff ff 7e 	call  4830 <write_pte>
+    4a3c:	01 00 00 00 	nop 
+    4a40:	82 10 20 03 	mov  3, %g1	! 3 <__tls_align+0x2>
+    4a44:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4a48:	11 04 00 40 	sethi  %hi(0x10010000), %o0
+    4a4c:	92 10 20 01 	mov  1, %o1
+    4a50:	94 10 20 04 	mov  4, %o2
+    4a54:	7f ff fe e6 	call  45ec <tlb_shootdown_page>
+    4a58:	01 00 00 00 	nop 
+    4a5c:	82 10 00 08 	mov  %o0, %g1
+    4a60:	80 a0 60 00 	cmp  %g1, 0
+    4a64:	12 80 00 05 	bne  4a78 <main+0x194>
+    4a68:	01 00 00 00 	nop 
+    4a6c:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    4a70:	82 10 60 04 	or  %g1, 4, %g1
+    4a74:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4a78:	7f ff fb 28 	call  3718 <sync_cores>
+    4a7c:	01 00 00 00 	nop 
+    4a80:	c2 07 bf f8 	ld  [ %fp + -8 ], %g1
+    4a84:	80 a0 60 00 	cmp  %g1, 0
+    4a88:	02 80 00 17 	be  4ae4 <main+0x200>
+    4a8c:	01 00 00 00 	nop 
+    4a90:	82 10 20 04 	mov  4, %g1	! 4 <__tls_align+0x3>
+    4a94:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4a98:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4a9c:	c2 00 40 00 	ld  [ %g1 ], %g1
+    4aa0:	80 a0 60 0c 	cmp  %g1, 0xc
+    4aa4:	12 80 00 05 	bne  4ab8 <main+0x1d4>
+    4aa8:	01 00 00 00 	nop 
+    4aac:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    4ab0:	82 10 60 01 	or  %g1, 1, %g1
+    4ab4:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4ab8:	90 10 20 01 	mov  1, %o0
+    4abc:	7f ff fb dd 	call  3a30 <set_context>
+    4ac0:	01 00 00 00 	nop 
+    4ac4:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4ac8:	c2 00 40 00 	ld  [ %g1 ], %g1
+    4acc:	80 a0 60 0b 	cmp  %g1, 0xb
+    4ad0:	12 80 00 05 	bne  4ae4 <main+0x200>
     4ad4:	01 00 00 00 	nop 
-    4ad8:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
-    4adc:	b0 10 00 01 	mov  %g1, %i0
-    4ae0:	81 e8 00 00 	restore 
-    4ae4:	81 c3 e0 08 	retl 
-    4ae8:	01 00 00 00 	nop 
+    4ad8:	c2 07 bf f4 	ld  [ %fp + -12 ], %g1
+    4adc:	82 10 60 02 	or  %g1, 2, %g1
+    4ae0:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4ae4:	d0 07 bf f4 	ld  [ %fp + -12 ], %o0
+    4ae8:	92 10 20 03 	mov  3, %o1
+    4aec:	7f ff fa 5d 	call  3460 <report_and_halt>
+    4af0:	01 00 00 00 	nop 
+    4af4:	82 10 20 00 	clr  %g1	! 0 <_start>
+    4af8:	b0 10 00 01 	mov  %g1, %i0
+    4afc:	81 e8 00 00 	restore 
+    4b00:	81 c3 e0 08 	retl 
+    4b04:	01 00 00 00 	nop 
+
+00004b08 <memcpy>:
+    4b08:	9d e3 bf 90 	save  %sp, -112, %sp
+    4b0c:	f0 27 a0 44 	st  %i0, [ %fp + 0x44 ]
+    4b10:	f2 27 a0 48 	st  %i1, [ %fp + 0x48 ]
+    4b14:	f4 27 a0 4c 	st  %i2, [ %fp + 0x4c ]
+    4b18:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    4b1c:	c2 27 bf f4 	st  %g1, [ %fp + -12 ]
+    4b20:	c2 07 a0 48 	ld  [ %fp + 0x48 ], %g1
+    4b24:	c2 27 bf f8 	st  %g1, [ %fp + -8 ]
+    4b28:	c0 27 bf fc 	clr  [ %fp + -4 ]
+    4b2c:	10 80 00 0d 	b  4b60 <memcpy+0x58>
+    4b30:	01 00 00 00 	nop 
+    4b34:	c4 07 bf f4 	ld  [ %fp + -12 ], %g2
+    4b38:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4b3c:	82 00 80 01 	add  %g2, %g1, %g1
+    4b40:	c6 07 bf f8 	ld  [ %fp + -8 ], %g3
+    4b44:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    4b48:	84 00 c0 02 	add  %g3, %g2, %g2
+    4b4c:	c4 08 80 00 	ldub  [ %g2 ], %g2
+    4b50:	c4 28 40 00 	stb  %g2, [ %g1 ]
+    4b54:	c2 07 bf fc 	ld  [ %fp + -4 ], %g1
+    4b58:	82 00 60 01 	inc  %g1
+    4b5c:	c2 27 bf fc 	st  %g1, [ %fp + -4 ]
+    4b60:	c4 07 bf fc 	ld  [ %fp + -4 ], %g2
+    4b64:	c2 07 a0 4c 	ld  [ %fp + 0x4c ], %g1
+    4b68:	80 a0 80 01 	cmp  %g2, %g1
+    4b6c:	0a bf ff f2 	bcs  4b34 <memcpy+0x2c>
+    4b70:	01 00 00 00 	nop 
+    4b74:	c2 07 a0 44 	ld  [ %fp + 0x44 ], %g1
+    4b78:	b0 10 00 01 	mov  %g1, %i0
+    4b7c:	81 e8 00 00 	restore 
+    4b80:	81 c3 e0 08 	retl 
+    4b84:	01 00 00 00 	nop 
 
 Symbol table:
 
 
-Symbol table '.symtab' contains 350 entries:
+Symbol table '.symtab' contains 355 entries:
    Num:    Value  Size Type    Bind   Vis      Ndx Name
      0: 00000000     0 NOTYPE  LOCAL  DEFAULT  UND 
      1: 00000000     0 SECTION LOCAL  DEFAULT    1 
@@ -5772,27 +5811,32 @@ Symbol table '.symtab' contains 350 entries:
    323: 00004140   180 FUNC    LOCAL  DEFAULT    1 ipi_start_on_this_core
    324: 000041f4   144 FUNC    LOCAL  DEFAULT    1 ipi_try_send
    325: 00004284   128 FUNC    LOCAL  DEFAULT    1 ipi_pending
-   326: 00004304    84 FUNC    LOCAL  DEFAULT    1 ipi_send
-   327: 00004358   240 FUNC    LOCAL  DEFAULT    1 ipi_receive
-   328: 00004448    36 FUNC    LOCAL  DEFAULT    1 mmu_context
-   329: 0000446c    32 FUNC    LOCAL  DEFAULT    1 mmu_set_context
-   330: 0000448c   104 FUNC    LOCAL  DEFAULT    1 tlb_flush_page
-   331: 0000d01e     1 OBJECT  LOCAL  DEFAULT    2 shootdown_lock
-   332: 0000d020     4 OBJECT  LOCAL  DEFAULT    2 shootdown_va
-   333: 0000d024     4 OBJECT  LOCAL  DEFAULT    2 shootdown_context
-   334: 0000d028     4 OBJECT  LOCAL  DEFAULT    2 shootdown_number
-   335: 0000d02c    16 OBJECT  LOCAL  DEFAULT    2 shootdown_done
-   336: 000044f4   152 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_ipi_handler
-   337: 0000458c    32 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_start_on_th
-   338: 000045ac   488 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_page
-   339: 00004794   180 FUNC    LOCAL  DEFAULT    1 write_pte
+   326: 00004304   240 FUNC    LOCAL  DEFAULT    1 ipi_receive
+   327: 000043f4    36 FUNC    LOCAL  DEFAULT    1 mmu_context
+   328: 00004418    32 FUNC    LOCAL  DEFAULT    1 mmu_set_context
+   329: 00004438   104 FUNC    LOCAL  DEFAULT    1 tlb_flush_page
+   330: 0000d01e     1 OBJECT  LOCAL  DEFAULT    2 shootdown_lock
+   331: 0000d020     4 OBJECT  LOCAL  DEFAULT    2 shootdown_va
+   332: 0000d024     4 OBJECT  LOCAL  DEFAULT    2 shootdown_context
+   333: 0000d028     4 OBJECT  LOCAL  DEFAULT    2 shootdown_number
+   334: 0000d02c    16 OBJECT  LOCAL  DEFAULT    2 shootdown_done
+   335: 000044a0   152 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_ipi_handler
+   336: 00004538    32 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_start_on_th
+   337: 00004558   148 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_send_ipi
+   338: 000045ec   580 FUNC    LOCAL  DEFAULT    1 tlb_shootdown_page
+   339: 00004830   180 FUNC    LOCAL  DEFAULT    1 write_pte
    340: 00000000     0 FILE    LOCAL  DEFAULT  ABS freestanding_stubs.c
    341: 0000336c   244 FUNC    GLOBAL DEFAULT    1 ajit_generic_interrupt_ha
-   342: 00004a6c   128 FUNC    GLOBAL DEFAULT    1 memcpy
-   343: 0000e000    64 OBJECT  GLOBAL DEFAULT    2 ajit_global_interrupt_han
-   344: 0000e040     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
-   345: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
-   346: 00005000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
-   347: 00004848   548 FUNC    GLOBAL DEFAULT    1 main
-   348: 000032e0    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
-   349: 0000332c    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle
+   342: 00004b08   128 FUNC    GLOBAL DEFAULT    1 memcpy
+   343: 00000001     0 NOTYPE  GLOBAL DEFAULT  ABS __tls_align
+   344: 0000e000    64 OBJECT  GLOBAL DEFAULT    2 ajit_global_interrupt_han
+   345: 0000e040     0 NOTYPE  GLOBAL DEFAULT    2 __bss_end
+   346: 00004b88     0 NOTYPE  GLOBAL DEFAULT    1 __tbss_start
+   347: 00000000     0 NOTYPE  GLOBAL DEFAULT    1 _start
+   348: 00005000     0 NOTYPE  GLOBAL DEFAULT    2 __bss_start
+   349: 00004b88     0 NOTYPE  GLOBAL DEFAULT    1 __tdata_start
+   350: 00004b88     0 NOTYPE  GLOBAL DEFAULT    1 __tdata_end
+   351: 000048e4   548 FUNC    GLOBAL DEFAULT    1 main
+   352: 000032e0    76 FUNC    GLOBAL DEFAULT    1 ajit_initialize_interrupt
+   353: 00004b88     0 NOTYPE  GLOBAL DEFAULT    1 __tbss_end
+   354: 0000332c    64 FUNC    GLOBAL DEFAULT    1 ajit_set_interrupt_handle

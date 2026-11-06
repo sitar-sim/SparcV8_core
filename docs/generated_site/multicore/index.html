@@ -16,7 +16,7 @@
         <link rel="prev" href="../validation_suite.html">
       
       
-        <link rel="next" href="structure.html">
+        <link rel="next" href="programming.html">
       
       
         
@@ -1475,10 +1475,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-and-running" class="md-nav__link">
+  <a href="#a-first-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Building and running
+        A first run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#three-ways-to-run-a-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three ways to run a program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
       
     </span>
   </a>
@@ -1511,62 +1533,6 @@
   
 </nav>
       
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="structure.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Structure and Assumptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
     </li>
   
 
@@ -1671,6 +1637,62 @@
     
   
     Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
   
 
     
@@ -2145,6 +2167,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development_notes.html" class="md-nav__link">
         
   
@@ -2278,10 +2328,32 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#building-and-running" class="md-nav__link">
+  <a href="#a-first-run" class="md-nav__link">
     <span class="md-ellipsis">
       
-        Building and running
+        A first run
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#three-ways-to-run-a-program" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Three ways to run a program
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#options" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Options
       
     </span>
   </a>
@@ -2337,7 +2409,8 @@ own split L1 instruction and data caches and its own MMU, exactly as in
 the single-core <a href="../model_configurations.html"><code>core_l1cache_mmu_devices</code></a>
 configuration. The cores reach memory and the devices over one shared
 bus, so a program can run on all of them at once and share data
-through memory. The design follows AJIT's multicore processor wherever
+through memory. The design follows <a href="../references/ajit_processor_description.pdf#page=47">AJIT's multi-core
+processors</a> wherever
 that design is known.</p>
 <hr />
 <h2 id="the-system-at-a-glance">The system at a glance<a class="headerlink" href="#the-system-at-a-glance" title="Permanent link">&para;</a></h2>
@@ -2357,6 +2430,8 @@ that design is known.</p>
 <li><strong>Atomic instructions.</strong> <code>LDSTUB</code> and <code>SWAP</code> are atomic across cores
   in both models, and a library of <a href="programming.html#locks-and-synchronization">locks, barriers and
   semaphores</a> is built on them.</li>
+<li><strong>OpenMP.</strong> C programs can use <a href="openmp.html">real OpenMP pragmas</a>, on a
+  runtime written for this system.</li>
 <li><strong>Memory and devices.</strong> One main memory and one set of devices
   (Timer, Serial, Interrupt Controller, <a href="../peripheral_devices_scratch_pad.html">Scratch-pad</a>),
   shared by every core. The Interrupt Controller has a slot for each
@@ -2416,18 +2491,74 @@ that design is known.</p>
 </table>
 <p>These pages describe what is done, and grow with each stage.</p>
 <hr />
-<h2 id="building-and-running">Building and running<a class="headerlink" href="#building-and-running" title="Permanent link">&para;</a></h2>
-<p>Both models are built like any other configuration.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/multicore/cpp_model<span class="w">   </span><span class="o">&amp;&amp;</span><span class="w"> </span>./build.sh
-</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a><span class="nb">cd</span><span class="w"> </span>model/system_models/multicore/sitar_model<span class="w"> </span><span class="o">&amp;&amp;</span><span class="w"> </span>./build.sh
+<h2 id="a-first-run">A first run<a class="headerlink" href="#a-first-run" title="Permanent link">&para;</a></h2>
+<p>Both models are built like any other configuration. The following commands
+build the sitar_model, and run a worked example that sums an array on all
+four cores.</p>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a><span class="nb">cd</span><span class="w"> </span><span class="nv">$SPARC_HOME</span>/model/system_models/multicore/sitar_model
+</span><span id="__span-0-2"><a id="__codelineno-0-2" name="__codelineno-0-2" href="#__codelineno-0-2"></a>./build.sh
+</span><span id="__span-0-3"><a id="__codelineno-0-3" name="__codelineno-0-3" href="#__codelineno-0-3"></a>./executable/sparc_sim_sitar_multicore<span class="w"> </span><span class="se">\</span>
+</span><span id="__span-0-4"><a id="__codelineno-0-4" name="__codelineno-0-4" href="#__codelineno-0-4"></a><span class="w">    </span><span class="nv">$SPARC_HOME</span>/validation/multicore/examples/parallel_sum/parallel_sum.hex<span class="w"> </span><span class="s2">&quot;&quot;</span><span class="w"> </span><span class="m">5000000</span>
 </span></code></pre></div>
-<p>A program then runs on all cores at once.</p>
-<div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>./executable/sparc_sim_cpp_multicore<span class="w"> </span>&lt;program.hex&gt;<span class="w"> </span><span class="o">[</span>expected<span class="o">]</span><span class="w"> </span><span class="o">[</span>max_cycles<span class="o">]</span><span class="w"> </span><span class="o">[</span>--stats<span class="o">]</span><span class="w"> </span><span class="se">\</span>
-</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a><span class="w">    </span><span class="o">[</span>--schedule<span class="w"> </span>&lt;spec&gt;<span class="o">]</span><span class="w"> </span><span class="o">[</span>--run-cores<span class="w"> </span>&lt;m&gt;<span class="o">]</span><span class="w"> </span>...
+<p>With no expected results to check, the simulator prints the final state of
+each core under its own heading, and then the length of the run.</p>
+<div class="language-text highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>=== core 0 ===
+</span><span id="__span-1-2"><a id="__codelineno-1-2" name="__codelineno-1-2" href="#__codelineno-1-2"></a>PROCESSOR STATE: ERROR
+</span><span id="__span-1-3"><a id="__codelineno-1-3" name="__codelineno-1-3" href="#__codelineno-1-3"></a>...
+</span><span id="__span-1-4"><a id="__codelineno-1-4" name="__codelineno-1-4" href="#__codelineno-1-4"></a>Simulation halted after 3085726 cycles (all 4 cores halted).
 </span></code></pre></div>
-<p>The other options are those of <code>core_l1cache_mmu_devices</code> (cache sizes,
-serial and timer options), and they apply to every core.</p>
+<p>As on a single core, <code>PROCESSOR STATE: ERROR</code> is how a program ends (see
+<a href="../getting_started.html#run-the-program">Run the program</a>). The third
+argument is the cycle limit, and its default of one million is too small for
+this run, as the next section explains.</p>
+<hr />
+<h2 id="three-ways-to-run-a-program">Three ways to run a program<a class="headerlink" href="#three-ways-to-run-a-program" title="Permanent link">&para;</a></h2>
+<p>Whether anything is cached decides both a run's length and what a program
+must do to share data, so a run is one of three kinds.</p>
+<table>
+<thead>
+<tr>
+<th>Options</th>
+<th>What is cached</th>
+<th>The program's shared data</th>
+<th>Timing</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>None</td>
+<td>Nothing, with the MMU off</td>
+<td>Every load sees main memory</td>
+<td>Slow on the sitar_model, since every fetch crosses the bus</td>
+</tr>
+<tr>
+<td><code>--always-cacheable</code></td>
+<td>All of main memory</td>
+<td>A plain load can return an old copy, so the program must read with <code>read_shared()</code> or flush first</td>
+<td>Realistic</td>
+</tr>
+<tr>
+<td><code>--always-cacheable --coherent</code></td>
+<td>All of main memory</td>
+<td>A plain load always sees the latest value</td>
+<td>The most realistic</td>
+</tr>
+</tbody>
+</table>
+<p><a href="programming.html#sharing-data-between-cores">Sharing data between cores</a>
+explains the difference. <code>parallel_sum</code> above takes about 3.1 million cycles
+the first way, and about 470 thousand the second.</p>
+<hr />
+<h2 id="options">Options<a class="headerlink" href="#options" title="Permanent link">&para;</a></h2>
+<div class="language-sh highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a>./executable/sparc_sim_cpp_multicore<span class="w"> </span>&lt;program.hex&gt;<span class="w"> </span><span class="o">[</span>expected<span class="o">]</span><span class="w"> </span><span class="o">[</span>max_cycles<span class="o">]</span><span class="w"> </span><span class="o">[</span>options<span class="o">]</span>
+</span></code></pre></div>
+<p>The cache size, serial and timer options are those of
+<code>core_l1cache_mmu_devices</code>, and they apply to every core. An option the
+simulator does not know stops the run with an error, so a mistyped option
+cannot go unnoticed.</p>
 <ul>
+<li><strong><code>--always-cacheable</code></strong> makes every access cacheable while the MMU is off.
+  <code>SPARC_ALWAYS_CACHEABLE=1</code> does the same.</li>
 <li><strong><code>--run-cores &lt;m&gt;</code></strong> runs only cores 0 to <code>m-1</code>. The others never
   leave reset, and the run does not wait for them. With <code>--run-cores 1</code>,
   any single-core program runs unchanged. The environment variable
@@ -2462,7 +2593,7 @@ serial and timer options), and they apply to every core.</p>
 <td><code>NUM_CORES</code></td>
 <td>4</td>
 <td>cpp_model: <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/cpp_model/src/MulticoreConfig.h"><code>MulticoreConfig.h</code></a><br>sitar_model: <code>System</code>'s parameter in <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/system_models/multicore/sitar_model/src/System.sitar"><code>System.sitar</code></a></td>
-<td>Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores.</td>
+<td>Number of cores, 1 to 4. The Interrupt Controller has slots for 4 cores. The validation suite assumes 4.</td>
 </tr>
 </tbody>
 </table>
@@ -2472,23 +2603,29 @@ serial and timer options), and they apply to every core.</p>
 Settings</a>.</p>
 <hr />
 <h2 id="in-these-pages">In these pages<a class="headerlink" href="#in-these-pages" title="Permanent link">&para;</a></h2>
+<p>To write programs for the system:</p>
 <ul>
-<li><strong><a href="structure.html">Model Structure and Assumptions</a></strong> shows how each
-  model is built, how the shared bus arbitrates between cores, and
-  where the model makes its own assumptions.</li>
-<li><strong><a href="execution_model.html">Execution Model</a></strong> describes how the cpp_model
-  and the sitar_model run several cores, and why their results can
-  differ for some programs.</li>
 <li><strong><a href="programming.html">Programming the Multicore System</a></strong> covers the
   startup file, the core ID, sharing data with and without coherent
   caches, locks and other synchronization, interrupts on several cores,
-  and the routines provided.</li>
+  shared devices, and the routines provided.</li>
+<li><strong><a href="openmp.html">OpenMP Programs</a></strong> covers programs that use OpenMP's
+  pragmas, and what the runtime supports.</li>
 <li><strong><a href="examples.html">Example Programs</a></strong> walks through a parallel array
   sum and a parallel matrix multiply.</li>
 <li><strong><a href="debugging.html">Logging and Debugging</a></strong> covers per-core traces,
   gdb with several cores, and finding data races.</li>
-<li><strong><a href="validation.html">Validation Suite</a></strong> lists the multicore tests and
-  how to run them.</li>
+</ul>
+<p>To understand or change the model:</p>
+<ul>
+<li><strong><a href="execution_model.html">Execution Model</a></strong> describes how the cpp_model
+  and the sitar_model run several cores, and why their results can
+  differ for some programs.</li>
+<li><strong><a href="structure.html">Model Structure and Assumptions</a></strong> shows how each
+  model is built, how the shared bus arbitrates between cores, and
+  where the model makes its own assumptions.</li>
+<li><strong><a href="validation.html">Validation Suite</a></strong> lists the multicore tests, how
+  to run them, and what they do not cover.</li>
 <li><strong><a href="parallel_simulation.html">Parallel Simulation</a></strong> runs the sitar_model
   on several host threads, and explains when that is faster.</li>
 </ul>

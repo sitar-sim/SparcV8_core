@@ -25,7 +25,7 @@ to port a basic operating system on top of it.
 
 The register formats, addresses, and behavior documented here are
 credited to the [AJIT processor
-documentation](https://github.com/adhuliya/ajit-toolchain/blob/marshal/docs/processor/ajit_processor_description.pdf),
+description](references/ajit_processor_description.pdf#page=59),
 Chapter 8, "Basic peripherals available for AJIT systems". That
 chapter does not describe the scratch-pad, which appears only in the
 description's memory-map tables. Its behavior here follows AJIT's

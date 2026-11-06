@@ -105,7 +105,8 @@ Under `--coherent` it does not need to.
 
 If a program turns the MMU on, its shared data must be identity-mapped, since the runtime's
 uncached reads take a physical address. This is the same limit as for the rest of
-[the library](programming.md#limits-of-these-routines).
+[the library](programming.md#limits-of-these-routines). The OpenMP tests all run with the MMU
+off, so this combination is untested.
 
 ---
 

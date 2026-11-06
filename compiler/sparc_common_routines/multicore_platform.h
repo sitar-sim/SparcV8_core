@@ -235,12 +235,25 @@ static inline void tlb_shootdown_start_on_this_core(void)
 	ipi_start_on_this_core(tlb_shootdown_ipi_handler);
 }
 
+// Sends a shootdown's IPI. A core still holding an earlier IPI may never take it, so this gives
+// up after the wait limit, where ipi_send() would wait for ever. Returns 1 if it was sent.
+static inline int tlb_shootdown_send_ipi(uint32_t destination_core)
+{
+	uint32_t tries;
+	for (tries = 0; tries < SHOOTDOWN_WAIT_LIMIT; tries++)
+		if (!ipi_pending(destination_core) && !ipi_try_send(destination_core, 0))
+			return 1;
+	return 0;
+}
+
 // Call after changing the page table entry for the page at va in the given context. When it
-// returns, no core among the first num_cores can use the old translation. Returns the number
-// of cores that did not answer, which is 0 unless one has halted or stopped taking interrupts.
+// returns, no core that answered can use the old translation. Returns the number of cores among
+// the first num_cores that did not answer, which is 0 unless one has halted or stopped taking
+// interrupts. Such a core can still use the old translation.
 static inline uint32_t tlb_shootdown_page(uint32_t va, uint32_t context, uint32_t num_cores)
 {
 	uint32_t c, tries, number, unanswered = 0, id = this_core_id();
+	uint32_t not_sent = 0;
 
 	tlb_flush_page(va, context);
 
@@ -250,12 +263,17 @@ static inline uint32_t tlb_shootdown_page(uint32_t va, uint32_t context, uint32_
 	__ajit_store_word_mmu_bypass__(context, (uint32_t) &shootdown_context);
 	__ajit_store_word_mmu_bypass__(number, (uint32_t) &shootdown_number);
 	for (c = 0; c < num_cores; c++)
-		if (c != id)
-			ipi_send(c, 0);
+		if (c != id && !tlb_shootdown_send_ipi(c))
+			not_sent |= 1u << c;
 	for (c = 0; c < num_cores; c++)
 	{
 		if (c == id)
 			continue;
+		if (not_sent & (1u << c))
+		{
+			unanswered++;
+			continue;
+		}
 		for (tries = 0; read_shared(&shootdown_done[c]) != number; tries++)
 			if (tries >= SHOOTDOWN_WAIT_LIMIT)
 			{

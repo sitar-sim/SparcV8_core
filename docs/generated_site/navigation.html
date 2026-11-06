@@ -1582,62 +1582,6 @@
   
   
     <li class="md-nav__item">
-      <a href="multicore/structure.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Structure and Assumptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="multicore/execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="multicore/programming.html" class="md-nav__link">
         
   
@@ -1730,6 +1674,62 @@
     
   
     Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="multicore/structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
   
 
     
@@ -2204,6 +2204,34 @@
   
   
     <li class="md-nav__item">
+      <a href="references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="development_notes.html" class="md-nav__link">
         
   
@@ -2634,19 +2662,15 @@ memory and one set of devices (the <code>multicore</code> configuration).</p>
 <tbody>
 <tr>
 <td><a href="multicore/index.html">Overview</a></td>
-<td>The system at a glance, the stages it is built in, building and running, and its compile-time knobs.</td>
-</tr>
-<tr>
-<td><a href="multicore/structure.html">Model Structure and Assumptions</a></td>
-<td>How the cpp_model and the sitar_model are built, the shared bus, interrupts, and where the model makes its own assumptions.</td>
-</tr>
-<tr>
-<td><a href="multicore/execution_model.html">Execution Model</a></td>
-<td>How each model runs several cores, what a cycle means in each, and why results can differ between them.</td>
+<td>The system at a glance, a first run, the ways to run a program, and the system's options.</td>
 </tr>
 <tr>
 <td><a href="multicore/programming.html">Programming the System</a></td>
-<td>The startup file, the core ID, sharing data with and without coherent caches, locks and other synchronization, interrupts on several cores, and the routines provided.</td>
+<td>The startup file, the core ID, sharing data with and without coherent caches, locks and other synchronization, interrupts on several cores, shared devices, TLB shootdown, and the routines provided.</td>
+</tr>
+<tr>
+<td><a href="multicore/openmp.html">OpenMP Programs</a></td>
+<td>Programs written with real OpenMP pragmas, the runtime behind them, what is supported, and its limits.</td>
 </tr>
 <tr>
 <td><a href="multicore/examples.html">Example Programs</a></td>
@@ -2657,8 +2681,16 @@ memory and one set of devices (the <code>multicore</code> configuration).</p>
 <td>Per-core traces, gdb with several cores, statistics, and finding data races.</td>
 </tr>
 <tr>
+<td><a href="multicore/execution_model.html">Execution Model</a></td>
+<td>How each model runs several cores, what a cycle means in each, and why results can differ between them.</td>
+</tr>
+<tr>
+<td><a href="multicore/structure.html">Model Structure and Assumptions</a></td>
+<td>How the cpp_model and the sitar_model are built, the shared bus, its lock and coherence, interrupts, and where the model makes its own assumptions.</td>
+</tr>
+<tr>
 <td><a href="multicore/validation.html">Validation Suite</a></td>
-<td>The multicore tests, how each core's results are checked, and how to run them.</td>
+<td>The multicore tests, how each core's results are checked, how they were shown able to fail, how to run them, and what they do not cover.</td>
 </tr>
 <tr>
 <td><a href="multicore/parallel_simulation.html">Parallel Simulation</a></td>
@@ -2729,6 +2761,10 @@ processor as an accelerator. These pages cover the engine on its own
 </tr>
 </thead>
 <tbody>
+<tr>
+<td><a href="references.html">Reference Documents</a></td>
+<td>The SPARC manual, the AJIT processor description and the APARA microarchitecture document, in copies kept here.</td>
+</tr>
 <tr>
 <td><a href="development_notes.html">Development Notes</a></td>
 <td>For contributors: repository layout, extending the core, adding tests.</td>

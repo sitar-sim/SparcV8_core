@@ -104,12 +104,12 @@ nav:
 
   - The Multicore System:
       - Overview: multicore/index.md
-      - Model Structure and Assumptions: multicore/structure.md
-      - Execution Model: multicore/execution_model.md
       - Programming the System: multicore/programming.md
       - OpenMP Programs: multicore/openmp.md
       - Example Programs: multicore/examples.md
       - Logging and Debugging: multicore/debugging.md
+      - Execution Model: multicore/execution_model.md
+      - Model Structure and Assumptions: multicore/structure.md
       - Validation Suite: multicore/validation.md
       - Parallel Simulation: multicore/parallel_simulation.md
 
@@ -126,6 +126,7 @@ nav:
       - Deviations and Findings: apara/deviations.md
 
   - More:
+      - Reference Documents: references.md
       - Development Notes: development_notes.md
       - Authors: authors.md
       - License: license.md

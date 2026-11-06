@@ -83,7 +83,7 @@ devices.
       +-- devices : <a href="https://github.com/sitar-sim/SparcV8_core/blob/main/model/sitar_component_models/PeripheralDevices.sitar">PeripheralDevices</a> (module)
 </pre>
 
-Each core has three nets of its own, and the bus reaches memory and the
+Each core has four nets of its own, and the bus reaches memory and the
 devices over four more. Each net carries data from an output port to an
 input port.
 
@@ -92,6 +92,7 @@ input port.
 | `coreRequestNet[i]` | `cores[i].requestOut` | `bridge.coreRequestIn[i]` |
 | `coreResponseNet[i]` | `bridge.coreResponseOut[i]` | `cores[i].responseIn` |
 | `interruptLevelNet[i]` | `devices.interruptLevelOut[i]` | `cores[i].interruptLevelIn` |
+| `coreInvalidateNet[i]` | `bridge.coreInvalidateOut[i]` | `cores[i].invalidateIn` |
 | `memoryRequestNet` | `bridge.memoryRequestOut` | `mainMemory.requestIn` |
 | `memoryResponseNet` | `mainMemory.responseOut` | `bridge.memoryResponseIn` |
 | `devicesRequestNet` | `bridge.devicesRequestOut` | `devices.requestIn` |
@@ -265,19 +266,23 @@ The controller's slot count is the reason `NUM_CORES` is at most 4.
 
 ## Assumptions
 
-The model follows AJIT's multicore design wherever that design is
-known. The table lists where it makes its own assumptions, and what is
-not yet modeled.
+The model follows AJIT's multi-core design wherever that design is
+known, from the [AJIT processor
+description](../references/ajit_processor_description.pdf#page=47) and its
+section on [cache coherence](../references/ajit_processor_description.pdf#page=43).
+The table lists where it makes its own assumptions, and what is not yet
+modeled.
 
 | Aspect | In this model | Notes |
 |---|---|---|
 | Reset | Every core starts at PC 0 and runs the same program. The reset PC is `SparcCore`'s `resetPC`, which a model's main may change before the run. | As in AJIT. |
 | Core ID | ASR29 reads `0x50520000 \| (core << 8) \| thread`. | As in AJIT. One thread per core, so the thread field is 0. |
 | Threads per core | 1 | AJIT cores can have 2. |
-| Number of cores | 1 to 4, set at compile time | Limited by the Interrupt Controller's 8 slots. |
+| Number of cores | 1 to 4, set at compile time | Limited by the Interrupt Controller's 8 slots. The validation suite assumes 4. |
 | L1 caches | Each core's own, VIVT, write-through, as in `core_l1cache_mmu_devices` | |
 | Coherence | Off by default, write-invalidate with `--coherent` | See [Coherence](#coherence). Each line keeps its physical address, where AJIT keeps a separate reverse table (its RLUT). Data is the same either way, and only hit and miss counts differ. |
 | Synonyms | At most one copy of a physical line per cache | AJIT removes an older copy too, unless both have the same virtual address, in different contexts. Here that older copy is removed as well, since a store in one context would otherwise leave it stale. |
+| `FLUSH` | Empties the caches of the core that executes it, and no other | The other cores' copies go through coherence, or a flush of their own. |
 | Memory ordering | Sequentially consistent | No store buffer. SPARC's TSO allows more than this, so correct programs still work. `STBAR` has no effect. |
 | Atomic `LDSTUB` and `SWAP` across cores | Both models. | The cpp_model runs each instruction to completion. In the sitar_model, the bridge locks the bus from the read to the write (see [The bus lock](#the-bus-lock)), by core and for the whole bus, as in AJIT. |
 | Page table entry updates | Atomic across cores, by a locked read and write in the sitar_model | The R and M bits are set on the entry in memory, not on a copy. See [Page table updates](#page-table-updates). |

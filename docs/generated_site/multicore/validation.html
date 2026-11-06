@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="debugging.html">
+        <link rel="prev" href="structure.html">
       
       
         <link rel="next" href="parallel_simulation.html">
@@ -1421,62 +1421,6 @@
   
   
     <li class="md-nav__item">
-      <a href="structure.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Structure and Assumptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="programming.html" class="md-nav__link">
         
   
@@ -1569,6 +1513,62 @@
     
   
     Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
   
 
     
@@ -1758,6 +1758,17 @@
     <span class="md-ellipsis">
       
         Running the suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-suite-does-not-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the suite does not cover
       
     </span>
   </a>
@@ -2217,6 +2228,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development_notes.html" class="md-nav__link">
         
   
@@ -2437,6 +2476,17 @@
     <span class="md-ellipsis">
       
         Running the suite
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#what-the-suite-does-not-cover" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        What the suite does not cover
       
     </span>
   </a>
@@ -2884,7 +2934,7 @@ from each. <code>tlb_shootdown/</code> tests <code>tlb_shootdown_page()</code>.<
 </tr>
 <tr>
 <td><code>tlb_shootdown/core_that_does_not_answer</code></td>
-<td>One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core.</td>
+<td>One core holds its interrupts off until two shootdowns have returned. Each must return anyway, and report that core, though the second cannot even send it an IPI.</td>
 </tr>
 </tbody>
 </table>
@@ -3068,6 +3118,10 @@ model.</p>
 <td><code>waits_for_every_core</code> and <code>core_that_does_not_answer</code>, in both models.</td>
 </tr>
 <tr>
+<td>The starter waits without a limit to send an IPI</td>
+<td><code>core_that_does_not_answer</code>, which then never ends, on the cpp_model.</td>
+</tr>
+<tr>
 <td>No shootdown lock</td>
 <td><code>from_every_core</code>, in both models.</td>
 </tr>
@@ -3223,6 +3277,22 @@ it themselves in their <code>.vprj</code>.</p>
 <p>With one core running, both models reproduce <code>core_l1cache_mmu_devices</code>
 cycle for cycle, so these runs also check that the multicore models
 did not change what a single core does.</p>
+<hr />
+<h2 id="what-the-suite-does-not-cover">What the suite does not cover<a class="headerlink" href="#what-the-suite-does-not-cover" title="Permanent link">&para;</a></h2>
+<p>The tests are thorough in what they check, but some things have not been tested.</p>
+<ul>
+<li><strong>Other numbers of cores.</strong> The tests assume four cores. An OpenMP program was run by hand
+  on builds with one, two and three cores, on both models, and gave the right answer, but the
+  suite does not run on those builds.</li>
+<li><strong>Features together.</strong> OpenMP has not been run with the MMU on, or with TLB shootdown.</li>
+<li><strong>Long runs.</strong> Each test is short. The longest run for about 20 million cycles.</li>
+<li><strong>Fairness.</strong> Only the ticket lock's order is checked. No test measures whether a core can be
+  held off by the others under a plain mutex.</li>
+<li><strong>The cpp_model against the sitar_model.</strong> Each is checked against a test's expected results.
+  Nothing compares their cycle counts, since these differ by design.</li>
+<li><strong>The real AJIT hardware.</strong> The model follows AJIT's documents, and has not been compared with
+  traces from the hardware.</li>
+</ul>
 <hr />
 <h2 id="how-long-the-tests-run">How long the tests run<a class="headerlink" href="#how-long-the-tests-run" title="Permanent link">&para;</a></h2>
 <p>With the MMU off nothing is cached, so on the sitar_model every

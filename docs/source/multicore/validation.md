@@ -163,7 +163,7 @@ from each. `tlb_shootdown/` tests `tlb_shootdown_page()`.
 | `tlb_shootdown/from_every_core` | Every core moves a page of its own at once, so shootdowns overlap. |
 | `tlb_shootdown/other_context` | The other cores are running in another context when the entry changes. |
 | `tlb_shootdown/waits_for_every_core` | The other cores hold their interrupts off for a while. The shootdown must not return before they have answered. |
-| `tlb_shootdown/core_that_does_not_answer` | One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core. |
+| `tlb_shootdown/core_that_does_not_answer` | One core holds its interrupts off until two shootdowns have returned. Each must return anyway, and report that core, though the second cannot even send it an IPI. |
 
 ### OpenMP
 
@@ -232,6 +232,7 @@ model.
 | The handler flushes the running context, not the one named | `other_context`, in both models. |
 | The starter does not drop its own translation | `remap_page`, `revoke_write` and `from_every_core`, in both models. |
 | The starter does not wait for answers | `waits_for_every_core` and `core_that_does_not_answer`, in both models. |
+| The starter waits without a limit to send an IPI | `core_that_does_not_answer`, which then never ends, on the cpp_model. |
 | No shootdown lock | `from_every_core`, in both models. |
 | No lock around the IPI registers and the console | `console_under_lock`, `ipi_ping_pong`, `ipi_all_to_all`, and most shootdown tests, in both models. |
 | Senders wait for a busy destination by retrying under the lock | `ipi_all_to_all`, which then never ends, in both models. |
@@ -309,6 +310,24 @@ done
 With one core running, both models reproduce `core_l1cache_mmu_devices`
 cycle for cycle, so these runs also check that the multicore models
 did not change what a single core does.
+
+---
+
+## What the suite does not cover
+
+The tests are thorough in what they check, but some things have not been tested.
+
+- **Other numbers of cores.** The tests assume four cores. An OpenMP program was run by hand
+  on builds with one, two and three cores, on both models, and gave the right answer, but the
+  suite does not run on those builds.
+- **Features together.** OpenMP has not been run with the MMU on, or with TLB shootdown.
+- **Long runs.** Each test is short. The longest run for about 20 million cycles.
+- **Fairness.** Only the ticket lock's order is checked. No test measures whether a core can be
+  held off by the others under a plain mutex.
+- **The cpp_model against the sitar_model.** Each is checked against a test's expected results.
+  Nothing compares their cycle counts, since these differ by design.
+- **The real AJIT hardware.** The model follows AJIT's documents, and has not been compared with
+  traces from the hardware.
 
 ---
 

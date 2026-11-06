@@ -27,8 +27,10 @@ validation suite.
   those of IIT Bombay's AJIT processor.
 - **A multicore system.** Several cores sharing memory and devices,
   with per-core interrupts, inter-processor interrupts, atomic
-  instructions, a library of locks and barriers, example parallel
-  programs, and a choice of how the cores' instructions interleave.
+  instructions, optional coherent caches, TLB shootdown, a library of
+  locks and barriers, C programs with real OpenMP pragmas, example
+  parallel programs, and a choice of how the cores' instructions
+  interleave.
 - **The APARA accelerator.** A four-threaded vector compute engine,
   on its own or beside the SPARC core, with its own assembler and C
   compiler.

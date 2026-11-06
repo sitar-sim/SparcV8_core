@@ -1421,62 +1421,6 @@
   
   
     <li class="md-nav__item">
-      <a href="structure.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Model Structure and Assumptions
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
-      <a href="execution_model.html" class="md-nav__link">
-        
-  
-  
-  <span class="md-ellipsis">
-    
-  
-    Execution Model
-  
-
-    
-  </span>
-  
-  
-
-      </a>
-    </li>
-  
-
-              
-            
-              
-                
-  
-  
-  
-  
-    <li class="md-nav__item">
       <a href="programming.html" class="md-nav__link">
         
   
@@ -1716,6 +1660,62 @@
     
   
     Logging and Debugging
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="execution_model.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Execution Model
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="structure.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Model Structure and Assumptions
   
 
     
@@ -2190,6 +2190,34 @@
   
   
     <li class="md-nav__item">
+      <a href="../references.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Reference Documents
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="../development_notes.html" class="md-nav__link">
         
   
@@ -2515,7 +2543,8 @@ are already ordered, since the model has no store buffer. It does not refresh a 
 Under <code>--coherent</code> it does not need to.</p>
 <p>If a program turns the MMU on, its shared data must be identity-mapped, since the runtime's
 uncached reads take a physical address. This is the same limit as for the rest of
-<a href="programming.html#limits-of-these-routines">the library</a>.</p>
+<a href="programming.html#limits-of-these-routines">the library</a>. The OpenMP tests all run with the MMU
+off, so this combination is untested.</p>
 <hr />
 <h2 id="what-is-supported">What is supported<a class="headerlink" href="#what-is-supported" title="Permanent link">&para;</a></h2>
 <table>

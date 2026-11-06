@@ -242,6 +242,12 @@ int main(int argc, char** argv)
 			coherent = false;
 		else if (arg == "--snoop-filter")
 			snoopFilter = true;
+		else if (arg.compare(0, 2, "--") == 0)
+		{
+			//A mistyped option must not be taken for a file name, or be ignored.
+			std::cerr << "ERROR: unknown option, or option without its value: " << arg << "\n";
+			return 1;
+		}
 		else
 			args.push_back(arg);
 	}

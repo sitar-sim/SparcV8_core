@@ -1525,33 +1525,6 @@ ipi_pending:
 	 nop
 	.size	ipi_pending, .-ipi_pending
 	.align 4
-	.type	ipi_send, #function
-	.proc	020
-ipi_send:
-	save	%sp, -96, %sp
-	st	%i0, [%fp+68]
-	st	%i1, [%fp+72]
-.LL125:
-	ld	[%fp+68], %o0
-	call	ipi_pending, 0
-	 nop
-	mov	%o0, %g1
-	cmp	%g1, 0
-	bne	.LL125
-	 nop
-	ld	[%fp+68], %o0
-	ld	[%fp+72], %o1
-	call	ipi_try_send, 0
-	 nop
-	mov	%o0, %g1
-	cmp	%g1, 0
-	bne	.LL125
-	 nop
-	restore
-	jmp	%o7+8
-	 nop
-	.size	ipi_send, .-ipi_send
-	.align 4
 	.type	ipi_receive, #function
 	.proc	0120
 ipi_receive:
@@ -1604,13 +1577,13 @@ ipi_receive:
 	 nop
 	ld	[%fp+68], %g1
 	cmp	%g1, 0
-	be	.LL128
+	be	.LL125
 	 nop
 	ld	[%fp-12], %g1
 	srl	%g1, 24, %g2
 	ld	[%fp+68], %g1
 	st	%g2, [%g1]
-.LL128:
+.LL125:
 	ld	[%fp-8], %g1
 	mov	%g1, %i0
 	restore
@@ -1748,6 +1721,52 @@ tlb_shootdown_start_on_this_core:
 	 nop
 	.size	tlb_shootdown_start_on_this_core, .-tlb_shootdown_start_on_this_core
 	.align 4
+	.type	tlb_shootdown_send_ipi, #function
+	.proc	04
+tlb_shootdown_send_ipi:
+	save	%sp, -104, %sp
+	st	%i0, [%fp+68]
+	st	%g0, [%fp-4]
+	b	.LL138
+	 nop
+.LL141:
+	ld	[%fp+68], %o0
+	call	ipi_pending, 0
+	 nop
+	mov	%o0, %g1
+	cmp	%g1, 0
+	bne	.LL139
+	 nop
+	ld	[%fp+68], %o0
+	mov	0, %o1
+	call	ipi_try_send, 0
+	 nop
+	mov	%o0, %g1
+	cmp	%g1, 0
+	bne	.LL139
+	 nop
+	mov	1, %g1
+	b	.LL140
+	 nop
+.LL139:
+	ld	[%fp-4], %g1
+	add	%g1, 1, %g1
+	st	%g1, [%fp-4]
+.LL138:
+	ld	[%fp-4], %g2
+	sethi	%hi(1999872), %g1
+	or	%g1, 127, %g1
+	cmp	%g2, %g1
+	bleu	.LL141
+	 nop
+	mov	0, %g1
+.LL140:
+	mov	%g1, %i0
+	restore
+	jmp	%o7+8
+	 nop
+	.size	tlb_shootdown_send_ipi, .-tlb_shootdown_send_ipi
+	.align 4
 	.type	tlb_shootdown_page, #function
 	.proc	016
 tlb_shootdown_page:
@@ -1755,11 +1774,12 @@ tlb_shootdown_page:
 	st	%i0, [%fp+68]
 	st	%i1, [%fp+72]
 	st	%i2, [%fp+76]
-	st	%g0, [%fp-8]
+	st	%g0, [%fp-12]
 	call	this_core_id, 0
 	 nop
 	mov	%o0, %g1
-	st	%g1, [%fp-4]
+	st	%g1, [%fp-8]
+	st	%g0, [%fp-4]
 	ld	[%fp+68], %o0
 	ld	[%fp+72], %o1
 	call	tlb_flush_page, 0
@@ -1775,7 +1795,7 @@ tlb_shootdown_page:
 	 nop
 	mov	%o0, %g1
 	add	%g1, 1, %g1
-	st	%g1, [%fp-12]
+	st	%g1, [%fp-16]
 	sethi	%hi(shootdown_va), %g1
 	or	%g1, %lo(shootdown_va), %g1
 	ld	[%fp+68], %o0
@@ -1790,64 +1810,87 @@ tlb_shootdown_page:
 	 nop
 	sethi	%hi(shootdown_number), %g1
 	or	%g1, %lo(shootdown_number), %g1
-	ld	[%fp-12], %o0
+	ld	[%fp-16], %o0
 	mov	%g1, %o1
 	call	__ajit_store_word_mmu_bypass__, 0
 	 nop
-	st	%g0, [%fp-20]
-	b	.LL141
-	 nop
-.LL143:
-	ld	[%fp-20], %g2
-	ld	[%fp-4], %g1
-	cmp	%g2, %g1
-	be	.LL142
-	 nop
-	ld	[%fp-20], %o0
-	mov	0, %o1
-	call	ipi_send, 0
-	 nop
-.LL142:
-	ld	[%fp-20], %g1
-	add	%g1, 1, %g1
-	st	%g1, [%fp-20]
-.LL141:
-	ld	[%fp-20], %g2
-	ld	[%fp+76], %g1
-	cmp	%g2, %g1
-	blu	.LL143
-	 nop
-	st	%g0, [%fp-20]
+	st	%g0, [%fp-24]
 	b	.LL144
 	 nop
-.LL150:
-	ld	[%fp-20], %g2
-	ld	[%fp-4], %g1
+.LL146:
+	ld	[%fp-24], %g2
+	ld	[%fp-8], %g1
 	cmp	%g2, %g1
-	be	.LL152
+	be	.LL145
 	 nop
+	ld	[%fp-24], %o0
+	call	tlb_shootdown_send_ipi, 0
+	 nop
+	mov	%o0, %g1
+	cmp	%g1, 0
+	bne	.LL145
+	 nop
+	ld	[%fp-24], %g1
+	mov	1, %g2
+	sll	%g2, %g1, %g1
+	ld	[%fp-4], %g2
+	or	%g2, %g1, %g1
+	st	%g1, [%fp-4]
 .LL145:
-	st	%g0, [%fp-16]
+	ld	[%fp-24], %g1
+	add	%g1, 1, %g1
+	st	%g1, [%fp-24]
+.LL144:
+	ld	[%fp-24], %g2
+	ld	[%fp+76], %g1
+	cmp	%g2, %g1
+	blu	.LL146
+	 nop
+	st	%g0, [%fp-24]
 	b	.LL147
 	 nop
-.LL149:
-	ld	[%fp-16], %g2
+.LL154:
+	ld	[%fp-24], %g2
+	ld	[%fp-8], %g1
+	cmp	%g2, %g1
+	be	.LL156
+	 nop
+.LL148:
+	ld	[%fp-24], %g1
+	mov	1, %g2
+	sll	%g2, %g1, %g2
+	ld	[%fp-4], %g1
+	and	%g2, %g1, %g1
+	cmp	%g1, 0
+	be	.LL150
+	 nop
+	ld	[%fp-12], %g1
+	add	%g1, 1, %g1
+	st	%g1, [%fp-12]
+	b	.LL149
+	 nop
+.LL150:
+	st	%g0, [%fp-20]
+	b	.LL151
+	 nop
+.LL153:
+	ld	[%fp-20], %g2
 	sethi	%hi(1999872), %g1
 	or	%g1, 127, %g1
 	cmp	%g2, %g1
-	bleu	.LL148
+	bleu	.LL152
 	 nop
-	ld	[%fp-8], %g1
+	ld	[%fp-12], %g1
 	add	%g1, 1, %g1
-	st	%g1, [%fp-8]
-	b	.LL146
+	st	%g1, [%fp-12]
+	b	.LL149
 	 nop
-.LL148:
-	ld	[%fp-16], %g1
-	add	%g1, 1, %g1
-	st	%g1, [%fp-16]
-.LL147:
+.LL152:
 	ld	[%fp-20], %g1
+	add	%g1, 1, %g1
+	st	%g1, [%fp-20]
+.LL151:
+	ld	[%fp-24], %g1
 	sll	%g1, 2, %g2
 	sethi	%hi(shootdown_done), %g1
 	or	%g1, %lo(shootdown_done), %g1
@@ -1856,30 +1899,30 @@ tlb_shootdown_page:
 	call	read_shared, 0
 	 nop
 	mov	%o0, %g2
-	ld	[%fp-12], %g1
+	ld	[%fp-16], %g1
 	cmp	%g2, %g1
-	bne	.LL149
+	bne	.LL153
 	 nop
-	b	.LL146
+	b	.LL149
 	 nop
-.LL152:
+.LL156:
 	nop
-.LL146:
-	ld	[%fp-20], %g1
+.LL149:
+	ld	[%fp-24], %g1
 	add	%g1, 1, %g1
-	st	%g1, [%fp-20]
-.LL144:
-	ld	[%fp-20], %g2
+	st	%g1, [%fp-24]
+.LL147:
+	ld	[%fp-24], %g2
 	ld	[%fp+76], %g1
 	cmp	%g2, %g1
-	blu	.LL150
+	blu	.LL154
 	 nop
 	sethi	%hi(shootdown_lock), %g1
 	or	%g1, %lo(shootdown_lock), %g1
 	mov	%g1, %o0
 	call	release_mutex_using_ldstub, 0
 	 nop
-	ld	[%fp-8], %g1
+	ld	[%fp-12], %g1
 	mov	%g1, %i0
 	restore
 	jmp	%o7+8
@@ -1899,7 +1942,7 @@ main:
 	st	%g1, [%fp-16]
 	ld	[%fp-16], %g1
 	cmp	%g1, 0
-	bne	.LL154
+	bne	.LL158
 	 nop
 	mov	0, %o0
 	call	build_context, 0
@@ -1912,12 +1955,12 @@ main:
 	 nop
 	call	release_tables, 0
 	 nop
-	b	.LL155
+	b	.LL159
 	 nop
-.LL154:
+.LL158:
 	call	wait_for_tables, 0
 	 nop
-.LL155:
+.LL159:
 	mov	0, %o0
 	call	start_mmu, 0
 	 nop
@@ -1927,7 +1970,7 @@ main:
 	 nop
 	ld	[%fp-16], %g1
 	cmp	%g1, 0
-	bne	.LL156
+	bne	.LL160
 	 nop
 	mov	1, %g1
 	st	%g1, [%fp-8]
@@ -1940,17 +1983,17 @@ main:
 	 nop
 	mov	%o0, %g1
 	cmp	%g1, 0
-	bne	.LL157
+	bne	.LL161
 	 nop
 	ld	[%fp-20], %g1
 	or	%g1, 2, %g1
 	st	%g1, [%fp-20]
-.LL157:
+.LL161:
 	mov	1, %g1
 	st	%g1, [%fp-12]
-	b	.LL158
+	b	.LL162
 	 nop
-.LL160:
+.LL164:
 	ld	[%fp-12], %g1
 	sll	%g1, 2, %g2
 	sethi	%hi(finished_holding), %g1
@@ -1961,28 +2004,28 @@ main:
 	 nop
 	mov	%o0, %g1
 	cmp	%g1, 1
-	be	.LL159
+	be	.LL163
 	 nop
 	st	%g0, [%fp-8]
-.LL159:
+.LL163:
 	ld	[%fp-12], %g1
 	add	%g1, 1, %g1
 	st	%g1, [%fp-12]
-.LL158:
+.LL162:
 	ld	[%fp-12], %g1
 	cmp	%g1, 3
-	bleu	.LL160
+	bleu	.LL164
 	 nop
 	ld	[%fp-8], %g1
 	cmp	%g1, 0
-	be	.LL166
+	be	.LL170
 	 nop
 	ld	[%fp-20], %g1
 	or	%g1, 1, %g1
 	st	%g1, [%fp-20]
-	b	.LL162
+	b	.LL166
 	 nop
-.LL156:
+.LL160:
 	call	interrupts_off, 0
 	 nop
 	mov	%o0, %g1
@@ -1990,16 +2033,16 @@ main:
 	call	sync_cores, 0
 	 nop
 	st	%g0, [%fp-24]
-	b	.LL163
+	b	.LL167
 	 nop
-.LL164:
+.LL168:
 	ld	[%fp-24], %g1
 	add	%g1, 1, %g1
 	st	%g1, [%fp-24]
-.LL163:
+.LL167:
 	ld	[%fp-24], %g1
 	cmp	%g1, 2999
-	bleu	.LL164
+	bleu	.LL168
 	 nop
 	ld	[%fp-16], %g1
 	sll	%g1, 2, %g2
@@ -2015,11 +2058,11 @@ main:
 	 nop
 	mov	3, %g1
 	st	%g1, [%fp-20]
-	b	.LL162
+	b	.LL166
 	 nop
-.LL166:
+.LL170:
 	nop
-.LL162:
+.LL166:
 	call	sync_cores, 0
 	 nop
 	ld	[%fp-20], %o0

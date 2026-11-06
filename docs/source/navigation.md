@@ -77,13 +77,14 @@ memory and one set of devices (the `multicore` configuration).
 
 | Page | Description |
 |---|---|
-| [Overview](multicore/index.md) | The system at a glance, the stages it is built in, building and running, and its compile-time knobs. |
-| [Model Structure and Assumptions](multicore/structure.md) | How the cpp_model and the sitar_model are built, the shared bus, interrupts, and where the model makes its own assumptions. |
-| [Execution Model](multicore/execution_model.md) | How each model runs several cores, what a cycle means in each, and why results can differ between them. |
-| [Programming the System](multicore/programming.md) | The startup file, the core ID, sharing data with and without coherent caches, locks and other synchronization, interrupts on several cores, and the routines provided. |
+| [Overview](multicore/index.md) | The system at a glance, a first run, the ways to run a program, and the system's options. |
+| [Programming the System](multicore/programming.md) | The startup file, the core ID, sharing data with and without coherent caches, locks and other synchronization, interrupts on several cores, shared devices, TLB shootdown, and the routines provided. |
+| [OpenMP Programs](multicore/openmp.md) | Programs written with real OpenMP pragmas, the runtime behind them, what is supported, and its limits. |
 | [Example Programs](multicore/examples.md) | A parallel array sum and a parallel matrix multiply, explained. |
 | [Logging and Debugging](multicore/debugging.md) | Per-core traces, gdb with several cores, statistics, and finding data races. |
-| [Validation Suite](multicore/validation.md) | The multicore tests, how each core's results are checked, and how to run them. |
+| [Execution Model](multicore/execution_model.md) | How each model runs several cores, what a cycle means in each, and why results can differ between them. |
+| [Model Structure and Assumptions](multicore/structure.md) | How the cpp_model and the sitar_model are built, the shared bus, its lock and coherence, interrupts, and where the model makes its own assumptions. |
+| [Validation Suite](multicore/validation.md) | The multicore tests, how each core's results are checked, how they were shown able to fail, how to run them, and what they do not cover. |
 | [Parallel Simulation](multicore/parallel_simulation.md) | Building and running the sitar_model on several host threads, and dividing its modules among them. |
 
 ## The APARA Accelerator
@@ -109,6 +110,7 @@ processor as an accelerator. These pages cover the engine on its own
 
 | Page | Description |
 |---|---|
+| [Reference Documents](references.md) | The SPARC manual, the AJIT processor description and the APARA microarchitecture document, in copies kept here. |
 | [Development Notes](development_notes.md) | For contributors: repository layout, extending the core, adding tests. |
 | [Authors](authors.md) | Who built this project, and credits for the adapted validation suite. |
 | [License](license.md) | The MIT License this project is released under. |
