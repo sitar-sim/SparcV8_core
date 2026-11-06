@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 520" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="1100" height="520" fill="#ffffff"/>
+
+  <defs>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#000000"/>
+    </marker>
+    <marker id="arrowGrey" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="16" markerHeight="16" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 Z" fill="#8a8a8a"/>
+    </marker>
+    <style>
+      .box   { stroke: #000000; stroke-width: 1.5; }
+      .cpu   { fill: #dbe9f7; }
+      .mem   { fill: #e2f0d9; }
+      .dev   { fill: #fdf1d6; }
+      .eng   { fill: #e8e0f5; }
+      .title { font-size: 18px; font-weight: bold; text-anchor: middle; }
+      .sig   { font-size: 16px; text-anchor: middle; }
+      .pin   { font-size: 14px; text-anchor: middle; fill: #333333; }
+      .lbl   { font-size: 14px; fill: #333333; }
+      .note  { font-size: 13px; fill: #666666; }
+      .bus   { stroke: #8a8a8a; stroke-width: 5; }
+      .tap   { stroke: #8a8a8a; stroke-width: 5; marker-start: url(#arrowGrey); marker-end: url(#arrowGrey); }
+      .wire  { stroke: #000000; stroke-width: 2; fill: none; marker-end: url(#arrow); }
+    </style>
+  </defs>
+
+  <!-- ===== Top: the SPARC core ===== -->
+  <rect class="box cpu" x="80" y="30" width="340" height="90"/>
+  <text class="title" x="250" y="68">SPARC V8 Core</text>
+  <text class="pin" x="250" y="94">with its L1 caches and MMU</text>
+
+  <!-- ===== The system bus ===== -->
+  <line class="bus" x1="40" y1="200" x2="1080" y2="200"/>
+  <text x="1060" y="170" font-size="16" fill="#333333" text-anchor="end">System bus</text>
+  <text class="note" x="1060" y="188" text-anchor="end">one transaction at a time, its two masters taken round robin</text>
+
+  <!-- core: master 1 -->
+  <line class="tap" x1="250" y1="120" x2="250" y2="200"/>
+  <text class="lbl" x="264" y="165">master 1</text>
+
+  <!-- main memory and devices: targets -->
+  <line class="tap" x1="160" y1="200" x2="160" y2="300"/>
+  <line class="tap" x1="470" y1="200" x2="470" y2="300"/>
+
+  <!-- engine: a target (the SPARC's accesses) and master 2 -->
+  <line class="tap" x1="700" y1="200" x2="700" y2="300"/>
+  <text class="lbl" x="714" y="236">the SPARC's</text>
+  <text class="note" x="714" y="254">accesses to its</text>
+  <text class="note" x="714" y="270">three windows</text>
+
+  <line class="tap" x1="1020" y1="200" x2="1020" y2="300"/>
+  <text class="lbl" x="1006" y="236" text-anchor="end">master 2</text>
+  <text class="note" x="1006" y="254" text-anchor="end">DMA copies, and</text>
+  <text class="note" x="1006" y="270" text-anchor="end">loads and stores</text>
+  <text class="note" x="1006" y="286" text-anchor="end">outside DMEM</text>
+
+  <!-- ===== Bottom row ===== -->
+  <rect class="box mem" x="60" y="300" width="200" height="100"/>
+  <text class="title" x="160" y="356">Main Memory</text>
+
+  <rect class="box dev" x="320" y="300" width="300" height="100"/>
+  <text class="title" x="470" y="340">Peripheral Devices</text>
+  <text class="pin" x="470" y="366">Timer, Serial,</text>
+  <text class="pin" x="470" y="384">Interrupt Controller</text>
+
+  <rect class="box eng" x="660" y="300" width="400" height="100"/>
+  <text class="title" x="860" y="334">APARA Engine</text>
+  <text class="pin" x="860" y="360">control unit, DMA unit, IMEM, DMEM,</text>
+  <text class="pin" x="860" y="380">4 threads, pipeline</text>
+
+  <!-- ===== Interrupts ===== -->
+  <!-- engine -> Interrupt Controller -->
+  <path class="wire" d="M 860,400 V 450 H 560 V 400"/>
+  <text class="sig" x="710" y="440">interrupt (IRL 14)</text>
+
+  <!-- Interrupt Controller -> core -->
+  <path class="wire" d="M 380,400 V 490 H 30 V 75 H 80"/>
+  <text class="sig" x="205" y="480">interrupt level</text>
+</svg>

@@ -1,0 +1,37 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 320" font-family="Helvetica, Arial, sans-serif">
+  <rect x="0" y="0" width="700" height="320" fill="#ffffff"/>
+  <defs>
+    <marker id="fsmArrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#000000"/>
+    </marker>
+  </defs>
+
+  <ellipse cx="110" cy="130" rx="90" ry="45" fill="#fdf1d6" stroke="#000000" stroke-width="1.5"/>
+  <text x="110" y="136" text-anchor="middle" font-size="14" font-weight="bold">TX_DISABLED</text>
+
+  <ellipse cx="400" cy="130" rx="90" ry="45" fill="#fdf1d6" stroke="#000000" stroke-width="1.5"/>
+  <text x="400" y="136" text-anchor="middle" font-size="14" font-weight="bold">TX_ENABLED</text>
+
+  <ellipse cx="620" cy="230" rx="70" ry="60" fill="#fdf1d6" stroke="#000000" stroke-width="1.5"/>
+  <text x="620" y="230" text-anchor="middle" font-size="13" font-weight="bold">TX_</text>
+  <text x="620" y="247" text-anchor="middle" font-size="13" font-weight="bold">TRANSMITTING</text>
+
+  <line x1="10" y1="80" x2="70" y2="105" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow3)"/>
+  <text x="5" y="70" font-size="13">RESET</text>
+
+  <path d="M 200,120 C 260,112 320,112 310,120" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow3)"/>
+  <text x="255" y="98" text-anchor="middle" font-size="12">Tx_en==1 / Tx_full=0</text>
+
+  <path d="M 310,148 C 260,160 200,155 200,145" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow3)"/>
+  <text x="255" y="178" text-anchor="middle" font-size="12">Tx_en==0</text>
+
+  <path d="M 465,152 C 500,175 540,190 578,197" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow3)"/>
+  <text x="470" y="215" text-anchor="middle" font-size="12">write to Tx reg /</text>
+  <text x="470" y="230" text-anchor="middle" font-size="12">Tx_full=1</text>
+
+  <path d="M 602,178 C 560,145 520,120 478,122" fill="none" stroke="#000000" stroke-width="1.5" marker-end="url(#fsmArrow3)"/>
+  <text x="620" y="120" text-anchor="middle" font-size="12">Tx finished transmitting /</text>
+  <text x="620" y="135" text-anchor="middle" font-size="12">Tx_full=0</text>
+
+  <text x="350" y="300" text-anchor="middle" font-size="13" fill="#555555">Transmit side. Control register bit[0]=Tx_en, bit[3]=Tx_full (read-only).</text>
+</svg>

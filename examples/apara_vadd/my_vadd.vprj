@@ -1,0 +1,5 @@
+SOURCES = my_vadd.c
+MCODE = vadd.mcode
+
+RESULTS =
+o0=0x00000001
