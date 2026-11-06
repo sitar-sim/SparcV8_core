@@ -1505,6 +1505,34 @@
   
   
     <li class="md-nav__item">
+      <a href="openmp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMP Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="examples.html" class="md-nav__link">
         
   
@@ -1692,6 +1720,17 @@
     <span class="md-ellipsis">
       
         TLB shootdown
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#openmp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenMP
       
     </span>
   </a>
@@ -2367,6 +2406,17 @@
 </li>
         
           <li class="md-nav__item">
+  <a href="#openmp" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        OpenMP
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
   <a href="#checking-that-the-tests-can-fail" class="md-nav__link">
     <span class="md-ellipsis">
       
@@ -2838,6 +2888,88 @@ from each. <code>tlb_shootdown/</code> tests <code>tlb_shootdown_page()</code>.<
 </tr>
 </tbody>
 </table>
+<h3 id="openmp">OpenMP<a class="headerlink" href="#openmp" title="Permanent link">&para;</a></h3>
+<p><code>openmp/</code> tests the <a href="openmp.html">OpenMP runtime</a> with real pragmas, through programs that also
+build with the host's <code>gcc -fopenmp</code>. The script <code>check_on_host.py</code> in that folder runs the
+eleven that fit on a host, with four threads, and compares their results with what the <code>.vprj</code>
+files expect. The four it skips depend on this system. They count its cores, end the run with
+an error code, run on one core, or print on its console.</p>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Checks</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>openmp/parallel_team</code></td>
+<td>Team sizes through <code>num_threads</code>, <code>if</code> and <code>omp_set_num_threads()</code>, the data clauses, many regions in a row, and the settings a worker takes from the thread that started the region.</td>
+</tr>
+<tr>
+<td><code>openmp/loop_schedules</code></td>
+<td>Every schedule, on its own and combined with <code>parallel</code>, also <code>collapse</code>, loops with no iterations, and the size of a guided loop's first chunk. Every iteration runs exactly once.</td>
+</tr>
+<tr>
+<td><code>openmp/ordered_loops</code></td>
+<td><code>ordered</code> blocks run in the loop's order under every schedule, also when a chunk skips the block and finishes before an older one.</td>
+</tr>
+<tr>
+<td><code>openmp/sync_constructs</code></td>
+<td><code>critical</code>, named and unnamed, <code>atomic</code>, <code>reduction</code>, <code>barrier</code>, <code>master</code> and <code>flush</code>.</td>
+</tr>
+<tr>
+<td><code>openmp/single_and_nowait</code></td>
+<td><code>single</code> and <code>copyprivate</code>, and one thread held back until the others have filled the runtime's ring of work-shares.</td>
+</tr>
+<tr>
+<td><code>openmp/sections</code></td>
+<td>Each section runs once, in any size of team, also with <code>lastprivate</code> and <code>nowait</code>.</td>
+</tr>
+<tr>
+<td><code>openmp/locks</code></td>
+<td><code>omp_</code> locks and nested locks, also the owner of a nested lock.</td>
+</tr>
+<tr>
+<td><code>openmp/nested_and_orphaned</code></td>
+<td>A nested region has a team of one, and work-sharing pragmas work outside the function holding the region.</td>
+</tr>
+<tr>
+<td><code>openmp/nested_too_deep</code></td>
+<td>Nesting past the limit ends the run with the code <code>0xBAD0E571</code>.</td>
+</tr>
+<tr>
+<td><code>openmp/tasks</code></td>
+<td>Tasks run, with their own copies of <code>firstprivate</code> data, and <code>taskwait</code> finishes.</td>
+</tr>
+<tr>
+<td><code>openmp/threadprivate</code></td>
+<td>Each thread has its own copy, initialized, and <code>copyin</code> works.</td>
+</tr>
+<tr>
+<td><code>openmp/floating_point</code></td>
+<td>Every core can use the FPU in a region.</td>
+</tr>
+<tr>
+<td><code>openmp/on_one_core</code></td>
+<td>With <code>--run-cores 1</code> a program finishes, with teams of one.</td>
+</tr>
+<tr>
+<td><code>openmp/num_procs</code></td>
+<td><code>omp_get_num_procs()</code> finds all four cores, and a program's return value reaches <code>%o0</code>.</td>
+</tr>
+<tr>
+<td><code>openmp/console_in_a_region</code></td>
+<td>The console routines work from inside a region.</td>
+</tr>
+<tr>
+<td><code>examples/openmp_matmul</code></td>
+<td>The <a href="openmp.html#a-worked-example">worked example</a>, checked against the same product done by core 0 alone.</td>
+</tr>
+</tbody>
+</table>
+<p>A hang in the runtime shows up as a run reaching its cycle limit, so these tests are the exception
+to the bounded waits described <a href="#checking-that-the-tests-can-fail">below</a>.</p>
 <h3 id="checking-that-the-tests-can-fail">Checking that the tests can fail<a class="headerlink" href="#checking-that-the-tests-can-fail" title="Permanent link">&para;</a></h3>
 <p>A test that cannot fail proves nothing, so these were also run on a
 sitar_model with the bus lock turned off. Eight of the ten <code>atomics/</code>
@@ -2958,6 +3090,115 @@ the writes at the end of each round. A stale cache only ever shows old values, w
 is not an outcome any litmus test forbids.</p>
 <p>Every wait for another core is bounded, so a broken model makes a test
 fail rather than run until its cycle limit.</p>
+<p>The OpenMP tests were checked the same way, with mistakes in the runtime. Each mistake below was
+run on the cpp_model under its default schedule and under <code>rr:1</code>, and on the sitar_model, and each
+is caught on all three unless the table says otherwise.</p>
+<table>
+<thead>
+<tr>
+<th>Mistake</th>
+<th>Tests that then fail</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>A barrier does not wait</td>
+<td>Most of <code>openmp/</code>.</td>
+</tr>
+<tr>
+<td><code>critical</code>, named or unnamed, takes no lock, or all names share one lock</td>
+<td><code>sync_constructs</code>.</td>
+</tr>
+<tr>
+<td><code>atomic</code> takes no lock</td>
+<td><code>sync_constructs</code>, <code>parallel_team</code>, <code>nested_and_orphaned</code> and <code>floating_point</code>.</td>
+</tr>
+<tr>
+<td>A loop's chunks are taken without the lock</td>
+<td><code>loop_schedules</code>, <code>ordered_loops</code>, <code>sections</code>, <code>single_and_nowait</code>, <code>nested_and_orphaned</code> and <code>floating_point</code>.</td>
+</tr>
+<tr>
+<td><code>ordered</code> does not wait, or a chunk passes on a turn it does not hold</td>
+<td><code>ordered_loops</code>.</td>
+</tr>
+<tr>
+<td>A slot of the work-share ring is taken over too early</td>
+<td><code>single_and_nowait</code>.</td>
+</tr>
+<tr>
+<td>A thread waits for a ring slot by retrying under the lock</td>
+<td><code>single_and_nowait</code>, on the cpp_model only. The cores run in lock step there, and the thread that must leave the slot never gets the lock.</td>
+</tr>
+<tr>
+<td>Every thread is first in a work-share, or none is first in <code>single</code></td>
+<td>Several tests, among them <code>single_and_nowait</code>.</td>
+</tr>
+<tr>
+<td><code>copyprivate</code> passes no data, or skips its barrier</td>
+<td><code>single_and_nowait</code>.</td>
+</tr>
+<tr>
+<td><code>num_threads</code> is ignored</td>
+<td><code>parallel_team</code>, <code>nested_and_orphaned</code> and <code>nested_too_deep</code>.</td>
+</tr>
+<tr>
+<td>A team is not limited to the cores</td>
+<td><code>parallel_team</code>.</td>
+</tr>
+<tr>
+<td>The census assumes every core is running</td>
+<td><code>on_one_core</code>.</td>
+</tr>
+<tr>
+<td>A nested region gets a real team</td>
+<td><code>nested_and_orphaned</code>.</td>
+</tr>
+<tr>
+<td>A nested region's level is not undone</td>
+<td><code>nested_and_orphaned</code>, <code>parallel_team</code> and <code>loop_schedules</code>.</td>
+</tr>
+<tr>
+<td>A worker keeps its old settings</td>
+<td><code>parallel_team</code>.</td>
+</tr>
+<tr>
+<td>Static chunks ignore the thread number</td>
+<td><code>loop_schedules</code> and <code>ordered_loops</code>.</td>
+</tr>
+<tr>
+<td>Guided ignores the share of what is left</td>
+<td><code>loop_schedules</code>.</td>
+</tr>
+<tr>
+<td>A dynamic loop overruns on its last chunk</td>
+<td><code>loop_schedules</code> and <code>nested_and_orphaned</code>.</td>
+</tr>
+<tr>
+<td>A task's data is not copied, or not aligned</td>
+<td><code>tasks</code>.</td>
+</tr>
+<tr>
+<td>A lock test always takes the lock, or a nested lock does not check its owner or depth</td>
+<td><code>locks</code>.</td>
+</tr>
+<tr>
+<td>The FPU is left off</td>
+<td><code>floating_point</code> and <code>tasks</code>.</td>
+</tr>
+<tr>
+<td>Thread-local data is shared, or not initialized</td>
+<td><code>threadprivate</code>.</td>
+</tr>
+<tr>
+<td>Nesting too deep is not caught</td>
+<td><code>nested_too_deep</code>.</td>
+</tr>
+<tr>
+<td>Workers are not stopped at the end</td>
+<td>Nearly every test, which then reach their cycle limit.</td>
+</tr>
+</tbody>
+</table>
 <hr />
 <h2 id="running-the-suite">Running the suite<a class="headerlink" href="#running-the-suite" title="Permanent link">&para;</a></h2>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>validation/run_tests.py<span class="w"> </span>validation/multicore<span class="w"> </span>--config<span class="w"> </span>multicore

@@ -400,7 +400,7 @@ configuration does not have:
 ```
 skipped 13 test(s) under validation/C/caches: core_only has no caches
 ...
-241/241 tests passed (234 skipped)
+241/241 tests passed (250 skipped)
 ```
 
 By default, the runner tests the C++ model of `core_only`. The

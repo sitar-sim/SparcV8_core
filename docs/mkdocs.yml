@@ -107,6 +107,7 @@ nav:
       - Model Structure and Assumptions: multicore/structure.md
       - Execution Model: multicore/execution_model.md
       - Programming the System: multicore/programming.md
+      - OpenMP Programs: multicore/openmp.md
       - Example Programs: multicore/examples.md
       - Logging and Debugging: multicore/debugging.md
       - Validation Suite: multicore/validation.md

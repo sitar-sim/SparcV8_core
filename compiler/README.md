@@ -72,8 +72,8 @@ build). `compile_c.sh` puts it on the include path. See the C Programs
 and "The Engine in a System" pages of the documentation.
 
 `sparc_common_routines/` holds header-only routines for programs running
-on several cores (`multicore_core.h`, `multicore_sync.h`), also on the
-include path. See its README.
+on several cores (`multicore_core.h`, `multicore_sync.h`), and an OpenMP
+runtime (`omp.h`), also on the include path. See its README.
 
 ## `apara/`
 

@@ -406,6 +406,7 @@ not send IPIs or start a shootdown.
 | `interrupts_off()`, `interrupts_restore()` | `compiler/sparc_common_routines/multicore_platform.h` | Hold this core's maskable interrupts off, and let them back on. |
 | `mmu_context()`, `mmu_set_context()`, `tlb_flush_page()`, `tlb_flush_entire()` | `compiler/sparc_common_routines/multicore_platform.h` | Read or change this core's MMU context, and drop its own translations. |
 | `tlb_shootdown_start_on_this_core()`, `tlb_shootdown_page()` | `compiler/sparc_common_routines/multicore_platform.h` | See [TLB shootdown](#tlb-shootdown). |
+| OpenMP's `omp_` routines, and the runtime behind its pragmas | `compiler/sparc_common_routines/omp.h` | See [OpenMP Programs](openmp.md). |
 | `report_and_halt()` | `validation/multicore/multicore_common.h` | Reports this core's checks in `%o0` and `%o1`, and halts. |
 | `finish_and_wait_for_all()` | `validation/multicore/multicore_common.h` | Marks this core finished in a word of its own and waits for the others, so that every core can check a final result. |
 | `NUM_CORES`, `SHARED_BASE`, `WAIT_LIMIT` | `validation/multicore/multicore_common.h` | The number of cores the tests assume, a shared area for results at `0x00100000`, and the bound on every wait loop. |
@@ -418,4 +419,5 @@ the validation suite. A program outside `validation/multicore/` can
 include it by its path, or copy what it needs. The IPI routines of `ajit_ipi.h` write a
 message only once the destination is free, so an IPI not yet taken keeps its message.
 
-Support for OpenMP programs is planned, on top of these routines.
+A program can also leave the division of work to OpenMP's pragmas, which run on top of these
+routines. See [OpenMP Programs](openmp.md).

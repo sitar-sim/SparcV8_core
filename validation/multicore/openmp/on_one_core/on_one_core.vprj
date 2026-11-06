@@ -1,0 +1,10 @@
+SOURCES = on_one_core.c
+STARTUP = crt0_multicore.s
+COMPILE_OPTIONS = -fopenmp
+MAX_CYCLES = 13200000
+RUN_OPTIONS = --coherent --run-cores 1
+
+
+RESULTS =
+o0=0x00000001
+o1=0x00000007

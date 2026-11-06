@@ -99,11 +99,13 @@ Before running a test, `run_tests.py` parses this and normalizes it into
 the plain `REG <name> <hex value> [mask]` / `MEM <addr> <hex value>
 [mask]` format, writing it to a `.expected` file alongside the test.
 
-Four optional lines, used by the device, APARA and multicore tests:
+Optional lines, used by the device, APARA and multicore tests:
 
 - `STARTUP = crt0_interrupts.s`, before `RESULTS`, links that startup
   file instead of `compiler/crt0.s` (C tests only). Multicore tests use
   `STARTUP = crt0_multicore.s`.
+- `COMPILE_OPTIONS = -fopenmp`, before `RESULTS`, adds options to the
+  compiler's command line (C tests only).
 - `MCODE = kernel.mcode`, before `RESULTS`, names an APARA engine
   program the test carries, in mcode or in C (`MCODE = kernel.c`).
   Before compiling, `build_hex.py` assembles or compiles it, and writes
@@ -206,10 +208,10 @@ skipped 13 test(s) under validation/C/caches: core_only has no caches
 skipped 9 test(s) under validation/C/devices: core_only has no devices
 skipped 16 test(s) under validation/C/mmu: core_only has no mmu
 skipped 108 test(s) under validation/apara: core_only has no apara_standalone
-skipped 62 test(s) under validation/multicore: core_only has no devices, multicore
+skipped 78 test(s) under validation/multicore: core_only has no devices, multicore
 skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
 
-241/241 tests passed (234 skipped)
+241/241 tests passed (250 skipped)
 ```
 
 The components, and which configuration has which:
@@ -376,7 +378,7 @@ components, each living in its own folder:
 - **`validation/multicore/`**  
     Programs that run on several cores at once: startup of every core,
     the run ending only once every core has halted, interrupts to
-    chosen cores, and two worked examples. Needs `multicore`, built with its
+    chosen cores, OpenMP programs, and three worked examples. Needs `multicore`, built with its
     default four cores. See the multicore [Validation
     Suite](multicore/validation.md) page.
 - **`validation/sparc_apara/`**  

@@ -51,6 +51,12 @@ def build_one(vprj_path, env):
             return False, "ERROR: STARTUP only applies to C tests (%s)" % source
         env = dict(env, CRT0=startup)
 
+    compile_options = vprj.parse_compile_options(vprj_path)
+    if compile_options:
+        if ext != '.c':
+            return False, "ERROR: COMPILE_OPTIONS only applies to C tests (%s)" % source
+        env = dict(env, COMPILE_OPTIONS=compile_options)
+
     for program in vprj.parse_mcode(vprj_path):
         if ext != '.c':
             return False, "ERROR: MCODE only applies to C tests (%s)" % source

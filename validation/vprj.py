@@ -15,6 +15,8 @@ SOURCES_LINE_RE = re.compile(r'^SOURCES\s*=\s*(\S+)')
 # Optional: a startup file to link instead of compiler/crt0.s (C tests
 # only), e.g. `STARTUP = crt0_interrupts.s`.
 STARTUP_LINE_RE = re.compile(r'^STARTUP\s*=\s*(\S+)')
+# e.g. `COMPILE_OPTIONS = -fopenmp`: extra options for compiling a C test.
+COMPILE_OPTIONS_LINE_RE = re.compile(r'^COMPILE_OPTIONS\s*=\s*(.*)$')
 # Optional: a test that legitimately runs long raises its own cycle limit,
 # e.g. `MAX_CYCLES = 1000000` (the runner uses the larger of this and its
 # --max-cycles).
@@ -72,6 +74,15 @@ def parse_startup(path):
             if m:
                 return m.group(1)
     return None
+
+
+def parse_compile_options(path):
+    with open(path) as f:
+        for line in f:
+            m = COMPILE_OPTIONS_LINE_RE.match(line)
+            if m:
+                return m.group(1).strip()
+    return ''
 
 
 def parse_max_cycles(path):

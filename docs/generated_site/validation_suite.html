@@ -1672,6 +1672,34 @@
   
   
     <li class="md-nav__item">
+      <a href="multicore/openmp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMP Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
+  
+  
+    <li class="md-nav__item">
       <a href="multicore/examples.html" class="md-nav__link">
         
   
@@ -2524,11 +2552,13 @@ works right after cloning.</p>
 <p>Before running a test, <code>run_tests.py</code> parses this and normalizes it into
 the plain <code>REG &lt;name&gt; &lt;hex value&gt; [mask]</code> / <code>MEM &lt;addr&gt; &lt;hex value&gt;
 [mask]</code> format, writing it to a <code>.expected</code> file alongside the test.</p>
-<p>Four optional lines, used by the device, APARA and multicore tests:</p>
+<p>Optional lines, used by the device, APARA and multicore tests:</p>
 <ul>
 <li><code>STARTUP = crt0_interrupts.s</code>, before <code>RESULTS</code>, links that startup
   file instead of <code>compiler/crt0.s</code> (C tests only). Multicore tests use
   <code>STARTUP = crt0_multicore.s</code>.</li>
+<li><code>COMPILE_OPTIONS = -fopenmp</code>, before <code>RESULTS</code>, adds options to the
+  compiler's command line (C tests only).</li>
 <li><code>MCODE = kernel.mcode</code>, before <code>RESULTS</code>, names an APARA engine
   program the test carries, in mcode or in C (<code>MCODE = kernel.c</code>).
   Before compiling, <code>build_hex.py</code> assembles or compiles it, and writes
@@ -2629,10 +2659,10 @@ configuration has, and lists the folders it skipped, with the reason:</p>
 </span><span id="__span-5-2"><a id="__codelineno-5-2" name="__codelineno-5-2" href="#__codelineno-5-2"></a>skipped 9 test(s) under validation/C/devices: core_only has no devices
 </span><span id="__span-5-3"><a id="__codelineno-5-3" name="__codelineno-5-3" href="#__codelineno-5-3"></a>skipped 16 test(s) under validation/C/mmu: core_only has no mmu
 </span><span id="__span-5-4"><a id="__codelineno-5-4" name="__codelineno-5-4" href="#__codelineno-5-4"></a>skipped 108 test(s) under validation/apara: core_only has no apara_standalone
-</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>skipped 62 test(s) under validation/multicore: core_only has no devices, multicore
+</span><span id="__span-5-5"><a id="__codelineno-5-5" name="__codelineno-5-5" href="#__codelineno-5-5"></a>skipped 78 test(s) under validation/multicore: core_only has no devices, multicore
 </span><span id="__span-5-6"><a id="__codelineno-5-6" name="__codelineno-5-6" href="#__codelineno-5-6"></a>skipped 26 test(s) under validation/sparc_apara: core_only has no apara, devices
 </span><span id="__span-5-7"><a id="__codelineno-5-7" name="__codelineno-5-7" href="#__codelineno-5-7"></a>
-</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>241/241 tests passed (234 skipped)
+</span><span id="__span-5-8"><a id="__codelineno-5-8" name="__codelineno-5-8" href="#__codelineno-5-8"></a>241/241 tests passed (250 skipped)
 </span></code></pre></div>
 <p>The components, and which configuration has which:</p>
 <table>
@@ -2882,7 +2912,7 @@ components, each living in its own folder:</p>
 <li><strong><code>validation/multicore/</code></strong><br />
     Programs that run on several cores at once: startup of every core,
     the run ending only once every core has halted, interrupts to
-    chosen cores, and two worked examples. Needs <code>multicore</code>, built with its
+    chosen cores, OpenMP programs, and three worked examples. Needs <code>multicore</code>, built with its
     default four cores. See the multicore <a href="multicore/validation.html">Validation
     Suite</a> page.</li>
 <li><strong><code>validation/sparc_apara/</code></strong><br />

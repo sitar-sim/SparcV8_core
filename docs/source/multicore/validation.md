@@ -165,6 +165,36 @@ from each. `tlb_shootdown/` tests `tlb_shootdown_page()`.
 | `tlb_shootdown/waits_for_every_core` | The other cores hold their interrupts off for a while. The shootdown must not return before they have answered. |
 | `tlb_shootdown/core_that_does_not_answer` | One core holds its interrupts off until the shootdown returns. It must return anyway, and report that core. |
 
+### OpenMP
+
+`openmp/` tests the [OpenMP runtime](openmp.md) with real pragmas, through programs that also
+build with the host's `gcc -fopenmp`. The script `check_on_host.py` in that folder runs the
+eleven that fit on a host, with four threads, and compares their results with what the `.vprj`
+files expect. The four it skips depend on this system. They count its cores, end the run with
+an error code, run on one core, or print on its console.
+
+| Test | Checks |
+|---|---|
+| `openmp/parallel_team` | Team sizes through `num_threads`, `if` and `omp_set_num_threads()`, the data clauses, many regions in a row, and the settings a worker takes from the thread that started the region. |
+| `openmp/loop_schedules` | Every schedule, on its own and combined with `parallel`, also `collapse`, loops with no iterations, and the size of a guided loop's first chunk. Every iteration runs exactly once. |
+| `openmp/ordered_loops` | `ordered` blocks run in the loop's order under every schedule, also when a chunk skips the block and finishes before an older one. |
+| `openmp/sync_constructs` | `critical`, named and unnamed, `atomic`, `reduction`, `barrier`, `master` and `flush`. |
+| `openmp/single_and_nowait` | `single` and `copyprivate`, and one thread held back until the others have filled the runtime's ring of work-shares. |
+| `openmp/sections` | Each section runs once, in any size of team, also with `lastprivate` and `nowait`. |
+| `openmp/locks` | `omp_` locks and nested locks, also the owner of a nested lock. |
+| `openmp/nested_and_orphaned` | A nested region has a team of one, and work-sharing pragmas work outside the function holding the region. |
+| `openmp/nested_too_deep` | Nesting past the limit ends the run with the code `0xBAD0E571`. |
+| `openmp/tasks` | Tasks run, with their own copies of `firstprivate` data, and `taskwait` finishes. |
+| `openmp/threadprivate` | Each thread has its own copy, initialized, and `copyin` works. |
+| `openmp/floating_point` | Every core can use the FPU in a region. |
+| `openmp/on_one_core` | With `--run-cores 1` a program finishes, with teams of one. |
+| `openmp/num_procs` | `omp_get_num_procs()` finds all four cores, and a program's return value reaches `%o0`. |
+| `openmp/console_in_a_region` | The console routines work from inside a region. |
+| `examples/openmp_matmul` | The [worked example](openmp.md#a-worked-example), checked against the same product done by core 0 alone. |
+
+A hang in the runtime shows up as a run reaching its cycle limit, so these tests are the exception
+to the bounded waits described [below](#checking-that-the-tests-can-fail).
+
 ### Checking that the tests can fail
 
 A test that cannot fail proves nothing, so these were also run on a
@@ -213,6 +243,37 @@ is not an outcome any litmus test forbids.
 
 Every wait for another core is bounded, so a broken model makes a test
 fail rather than run until its cycle limit.
+
+The OpenMP tests were checked the same way, with mistakes in the runtime. Each mistake below was
+run on the cpp_model under its default schedule and under `rr:1`, and on the sitar_model, and each
+is caught on all three unless the table says otherwise.
+
+| Mistake | Tests that then fail |
+|---|---|
+| A barrier does not wait | Most of `openmp/`. |
+| `critical`, named or unnamed, takes no lock, or all names share one lock | `sync_constructs`. |
+| `atomic` takes no lock | `sync_constructs`, `parallel_team`, `nested_and_orphaned` and `floating_point`. |
+| A loop's chunks are taken without the lock | `loop_schedules`, `ordered_loops`, `sections`, `single_and_nowait`, `nested_and_orphaned` and `floating_point`. |
+| `ordered` does not wait, or a chunk passes on a turn it does not hold | `ordered_loops`. |
+| A slot of the work-share ring is taken over too early | `single_and_nowait`. |
+| A thread waits for a ring slot by retrying under the lock | `single_and_nowait`, on the cpp_model only. The cores run in lock step there, and the thread that must leave the slot never gets the lock. |
+| Every thread is first in a work-share, or none is first in `single` | Several tests, among them `single_and_nowait`. |
+| `copyprivate` passes no data, or skips its barrier | `single_and_nowait`. |
+| `num_threads` is ignored | `parallel_team`, `nested_and_orphaned` and `nested_too_deep`. |
+| A team is not limited to the cores | `parallel_team`. |
+| The census assumes every core is running | `on_one_core`. |
+| A nested region gets a real team | `nested_and_orphaned`. |
+| A nested region's level is not undone | `nested_and_orphaned`, `parallel_team` and `loop_schedules`. |
+| A worker keeps its old settings | `parallel_team`. |
+| Static chunks ignore the thread number | `loop_schedules` and `ordered_loops`. |
+| Guided ignores the share of what is left | `loop_schedules`. |
+| A dynamic loop overruns on its last chunk | `loop_schedules` and `nested_and_orphaned`. |
+| A task's data is not copied, or not aligned | `tasks`. |
+| A lock test always takes the lock, or a nested lock does not check its owner or depth | `locks`. |
+| The FPU is left off | `floating_point` and `tasks`. |
+| Thread-local data is shared, or not initialized | `threadprivate`. |
+| Nesting too deep is not caught | `nested_too_deep`. |
+| Workers are not stopped at the end | Nearly every test, which then reach their cycle limit. |
 
 ---
 

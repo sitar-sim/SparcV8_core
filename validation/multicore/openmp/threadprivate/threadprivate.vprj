@@ -1,0 +1,13 @@
+SOURCES = threadprivate.c
+STARTUP = crt0_multicore.s
+COMPILE_OPTIONS = -fopenmp
+MAX_CYCLES = 2000000
+RUN_OPTIONS = --coherent
+
+
+RESULTS =
+o0=0x00000001
+o1=0x0000001f
+core1.o0=0x00000001
+core2.o0=0x00000001
+core3.o0=0x00000001

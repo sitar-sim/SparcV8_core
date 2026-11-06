@@ -1,0 +1,13 @@
+SOURCES = console_in_a_region.c
+STARTUP = crt0_multicore.s
+COMPILE_OPTIONS = -fopenmp
+MAX_CYCLES = 2000000
+RUN_OPTIONS = --coherent
+
+
+RESULTS =
+o0=0x00000001
+core1.o0=0x00000001
+core2.o0=0x00000001
+core3.o0=0x00000001
+serial_lines = "thread 0 says hello\nthread 1 says hello\nthread 2 says hello\nthread 3 says hello\n"

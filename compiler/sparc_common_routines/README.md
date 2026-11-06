@@ -8,6 +8,7 @@ path, so a program only needs the `#include`.
 |---|---|
 | `multicore_core.h` | This core's ID, uncached reads of what another core wrote, and flushing this core's caches. |
 | `multicore_sync.h` | The atomic instructions (`LDSTUB`, `SWAP`), mutexes with the names and arguments of AJIT's, an atomic counter, a ticket lock, a barrier and a semaphore. |
+| `omp.h` | An OpenMP runtime for programs built with `-fopenmp`, kept whole in this one header, which holds `main()` as well. Include it in the program's one source file. |
 | `multicore_platform.h` | A console shared under a lock, sending and taking IPIs, holding interrupts off, the MMU's context and TLB flushes, and TLB shootdown. |
 
 All of these are written for this project. Where a routine has an AJIT
@@ -24,6 +25,6 @@ load also works, and the routines themselves work the same either way.
 
 The startup file, `crt0_multicore.s`, stays in `compiler/`, where a test's
 `STARTUP` line looks for it. The tests of these routines are in
-`validation/multicore/sync_library/`, `atomics/`, `devices/`, `interrupts/` and `tlb_shootdown/`, and
-the "Programming the Multicore System" page of the documentation explains how
-to use them.
+`validation/multicore/sync_library/`, `atomics/`, `devices/`, `interrupts/`, `tlb_shootdown/` and
+`openmp/`, and the "Programming the Multicore System" and "OpenMP Programs" pages of the
+documentation explain how to use them.

@@ -13,7 +13,7 @@
       
       
       
-        <link rel="prev" href="programming.html">
+        <link rel="prev" href="openmp.html">
       
       
         <link rel="next" href="debugging.html">
@@ -1502,6 +1502,34 @@
                 
   
   
+  
+  
+    <li class="md-nav__item">
+      <a href="openmp.html" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    OpenMP Programs
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+              
+            
+              
+                
+  
+  
     
   
   
@@ -2261,8 +2289,10 @@
 <h1 id="example-programs">Example Programs<a class="headerlink" href="#example-programs" title="Permanent link">&para;</a></h1>
 <p>Two complete programs show the patterns of <a href="programming.html">Programming the Multicore
 System</a> at work. Both are bare-metal C programs, with
-no operating system and no runtime library beyond the startup file.
-Both are also tests in the validation suite, in
+no operating system and no runtime library beyond the startup file. A
+third, on the <a href="openmp.html#a-worked-example">OpenMP Programs</a> page, does
+the work of the second with one pragma.
+All are also tests in the validation suite, in
 <code>validation/multicore/examples/</code>, so they are known to run on both
 models, under every cpp scheduling strategy, with the caches in use or
 not.</p>
@@ -2394,7 +2424,7 @@ core has produced.</p>
 still correct as it stands.</p>
 <hr />
 <h2 id="building-and-running-the-examples">Building and running the examples<a class="headerlink" href="#building-and-running-the-examples" title="Permanent link">&para;</a></h2>
-<p>Both examples build and run like any other test in the suite.</p>
+<p>The examples build and run like any other test in the suite.</p>
 <div class="language-sh highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="nb">source</span><span class="w"> </span>compiler/toolchain_env.sh
 </span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>validation/build_hex.py<span class="w"> </span>validation/multicore/examples
 </span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a>validation/run_tests.py<span class="w"> </span>validation/multicore/examples<span class="w"> </span>--config<span class="w"> </span>multicore

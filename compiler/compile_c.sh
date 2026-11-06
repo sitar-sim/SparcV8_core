@@ -30,6 +30,10 @@
 # takes interrupts). A bare file name is looked up in this folder.
 # validation/build_hex.py sets it from a test's STARTUP line.
 #
+# Environment variable COMPILE_OPTIONS, if set, adds options for compiling
+# the program (e.g. -fopenmp). validation/build_hex.py sets it from a test's
+# COMPILE_OPTIONS line.
+#
 # compiler/include/ is on the include path, for the bare-metal headers
 # there (Ref compiler/include/, e.g. ajit_access_routines.h), and so is
 # compiler/sparc_common_routines/, the routines for multicore programs.
@@ -79,10 +83,10 @@ case "$CRT0_SOURCE" in
 esac
 INCLUDE_DIR="$SCRIPT_DIR/include"
 sparc-elf-as -Av8 -am "$CRT0_SOURCE" -o "$PREFIX.crt0.o"
-sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib -I"$INCLUDE_DIR" -I"$SCRIPT_DIR/sparc_common_routines" "$INPUT" -o "$PREFIX.s"
+sparc-elf-gcc -S -O0 -Wall -mcpu=v8 -ffreestanding -nostdlib $COMPILE_OPTIONS -I"$INCLUDE_DIR" -I"$SCRIPT_DIR/sparc_common_routines" "$INPUT" -o "$PREFIX.s"
 sparc-elf-as -Av8 -am "$PREFIX.s" -o "$PREFIX.o"
 sparc-elf-ld -T "$SCRIPT_DIR/sparc.ld" -e _start "$PREFIX.crt0.o" "$PREFIX.o" "$STUBS_OBJ" -o "$PREFIX.elf"
-sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data "$PREFIX.elf" \
+sparc-elf-readelf --hex-dump=.text --hex-dump=.rodata --hex-dump=.data --hex-dump=.tdata "$PREFIX.elf" \
 	| python3 "$SCRIPT_DIR/hexdump_to_memimage.py" > "$PREFIX.hex"
 sparc-elf-objdump -d "$PREFIX.elf" > "$PREFIX.objdump"
 echo "" >> "$PREFIX.objdump"

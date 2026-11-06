@@ -2,8 +2,10 @@
 
 Two complete programs show the patterns of [Programming the Multicore
 System](programming.md) at work. Both are bare-metal C programs, with
-no operating system and no runtime library beyond the startup file.
-Both are also tests in the validation suite, in
+no operating system and no runtime library beyond the startup file. A
+third, on the [OpenMP Programs](openmp.md#a-worked-example) page, does
+the work of the second with one pragma.
+All are also tests in the validation suite, in
 `validation/multicore/examples/`, so they are known to run on both
 models, under every cpp scheduling strategy, with the caches in use or
 not.
@@ -153,7 +155,7 @@ still correct as it stands.
 
 ## Building and running the examples
 
-Both examples build and run like any other test in the suite.
+The examples build and run like any other test in the suite.
 
 ```sh
 source compiler/toolchain_env.sh

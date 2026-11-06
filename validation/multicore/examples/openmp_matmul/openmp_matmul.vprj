@@ -1,0 +1,13 @@
+SOURCES = openmp_matmul.c
+STARTUP = crt0_multicore.s
+COMPILE_OPTIONS = -fopenmp
+MAX_CYCLES = 53500000
+RUN_OPTIONS = --coherent
+
+
+RESULTS =
+o0=0x00000001
+o1=0x002aa000
+core1.o0=0x00000001
+core2.o0=0x00000001
+core3.o0=0x00000001
